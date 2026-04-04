@@ -1,4 +1,10 @@
-﻿const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+const browserHost =
+  typeof window !== "undefined" ? window.location.hostname : "";
+const isLocalDevHost =
+  browserHost === "localhost" || browserHost === "127.0.0.1";
+
+export const API_URL =
+  import.meta.env.VITE_API_URL || (isLocalDevHost ? "http://localhost:4000" : "");
 
 async function parseJson(res: Response) {
   const text = await res.text();
@@ -15,6 +21,10 @@ export async function request<T>(
   path: string,
   options: RequestInit & { json?: any } = {}
 ): Promise<{ res: Response; data: T & ApiError }> {
+  if (!API_URL) {
+    throw new Error("VITE_API_URL is not configured for this deployment");
+  }
+
   const headers: Record<string, string> = {
     ...(options.headers as any),
   };
