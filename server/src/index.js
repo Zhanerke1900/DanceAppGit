@@ -24,6 +24,16 @@ const allowedOrigins = (
   .map((origin) => origin.trim())
   .filter(Boolean);
 
+function isAllowedOrigin(origin) {
+  if (!origin) return true;
+  if (allowedOrigins.includes(origin)) return true;
+
+  // Allow Vercel preview/production domains without requiring every preview URL in env.
+  if (/^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin)) return true;
+
+  return false;
+}
+
 app.use((req, res, next) => {
   const startedAt = Date.now();
 
@@ -44,11 +54,12 @@ app.use(cookieParser());
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (isAllowedOrigin(origin)) {
         callback(null, true);
         return;
       }
 
+      console.log(`CORS blocked for origin: ${origin}`);
       callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
