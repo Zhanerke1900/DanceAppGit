@@ -24,23 +24,32 @@ The frontend is ready for Vercel via `vercel.json`.
 Set this environment variable in Vercel:
 
 ```bash
-VITE_API_URL=https://your-render-backend.onrender.com
+VITE_API_URL=https://your-service.up.railway.app
 ```
 
-### Render
+### Railway
 
-The backend is ready for Render via `render.yaml`.
+The backend is ready for Railway via `server/railway.json`.
 
-Set these backend environment variables in Render:
+For an isolated monorepo on Railway:
+
+```bash
+Root Directory: /server
+Config as Code path: /server/railway.json
+Start Command: npm start
+```
+
+Set these backend environment variables in Railway:
 
 ```bash
 MONGO_URI=...
 JWT_SECRET=...
 JWT_EXPIRES_IN=7d
 QR_SECRET=...
+NODE_ENV=production
 FRONTEND_URL=https://your-frontend.vercel.app
 FRONTEND_URLS=http://localhost:5173,https://your-frontend.vercel.app
-BACKEND_URL=https://your-render-backend.onrender.com
+BACKEND_URL=https://your-service.up.railway.app
 SMTP_HOST=...
 SMTP_PORT=465
 SMTP_SECURE=true
