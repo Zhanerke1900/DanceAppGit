@@ -10,16 +10,20 @@ import { isAdminEmail } from "../utils/admin.js";
 import { getUserRole } from "../middleware/role.middleware.js";
 
 const router = express.Router();
+const isProduction = process.env.NODE_ENV === "production";
+
+function authCookieOptions() {
+  return {
+    httpOnly: true,
+    sameSite: isProduction ? "none" : "lax",
+    secure: isProduction,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  };
+}
 
 function setAuthCookie(res, userId) {
   const token = jwt.sign({ sub: userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
-
-  res.cookie("token", token, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: false, // dev
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
+  res.cookie("token", token, authCookieOptions());
 }
 
 function publicUser(u) {
@@ -366,7 +370,7 @@ router.post("/change-password", requireAuth, async (req, res) => {
 
 // LOGOUT
 router.post("/logout", async (req, res) => {
-  res.clearCookie("token");
+  res.clearCookie("token", authCookieOptions());
   return res.json({ message: "Logged out" });
 });
 

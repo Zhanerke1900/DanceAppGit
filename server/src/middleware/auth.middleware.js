@@ -5,6 +5,7 @@ export async function requireAuth(req, res, next) {
   try {
     const token =
       req.cookies?.token ||
+      req.cookies?.access_token ||
       (req.headers.authorization?.startsWith("Bearer ")
         ? req.headers.authorization.slice(7)
         : null);
@@ -16,6 +17,7 @@ export async function requireAuth(req, res, next) {
     if (!user) return res.status(401).json({ message: "Not authenticated" });
     if (user.accountStatus === "blocked") {
       res.clearCookie("token");
+      res.clearCookie("access_token");
       return res.status(403).json({
         message: "Your account has been blocked. Please contact support.",
         code: "ACCOUNT_BLOCKED",

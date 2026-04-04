@@ -1,4 +1,15 @@
-﻿import jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
+
+const isProduction = process.env.NODE_ENV === "production";
+
+function authCookieOptions() {
+  return {
+    httpOnly: true,
+    sameSite: isProduction ? "none" : "lax",
+    secure: isProduction,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  };
+}
 
 export function signAccessToken(userId) {
   const secret = process.env.JWT_SECRET;
@@ -8,18 +19,9 @@ export function signAccessToken(userId) {
 }
 
 export function setAuthCookie(res, token) {
-  res.cookie("access_token", token, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: false,
-    maxAge: 7 * 24 * 60 * 60 * 1000
-  });
+  res.cookie("access_token", token, authCookieOptions());
 }
 
 export function clearAuthCookie(res) {
-  res.clearCookie("access_token", {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: false
-  });
+  res.clearCookie("access_token", authCookieOptions());
 }
