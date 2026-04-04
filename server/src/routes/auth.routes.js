@@ -169,10 +169,13 @@ router.post("/resend-verification", async (req, res) => {
 // LOGIN
 router.post("/login", async (req, res) => {
   try {
+    const startedAt = Date.now();
     const { email, password } = req.body || {};
     const cleanEmail = String(email || "").trim().toLowerCase();
 
+    const findStartedAt = Date.now();
     const user = await User.findOne({ email: cleanEmail });
+    const findDuration = Date.now() - findStartedAt;
     if (!user) return res.status(401).json({ message: "Invalid email or password" });
     if (user.accountStatus === "blocked") {
       return res.status(403).json({
@@ -189,13 +192,18 @@ router.post("/login", async (req, res) => {
       });
     }
 
+    const passwordStartedAt = Date.now();
     const ok = await bcrypt.compare(String(password || ""), user.passwordHash);
+    const passwordDuration = Date.now() - passwordStartedAt;
     if (!ok) {
       // ✅ это то, что ты хотела: “неправильный пароль”
       return res.status(401).json({ message: "Incorrect password", code: "WRONG_PASSWORD" });
     }
 
     setAuthCookie(res, user._id.toString());
+    console.log(
+      `LOGIN ${cleanEmail} ok (findUser=${findDuration}ms, compare=${passwordDuration}ms, total=${Date.now() - startedAt}ms)`
+    );
 
     return res.json({ user: publicUser(user), message: "Logged in" });
   } catch (e) {

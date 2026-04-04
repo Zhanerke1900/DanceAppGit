@@ -24,6 +24,19 @@ const allowedOrigins = (
   .map((origin) => origin.trim())
   .filter(Boolean);
 
+app.use((req, res, next) => {
+  const startedAt = Date.now();
+
+  res.on("finish", () => {
+    const duration = Date.now() - startedAt;
+    if (req.path.startsWith("/api/") || req.path === "/health") {
+      console.log(`${req.method} ${req.originalUrl} -> ${res.statusCode} (${duration}ms)`);
+    }
+  });
+
+  next();
+});
+
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
