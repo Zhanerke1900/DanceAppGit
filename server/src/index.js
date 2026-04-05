@@ -15,24 +15,6 @@ import validatorRoutes from "./routes/validator.routes.js";
 dotenv.config();
 
 const app = express();
-const allowedOrigins = (
-  process.env.FRONTEND_URLS ||
-  process.env.FRONTEND_URL ||
-  "http://localhost:5173"
-)
-  .split(",")
-  .map((origin) => origin.trim())
-  .filter(Boolean);
-
-function isAllowedOrigin(origin) {
-  if (!origin) return true;
-  if (allowedOrigins.includes(origin)) return true;
-
-  // Allow Vercel preview/production domains without requiring every preview URL in env.
-  if (/^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin)) return true;
-
-  return false;
-}
 
 app.use((req, res, next) => {
   const startedAt = Date.now();
@@ -53,16 +35,11 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin(origin, callback) {
-      if (isAllowedOrigin(origin)) {
-        callback(null, true);
-        return;
-      }
-
-      console.log(`CORS blocked for origin: ${origin}`);
-      callback(new Error("Not allowed by CORS"));
-    },
+    origin: true,
     credentials: true,
+    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    optionsSuccessStatus: 204,
   })
 );
 

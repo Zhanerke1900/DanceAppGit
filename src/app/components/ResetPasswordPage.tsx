@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from "react";
-
-const API_URL = ((import.meta as any).env?.VITE_API_URL) || "http://localhost:4000";
+import { API_URL } from "../api/http";
 
 
 export function ResetPasswordPage({ onGoHome, onOpenLogin }: { onGoHome: () => void; onOpenLogin: () => void }) {
@@ -35,6 +34,7 @@ export function ResetPasswordPage({ onGoHome, onOpenLogin }: { onGoHome: () => v
 
     try {
       setStatus("loading");
+      if (!API_URL) throw new Error("VITE_API_URL is not configured for this deployment");
       const res = await fetch(`${API_URL}/api/auth/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

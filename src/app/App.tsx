@@ -804,7 +804,7 @@ useEffect(() => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground">
+    <div className="min-h-screen bg-black font-sans text-gray-100 selection:bg-purple-900 selection:text-purple-100">
       <style dangerouslySetInnerHTML={{ __html: `
         .custom-scrollbar::-webkit-scrollbar {
           width: 4px;

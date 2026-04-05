@@ -50,12 +50,12 @@ NODE_ENV=production
 FRONTEND_URL=https://your-frontend.vercel.app
 FRONTEND_URLS=http://localhost:5173,https://your-frontend.vercel.app
 BACKEND_URL=https://your-service.up.railway.app
-SMTP_HOST=...
-SMTP_PORT=465
-SMTP_SECURE=true
-SMTP_USER=...
-SMTP_PASS=...
-SMTP_FROM=...
+RESEND_API_KEY=re_xxxxxxxxx
+RESEND_FROM="DanceTime <onboarding@your-domain.com>"
 ```
 
 `FRONTEND_URLS` supports multiple comma-separated origins, which is useful if you want local development and production frontend to work at the same time.
+
+For Resend, create an API key and verify a sending domain or subdomain before using your `RESEND_FROM` address.
+
+SMTP variables are still supported as a fallback, but Resend is the recommended option for hosted deployments.

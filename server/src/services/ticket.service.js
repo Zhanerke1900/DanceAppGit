@@ -10,6 +10,14 @@ import { sendTicketEmail } from "../utils/sendTicketEmail.js";
 import { sendRefundEmail } from "../utils/sendEmails.js";
 import { isAdminEmail } from "../utils/admin.js";
 
+function queueTicketEmailDelivery({ email, fullName, event, tickets }) {
+  setTimeout(() => {
+    sendTicketEmail({ email, fullName, event, tickets }).catch((error) => {
+      console.error("Ticket email error:", error?.message || error);
+    });
+  }, 0);
+}
+
 function toEventSnapshot(eventData = {}) {
   return {
     title: String(eventData.title || "").trim(),
@@ -125,6 +133,7 @@ export function publicTicket(ticket) {
 }
 
 export async function purchaseTicketsForUser({ user, eventId, eventData, ticketDetails }) {
+  const startedAt = Date.now();
   const items = normalizeTicketItems(ticketDetails);
   if (items.length === 0) {
     throw new Error("At least one ticket item is required");
@@ -252,8 +261,12 @@ export async function purchaseTicketsForUser({ user, eventId, eventData, ticketD
 
       ticketDraft.qrPayload = signed.payload;
       ticketDraft.qrSignature = signed.signature;
-      ticketDraft.qrCodeDataUrl = await generateTicketQrDataUrl(signed.token);
-      ticketDraft.barcodeDataUrl = await generateTicketBarcodeDataUrl(ticketCode);
+      const [qrCodeDataUrl, barcodeDataUrl] = await Promise.all([
+        generateTicketQrDataUrl(signed.token),
+        generateTicketBarcodeDataUrl(ticketCode),
+      ]);
+      ticketDraft.qrCodeDataUrl = qrCodeDataUrl;
+      ticketDraft.barcodeDataUrl = barcodeDataUrl;
 
       await ticketDraft.save();
       createdTickets.push({
@@ -263,21 +276,21 @@ export async function purchaseTicketsForUser({ user, eventId, eventData, ticketD
     }
   }
 
-  try {
-    await sendTicketEmail({
-      email: user.email,
-      fullName: user.fullName,
-      event: snapshot,
-      tickets: createdTickets.map(({ document, qrToken }) => ({
-        ticketCode: document.ticketCode,
-        ticketType: document.ticketType,
-        price: document.price,
-        qrToken,
-      })),
-    });
-  } catch (error) {
-    console.error("Ticket email error:", error?.message || error);
-  }
+  queueTicketEmailDelivery({
+    email: user.email,
+    fullName: user.fullName,
+    event: snapshot,
+    tickets: createdTickets.map(({ document, qrToken }) => ({
+      ticketCode: document.ticketCode,
+      ticketType: document.ticketType,
+      price: document.price,
+      qrToken,
+    })),
+  });
+
+  console.log(
+    `TICKET PURCHASE ${user.email} ok (quantity=${totalQuantity}, tickets=${createdTickets.length}, total=${Date.now() - startedAt}ms)`
+  );
 
   return {
     order,

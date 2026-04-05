@@ -41,7 +41,7 @@ export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) 
     <div className="relative" ref={dropdownRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-accent transition-colors text-muted-foreground hover:text-foreground group"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors text-gray-300 hover:text-purple-400 group"
       >
         <MapPin className="w-4 h-4 text-purple-500" />
         <span className="font-medium text-sm">{selectedCity}</span>
@@ -56,18 +56,18 @@ export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) 
               initial={{ opacity: 0, y: 10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              className="absolute top-full left-0 mt-2 w-64 bg-popover border border-border rounded-xl shadow-[0_18px_40px_rgba(35,31,54,0.12)] z-[60] overflow-hidden hidden md:block"
+              className="absolute top-full left-0 mt-2 w-64 bg-gray-900 border border-white/10 rounded-xl shadow-2xl z-[60] overflow-hidden hidden md:block"
             >
-              <div className="p-3 border-b border-border/70">
+              <div className="p-3 border-b border-white/5">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                   <input 
                     type="text"
                     placeholder="Search city..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     autoFocus
-                    className="w-full bg-input-background border border-border rounded-lg py-2 pl-9 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500/50 transition-colors"
+                    className="w-full bg-black/50 border border-white/10 rounded-lg py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-purple-500/50 transition-colors"
                   />
                 </div>
               </div>
@@ -79,8 +79,8 @@ export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) 
                       onClick={() => handleSelect(city)}
                       className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
                         selectedCity === city 
-                          ? 'bg-purple-600/10 text-purple-700' 
-                          : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                          ? 'bg-purple-600/10 text-purple-400' 
+                          : 'text-gray-400 hover:bg-white/5 hover:text-white'
                       }`}
                     >
                       {city}
@@ -88,7 +88,7 @@ export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) 
                     </button>
                   ))
                 ) : (
-                  <div className="px-3 py-4 text-center text-sm text-muted-foreground">
+                  <div className="px-3 py-4 text-center text-sm text-gray-500">
                     No cities found
                   </div>
                 )}
@@ -110,30 +110,30 @@ export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) 
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed bottom-0 left-0 right-0 h-[80vh] bg-popover rounded-t-3xl z-[80] flex flex-col md:hidden border-t border-border"
+              className="fixed bottom-0 left-0 right-0 h-[80vh] bg-gray-900 rounded-t-3xl z-[80] flex flex-col md:hidden border-t border-white/10"
             >
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
                     <MapPin className="w-5 h-5 text-purple-500" />
                     Select City
                   </h3>
                   <button 
                     onClick={() => setIsOpen(false)}
-                    className="p-2 rounded-full bg-accent text-muted-foreground"
+                    className="p-2 rounded-full bg-white/5 text-gray-400"
                   >
                     <X className="w-6 h-6" />
                   </button>
                 </div>
                 
                 <div className="relative mb-6">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                   <input 
                     type="text"
                     placeholder="Search city in Kazakhstan..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-input-background border border-border rounded-2xl py-4 pl-12 pr-4 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 transition-colors"
+                    className="w-full bg-black/50 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-purple-500 transition-colors"
                   />
                 </div>
               </div>
@@ -147,7 +147,7 @@ export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) 
                       className={`w-full flex items-center justify-between p-4 rounded-2xl text-lg font-medium transition-all ${
                         selectedCity === city 
                           ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20' 
-                          : 'bg-card text-foreground border border-border active:scale-95'
+                          : 'bg-white/5 text-gray-300 active:scale-95'
                       }`}
                     >
                       {city}
