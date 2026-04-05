@@ -1,5 +1,6 @@
 import React from 'react';
 import { ShoppingBag, Calendar, MapPin, CreditCard, Download, CheckCircle2, Clock } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 type PurchaseItem = {
   id: string;
@@ -20,6 +21,21 @@ interface PurchaseHistoryProps {
 }
 
 export const PurchaseHistory: React.FC<PurchaseHistoryProps> = ({ purchases }) => {
+  const { language } = useI18n();
+  const copy = {
+    emptyTitle: language === 'ru' ? 'История покупок пуста' : language === 'kk' ? 'Сатып алу тарихы бос' : 'No Purchase History',
+    emptyText: language === 'ru' ? 'Вы еще не покупали билеты. Начните изучать танцевальные события!' : language === 'kk' ? 'Сіз әлі билет сатып алған жоқсыз. Би іс-шараларын қарап шығыңыз!' : "You haven't purchased any tickets yet. Start exploring amazing dance events!",
+    browse: language === 'ru' ? 'Смотреть события' : language === 'kk' ? 'Іс-шараларды көру' : 'Browse Events',
+    title: language === 'ru' ? 'История покупок' : language === 'kk' ? 'Сатып алу тарихы' : 'Purchase History',
+    orders: language === 'ru' ? 'заказов' : language === 'kk' ? 'тапсырыс' : 'orders',
+    orderId: language === 'ru' ? 'Номер заказа' : language === 'kk' ? 'Тапсырыс нөмірі' : 'Order ID',
+    eventDate: language === 'ru' ? 'Дата события' : language === 'kk' ? 'Іс-шара күні' : 'Event Date',
+    venue: language === 'ru' ? 'Место' : language === 'kk' ? 'Өтетін орны' : 'Venue',
+    purchaseDate: language === 'ru' ? 'Дата покупки' : language === 'kk' ? 'Сатып алу күні' : 'Purchase Date',
+    tickets: language === 'ru' ? 'Билеты' : language === 'kk' ? 'Билеттер' : 'Tickets',
+    totalAmount: language === 'ru' ? 'Общая сумма' : language === 'kk' ? 'Жалпы сома' : 'Total Amount',
+    receipt: language === 'ru' ? 'Скачать чек' : language === 'kk' ? 'Чекті жүктеу' : 'Download Receipt',
+  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -36,16 +52,16 @@ export const PurchaseHistory: React.FC<PurchaseHistoryProps> = ({ purchases }) =
 
   if (purchases.length === 0) {
     return (
-      <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-purple-500/20 rounded-2xl p-12 text-center">
-        <div className="inline-flex items-center justify-center w-20 h-20 bg-purple-600/20 rounded-full mb-6">
-          <ShoppingBag className="w-10 h-10 text-purple-400" />
+      <div className="surface-card rounded-2xl p-12 text-center">
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full mb-6 bg-[rgba(108,82,193,0.16)] dark:bg-purple-600/20">
+          <ShoppingBag className="w-10 h-10 text-primary dark:text-purple-400" />
         </div>
-        <h2 className="text-2xl font-bold text-white mb-4">No Purchase History</h2>
-        <p className="text-gray-400 mb-8">
-          You haven't purchased any tickets yet. Start exploring amazing dance events!
+        <h2 className="text-2xl font-bold text-foreground mb-4 dark:text-white">{copy.emptyTitle}</h2>
+        <p className="text-muted-foreground mb-8 dark:text-gray-400">
+          {copy.emptyText}
         </p>
         <button className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-xl font-medium transition-all duration-300 shadow-lg shadow-purple-600/20 hover:shadow-purple-600/40">
-          Browse Events
+          {copy.browse}
         </button>
       </div>
     );
@@ -55,8 +71,8 @@ export const PurchaseHistory: React.FC<PurchaseHistoryProps> = ({ purchases }) =
     <div className="space-y-6">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Purchase History</h1>
-          <p className="text-gray-400">{purchases.length} order{purchases.length !== 1 ? 's' : ''}</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2 dark:text-white">{copy.title}</h1>
+          <p className="text-muted-foreground dark:text-gray-400">{purchases.length} {copy.orders}</p>
         </div>
       </div>
 
@@ -64,13 +80,13 @@ export const PurchaseHistory: React.FC<PurchaseHistoryProps> = ({ purchases }) =
         {purchases.map((purchase) => (
           <div
             key={purchase.id}
-            className="bg-gradient-to-br from-gray-900 to-gray-950 border border-purple-500/20 rounded-2xl overflow-hidden"
+            className="surface-card rounded-2xl overflow-hidden"
           >
             {/* Header */}
-            <div className="bg-gray-800/50 px-6 py-4 border-b border-purple-500/20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex flex-col items-start justify-between gap-4 border-b border-border bg-[rgba(94,72,166,0.12)] px-6 py-4 sm:flex-row sm:items-center dark:border-purple-500/20 dark:bg-gray-800/50">
               <div>
-                <p className="text-gray-400 text-sm">Order ID</p>
-                <p className="text-white font-mono font-medium">{purchase.id}</p>
+                <p className="text-muted-foreground text-sm dark:text-gray-400">{copy.orderId}</p>
+                <p className="text-foreground font-mono font-medium dark:text-white">{purchase.id}</p>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-green-400" />
@@ -90,50 +106,50 @@ export const PurchaseHistory: React.FC<PurchaseHistoryProps> = ({ purchases }) =
 
               {/* Content */}
               <div className="flex-1 p-6">
-                <h3 className="text-xl font-bold text-white mb-4">{purchase.event}</h3>
+                <h3 className="text-xl font-bold text-foreground mb-4 dark:text-white">{purchase.event}</h3>
 
                 <div className="grid md:grid-cols-2 gap-4 mb-6">
                   <div>
-                    <div className="flex items-center gap-2 text-gray-400 mb-2">
-                      <Calendar className="w-4 h-4 text-purple-400" />
-                      <span className="text-sm">Event Date</span>
+                    <div className="flex items-center gap-2 text-muted-foreground mb-2 dark:text-gray-400">
+                      <Calendar className="w-4 h-4 text-primary dark:text-purple-400" />
+                      <span className="text-sm">{copy.eventDate}</span>
                     </div>
-                    <p className="text-white">{formatDate(purchase.date)}</p>
+                    <p className="text-foreground dark:text-white">{formatDate(purchase.date)}</p>
                   </div>
 
                   <div>
-                    <div className="flex items-center gap-2 text-gray-400 mb-2">
-                      <MapPin className="w-4 h-4 text-purple-400" />
-                      <span className="text-sm">Venue</span>
+                    <div className="flex items-center gap-2 text-muted-foreground mb-2 dark:text-gray-400">
+                      <MapPin className="w-4 h-4 text-primary dark:text-purple-400" />
+                      <span className="text-sm">{copy.venue}</span>
                     </div>
-                    <p className="text-white">{purchase.venue}, {purchase.city}</p>
+                    <p className="text-foreground dark:text-white">{purchase.venue}, {purchase.city}</p>
                   </div>
 
                   <div>
-                    <div className="flex items-center gap-2 text-gray-400 mb-2">
-                      <CreditCard className="w-4 h-4 text-purple-400" />
-                      <span className="text-sm">Purchase Date</span>
+                    <div className="flex items-center gap-2 text-muted-foreground mb-2 dark:text-gray-400">
+                      <CreditCard className="w-4 h-4 text-primary dark:text-purple-400" />
+                      <span className="text-sm">{copy.purchaseDate}</span>
                     </div>
-                    <p className="text-white">{formatDate(purchase.purchaseDate)}</p>
+                    <p className="text-foreground dark:text-white">{formatDate(purchase.purchaseDate)}</p>
                   </div>
 
                   <div>
-                    <div className="flex items-center gap-2 text-gray-400 mb-2">
-                      <Clock className="w-4 h-4 text-purple-400" />
-                      <span className="text-sm">Tickets</span>
+                    <div className="flex items-center gap-2 text-muted-foreground mb-2 dark:text-gray-400">
+                      <Clock className="w-4 h-4 text-primary dark:text-purple-400" />
+                      <span className="text-sm">{copy.tickets}</span>
                     </div>
-                    <p className="text-white">{purchase.tickets}x {purchase.ticketType}</p>
+                    <p className="text-foreground dark:text-white">{purchase.tickets}x {purchase.ticketType}</p>
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-gray-800">
+                <div className="flex flex-col items-start justify-between gap-4 border-t border-border pt-4 sm:flex-row sm:items-center dark:border-gray-800">
                   <div>
-                    <p className="text-gray-400 text-sm mb-1">Total Amount</p>
-                    <p className="text-2xl font-bold text-white">{formatPrice(purchase.total)}</p>
+                    <p className="text-muted-foreground text-sm mb-1 dark:text-gray-400">{copy.totalAmount}</p>
+                    <p className="text-2xl font-bold text-foreground dark:text-white">{formatPrice(purchase.total)}</p>
                   </div>
-                  <button className="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300">
+                  <button className="flex items-center gap-2 rounded-xl px-6 py-3 font-medium transition-all duration-300 bg-[rgba(94,72,166,0.12)] text-foreground hover:bg-[rgba(94,72,166,0.18)] dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white">
                     <Download className="w-4 h-4" />
-                    Download Receipt
+                    {copy.receipt}
                   </button>
                 </div>
               </div>

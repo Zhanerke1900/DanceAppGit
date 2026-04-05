@@ -1,11 +1,14 @@
 import React from 'react';
 import { Ticket, Twitter, Instagram, Linkedin, Facebook } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 interface FooterProps {
   onBecomeOrganizer?: () => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({ onBecomeOrganizer }) => {
+  const { t } = useI18n();
+
   return (
     <footer className="bg-gray-900 text-gray-400 py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -20,7 +23,7 @@ export const Footer: React.FC<FooterProps> = ({ onBecomeOrganizer }) => {
               </span>
             </div>
             <p className="max-w-xs mb-8">
-              The leading ticketing platform for the global dance community. Experience the movement.
+              {t('footer.description')}
             </p>
             <div className="flex gap-4">
               <a href="#" className="hover:text-purple-400 transition-colors"><Twitter className="w-5 h-5" /></a>
@@ -31,47 +34,47 @@ export const Footer: React.FC<FooterProps> = ({ onBecomeOrganizer }) => {
           </div>
 
           <div>
-            <h4 className="text-white font-bold mb-6">Platform</h4>
+            <h4 className="text-white font-bold mb-6">{t('footer.platform')}</h4>
             <ul className="space-y-4">
-              <li><a href="#" className="hover:text-white transition-colors">Find Events</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">{t('footer.findEvents')}</a></li>
               <li>
                 <button 
                   onClick={onBecomeOrganizer}
                   className="hover:text-white transition-colors text-left"
                 >
-                  Become an Organizer
+                  {t('common.becomeOrganizer')}
                 </button>
               </li>
-              <li><a href="#" className="hover:text-white transition-colors">Pricing</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Support</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">{t('footer.pricing')}</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">{t('footer.support')}</a></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-white font-bold mb-6">Company</h4>
+            <h4 className="text-white font-bold mb-6">{t('footer.company')}</h4>
             <ul className="space-y-4">
-              <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Press</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">{t('footer.aboutUs')}</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">{t('footer.careers')}</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">{t('footer.press')}</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">{t('footer.contact')}</a></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-white font-bold mb-6">Legal</h4>
+            <h4 className="text-white font-bold mb-6">{t('footer.legal')}</h4>
             <ul className="space-y-4">
-              <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Cookie Policy</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">{t('footer.privacy')}</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">{t('footer.terms')}</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">{t('footer.cookies')}</a></li>
             </ul>
           </div>
         </div>
 
         <div className="pt-8 border-t border-gray-800 text-sm flex flex-col md:flex-row justify-between items-center gap-4">
-          <p>© 2026 DanceTime Technologies Inc. All rights reserved.</p>
+          <p>{t('footer.copyright')}</p>
           <div className="flex gap-8">
-            <a href="#" className="hover:text-white transition-colors">English (US)</a>
-            <a href="#" className="hover:text-white transition-colors">Status</a>
+            <a href="#" className="hover:text-white transition-colors">{t('footer.englishUs')}</a>
+            <a href="#" className="hover:text-white transition-colors">{t('footer.status')}</a>
           </div>
         </div>
       </div>

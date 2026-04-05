@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { motion, AnimatePresence } from 'motion/react';
+import { useI18n } from '../i18n';
 
 interface Activity {
   id: string;
@@ -36,6 +37,48 @@ interface TicketSelectionProps {
 }
 
 export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = false }: TicketSelectionProps) => {
+  const { language } = useI18n();
+  const copy = {
+    back: language === 'ru' ? 'Назад к событиям' : language === 'kk' ? 'Іс-шараларға оралу' : 'Back to Events',
+    soldOut: language === 'ru' ? 'Распродано' : language === 'kk' ? 'Сатылып кетті' : 'Sold out',
+    ticketsLeft: (count: number | string) => language === 'ru' ? `Осталось ${count} билетов` : language === 'kk' ? `${count} билет қалды` : `${count} tickets left`,
+    aboutEvent: language === 'ru' ? 'О событии' : language === 'kk' ? 'Іс-шара туралы' : 'About the Event',
+    keyHighlights: language === 'ru' ? 'Ключевые особенности' : language === 'kk' ? 'Негізгі ерекшеліктер' : 'Key Highlights',
+    whoShouldAttend: language === 'ru' ? 'Для кого это событие' : language === 'kk' ? 'Кімге арналған' : 'Who Should Attend',
+    activities: language === 'ru' ? 'Активности события' : language === 'kk' ? 'Іс-шара белсенділіктері' : 'Event Activities',
+    organizerPreview: language === 'ru' ? 'Предпросмотр публичной страницы организатора.' : language === 'kk' ? 'Ұйымдастырушы бетінің алдын ала көрінісі.' : 'Organizer preview of the public event page.',
+    selectActivities: language === 'ru' ? 'Выберите отдельные активности или полный пропуск на всё событие' : language === 'kk' ? 'Жеке белсенділіктерді немесе толық рұқсатты таңдаңыз' : 'Select individual activities or get the Full Event Pass for all',
+    fullPass: language === 'ru' ? 'Полный пропуск на событие (скидка 20%)' : language === 'kk' ? 'Іс-шараға толық рұқсат (20% жеңілдік)' : 'Full Event Pass (Save 20%)',
+    unavailableBecauseSoldOut: language === 'ru' ? 'Недоступно, потому что одна активность распродана' : language === 'kk' ? 'Қолжетімсіз, себебі бір белсенділік сатылып кетті' : 'Unavailable because one activity is sold out',
+    overallLimit: language === 'ru' ? 'В вашем выборе достигнут общий лимит билетов' : language === 'kk' ? 'Таңдауыңызда жалпы билет лимиті толды' : 'Overall ticket limit reached in your selection',
+    accessAll: language === 'ru' ? 'Доступ ко всем активностям' : language === 'kk' ? 'Барлық белсенділікке қолжетімділік' : 'Access to all activities',
+    fullSchedule: language === 'ru' ? 'Полное расписание события' : language === 'kk' ? 'Іс-шараның толық кестесі' : 'Full Event Schedule',
+    location: language === 'ru' ? 'Локация' : language === 'kk' ? 'Орны' : 'Location',
+    openMaps: language === 'ru' ? 'Открыть в картах' : language === 'kk' ? 'Картадан ашу' : 'Open in Maps',
+    selectTickets: language === 'ru' ? 'Выберите билеты' : language === 'kk' ? 'Билеттерді таңдаңыз' : 'Select Tickets',
+    eventTicket: language === 'ru' ? 'Билет на событие' : language === 'kk' ? 'Іс-шара билеті' : 'Event Ticket',
+    danceStyle: language === 'ru' ? 'Стиль танца' : language === 'kk' ? 'Би стилі' : 'Dance Style',
+    ageRestriction: language === 'ru' ? 'Возрастное ограничение' : language === 'kk' ? 'Жас шектеуі' : 'Age Restriction',
+    allAges: language === 'ru' ? 'Для всех возрастов' : language === 'kk' ? 'Барлық жасқа' : 'All Ages',
+    dressCode: language === 'ru' ? 'Дресс-код' : language === 'kk' ? 'Дресс-код' : 'Dress Code',
+    noDressCode: language === 'ru' ? 'Без особого дресс-кода' : language === 'kk' ? 'Арнайы дресс-код жоқ' : 'No specific dress code',
+    schedule: language === 'ru' ? 'Расписание' : language === 'kk' ? 'Кесте' : 'Schedule',
+    scheduleItem: language === 'ru' ? 'Пункт расписания' : language === 'kk' ? 'Кесте тармағы' : 'Schedule item',
+    orderSummary: language === 'ru' ? 'Сводка заказа' : language === 'kk' ? 'Тапсырыс қорытындысы' : 'Order Summary',
+    selectTicketsContinue: language === 'ru' ? 'Выберите билеты, чтобы продолжить' : language === 'kk' ? 'Жалғастыру үшін билеттерді таңдаңыз' : 'Select tickets to continue',
+    allActivitiesIncluded: language === 'ru' ? 'Все активности включены' : language === 'kk' ? 'Барлық белсенділік кіреді' : 'All activities included',
+    subtotal: language === 'ru' ? 'Подытог' : language === 'kk' ? 'Аралық сома' : 'Subtotal',
+    serviceFee: language === 'ru' ? 'Сервисный сбор' : language === 'kk' ? 'Қызмет ақысы' : 'Service Fee',
+    total: language === 'ru' ? 'Итого' : language === 'kk' ? 'Жалпы' : 'Total',
+    proceedCheckout: language === 'ru' ? 'Перейти к оплате' : language === 'kk' ? 'Төлемге өту' : 'Proceed to Checkout',
+    securePayment: language === 'ru' ? 'Безопасная SSL-оплата' : language === 'kk' ? 'Қауіпсіз SSL төлемі' : 'Secure SSL Payment',
+    instantDelivery: language === 'ru' ? 'Мгновенная доставка' : language === 'kk' ? 'Жедел жеткізу' : 'Instant delivery',
+    ticketsSentEmail: language === 'ru' ? 'Билеты будут отправлены на вашу почту.' : language === 'kk' ? 'Билеттер email-іңізге жіберіледі.' : 'Tickets sent to your email.',
+    verifiedTickets: language === 'ru' ? 'Проверенные билеты' : language === 'kk' ? 'Расталған билеттер' : 'Verified tickets',
+    authenticGuarantee: language === 'ru' ? '100% гарантия подлинности.' : language === 'kk' ? '100% түпнұсқалық кепілдігі.' : '100% authentic guarantee.',
+    totalAmount: language === 'ru' ? 'Общая сумма' : language === 'kk' ? 'Жалпы сома' : 'Total Amount',
+    checkout: language === 'ru' ? 'Оформить' : language === 'kk' ? 'Рәсімдеу' : 'Checkout',
+  };
   // Check if this is a special program event (has activities with organizer info)
   const isSpecialProgram = event.eventType === 'special-program' || (event.activities && event.activities.length > 0 && event.longDescription);
   
@@ -198,7 +241,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
           className="flex items-center gap-2 text-gray-400 hover:text-white mb-8 transition-colors group"
         >
           <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-          Back to Events
+          {copy.back}
         </button>
 
         {ticketLimit > 0 && (
@@ -207,7 +250,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
               ? 'border-red-500/30 bg-red-500/10 text-red-300'
               : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
           }`}>
-            {isSoldOut ? 'Sold out' : `${remainingTickets ?? ticketLimit} tickets left`}
+            {isSoldOut ? copy.soldOut : copy.ticketsLeft(remainingTickets ?? ticketLimit)}
           </div>
         )}
 
@@ -257,7 +300,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                     <div className="bg-purple-500/20 p-2 rounded-lg">
                       <Info className="w-5 h-5 text-purple-400" />
                     </div>
-                    <h2 className="text-2xl font-bold text-white">About the Event</h2>
+                    <h2 className="text-2xl font-bold text-white">{copy.aboutEvent}</h2>
                   </div>
                   
                   <div className="relative z-10 space-y-8">
@@ -273,7 +316,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                       <div className="pt-6 border-t border-white/10">
                         <div className="flex items-center gap-2 mb-4">
                           <Sparkles className="w-5 h-5 text-purple-400" />
-                          <h3 className="text-lg font-bold text-white">Key Highlights</h3>
+                          <h3 className="text-lg font-bold text-white">{copy.keyHighlights}</h3>
                         </div>
                         <ul className="grid sm:grid-cols-2 gap-3">
                           {event.highlights.map((highlight: string, index: number) => (
@@ -291,7 +334,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                       <div className="pt-6 border-t border-white/10">
                         <div className="flex items-center gap-2 mb-3">
                           <Target className="w-5 h-5 text-purple-400" />
-                          <h3 className="text-lg font-bold text-white">Who Should Attend</h3>
+                          <h3 className="text-lg font-bold text-white">{copy.whoShouldAttend}</h3>
                         </div>
                         <p className="text-gray-400 text-sm leading-relaxed">{event.targetAudience}</p>
                       </div>
@@ -302,9 +345,9 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                 {/* 3. Sub-Events List - Sequential */}
                 <section className="space-y-6">
                   <div>
-                    <h2 className="text-3xl font-bold text-white mb-2">Event Activities</h2>
+                    <h2 className="text-3xl font-bold text-white mb-2">{copy.activities}</h2>
                     <p className="text-gray-400">
-                      {readOnly ? 'Organizer preview of the public event page.' : 'Select individual activities or get the Full Event Pass for all'}
+                      {readOnly ? copy.organizerPreview : copy.selectActivities}
                     </p>
                   </div>
 
@@ -324,14 +367,14 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                       <Percent className="w-6 h-6" />
                     </div>
                     <div className="text-left flex-1">
-                      <div className={`font-bold text-lg ${fullPassSelected ? 'text-white' : 'text-white group-hover:text-purple-400'}`}>Full Event Pass (Save 20%)</div>
+                      <div className={`font-bold text-lg ${fullPassSelected ? 'text-white' : 'text-white group-hover:text-purple-400'}`}>{copy.fullPass}</div>
                       {hasSoldOutLimitedActivity && (
-                        <div className="mt-1 text-sm text-red-300">Unavailable because one activity is sold out</div>
+                        <div className="mt-1 text-sm text-red-300">{copy.unavailableBecauseSoldOut}</div>
                       )}
                       {!hasSoldOutLimitedActivity && !fullPassSelected && !canAddMoreTickets && (
-                        <div className="mt-1 text-sm text-red-300">Overall ticket limit reached in your selection</div>
+                        <div className="mt-1 text-sm text-red-300">{copy.overallLimit}</div>
                       )}
-                      <div className={`text-sm ${fullPassSelected ? 'text-purple-100' : 'text-gray-500'}`}>{formatCurrency(fullPassPrice)} • Access to all activities</div>
+                      <div className={`text-sm ${fullPassSelected ? 'text-purple-100' : 'text-gray-500'}`}>{formatCurrency(fullPassPrice)} • {copy.accessAll}</div>
                     </div>
                     {fullPassSelected && <Check className="w-6 h-6 text-white" />}
                   </button>}
@@ -403,7 +446,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                                 {formatCurrency(activity.price)}
                               </div>
                               {activitySoldOut ? (
-                                <div className="text-sm font-semibold text-red-400">Sold out</div>
+                                <div className="text-sm font-semibold text-red-400">{copy.soldOut}</div>
                               ) : activityRemaining !== null ? (
                                 <div className="text-sm font-medium text-emerald-400">{activityRemaining} left</div>
                               ) : null}
@@ -452,7 +495,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                     <div className="bg-purple-500/20 p-2 rounded-lg">
                       <Clock className="w-5 h-5 text-purple-400" />
                     </div>
-                    <h2 className="text-2xl font-bold text-white">Full Event Schedule</h2>
+                    <h2 className="text-2xl font-bold text-white">{copy.fullSchedule}</h2>
                   </div>
 
                   <div className="space-y-6 relative">
@@ -496,7 +539,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                     <div className="bg-purple-500/20 p-2 rounded-lg">
                       <MapPin className="w-5 h-5 text-purple-400" />
                     </div>
-                    <h2 className="text-xl font-bold text-white">Location</h2>
+                    <h2 className="text-xl font-bold text-white">{copy.location}</h2>
                   </div>
 
                   <div className="space-y-4">
@@ -519,7 +562,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                         rel="noreferrer"
                         className="inline-flex mt-4 rounded-full bg-purple-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-purple-700"
                       >
-                        Open in Maps
+                        {copy.openMaps}
                       </a>
                     )}
                   </div>
@@ -530,7 +573,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
               <>
                 {/* 1. Event Header & Tickets */}
                 <section>
-                  <h1 className="text-3xl font-bold text-white mb-6">Select Tickets</h1>
+                  <h1 className="text-3xl font-bold text-white mb-6">{copy.selectTickets}</h1>
                   <div className="bg-gray-900 rounded-2xl p-6 border border-white/10 overflow-hidden relative">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/10 blur-[80px] rounded-full pointer-events-none" />
                     
@@ -584,7 +627,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                             <div className="bg-purple-500/10 p-2 rounded-lg">
                               <Ticket className="w-5 h-5 text-purple-400" />
                             </div>
-                            <span className="font-bold text-white text-xl">Event Ticket</span>
+                            <span className="font-bold text-white text-xl">{copy.eventTicket}</span>
                           </div>
                           <div className="text-sm text-gray-400 mt-2 ml-10">General admission (single ticket type for dance events)</div>
                           <div className="text-purple-400 font-bold mt-3 sm:hidden ml-10">
@@ -654,7 +697,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                           <Percent className="w-5 h-5" />
                         </div>
                         <div className="text-left">
-                          <div className={`font-bold text-sm ${fullPassSelected ? 'text-white' : 'text-white group-hover:text-purple-400'}`}>Full Event Pass (Save 20%)</div>
+                          <div className={`font-bold text-sm ${fullPassSelected ? 'text-white' : 'text-white group-hover:text-purple-400'}`}>{copy.fullPass}</div>
                           {hasSoldOutLimitedActivity && (
                             <div className="mt-1 text-xs text-red-300">Unavailable because one activity is sold out</div>
                           )}
@@ -744,7 +787,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                                     {formatCurrency(activity.price)}
                                   </div>
                                   {activitySoldOut ? (
-                                    <div className="text-sm font-semibold text-red-400">Sold out</div>
+                                    <div className="text-sm font-semibold text-red-400">{copy.soldOut}</div>
                                   ) : activityRemaining !== null ? (
                                     <div className="text-sm font-medium text-emerald-400">{activityRemaining} left</div>
                                   ) : null}
@@ -795,7 +838,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                     <div className="bg-purple-500/20 p-2 rounded-lg">
                       <Info className="w-5 h-5 text-purple-400" />
                     </div>
-                    <h2 className="text-xl font-bold text-white">About the Event</h2>
+                    <h2 className="text-xl font-bold text-white">{copy.aboutEvent}</h2>
                   </div>
                   
                   <div className="prose prose-invert max-w-none text-gray-400 mb-8 leading-relaxed">
@@ -804,21 +847,21 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
 
                   <div className="grid sm:grid-cols-3 gap-6 pt-6 border-t border-white/10">
                     <div>
-                      <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Dance Style</div>
+                      <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{copy.danceStyle}</div>
                       <div className="text-white font-medium">{event.category}</div>
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Age Restriction</div>
+                      <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{copy.ageRestriction}</div>
                       <div className="flex items-center gap-2 text-white font-medium">
                         <AlertCircle className="w-4 h-4 text-yellow-500" />
-                        {event.ageRestriction || 'All Ages'}
+                        {event.ageRestriction || copy.allAges}
                       </div>
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Dress Code</div>
+                      <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{copy.dressCode}</div>
                       <div className="flex items-center gap-2 text-white font-medium">
                         <Shirt className="w-4 h-4 text-purple-400" />
-                        {event.dressCode || 'No specific dress code'}
+                        {event.dressCode || copy.noDressCode}
                       </div>
                     </div>
                   </div>
@@ -830,7 +873,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                     <div className="bg-purple-500/20 p-2 rounded-lg">
                       <Clock className="w-5 h-5 text-purple-400" />
                     </div>
-                    <h2 className="text-xl font-bold text-white">Schedule</h2>
+                    <h2 className="text-xl font-bold text-white">{copy.schedule}</h2>
                   </div>
 
                   <div className="space-y-6 relative">
@@ -841,7 +884,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                           {item.time}
                         </div>
                         <div>
-                          <div className="font-bold text-white text-lg group-hover:text-purple-400 transition-colors">{item.title || 'Schedule item'}</div>
+                          <div className="font-bold text-white text-lg group-hover:text-purple-400 transition-colors">{item.title || copy.scheduleItem}</div>
                           {(item.description || item.location) && (
                             <div className="text-gray-500 text-sm">{item.description || item.location}</div>
                           )}
@@ -857,7 +900,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                     <div className="bg-purple-500/20 p-2 rounded-lg">
                       <MapPin className="w-5 h-5 text-purple-400" />
                     </div>
-                    <h2 className="text-xl font-bold text-white">Location</h2>
+                    <h2 className="text-xl font-bold text-white">{copy.location}</h2>
                   </div>
 
                   <div className="space-y-4">
@@ -880,7 +923,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                         rel="noreferrer"
                         className="inline-flex mt-4 rounded-full bg-purple-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-purple-700"
                       >
-                        Open in Maps
+                        {copy.openMaps}
                       </a>
                     )}
                   </div>
@@ -896,21 +939,21 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
               <div className="bg-gray-900 rounded-2xl p-6 border border-white/10 shadow-2xl shadow-black/50">
                 <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
                   <ShoppingCart className="w-5 h-5 text-purple-400" />
-                  Order Summary
+                  {copy.orderSummary}
                 </h3>
                 
                 <div className="space-y-4 text-sm max-h-[40vh] overflow-y-auto custom-scrollbar pr-2 mb-6">
                   {ticketQuantity === 0 && (!isSpecialProgram || (!fullPassSelected && Object.keys(selectedActivities).length === 0)) ? (
                     <div className="text-gray-500 text-center py-10 bg-black/20 rounded-xl border border-dashed border-white/5">
                       <div className="text-4xl mb-3 opacity-20">🎫</div>
-                      <p>Select tickets to continue</p>
+                      <p>{copy.selectTicketsContinue}</p>
                     </div>
                   ) : (
                     <div className="space-y-4">
                       {ticketQuantity > 0 && (
                         <div className="flex justify-between items-start">
                           <div>
-                            <div className="text-white font-medium">Event Ticket</div>
+                            <div className="text-white font-medium">{copy.eventTicket}</div>
                             <div className="text-gray-500 text-xs">x{ticketQuantity} at {formatCurrency(basePrice)}</div>
                           </div>
                           <div className="text-white font-bold">{formatCurrency(ticketQuantity * basePrice)}</div>
@@ -919,8 +962,8 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                       {isSpecialProgram && fullPassSelected && (
                         <div className="flex justify-between items-start pt-2 border-t border-white/5">
                           <div>
-                            <div className="text-purple-400 font-bold">Full Event Pass</div>
-                            <div className="text-gray-500 text-xs">All activities included</div>
+                            <div className="text-purple-400 font-bold">{copy.fullPass}</div>
+                            <div className="text-gray-500 text-xs">{copy.allActivitiesIncluded}</div>
                           </div>
                           <div className="text-purple-400 font-bold">{formatCurrency(fullPassPrice)}</div>
                         </div>
@@ -943,18 +986,18 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
 
                 <div className="border-t border-white/10 pt-4 space-y-3">
                   <div className="flex justify-between items-center text-gray-400">
-                    <span>Subtotal</span>
+                    <span>{copy.subtotal}</span>
                     <span className="text-white font-medium">{formatCurrency(subtotal)}</span>
                   </div>
                   <div className="flex justify-between items-center text-gray-400">
                     <div className="flex items-center gap-1.5">
-                      <span>Service Fee</span>
+                      <span>{copy.serviceFee}</span>
                       <Info className="w-3.5 h-3.5 text-gray-600" />
                     </div>
                     <span className="text-white font-medium">{formatCurrency(serviceFee)}</span>
                   </div>
                   <div className="flex justify-between items-center text-white font-extrabold text-2xl pt-3 border-t border-white/10">
-                    <span>Total</span>
+                    <span>{copy.total}</span>
                     <span className="text-purple-500 drop-shadow-[0_0_8px_rgba(168,85,247,0.3)]">{formatCurrency(total)}</span>
                   </div>
                 </div>
@@ -964,13 +1007,13 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                   onClick={handleCheckout}
                   className="w-full mt-6 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-800 disabled:text-gray-500 text-white py-4 rounded-xl font-bold transition-all shadow-lg shadow-purple-600/20 disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
                 >
-                  {isSoldOut ? 'Sold Out' : 'Proceed to Checkout'}
+                  {isSoldOut ? copy.soldOut : copy.proceedCheckout}
                   <ArrowLeft className="w-4 h-4 rotate-180 group-hover:translate-x-1 transition-transform" />
                 </button>
                 
                 <div className="flex items-center justify-center gap-2 mt-4">
                   <ShieldCheck className="w-4 h-4 text-green-500/80" />
-                  <span className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Secure SSL Payment</span>
+                  <span className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">{copy.securePayment}</span>
                 </div>
               </div>
 
@@ -979,16 +1022,16 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                 <div className="bg-gray-900/40 rounded-xl p-3 border border-white/5">
                   <div className="text-white font-bold text-[10px] mb-1 flex items-center gap-1.5">
                     <div className="w-1 h-1 rounded-full bg-purple-500" />
-                    Instant delivery
+                    {copy.instantDelivery}
                   </div>
-                  <p className="text-[9px] text-gray-500">Tickets sent to your email.</p>
+                  <p className="text-[9px] text-gray-500">{copy.ticketsSentEmail}</p>
                 </div>
                 <div className="bg-gray-900/40 rounded-xl p-3 border border-white/5">
                   <div className="text-white font-bold text-[10px] mb-1 flex items-center gap-1.5">
                     <div className="w-1 h-1 rounded-full bg-purple-500" />
-                    Verified tickets
+                    {copy.verifiedTickets}
                   </div>
-                  <p className="text-[9px] text-gray-500">100% authentic guarantee.</p>
+                  <p className="text-[9px] text-gray-500">{copy.authenticGuarantee}</p>
                 </div>
               </div>
             </div>
@@ -1001,7 +1044,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
       {!readOnly && <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-md border-t border-white/10 p-4 z-40 safe-area-bottom shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div className="flex flex-col">
-            <span className="text-gray-400 text-[10px] uppercase font-bold tracking-wider">Total Amount</span>
+            <span className="text-gray-400 text-[10px] uppercase font-bold tracking-wider">{copy.totalAmount}</span>
             <span className="text-xl font-bold text-white">{formatCurrency(total)}</span>
           </div>
           <button 
@@ -1009,7 +1052,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
             onClick={handleCheckout}
             className="flex-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-800 disabled:text-gray-500 text-white py-3.5 px-6 rounded-xl font-bold transition-all shadow-lg shadow-purple-600/20 disabled:shadow-none disabled:cursor-not-allowed text-center"
           >
-            {isSoldOut ? 'Sold Out' : 'Checkout'}
+            {isSoldOut ? copy.soldOut : copy.checkout}
           </button>
         </div>
       </div>}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, Search, ChevronDown, X, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useI18n } from '../i18n';
 
 const cities = [
   "Astana", "Almaty", "Shymkent", "Karaganda", 
@@ -16,6 +17,7 @@ export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) 
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { t } = useI18n();
 
   const filteredCities = cities.filter(city => 
     city.toLowerCase().includes(searchQuery.toLowerCase())
@@ -63,7 +65,7 @@ export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) 
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                   <input 
                     type="text"
-                    placeholder="Search city..."
+                    placeholder={t('common.searchCity')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     autoFocus
@@ -89,7 +91,7 @@ export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) 
                   ))
                 ) : (
                   <div className="px-3 py-4 text-center text-sm text-gray-500">
-                    No cities found
+                    {t('common.noResults')}
                   </div>
                 )}
               </div>
@@ -116,7 +118,7 @@ export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) 
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-xl font-bold text-white flex items-center gap-2">
                     <MapPin className="w-5 h-5 text-purple-500" />
-                    Select City
+                    {t('common.selectCity')}
                   </h3>
                   <button 
                     onClick={() => setIsOpen(false)}
@@ -130,7 +132,7 @@ export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) 
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                   <input 
                     type="text"
-                    placeholder="Search city in Kazakhstan..."
+                    placeholder={t('common.searchCityKazakhstan')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full bg-black/50 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-purple-500 transition-colors"

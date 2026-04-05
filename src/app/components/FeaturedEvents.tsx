@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { EventCard } from './EventCard';
 import { motion, AnimatePresence } from 'motion/react';
 import { MapPinOff } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 interface FeaturedEventsProps {
   selectedCity: string;
@@ -287,6 +288,18 @@ export const FeaturedEvents = ({
   showExploreMoreButton = true,
 }: FeaturedEventsProps) => {
   const [activeCategory, setActiveCategory] = useState('All');
+  const { t, language } = useI18n();
+
+  const categoryLabels: Record<string, string> = {
+    All: t('featuredEvents.all'),
+    'Hip Hop': language === 'ru' ? 'Хип-хоп' : language === 'kk' ? 'Хип-хоп' : 'Hip Hop',
+    Contemporary: language === 'ru' ? 'Контемпорари' : language === 'kk' ? 'Контемпорари' : 'Contemporary',
+    Ballet: language === 'ru' ? 'Балет' : language === 'kk' ? 'Балет' : 'Ballet',
+    Latin: language === 'ru' ? 'Латино' : language === 'kk' ? 'Латын' : 'Latin',
+    Ballroom: language === 'ru' ? 'Бальные' : language === 'kk' ? 'Бал биі' : 'Ballroom',
+    Festival: language === 'ru' ? 'Фестиваль' : language === 'kk' ? 'Фестиваль' : 'Festival',
+    Traditional: language === 'ru' ? 'Традиционный' : language === 'kk' ? 'Дәстүрлі' : 'Traditional',
+  };
 
   const mergedEvents = expandedMode
     ? [...dynamicEvents, ...events, ...extraEvents]
@@ -313,11 +326,9 @@ export const FeaturedEvents = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 gap-8">
           <div>
-            <h2 className="text-3xl font-bold text-foreground mb-4">
-              Events in <span className="text-purple-600">{selectedCity}</span>
-            </h2>
+            <h2 className="text-3xl font-bold text-foreground mb-4">{t('featuredEvents.title', { city: selectedCity })}</h2>
             <p className="text-muted-foreground max-w-xl">
-              Discover and book tickets for the hottest dance performances, workshops, and competitions in {selectedCity}.
+              {t('featuredEvents.description', { city: selectedCity })}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -338,7 +349,7 @@ export const FeaturedEvents = ({
                     transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
                   />
                 )}
-                <span className="relative z-10">{category}</span>
+                <span className="relative z-10">{categoryLabels[category] || category}</span>
               </button>
             ))}
           </div>
@@ -363,7 +374,7 @@ export const FeaturedEvents = ({
                         key={`${eventId}-${index}`} 
                         id={eventId}
                         image={event.image}
-                        category={event.category}
+                        category={categoryLabels[event.category] || event.category}
                         title={event.title}
                         date={event.date}
                         location={event.location}
@@ -400,23 +411,25 @@ export const FeaturedEvents = ({
                   <MapPinOff className="w-12 h-12 text-purple-500" />
                 </div>
                 <h3 className="text-2xl font-bold text-foreground mb-3">
-                  No {activeCategory !== 'All' ? activeCategory : ''} events found in your city
+                  {t('featuredEvents.emptyTitle', {
+                    category: activeCategory !== 'All' ? (categoryLabels[activeCategory] || activeCategory) : '',
+                  })}
                 </h3>
                 <p className="text-muted-foreground max-w-sm mb-10 leading-relaxed">
-                  No events found in {selectedCity} for this style yet. Don't worry, there's plenty of dance elsewhere in Kazakhstan!
+                  {t('featuredEvents.emptyDescription', { city: selectedCity })}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button 
                     onClick={handleExploreOtherCities}
                     className="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-purple-600/20 active:scale-95"
                   >
-                    Explore other cities
+                    {t('featuredEvents.exploreOtherCities')}
                   </button>
                   <button 
                     onClick={() => setActiveCategory('All')}
                     className="surface-card px-8 py-3 text-foreground rounded-xl font-bold transition-all active:scale-95"
                   >
-                    View all styles in {selectedCity}
+                    {t('featuredEvents.viewAllStyles', { city: selectedCity })}
                   </button>
                 </div>
               </motion.div>
@@ -426,7 +439,7 @@ export const FeaturedEvents = ({
 
         {shouldShowExploreMoreButton && <div className="mt-20 text-center">
           <button onClick={onExploreMore ?? handleExploreOtherCities} className="surface-card inline-flex items-center gap-2 px-8 py-4 text-foreground rounded-2xl font-bold transition-all group">
-            Explore All Events
+            {t('common.exploreAllEvents')}
             <span className="text-xl group-hover:translate-x-1 transition-transform">→</span>
           </button>
         </div>}

@@ -11,6 +11,7 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { motion, AnimatePresence } from 'motion/react';
 import * as authApi from '../api/auth';
+import { useI18n } from '../i18n';
 
 type AuthView = 'login' | 'register' | 'forgot-password' | 'verification-sent';
 
@@ -35,6 +36,7 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [generalError, setGeneralError] = useState('');
+  const { t } = useI18n();
 
   const resetForm = () => {
     setEmail('');
@@ -71,12 +73,12 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
     setEmailError('');
 
     if (!validateEmail(email)) {
-      setEmailError('Please enter a valid email address');
+      setEmailError(t('auth.validEmail'));
       return;
     }
 
     if (!password) {
-      setPasswordError('Password is required');
+      setPasswordError(t('auth.passwordRequired'));
       return;
     }
 
@@ -99,13 +101,13 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
       resetForm();
     } catch (err: any) {
       if (err?.code === 'EMAIL_NOT_VERIFIED' || String(err?.message || '').toLowerCase().includes('verify')) {
-        setGeneralError('Please verify your email first. Check your inbox or resend below.');
+        setGeneralError(t('auth.verifyEmailFirst'));
         setView('verification-sent');
         setCountdown(60);
         return;
       }
 
-      setGeneralError(err?.message || 'Login failed');
+      setGeneralError(err?.message || t('auth.loginFailed'));
     } finally {
       setLoading(false);
     }
@@ -118,22 +120,22 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
     setPasswordError('');
 
     if (!fullName || fullName.length < 2) {
-      setGeneralError('Please enter your full name');
+      setGeneralError(t('auth.enterFullName'));
       return;
     }
 
     if (!validateEmail(email)) {
-      setEmailError('Please enter a valid email address');
+      setEmailError(t('auth.validEmail'));
       return;
     }
 
     if (password.length < 6) {
-      setPasswordError('Password must be at least 6 characters');
+      setPasswordError(t('auth.passwordMin'));
       return;
     }
 
     if (password !== confirmPassword) {
-      setPasswordError('Passwords do not match');
+      setPasswordError(t('auth.passwordsMismatch'));
       return;
     }
 
@@ -149,9 +151,9 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
       setView('verification-sent');
       setCountdown(60);
     } catch (err: any) {
-      const msg = String(err?.message || 'Registration failed');
+      const msg = String(err?.message || t('auth.registrationFailed'));
       if (msg.toLowerCase().includes('already')) {
-        setEmailError('Email is already registered');
+        setEmailError(t('auth.emailRegistered'));
       } else {
         setGeneralError(msg);
       }
@@ -166,7 +168,7 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
     setGeneralError('');
 
     if (!validateEmail(email)) {
-      setEmailError('Please enter a valid email address');
+      setEmailError(t('auth.validEmail'));
       return;
     }
 
@@ -175,7 +177,7 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
       await authApi.forgotPassword(email.trim().toLowerCase());
       setView('verification-sent');
     } catch (err: any) {
-      setGeneralError(err?.message || 'Failed to send reset email');
+      setGeneralError(err?.message || t('auth.failedResetEmail'));
     } finally {
       setLoading(false);
     }
@@ -214,21 +216,21 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
               transition={{ duration: 0.2 }}
             >
               <DialogHeader>
-                <DialogTitle className="text-2xl text-white">Welcome Back</DialogTitle>
+                <DialogTitle className="text-2xl text-white">{t('auth.welcomeBack')}</DialogTitle>
                 <DialogDescription className="text-gray-400">
-                  Log in to access your tickets and favorite events
+                  {t('auth.loginDescription')}
                 </DialogDescription>
               </DialogHeader>
 
               <form onSubmit={handleLogin} className="space-y-4 mt-6">
                 <div className="space-y-2">
-                  <Label htmlFor="login-email" className="text-gray-300">Email</Label>
+                  <Label htmlFor="login-email" className="text-gray-300">{t('common.email')}</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                     <Input
                       id="login-email"
                       type="email"
-                      placeholder="your@email.com"
+                      placeholder={t('auth.yourEmail')}
                       value={email}
                       onChange={(e) => {
                         setEmail(e.target.value);
@@ -249,13 +251,13 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="login-password" className="text-gray-300">Password</Label>
+                  <Label htmlFor="login-password" className="text-gray-300">{t('common.password')}</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                     <Input
                       id="login-password"
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Enter your password"
+                      placeholder={t('auth.enterPassword')}
                       value={password}
                       onChange={(e) => {
                         setPassword(e.target.value);
@@ -295,7 +297,7 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
                     onClick={() => switchView('forgot-password')}
                     className="text-sm text-purple-400 hover:text-purple-300"
                   >
-                    Forgot password?
+                    {t('auth.forgotPassword')}
                   </button>
                 </div>
 
@@ -304,7 +306,7 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
                   disabled={loading || !isLoginFormValid}
                   className="w-full bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-600/30"
                 >
-                  {loading ? 'Logging in...' : 'Log In'}
+                  {loading ? t('common.loggingIn') : t('auth.login')}
                 </button>
 
                 <div className="relative my-6">
@@ -312,7 +314,7 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
                     <div className="w-full border-t border-gray-700"></div>
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-gray-900 text-gray-500">Don't have an account?</span>
+                    <span className="px-2 bg-gray-900 text-gray-500">{t('auth.noAccount')}</span>
                   </div>
                 </div>
 
@@ -321,7 +323,7 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
                   onClick={() => switchView('register')}
                   className="w-full border border-purple-500/30 text-purple-400 hover:bg-purple-500/10 py-3 rounded-lg font-semibold transition-colors"
                 >
-                  Create Account
+                  {t('auth.createAccount')}
                 </button>
               </form>
             </motion.div>
@@ -340,40 +342,40 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
                 className="flex items-center gap-2 text-gray-400 hover:text-gray-200 mb-4"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Back to login
+                {t('common.backToLogin')}
               </button>
 
               <DialogHeader>
-                <DialogTitle className="text-2xl text-white">Create Account</DialogTitle>
+                <DialogTitle className="text-2xl text-white">{t('auth.createAccount')}</DialogTitle>
                 <DialogDescription className="text-gray-400">
-                  Join DancePass and never miss a beat
+                  {t('auth.joinDanceTime')}
                 </DialogDescription>
               </DialogHeader>
 
               <div className="mt-4 space-y-2 p-4 bg-purple-600/10 border border-purple-500/20 rounded-lg">
                 <div className="flex items-center gap-2 text-sm text-gray-300">
                   <Ticket className="w-4 h-4 text-purple-400" />
-                  Save and manage your tickets
+                  {t('auth.saveTickets')}
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-300">
                   <Zap className="w-4 h-4 text-purple-400" />
-                  Faster checkout process
+                  {t('auth.fasterCheckout')}
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-300">
                   <Shield className="w-4 h-4 text-purple-400" />
-                  Secure and verified purchases
+                  {t('auth.securePurchases')}
                 </div>
               </div>
 
               <form onSubmit={handleRegister} className="space-y-4 mt-6">
                 <div className="space-y-2">
-                  <Label htmlFor="full-name" className="text-gray-300">Full Name</Label>
+                  <Label htmlFor="full-name" className="text-gray-300">{t('common.fullName')}</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                     <Input
                       id="full-name"
                       type="text"
-                      placeholder="Your full name"
+                      placeholder={t('auth.yourFullName')}
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       className="pl-10 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500"
@@ -383,13 +385,13 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="register-email" className="text-gray-300">Email</Label>
+                  <Label htmlFor="register-email" className="text-gray-300">{t('common.email')}</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                     <Input
                       id="register-email"
                       type="email"
-                      placeholder="your@email.com"
+                      placeholder={t('auth.yourEmail')}
                       value={email}
                       onChange={(e) => {
                         setEmail(e.target.value);
@@ -410,13 +412,13 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="register-password" className="text-gray-300">Password</Label>
+                  <Label htmlFor="register-password" className="text-gray-300">{t('common.password')}</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                     <Input
                       id="register-password"
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Create a password"
+                      placeholder={t('auth.createPassword')}
                       value={password}
                       onChange={(e) => {
                         setPassword(e.target.value);
@@ -444,13 +446,13 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="confirm-password" className="text-gray-300">Confirm Password</Label>
+                  <Label htmlFor="confirm-password" className="text-gray-300">{t('common.confirmPassword')}</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                     <Input
                       id="confirm-password"
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Repeat your password"
+                      placeholder={t('auth.repeatPassword')}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       className="pl-10 pr-10 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500"
@@ -471,7 +473,7 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
                   disabled={loading}
                   className="w-full bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-600/30"
                 >
-                  {loading ? 'Creating Account...' : 'Sign Up'}
+                  {loading ? t('common.creatingAccount') : t('auth.signUp')}
                 </button>
               </form>
             </motion.div>
@@ -490,25 +492,25 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
                 className="flex items-center gap-2 text-gray-400 hover:text-gray-200 mb-4"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Back to login
+                {t('common.backToLogin')}
               </button>
 
               <DialogHeader>
-                <DialogTitle className="text-2xl text-white">Reset Password</DialogTitle>
+                <DialogTitle className="text-2xl text-white">{t('common.resetPassword')}</DialogTitle>
                 <DialogDescription className="text-gray-400">
-                  Enter your email to receive reset instructions
+                  {t('auth.enterEmailReset')}
                 </DialogDescription>
               </DialogHeader>
 
               <form onSubmit={handleForgotPassword} className="space-y-6 mt-6">
                 <div className="space-y-2">
-                  <Label htmlFor="reset-email" className="text-gray-300">Email</Label>
+                  <Label htmlFor="reset-email" className="text-gray-300">{t('common.email')}</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                     <Input
                       id="reset-email"
                       type="email"
-                      placeholder="your@email.com"
+                      placeholder={t('auth.yourEmail')}
                       value={email}
                       onChange={(e) => {
                         setEmail(e.target.value);
@@ -540,7 +542,7 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
                   disabled={loading}
                   className="w-full bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-600/30"
                 >
-                  {loading ? 'Sending Instructions...' : 'Reset Password'}
+                  {loading ? t('common.sendInstructions') : t('auth.resetPasswordButton')}
                 </button>
               </form>
             </motion.div>
@@ -558,9 +560,9 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
               <div className="w-16 h-16 bg-purple-600/20 rounded-full flex items-center justify-center mx-auto mb-6">
                 <CheckCircle2 className="w-8 h-8 text-purple-500" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Check your inbox</h3>
+              <h3 className="text-xl font-bold text-white mb-2">{t('common.checkInbox')}</h3>
               <p className="text-gray-400 mb-8">
-                We've sent verification instructions to <br />
+                {t('auth.verificationSentTo')} <br />
                 <span className="text-white font-medium">{email}</span>
               </p>
 
@@ -572,9 +574,9 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
                       setLoading(true);
                       setGeneralError('');
                       await authApi.resendVerification(email.trim().toLowerCase());
-                      setGeneralError('Verification email sent again. Check your inbox.');
+                      setGeneralError(t('auth.verificationSentAgain'));
                     } catch (e: any) {
-                      setGeneralError((e && e.message) ? e.message : 'Could not resend verification email');
+                      setGeneralError((e && e.message) ? e.message : t('auth.verificationResendFailed'));
                     } finally {
                       setLoading(false);
                     }
@@ -582,7 +584,7 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
                   disabled={loading}
                   className="w-full mb-3 bg-purple-600/20 hover:bg-purple-600/30 text-purple-200 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
                 >
-                  {loading ? 'Sending...' : 'Resend verification email'}
+                  {loading ? t('common.sending') : t('common.resendVerificationEmail')}
                 </button>
               )}
 
@@ -597,7 +599,7 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
                 onClick={() => switchView('login')}
                 className="w-full bg-white/10 hover:bg-white/20 text-white py-3 rounded-lg font-semibold transition-colors"
               >
-                Back to Login
+                {t('common.backToLoginCta')}
               </button>
             </motion.div>
           )}

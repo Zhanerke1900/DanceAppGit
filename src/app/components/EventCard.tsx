@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, Heart, MapPin } from 'lucide-react';
 import { ImageWithFallback } from '@/app/components/figma/ImageWithFallback';
+import { useI18n } from '../i18n';
 
 interface EventCardProps {
   id?: string;
@@ -31,6 +32,7 @@ export const EventCard = ({
   soldOut = false,
 }: EventCardProps) => {
   const [isDark, setIsDark] = useState(false);
+  const { t } = useI18n();
 
   useEffect(() => {
     const updateTheme = () => {
@@ -106,7 +108,7 @@ export const EventCard = ({
                   borderColor: 'rgba(98,78,156,0.2)',
                 }
           }
-          aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          aria-label={isFavorite ? t('common.removeFromFavorites') : t('common.addToFavorites')}
         >
           <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
         </button>
@@ -127,12 +129,12 @@ export const EventCard = ({
         </div>
         <div className="flex items-center justify-between pt-4 border-t border-border/70">
           <div>
-            <span className="text-sm text-muted-foreground">Tickets from</span>
+            <span className="text-sm text-muted-foreground">{t('common.ticketsFrom')}</span>
             <div className={`text-xl font-bold ${isDark ? 'text-purple-400' : 'text-purple-700'}`}>{price}</div>
             {soldOut ? (
-              <div className="mt-1 text-sm font-semibold text-red-400">Sold out</div>
+              <div className="mt-1 text-sm font-semibold text-red-400">{t('common.soldOut')}</div>
             ) : remainingTickets !== null && remainingTickets <= 15 ? (
-              <div className="mt-1 text-sm font-medium text-emerald-500">{remainingTickets} tickets left</div>
+              <div className="mt-1 text-sm font-medium text-emerald-500">{t('common.ticketsLeft', { count: remainingTickets })}</div>
             ) : null}
           </div>
           <button 
@@ -148,7 +150,7 @@ export const EventCard = ({
                 : { background: 'linear-gradient(180deg, rgba(234,226,247,0.96) 0%, rgba(217,204,240,0.96) 100%)' }
             }
           >
-            {soldOut ? 'View Details' : 'Buy Ticket'}
+            {soldOut ? t('common.viewDetails') : t('common.buyTicket')}
           </button>
         </div>
       </div>

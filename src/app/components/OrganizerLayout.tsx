@@ -1,5 +1,6 @@
 import React from 'react';
 import { LayoutDashboard, Calendar, ShoppingCart, BarChart3, PlusSquare, ShieldCheck } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 interface OrganizerLayoutProps {
   children: React.ReactNode;
@@ -14,13 +15,14 @@ export const OrganizerLayout: React.FC<OrganizerLayoutProps> = ({
   onNavigate,
   canCreateEvent = true,
 }) => {
+  const { language } = useI18n();
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'events', label: 'Events', icon: Calendar },
-    { id: 'create-event', label: 'Create Event', icon: PlusSquare },
-    { id: 'validators', label: 'Validators', icon: ShieldCheck },
-    { id: 'orders', label: 'Orders', icon: ShoppingCart },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+    { id: 'dashboard', label: language === 'ru' ? 'Панель' : language === 'kk' ? 'Басқару панелі' : 'Dashboard', icon: LayoutDashboard },
+    { id: 'events', label: language === 'ru' ? 'События' : language === 'kk' ? 'Іс-шаралар' : 'Events', icon: Calendar },
+    { id: 'create-event', label: language === 'ru' ? 'Создать событие' : language === 'kk' ? 'Іс-шара құру' : 'Create Event', icon: PlusSquare },
+    { id: 'validators', label: language === 'ru' ? 'Валидаторы' : language === 'kk' ? 'Валидаторлар' : 'Validators', icon: ShieldCheck },
+    { id: 'orders', label: language === 'ru' ? 'Заказы' : language === 'kk' ? 'Тапсырыстар' : 'Orders', icon: ShoppingCart },
+    { id: 'analytics', label: language === 'ru' ? 'Аналитика' : language === 'kk' ? 'Аналитика' : 'Analytics', icon: BarChart3 },
   ] as const;
 
   return (
@@ -35,7 +37,7 @@ export const OrganizerLayout: React.FC<OrganizerLayoutProps> = ({
                 <LayoutDashboard className="w-6 h-6 text-white" />
               </div>
               <div>
-                <p className="text-purple-200 text-sm font-semibold uppercase tracking-[0.22em]">Organizer Portal</p>
+                <p className="text-purple-200 text-sm font-semibold uppercase tracking-[0.22em]">{language === 'ru' ? 'Портал организатора' : language === 'kk' ? 'Ұйымдастырушы порталы' : 'Organizer Portal'}</p>
               </div>
             </div>
           </div>

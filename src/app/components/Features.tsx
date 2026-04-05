@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Smartphone, BarChart3, Globe, ShieldCheck, Users, Zap } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 const features = [
   {
@@ -36,6 +37,7 @@ const features = [
 
 export const Features = () => {
   const [isDark, setIsDark] = useState(false);
+  const { t } = useI18n();
 
   useEffect(() => {
     const updateTheme = () => {
@@ -62,10 +64,10 @@ export const Features = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-20">
-          <h2 className={`font-semibold tracking-wide uppercase text-sm mb-3 ${isDark ? 'text-purple-400' : 'text-purple-700'}`}>Built for Organizers</h2>
-          <p className={`text-4xl font-bold mb-6 ${isDark ? 'text-white' : 'text-[#20172f]'}`}>Everything you need to host a sell-out dance event</p>
+          <h2 className={`font-semibold tracking-wide uppercase text-sm mb-3 ${isDark ? 'text-purple-400' : 'text-purple-700'}`}>{t('features.eyebrow')}</h2>
+          <p className={`text-4xl font-bold mb-6 ${isDark ? 'text-white' : 'text-[#20172f]'}`}>{t('features.title')}</p>
           <p className={`text-xl ${isDark ? 'text-gray-400' : 'text-[#544c6b]'}`}>
-            Powerful tools designed specifically for the unique needs of the dance community.
+            {t('features.description')}
           </p>
         </div>
 
@@ -80,9 +82,9 @@ export const Features = () => {
                 {feature.icon}
               </div>
               <div>
-                <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-[#221730]'}`}>{feature.title}</h3>
+                <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-[#221730]'}`}>{t(`features.items.${index}.title`)}</h3>
                 <p className={`leading-relaxed ${isDark ? 'text-gray-400' : 'text-[#554d6d]'}`}>
-                  {feature.description}
+                  {t(`features.items.${index}.description`)}
                 </p>
               </div>
             </div>

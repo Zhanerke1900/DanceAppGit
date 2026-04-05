@@ -4,10 +4,12 @@ import { ImageWithFallback } from '@/app/components/figma/ImageWithFallback';
 import { ArrowRight } from 'lucide-react';
 import darkHeroImage from './IMG_5075.PNG';
 import lightHeroImage from './IMG_5076.PNG';
+import { useI18n } from '../i18n';
 
 export const Hero = () => {
   const [themeImage, setThemeImage] = useState<string>(lightHeroImage);
   const [themeMode, setThemeMode] = useState<'light' | 'dark'>('light');
+  const { t } = useI18n();
 
   const scrollToEvents = () => {
     const eventsSection = document.getElementById('events');
@@ -37,7 +39,7 @@ export const Hero = () => {
       <div className="absolute inset-0 z-0">
         <ImageWithFallback
           src={themeImage}
-          alt="Dance performance"
+          alt={t('hero.performanceAlt')}
           className="w-full h-full object-cover"
         />
         {themeMode === 'dark' ? (
@@ -74,21 +76,21 @@ export const Hero = () => {
               ? 'bg-purple-500/20 border border-purple-500/30 text-purple-100'
               : 'bg-purple-500/12 border border-purple-500/20 text-purple-800'
           }`}>
-            The Biggest Dance Ticketing Platform in Kazakhstan
+            {t('hero.badge')}
           </span>
           <h1
             className={`text-5xl md:text-7xl font-bold leading-tight mb-6 ${
               themeMode === 'dark' ? 'text-white' : 'text-purple-950'
             }`}
           >
-            Experience Every{' '}
+            {t('hero.titleStart')}{' '}
             <span className={themeMode === 'dark' ? 'text-purple-300' : 'text-purple-600 underline decoration-purple-300/50'}>
-              Beat
+              {t('hero.titleAccent')}
             </span>{' '}
-            Live
+            {t('hero.titleEnd')}
           </h1>
           <p className={`text-xl mb-10 max-w-lg ${themeMode === 'dark' ? 'text-slate-200' : 'text-slate-700'}`}>
-            Streamline your dance events with the world's most intuitive ticketing system. From local workshops to global festivals.
+            {t('hero.description')}
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4">
@@ -96,7 +98,7 @@ export const Hero = () => {
               onClick={scrollToEvents}
               className="flex items-center justify-center gap-2 bg-purple-600 text-white px-8 py-4 rounded-xl font-semibold hover:bg-purple-700 transition-all hover:scale-105 shadow-lg shadow-purple-600/20"
             >
-              Explore Events <ArrowRight className="w-5 h-5" />
+              {t('hero.cta')} <ArrowRight className="w-5 h-5" />
             </button>
           </div>
 
@@ -110,14 +112,14 @@ export const Hero = () => {
                 }`}>
                    <ImageWithFallback 
                     src={`https://i.pravatar.cc/150?u=${i}`} 
-                    alt="User"
+                    alt={t('hero.userAlt')}
                     className="w-full h-full object-cover"
                    />
                 </div>
               ))}
             </div>
             <p className={`text-sm ${themeMode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
-              <span className={`font-bold ${themeMode === 'dark' ? 'text-white' : 'text-slate-900'}`}>200+</span> dancers already joined
+              <span className={`font-bold ${themeMode === 'dark' ? 'text-white' : 'text-slate-900'}`}>200+</span> {t('hero.joined')}
             </p>
           </div>
         </motion.div>

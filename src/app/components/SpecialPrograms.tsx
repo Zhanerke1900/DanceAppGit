@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Star, Trophy, GraduationCap, Tent, Clock, MapPin, ChevronRight, Ticket, LayoutGrid, Sparkles, Heart } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import { useI18n } from '../i18n';
 
 const programCategories = ['All', 'Festivals', 'Competitions', 'Masterclasses', 'Camps'];
 
@@ -483,6 +484,7 @@ export const SpecialPrograms = ({
   showExploreMoreButton = true,
 }: SpecialProgramsProps) => {
   const [activeCategory, setActiveCategory] = useState('All');
+  const { t } = useI18n();
 
   const mergedPrograms = [...dynamicPrograms, ...programs];
 
@@ -506,22 +508,30 @@ export const SpecialPrograms = ({
     }
   };
 
+  const categoryLabels: Record<string, string> = {
+    All: t('specialPrograms.all'),
+    Festivals: t('specialPrograms.festivals'),
+    Competitions: t('specialPrograms.competitions'),
+    Masterclasses: t('specialPrograms.masterclasses'),
+    Camps: t('specialPrograms.camps'),
+  };
+
   return (
-    <section className="py-24 bg-black border-t border-white/5 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-96 h-96 bg-purple-600/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
+    <section className="relative overflow-hidden border-t border-border py-24 bg-[linear-gradient(180deg,rgba(228,220,243,0.72)_0%,rgba(221,211,239,0.94)_100%)] dark:border-white/5 dark:bg-black dark:[background-image:none]">
+      <div className="absolute top-0 right-0 h-96 w-96 rounded-full bg-purple-600/8 blur-[120px] -translate-y-1/2 translate-x-1/2 dark:bg-purple-600/5" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-16 gap-8">
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <div className="w-10 h-[1px] bg-purple-500" />
-              <span className="text-purple-400 font-bold uppercase tracking-widest text-xs">Curated Experience</span>
+              <span className="text-purple-400 font-bold uppercase tracking-widest text-xs">{t('specialPrograms.eyebrow')}</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight">
-              Special <span className="text-purple-500">Programs</span>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight text-foreground dark:text-white">
+              {t('specialPrograms.titleStart')} <span className="text-purple-500">{t('specialPrograms.titleAccent')}</span>
             </h2>
-            <p className="text-gray-400 max-w-xl text-lg leading-relaxed">
-              Choose activities inside this event. From intensive masterclasses to week-long dance camps in <span className="text-white font-semibold">{selectedCity}</span>.
+            <p className="max-w-xl text-lg leading-relaxed text-muted-foreground dark:text-gray-400">
+              {t('specialPrograms.description', { city: selectedCity })}
             </p>
           </div>
 
@@ -533,7 +543,7 @@ export const SpecialPrograms = ({
                 className={`px-6 py-3 rounded-full text-sm font-bold transition-all cursor-pointer relative overflow-hidden ${
                   activeCategory === category 
                     ? 'text-white' 
-                    : 'bg-gray-900/50 text-gray-500 hover:bg-gray-800 hover:text-gray-300 border border-white/5'
+                    : 'surface-soft text-foreground hover:bg-[rgba(165,141,212,0.95)] hover:text-foreground dark:bg-gray-900/50 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300 dark:border dark:border-white/5'
                 }`}
               >
                 {activeCategory === category && (
@@ -545,7 +555,7 @@ export const SpecialPrograms = ({
                 )}
                 <div className="relative z-10 flex items-center gap-2">
                   {getIcon(category)}
-                  {category}
+                  {categoryLabels[category] || category}
                 </div>
               </button>
             ))}
@@ -562,7 +572,7 @@ export const SpecialPrograms = ({
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.4 }}
-                  className="group relative bg-gray-900/40 rounded-[32px] overflow-hidden border border-white/5 hover:border-purple-500/30 transition-all duration-500 hover:shadow-[0_20px_40px_-15px_rgba(168,85,247,0.1)]"
+                  className="group relative surface-card rounded-[32px] overflow-hidden transition-all duration-500 hover:border-purple-500/30 hover:shadow-[0_20px_40px_-15px_rgba(168,85,247,0.1)] dark:bg-gray-900/40 dark:border-white/5"
                 >
                   <div className="flex flex-col sm:flex-row h-full">
                     <div className="w-full sm:w-2/5 relative overflow-hidden h-48 sm:h-auto">
@@ -587,37 +597,37 @@ export const SpecialPrograms = ({
                         className={`absolute top-4 right-4 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full border backdrop-blur-md transition-all ${
                           favoriteIds.includes(program.id || `${program.title}-${program.time}-${program.location}`)
                             ? 'bg-rose-500/90 border-rose-300/70 text-white shadow-lg shadow-rose-900/30'
-                            : 'bg-black/55 border-white/10 text-white/85 hover:bg-rose-500/85 hover:border-rose-300/60 hover:text-white'
+                            : 'bg-[rgba(238,231,249,0.92)] border-[rgba(90,70,150,0.18)] text-primary hover:bg-rose-500/85 hover:border-rose-300/60 hover:text-white dark:bg-black/55 dark:border-white/10 dark:text-white/85'
                         }`}
-                        aria-label={favoriteIds.includes(program.id || `${program.title}-${program.time}-${program.location}`) ? 'Remove from favorites' : 'Add to favorites'}
+                        aria-label={favoriteIds.includes(program.id || `${program.title}-${program.time}-${program.location}`) ? t('common.removeFromFavorites') : t('common.addToFavorites')}
                       >
                         <Heart className={`w-4 h-4 ${favoriteIds.includes(program.id || `${program.title}-${program.time}-${program.location}`) ? 'fill-current' : ''}`} />
                       </button>
-                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent sm:bg-gradient-to-r sm:from-transparent sm:via-transparent sm:to-gray-900/20" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[rgba(45,35,67,0.55)] via-transparent to-transparent sm:bg-gradient-to-r sm:from-transparent sm:via-transparent sm:to-[rgba(45,35,67,0.16)] dark:from-gray-900 dark:via-transparent dark:to-transparent dark:sm:to-gray-900/20" />
                     </div>
 
                     <div className="p-8 sm:w-3/5 flex flex-col justify-between">
                       <div>
                         <div className="flex items-center gap-3 text-purple-400 font-bold text-xs uppercase tracking-widest mb-3">
                           {getIcon(program.category)}
-                          {program.category}
+                          {categoryLabels[program.category] || program.category}
                         </div>
-                        <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-purple-400 transition-colors">
+                        <h3 className="text-2xl font-bold mb-4 transition-colors text-foreground group-hover:text-primary dark:text-white dark:group-hover:text-purple-400">
                           {program.title}
                         </h3>
-                        <p className="text-gray-400 text-sm leading-relaxed mb-6 line-clamp-3">
+                        <p className="text-sm leading-relaxed mb-6 line-clamp-3 text-muted-foreground dark:text-gray-400">
                           {program.description}
                         </p>
                       </div>
 
-                      <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
+                      <div className="mt-8 flex items-center justify-between border-t border-border pt-6 dark:border-white/5">
                         <div>
-                          <span className="block text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1">Starts at</span>
-                          <span className="text-xl font-black text-white">{program.price}</span>
+                          <span className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-muted-foreground dark:text-gray-500">{t('common.startsAt')}</span>
+                          <span className="text-xl font-black text-foreground dark:text-white">{program.price}</span>
                           {program.soldOut ? (
-                            <span className="mt-1 block text-sm font-semibold text-red-400">Sold out</span>
+                            <span className="mt-1 block text-sm font-semibold text-red-400">{t('common.soldOut')}</span>
                           ) : program.remainingTickets !== undefined && program.remainingTickets !== null && program.remainingTickets <= 15 ? (
-                            <span className="mt-1 block text-sm font-medium text-emerald-400">{program.remainingTickets} tickets left</span>
+                            <span className="mt-1 block text-sm font-medium text-emerald-400">{t('common.ticketsLeft', { count: program.remainingTickets })}</span>
                           ) : null}
                         </div>
                         <button 
@@ -639,14 +649,17 @@ export const SpecialPrograms = ({
                 exit={{ opacity: 0 }}
                 className="col-span-1 md:col-span-2 flex flex-col items-center justify-center py-20 text-center"
               >
-                <div className="w-20 h-20 bg-purple-600/10 rounded-2xl flex items-center justify-center mb-6">
+                <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-purple-600/10">
                   <Sparkles className="w-10 h-10 text-purple-500/50" />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-2">
-                  No {activeCategory !== 'All' ? activeCategory.toLowerCase() : 'special programs'} in {selectedCity}
+                <h3 className="text-2xl font-bold text-foreground mb-2 dark:text-white">
+                  {t('specialPrograms.emptyTitle', {
+                    category: activeCategory !== 'All' ? (categoryLabels[activeCategory] || activeCategory).toLowerCase() : '',
+                    city: selectedCity,
+                  })}
                 </h3>
-                <p className="text-gray-400 max-w-sm mx-auto">
-                  We're constantly updating our programs. Check back soon or explore events in other cities.
+                <p className="max-w-sm mx-auto text-muted-foreground dark:text-gray-400">
+                  {t('specialPrograms.emptyDescription')}
                 </p>
               </motion.div>
             )}
@@ -658,7 +671,7 @@ export const SpecialPrograms = ({
               onClick={onExploreMore}
               className="inline-flex items-center gap-2 rounded-2xl bg-white/5 px-8 py-4 font-bold text-white transition-all hover:bg-white/10 group"
             >
-              Explore All Events
+              {t('common.exploreAllEvents')}
               <span className="text-xl transition-transform group-hover:translate-x-1">→</span>
             </button>
           </div>
