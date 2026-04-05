@@ -79,6 +79,10 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
     return timeA.localeCompare(timeB);
   });
 
+  const mapQuery = encodeURIComponent(event.address || event.location || '');
+  const mapUrl = event.address || event.location ? `https://www.google.com/maps/search/?api=1&query=${mapQuery}` : '';
+  const mapEmbedUrl = event.address || event.location ? `https://www.google.com/maps?q=${mapQuery}&output=embed` : '';
+
   const handleActivityIncrement = (activityId: string) => {
     if (!isSpecialProgram) return;
     if (fullPassSelected) return;
@@ -497,21 +501,27 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
 
                   <div className="space-y-4">
                     <div className="text-white font-medium text-lg">{event.location}</div>
-                    <div className="text-gray-400">123 Dostyk Avenue, {event.city || 'Almaty'}, Kazakhstan</div>
-                    
-                    {/* Map Placeholder */}
-                    <div className="w-full h-64 bg-gray-800 rounded-xl overflow-hidden relative group cursor-pointer mt-4 border border-white/5">
-                      <img 
-                        src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=1000" 
-                        alt="Map Preview" 
-                        className="w-full h-full object-cover opacity-50 group-hover:opacity-70 transition-opacity"
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <button className="bg-white text-black px-6 py-2 rounded-full font-bold shadow-lg hover:scale-105 transition-transform">
-                          Open in Maps
-                        </button>
+                    <div className="text-gray-400">{event.address || event.location || `${event.city || 'Unknown city'}, Kazakhstan`}</div>
+                    {mapUrl && (
+                      <div className="w-full h-64 overflow-hidden rounded-3xl border border-white/10 bg-slate-950/80 mt-4">
+                        <iframe
+                          src={mapEmbedUrl}
+                          title="Event location map"
+                          className="h-full w-full border-0"
+                          loading="lazy"
+                        />
                       </div>
-                    </div>
+                    )}
+                    {mapUrl && (
+                      <a
+                        href={mapUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex mt-4 rounded-full bg-purple-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-purple-700"
+                      >
+                        Open in Maps
+                      </a>
+                    )}
                   </div>
                 </section>
               </>
@@ -853,20 +863,26 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                   <div className="space-y-4">
                     <div className="text-white font-medium text-lg">{event.location}</div>
                     <div className="text-gray-400">{event.address || event.location || `${event.city}, Kazakhstan`}</div>
-                    
-                    {/* Map Placeholder */}
-                    <div className="w-full h-64 bg-gray-800 rounded-xl overflow-hidden relative group cursor-pointer mt-4 border border-white/5">
-                      <img 
-                        src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=1000" 
-                        alt="Map Preview" 
-                        className="w-full h-full object-cover opacity-50 group-hover:opacity-70 transition-opacity"
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <button className="bg-white text-black px-6 py-2 rounded-full font-bold shadow-lg hover:scale-105 transition-transform">
-                          Open in Maps
-                        </button>
+                    {mapUrl && (
+                      <div className="w-full h-64 overflow-hidden rounded-3xl border border-white/10 bg-slate-950/80 mt-4">
+                        <iframe
+                          src={mapEmbedUrl}
+                          title="Event location map"
+                          className="h-full w-full border-0"
+                          loading="lazy"
+                        />
                       </div>
-                    </div>
+                    )}
+                    {mapUrl && (
+                      <a
+                        href={mapUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex mt-4 rounded-full bg-purple-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-purple-700"
+                      >
+                        Open in Maps
+                      </a>
+                    )}
                   </div>
                 </section>
               </>

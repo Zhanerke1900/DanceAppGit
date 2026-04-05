@@ -67,15 +67,15 @@ export const MyTickets = ({ onBack, tickets = [], onOpenTicket, onRefundTicket }
   return (
     <div className="space-y-6">
       <div className="mb-8">
-        <h1 className="mb-2 text-3xl font-bold text-white">My Tickets</h1>
-        <p className="text-gray-400">Your real purchased tickets with unique QR and barcode.</p>
+        <h1 className="mb-2 text-3xl font-bold text-foreground">My Tickets</h1>
+        <p className="text-muted-foreground">Your real purchased tickets with unique QR and barcode.</p>
       </div>
 
       <div className="mb-8 flex gap-2 border-b border-purple-500/20">
         <button
           onClick={() => setActiveTab('upcoming')}
           className={`relative px-6 py-3 font-semibold transition-all ${
-            activeTab === 'upcoming' ? 'text-purple-400' : 'text-gray-400 hover:text-gray-300'
+            activeTab === 'upcoming' ? 'text-purple-600' : 'text-muted-foreground hover:text-foreground'
           }`}
         >
           Upcoming
@@ -90,7 +90,7 @@ export const MyTickets = ({ onBack, tickets = [], onOpenTicket, onRefundTicket }
         <button
           onClick={() => setActiveTab('past')}
           className={`relative px-6 py-3 font-semibold transition-all ${
-            activeTab === 'past' ? 'text-purple-400' : 'text-gray-400 hover:text-gray-300'
+            activeTab === 'past' ? 'text-purple-600' : 'text-muted-foreground hover:text-foreground'
           }`}
         >
           Past Events
@@ -112,7 +112,7 @@ export const MyTickets = ({ onBack, tickets = [], onOpenTicket, onRefundTicket }
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.06 }}
-              className="group overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-gray-900 to-gray-900/50 transition-all hover:border-purple-500/30"
+              className="surface-card group overflow-hidden rounded-2xl transition-all hover:border-purple-500/25 hover:shadow-[0_22px_46px_rgba(91,78,224,0.14)]"
             >
               <div className="flex flex-col md:flex-row">
                 <div className="relative h-48 w-full flex-shrink-0 overflow-hidden md:h-auto md:w-64">
@@ -121,23 +121,23 @@ export const MyTickets = ({ onBack, tickets = [], onOpenTicket, onRefundTicket }
                     alt={ticket.event.title}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent to-gray-900/50" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[rgba(232,224,245,0.35)]" />
                 </div>
 
                 <div className="flex flex-1 flex-col justify-between p-6">
                   <div>
                     <div className="mb-4 flex items-start justify-between gap-4">
                       <div>
-                        <span className="mb-2 inline-block rounded-full bg-purple-600/20 px-3 py-1 text-xs font-semibold text-purple-400">
+                          <span className="surface-soft mb-2 inline-block rounded-full px-3 py-1 text-xs font-semibold text-purple-700">
                           {ticket.event.category}
                         </span>
-                        <h3 className="text-2xl font-bold text-white">{ticket.event.title}</h3>
-                        <p className="mt-2 text-sm text-gray-500">{ticket.ticketType}</p>
+                        <h3 className="text-2xl font-bold text-foreground">{ticket.event.title}</h3>
+                        <p className="mt-2 text-sm text-muted-foreground">{ticket.ticketType}</p>
                       </div>
                       <span
                         className={`rounded-full px-3 py-1 text-xs font-semibold uppercase ${
                           ticket.status === 'used'
-                            ? 'bg-gray-700 text-gray-200'
+                            ? 'surface-soft text-foreground'
                             : ticket.status === 'cancelled'
                               ? 'bg-red-500/20 text-red-300'
                               : 'bg-emerald-500/20 text-emerald-300'
@@ -148,11 +148,11 @@ export const MyTickets = ({ onBack, tickets = [], onOpenTicket, onRefundTicket }
                     </div>
 
                     <div className="mb-4 space-y-2">
-                      <div className="flex items-center gap-2 text-gray-400">
+                      <div className="flex items-center gap-2 text-muted-foreground">
                         <Calendar className="h-4 w-4" />
                         <span className="text-sm">{ticket.event.date}{ticket.event.time ? ` - ${ticket.event.time}` : ''}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-gray-400">
+                      <div className="flex items-center gap-2 text-muted-foreground">
                         <MapPin className="h-4 w-4" />
                         <span className="text-sm">{ticket.event.location}</span>
                       </div>
@@ -162,11 +162,11 @@ export const MyTickets = ({ onBack, tickets = [], onOpenTicket, onRefundTicket }
                       </div>
                     </div>
 
-                    <div className="text-sm text-gray-400">
-                      Purchased: <span className="text-white">{formatDate(ticket.purchasedAt)}</span>
+                    <div className="text-sm text-muted-foreground">
+                      Purchased: <span className="text-foreground">{formatDate(ticket.purchasedAt)}</span>
                     </div>
-                    <div className="mt-1 text-sm text-gray-400">
-                      Price: <span className="text-white">{formatCurrency(ticket.price, ticket.currency)}</span>
+                    <div className="mt-1 text-sm text-muted-foreground">
+                      Price: <span className="text-foreground">{formatCurrency(ticket.price, ticket.currency)}</span>
                     </div>
                   </div>
 
@@ -180,7 +180,7 @@ export const MyTickets = ({ onBack, tickets = [], onOpenTicket, onRefundTicket }
                     </button>
                     <button
                       onClick={() => onOpenTicket?.(ticket)}
-                      className="flex items-center gap-2 rounded-lg bg-white/5 px-5 py-2 text-sm font-semibold text-gray-300 transition-all hover:bg-white/10"
+                      className="surface-soft flex items-center gap-2 rounded-lg px-5 py-2 text-sm font-semibold text-foreground transition-all hover:bg-purple-600/12"
                     >
                       View Event
                       <ChevronRight className="h-4 w-4" />
@@ -195,7 +195,7 @@ export const MyTickets = ({ onBack, tickets = [], onOpenTicket, onRefundTicket }
                             setRefundCandidate(ticket);
                           }}
                           disabled={!canRefund || !onRefundTicket || refundingTicketId === ticket.id}
-                          className="rounded-lg border border-red-500/30 bg-red-500/10 px-5 py-2 text-sm font-semibold text-red-200 transition-all hover:bg-red-500/20 disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/5 disabled:text-gray-500"
+                          className="rounded-lg border border-red-500/25 bg-red-500/10 px-5 py-2 text-sm font-semibold text-red-500 transition-all hover:bg-red-500/16 disabled:cursor-not-allowed disabled:border-border disabled:bg-accent disabled:text-muted-foreground"
                         >
                           {refundingTicketId === ticket.id ? 'Processing refund...' : canRefund ? 'Refund Ticket' : 'Refund unavailable'}
                         </button>
@@ -204,7 +204,7 @@ export const MyTickets = ({ onBack, tickets = [], onOpenTicket, onRefundTicket }
                   </div>
                 </div>
 
-                <div className="hidden items-center justify-center border-l border-white/10 p-6 lg:flex">
+                <div className="hidden items-center justify-center border-l border-border p-6 lg:flex">
                   <div className="rounded-xl bg-white p-3">
                     <img src={ticket.qrCodeDataUrl} alt={`QR ${ticket.ticketCode}`} className="h-24 w-24" />
                   </div>
@@ -222,8 +222,8 @@ export const MyTickets = ({ onBack, tickets = [], onOpenTicket, onRefundTicket }
           <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-purple-600/10">
             <Ticket className="h-10 w-10 text-purple-500" />
           </div>
-          <h3 className="mb-3 text-2xl font-bold text-white">No {activeTab} tickets</h3>
-          <p className="mb-8 max-w-sm text-gray-400">
+          <h3 className="mb-3 text-2xl font-bold text-foreground">No {activeTab} tickets</h3>
+          <p className="mb-8 max-w-sm text-muted-foreground">
             {activeTab === 'upcoming'
               ? "You don't have any upcoming tickets yet."
               : "You haven't attended any ticketed events yet."}
@@ -239,24 +239,24 @@ export const MyTickets = ({ onBack, tickets = [], onOpenTicket, onRefundTicket }
 
       {selectedTicket && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
-          <div className="w-full max-w-2xl rounded-3xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-black p-6 shadow-2xl shadow-purple-900/30">
+          <div className="surface-panel w-full max-w-2xl rounded-3xl p-6">
             <div className="mb-6 flex items-start justify-between gap-4">
               <div>
-                <p className="text-sm uppercase tracking-[0.25em] text-purple-300">Ticket</p>
-                <h2 className="mt-2 text-2xl font-bold text-white">{selectedTicket.ticketCode}</h2>
-                <p className="mt-1 text-gray-400">{selectedTicket.event.title}</p>
+                <p className="text-sm uppercase tracking-[0.25em] text-purple-600">Ticket</p>
+                <h2 className="mt-2 text-2xl font-bold text-foreground">{selectedTicket.ticketCode}</h2>
+                <p className="mt-1 text-muted-foreground">{selectedTicket.event.title}</p>
               </div>
               <button
                 onClick={() => setSelectedTicket(null)}
-                className="rounded-xl bg-white/5 p-2 text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
+                className="surface-soft rounded-xl p-2 text-muted-foreground transition-colors hover:bg-purple-600/12 hover:text-foreground"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
-              <div className="rounded-2xl border border-white/10 bg-gray-900/60 p-5">
-                <div className="mb-3 flex items-center gap-2 text-white">
+              <div className="surface-card rounded-2xl p-5">
+                <div className="mb-3 flex items-center gap-2 text-foreground">
                   <QrCode className="h-5 w-5 text-purple-400" />
                   <span className="font-semibold">QR Code</span>
                 </div>
@@ -266,8 +266,8 @@ export const MyTickets = ({ onBack, tickets = [], onOpenTicket, onRefundTicket }
               </div>
 
               <div className="space-y-5">
-                <div className="rounded-2xl border border-white/10 bg-gray-900/60 p-5">
-                  <div className="mb-3 flex items-center gap-2 text-white">
+                <div className="surface-card rounded-2xl p-5">
+                  <div className="mb-3 flex items-center gap-2 text-foreground">
                     <Barcode className="h-5 w-5 text-purple-400" />
                     <span className="font-semibold">Barcode</span>
                   </div>
@@ -276,11 +276,11 @@ export const MyTickets = ({ onBack, tickets = [], onOpenTicket, onRefundTicket }
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-gray-900/60 p-5 text-sm text-gray-300">
-                  <p><span className="text-gray-500">Ticket Type:</span> {selectedTicket.ticketType}</p>
-                  <p className="mt-2"><span className="text-gray-500">Price:</span> {formatCurrency(selectedTicket.price, selectedTicket.currency)}</p>
-                  <p className="mt-2"><span className="text-gray-500">Status:</span> {selectedTicket.status}</p>
-                  <p className="mt-2"><span className="text-gray-500">Purchased:</span> {formatDate(selectedTicket.purchasedAt)}</p>
+                <div className="surface-card rounded-2xl p-5 text-sm text-foreground">
+                  <p><span className="text-muted-foreground">Ticket Type:</span> {selectedTicket.ticketType}</p>
+                  <p className="mt-2"><span className="text-muted-foreground">Price:</span> {formatCurrency(selectedTicket.price, selectedTicket.currency)}</p>
+                  <p className="mt-2"><span className="text-muted-foreground">Status:</span> {selectedTicket.status}</p>
+                  <p className="mt-2"><span className="text-muted-foreground">Purchased:</span> {formatDate(selectedTicket.purchasedAt)}</p>
                 </div>
               </div>
             </div>
@@ -290,31 +290,31 @@ export const MyTickets = ({ onBack, tickets = [], onOpenTicket, onRefundTicket }
 
       {refundCandidate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 px-4">
-          <div className="w-full max-w-md rounded-3xl border border-red-500/20 bg-gradient-to-br from-gray-900 to-black p-6 shadow-2xl shadow-red-900/20">
+          <div className="w-full max-w-md rounded-3xl border border-red-500/20 bg-popover p-6 shadow-[0_24px_48px_rgba(127,29,29,0.14)]">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.25em] text-red-300">Confirm Refund</p>
-                <h2 className="mt-2 text-2xl font-bold text-white">Are you sure?</h2>
+                <p className="text-sm font-semibold uppercase tracking-[0.25em] text-red-500">Confirm Refund</p>
+                <h2 className="mt-2 text-2xl font-bold text-foreground">Are you sure?</h2>
               </div>
               <button
                 onClick={() => setRefundCandidate(null)}
-                className="rounded-xl bg-white/5 p-2 text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
+                className="rounded-xl bg-accent p-2 text-muted-foreground transition-colors hover:bg-purple-600/12 hover:text-foreground"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <p className="mt-4 text-gray-300">
-              You are about to refund <span className="font-semibold text-white">{refundCandidate.ticketCode}</span> for{" "}
-              <span className="font-semibold text-white">{refundCandidate.event.title}</span>.
+            <p className="mt-4 text-foreground">
+              You are about to refund <span className="font-semibold text-foreground">{refundCandidate.ticketCode}</span> for{" "}
+              <span className="font-semibold text-foreground">{refundCandidate.event.title}</span>.
             </p>
-            <p className="mt-3 text-sm leading-relaxed text-gray-400">
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
               The ticket will be removed from your upcoming tickets, and the money should arrive within
-              <span className="font-semibold text-white"> 3 business days</span>.
+              <span className="font-semibold text-foreground"> 3 business days</span>.
             </p>
             <div className="mt-6 flex items-center justify-end gap-3">
               <button
                 onClick={() => setRefundCandidate(null)}
-                className="rounded-xl bg-white/5 px-4 py-2 font-semibold text-gray-300 transition-colors hover:bg-white/10"
+                className="rounded-xl bg-accent px-4 py-2 font-semibold text-foreground transition-colors hover:bg-purple-600/12"
               >
                 Keep Ticket
               </button>
@@ -348,10 +348,10 @@ export const MyTickets = ({ onBack, tickets = [], onOpenTicket, onRefundTicket }
 
       {refundSuccessMessage && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
-          <div className="w-full max-w-md rounded-3xl border border-emerald-500/20 bg-gradient-to-br from-gray-900 to-black p-6 shadow-2xl shadow-emerald-900/20">
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-300">Refund Requested</p>
-            <h2 className="mt-2 text-2xl font-bold text-white">Everything is set</h2>
-            <p className="mt-4 leading-relaxed text-gray-300">{refundSuccessMessage}</p>
+          <div className="w-full max-w-md rounded-3xl border border-emerald-500/20 bg-popover p-6 shadow-[0_24px_48px_rgba(6,95,70,0.14)]">
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-500">Refund Requested</p>
+            <h2 className="mt-2 text-2xl font-bold text-foreground">Everything is set</h2>
+            <p className="mt-4 leading-relaxed text-foreground">{refundSuccessMessage}</p>
             <button
               onClick={() => setRefundSuccessMessage(null)}
               className="mt-6 w-full rounded-xl bg-emerald-500 px-5 py-3 font-semibold text-white transition-colors hover:bg-emerald-400"
@@ -364,10 +364,10 @@ export const MyTickets = ({ onBack, tickets = [], onOpenTicket, onRefundTicket }
 
       {refundErrorMessage && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
-          <div className="w-full max-w-md rounded-3xl border border-red-500/20 bg-gradient-to-br from-gray-900 to-black p-6 shadow-2xl shadow-red-900/20">
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-red-300">Refund Error</p>
-            <h2 className="mt-2 text-2xl font-bold text-white">Something went wrong</h2>
-            <p className="mt-4 leading-relaxed text-gray-300">{refundErrorMessage}</p>
+          <div className="w-full max-w-md rounded-3xl border border-red-500/20 bg-popover p-6 shadow-[0_24px_48px_rgba(127,29,29,0.14)]">
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-red-500">Refund Error</p>
+            <h2 className="mt-2 text-2xl font-bold text-foreground">Something went wrong</h2>
+            <p className="mt-4 leading-relaxed text-foreground">{refundErrorMessage}</p>
             <button
               onClick={() => setRefundErrorMessage(null)}
               className="mt-6 w-full rounded-xl bg-red-500 px-5 py-3 font-semibold text-white transition-colors hover:bg-red-400"

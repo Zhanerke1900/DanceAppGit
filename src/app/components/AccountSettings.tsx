@@ -184,21 +184,21 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
   return (
     <div className={compactLayout ? 'space-y-4' : 'space-y-6'}>
       <div className={compactLayout ? 'mb-4' : 'mb-8'}>
-        <h1 className={`${compactLayout ? 'text-2xl' : 'text-3xl'} font-bold text-white mb-2`}>Account Settings</h1>
-        <p className="text-gray-400">Manage your account information and security</p>
+        <h1 className={`${compactLayout ? 'text-2xl' : 'text-3xl'} font-bold text-foreground mb-2`}>Account Settings</h1>
+        <p className="text-muted-foreground">Manage your account information and security</p>
       </div>
 
       <form onSubmit={handleSave} className={compactLayout ? 'space-y-4' : 'space-y-8'}>
         {/* Personal Information */}
-        <div className={`bg-gradient-to-br from-gray-900 to-gray-950 border border-purple-500/20 rounded-2xl ${compactLayout ? 'p-5' : 'p-8'}`}>
+        <div className={`surface-card rounded-2xl ${compactLayout ? 'p-5' : 'p-8'}`}>
           <div className={`flex items-center gap-3 ${compactLayout ? 'mb-4' : 'mb-6'}`}>
             <User className={`${compactLayout ? 'w-5 h-5' : 'w-6 h-6'} text-purple-400`} />
-            <h2 className="text-xl font-bold text-white">Personal Information</h2>
+            <h2 className="text-xl font-bold text-foreground">Personal Information</h2>
           </div>
 
           <div className={`grid md:grid-cols-2 ${compactLayout ? 'gap-4' : 'gap-6'}`}>
             <div>
-              <Label htmlFor="name" className="text-gray-200 mb-2">
+              <Label htmlFor="name" className="text-foreground mb-2">
                 Full Name
               </Label>
               <Input
@@ -207,12 +207,12 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
                 type="text"
                 value={formData.name}
                 onChange={handleChange}
-                className="bg-gray-950 border-gray-700 text-white placeholder:text-gray-600 focus:border-purple-500 focus:ring-purple-500/20"
+                className="bg-input-background border-border text-foreground placeholder:text-muted-foreground focus:border-purple-500 focus:ring-purple-500/20"
               />
             </div>
 
             <div>
-              <Label htmlFor="email" className="text-gray-200 mb-2">
+              <Label htmlFor="email" className="text-foreground mb-2">
                 Email Address
               </Label>
               <Input
@@ -222,13 +222,13 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
                 value={formData.email}
                 disabled
                 readOnly
-                className="bg-gray-950 border-gray-700 text-gray-400 placeholder:text-gray-600 opacity-70 cursor-not-allowed"
+                className="bg-accent border-border text-muted-foreground placeholder:text-muted-foreground opacity-80 cursor-not-allowed"
               />
-              <p className={`text-xs text-gray-500 ${compactLayout ? 'mt-1' : 'mt-2'}`}>Email cannot be changed.</p>
+              <p className={`text-xs text-muted-foreground ${compactLayout ? 'mt-1' : 'mt-2'}`}>Email cannot be changed.</p>
             </div>
 
             <div>
-              <Label htmlFor="language" className="text-gray-200 mb-2">
+              <Label htmlFor="language" className="text-foreground mb-2">
                 Language
               </Label>
               <select
@@ -236,7 +236,7 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
                 name="language"
                 value={formData.language}
                 onChange={handleChange}
-                className="w-full h-9 rounded-md bg-gray-950 border border-gray-700 text-white px-3 py-1 focus:border-purple-500 focus:ring-purple-500/20 focus:ring-[3px] outline-none transition-all"
+                className="w-full h-9 rounded-md bg-input-background border border-border text-foreground px-3 py-1 focus:border-purple-500 focus:ring-purple-500/20 focus:ring-[3px] outline-none transition-all"
               >
                 <option value="en">English</option>
                 <option value="ru">Русский</option>
@@ -247,10 +247,10 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
         </div>
 
         {/* Security */}
-        <div className={`bg-gradient-to-br from-gray-900 to-gray-950 border border-purple-500/20 rounded-2xl ${compactLayout ? 'p-5' : 'p-8'}`}>
+        <div className={`surface-card rounded-2xl ${compactLayout ? 'p-5' : 'p-8'}`}>
           <div className={`flex items-center gap-3 ${compactLayout ? 'mb-4' : 'mb-6'}`}>
             <Lock className={`${compactLayout ? 'w-5 h-5' : 'w-6 h-6'} text-purple-400`} />
-            <h2 className="text-xl font-bold text-white">Security</h2>
+            <h2 className="text-xl font-bold text-foreground">Security</h2>
           </div>
 
           <button
@@ -259,45 +259,45 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
               resetPasswordModalState();
               setIsPasswordModalOpen(true);
             }}
-            className={`bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-medium transition-all duration-300 ${compactLayout ? 'px-5 py-2.5' : 'px-6 py-3'}`}
+            className={`bg-accent hover:bg-purple-600/12 text-foreground rounded-xl font-medium transition-all duration-300 ${compactLayout ? 'px-5 py-2.5' : 'px-6 py-3'}`}
           >
             Change Password
           </button>
         </div>
 
         {!isAdmin && !isOrganizer && !isValidator && (
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-purple-500/20 rounded-2xl p-8">
+          <div className="surface-card rounded-2xl p-8">
             <div className="flex items-center gap-3 mb-6">
               <Bell className="w-6 h-6 text-purple-400" />
-              <h2 className="text-xl font-bold text-white">Notification Preferences</h2>
+              <h2 className="text-xl font-bold text-foreground">Notification Preferences</h2>
             </div>
 
             <div className="space-y-4">
-              <label className="flex items-center justify-between p-4 bg-gray-800/30 rounded-xl cursor-pointer hover:bg-gray-800/50 transition-colors">
+              <label className="flex items-center justify-between p-4 bg-accent/80 rounded-xl cursor-pointer hover:bg-accent transition-colors">
                 <div>
-                  <p className="text-white font-medium mb-1">Email Notifications</p>
-                  <p className="text-gray-400 text-sm">Receive updates about your tickets and events</p>
+                  <p className="text-foreground font-medium mb-1">Email Notifications</p>
+                  <p className="text-muted-foreground text-sm">Receive updates about your tickets and events</p>
                 </div>
                 <input
                   type="checkbox"
                   name="emailNotifications"
                   checked={formData.emailNotifications}
                   onChange={handleChange}
-                  className="w-5 h-5 rounded border-gray-700 bg-gray-950 text-purple-600 focus:ring-purple-500 focus:ring-offset-0"
+                  className="w-5 h-5 rounded border-border bg-input-background text-purple-600 focus:ring-purple-500 focus:ring-offset-0"
                 />
               </label>
 
-              <label className="flex items-center justify-between p-4 bg-gray-800/30 rounded-xl cursor-pointer hover:bg-gray-800/50 transition-colors">
+              <label className="flex items-center justify-between p-4 bg-accent/80 rounded-xl cursor-pointer hover:bg-accent transition-colors">
                 <div>
-                  <p className="text-white font-medium mb-1">Event Reminders</p>
-                  <p className="text-gray-400 text-sm">Remind me 24 hours before an event</p>
+                  <p className="text-foreground font-medium mb-1">Event Reminders</p>
+                  <p className="text-muted-foreground text-sm">Remind me 24 hours before an event</p>
                 </div>
                 <input
                   type="checkbox"
                   name="eventReminders"
                   checked={formData.eventReminders}
                   onChange={handleChange}
-                  className="w-5 h-5 rounded border-gray-700 bg-gray-950 text-purple-600 focus:ring-purple-500 focus:ring-offset-0"
+                  className="w-5 h-5 rounded border-border bg-input-background text-purple-600 focus:ring-purple-500 focus:ring-offset-0"
                 />
               </label>
             </div>
@@ -345,19 +345,19 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
           if (!open) resetPasswordModalState();
         }}
       >
-        <DialogContent className="bg-gray-900 border-purple-500/20 text-gray-100 max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-popover border-border text-foreground max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-2xl text-white">Change Password</DialogTitle>
-            <DialogDescription className="text-gray-400">
+            <DialogTitle className="text-2xl text-foreground">Change Password</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               Update your password and keep your account secure
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleChangePassword} className="space-y-4 mt-4">
             <div className="space-y-2">
-              <Label htmlFor="currentPassword" className="text-gray-300">Current Password</Label>
+              <Label htmlFor="currentPassword" className="text-foreground">Current Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="currentPassword"
                   name="currentPassword"
@@ -365,13 +365,13 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
                   placeholder="Enter your current password"
                   value={changePasswordForm.currentPassword}
                   onChange={handlePasswordFieldChange}
-                  className="pl-10 pr-10 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500"
+                  className="pl-10 pr-10 bg-input-background border-border text-foreground placeholder:text-muted-foreground focus:border-purple-500"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowCurrentPassword(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
                   {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -379,9 +379,9 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="newPassword" className="text-gray-300">New Password</Label>
+              <Label htmlFor="newPassword" className="text-foreground">New Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="newPassword"
                   name="newPassword"
@@ -389,13 +389,13 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
                   placeholder="Create a new password"
                   value={changePasswordForm.newPassword}
                   onChange={handlePasswordFieldChange}
-                  className="pl-10 pr-10 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500"
+                  className="pl-10 pr-10 bg-input-background border-border text-foreground placeholder:text-muted-foreground focus:border-purple-500"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowNewPassword(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
                   {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -403,9 +403,9 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmNewPassword" className="text-gray-300">Repeat New Password</Label>
+              <Label htmlFor="confirmNewPassword" className="text-foreground">Repeat New Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="confirmNewPassword"
                   name="confirmNewPassword"
@@ -413,13 +413,13 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
                   placeholder="Repeat your new password"
                   value={changePasswordForm.confirmNewPassword}
                   onChange={handlePasswordFieldChange}
-                  className="pl-10 pr-10 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500"
+                  className="pl-10 pr-10 bg-input-background border-border text-foreground placeholder:text-muted-foreground focus:border-purple-500"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
                   {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -441,7 +441,7 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
             )}
 
             {forgotPasswordMessage && (
-              <div className="flex items-center gap-2 text-gray-300 text-sm">
+              <div className="flex items-center gap-2 text-muted-foreground text-sm">
                 <Mail className="w-4 h-4" />
                 {forgotPasswordMessage}
               </div>
@@ -452,7 +452,7 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
                 type="button"
                 onClick={handleForgotPassword}
                 disabled={isChangingPassword}
-                className="text-sm text-purple-400 hover:text-purple-300 disabled:text-gray-500"
+                className="text-sm text-purple-600 hover:text-purple-500 disabled:text-muted-foreground"
               >
                 Forgot password?
               </button>

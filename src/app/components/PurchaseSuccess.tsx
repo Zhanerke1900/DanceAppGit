@@ -34,6 +34,9 @@ export const PurchaseSuccess = ({
   onBackToHome,
 }: PurchaseSuccessProps) => {
   const firstTicket = tickets[0];
+  const mapQuery = encodeURIComponent(event.location || '');
+  const mapUrl = event.location ? `https://www.google.com/maps/search/?api=1&query=${mapQuery}` : '';
+  const mapEmbedUrl = event.location ? `https://www.google.com/maps?q=${mapQuery}&output=embed` : '';
 
   const handleDownloadTicket = (ticket: TicketRecord) => {
     const html = `
@@ -114,9 +117,30 @@ export const PurchaseSuccess = ({
                 <div>
                   <p className="text-sm text-gray-400">Location</p>
                   <p className="font-semibold text-white">{event.location}</p>
+                  {event.location && (
+                    <a
+                      href={mapUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-2 inline-flex rounded-full bg-purple-600 px-3 py-1 text-sm font-semibold text-white transition hover:bg-purple-700"
+                    >
+                      Open in Maps
+                    </a>
+                  )}
                 </div>
               </div>
             </div>
+
+            {event.location && (
+              <div className="mb-8 overflow-hidden rounded-3xl border border-white/10 bg-slate-950/50">
+                <iframe
+                  src={mapEmbedUrl}
+                  title="Event location map"
+                  className="h-56 w-full border-0"
+                  loading="lazy"
+                />
+              </div>
+            )}
 
             {firstTicket && (
               <div className="mb-8 grid gap-6 rounded-3xl border border-white/10 py-8 md:grid-cols-[0.9fr_1.1fr]">

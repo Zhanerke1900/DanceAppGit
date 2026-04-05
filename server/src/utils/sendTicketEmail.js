@@ -11,7 +11,7 @@ function formatCurrency(amount) {
 
 export async function sendTicketEmail({ email, fullName, event, tickets }) {
   const transporter = getMailer();
-  const from = process.env.RESEND_FROM || process.env.SMTP_FROM || "DanceTime <no-reply@dance.local>";
+  const from = process.env.SMTP_FROM || "DanceTime <no-reply@dance.local>";
 
   if (!transporter) {
     console.log("SMTP not configured. Ticket email skipped.");
@@ -20,29 +20,20 @@ export async function sendTicketEmail({ email, fullName, event, tickets }) {
     return;
   }
 
-  const attachmentPairs = await Promise.all(
-    tickets.map(async (ticket) => {
-      const safeCode = ticket.ticketCode.replace(/[^A-Z0-9-]/gi, "");
-      const [qrBuffer, barcodeBuffer] = await Promise.all([
-        generateTicketQrBuffer(ticket.qrToken),
-        generateTicketBarcodeBuffer(ticket.ticketCode),
-      ]);
-
-      return [
-        {
-          filename: `${safeCode}-qr.png`,
-          content: qrBuffer,
-          cid: `qr-${safeCode}`,
-        },
-        {
-          filename: `${safeCode}-barcode.png`,
-          content: barcodeBuffer,
-          cid: `barcode-${safeCode}`,
-        },
-      ];
-    })
-  );
-  const attachments = attachmentPairs.flat();
+  const attachments = [];
+  for (const ticket of tickets) {
+    const safeCode = ticket.ticketCode.replace(/[^A-Z0-9-]/gi, "");
+    attachments.push({
+      filename: `${safeCode}-qr.png`,
+      content: await generateTicketQrBuffer(ticket.qrToken),
+      cid: `qr-${safeCode}`,
+    });
+    attachments.push({
+      filename: `${safeCode}-barcode.png`,
+      content: await generateTicketBarcodeBuffer(ticket.ticketCode),
+      cid: `barcode-${safeCode}`,
+    });
+  }
 
   const html = `
   <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111827">
@@ -80,18 +71,11 @@ export async function sendTicketEmail({ email, fullName, event, tickets }) {
     <p style="font-size:12px;color:#6b7280;margin-top:24px">Present the QR code at the entrance. Each ticket can be used only once.</p>
   </div>`;
 
-  const info = await transporter.sendMail({
+  await transporter.sendMail({
     from,
     to: email,
     subject: `Your DanceTime tickets for ${event.title}`,
     html,
     attachments,
   });
-
-  console.log("TICKET EMAIL SENT");
-  console.log("   to:", email);
-  console.log("   messageId:", info?.messageId);
-  console.log("   accepted:", info?.accepted);
-  console.log("   rejected:", info?.rejected);
-  console.log("   response:", info?.response);
 }

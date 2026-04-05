@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { API_URL } from "../api/http";
+
+const API_URL = ((import.meta as any).env?.VITE_API_URL) || "http://localhost:4000";
 
 
 export function VerifyEmailPage({ onGoHome, onOpenLogin }: { onGoHome: () => void; onOpenLogin: () => void }) {
@@ -14,12 +15,6 @@ export function VerifyEmailPage({ onGoHome, onOpenLogin }: { onGoHome: () => voi
     if (!token || !email) {
       setStatus("error");
       setMessage("Verification link is missing token or email.");
-      return;
-    }
-
-    if (!API_URL) {
-      setStatus("error");
-      setMessage("VITE_API_URL is not configured for this deployment.");
       return;
     }
 

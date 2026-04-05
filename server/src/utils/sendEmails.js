@@ -6,35 +6,20 @@ function appUrls() {
   return { BACKEND_URL, FRONTEND_URL };
 }
 
-function logMailSuccess(label, email, info) {
-  console.log(`${label} SENT`);
-  console.log("   to:", email);
-  console.log("   messageId:", info?.messageId);
-  console.log("   accepted:", info?.accepted);
-  console.log("   rejected:", info?.rejected);
-  console.log("   response:", info?.response);
-}
-
-function logMailFailure(label, err, extra = {}) {
-  console.log(`${label} FAILED`);
-  console.log("   SMTP:", err?.message || err);
-  for (const [key, value] of Object.entries(extra)) {
-    console.log(`   ${key}:`, value);
-  }
-}
-
 export async function sendVerifyEmail({ email, fullName, token, code }) {
   const { FRONTEND_URL } = appUrls();
   const from = process.env.SMTP_FROM || "DanceTime <no-reply@dance.local>";
 
+  // ✅ ВАЖНО: ссылка на ФРОНТ
   const verifyLink =
     `${FRONTEND_URL}/verify-email?token=${encodeURIComponent(token)}` +
     `&email=${encodeURIComponent(email)}`;
 
   const transporter = getMailer();
 
+  // если SMTP не настроен — НЕ КРАШИМ сервер
   if (!transporter) {
-    console.log("VERIFY EMAIL SMTP NOT CONFIGURED");
+    console.log("⚠️ SMTP not configured. Fallback to console:");
     console.log("   LINK:", verifyLink);
     console.log("   CODE:", code);
     return;
@@ -42,7 +27,7 @@ export async function sendVerifyEmail({ email, fullName, token, code }) {
 
   const html = `
   <div style="font-family:Arial,sans-serif;line-height:1.5">
-    <h2>Hi${fullName ? `, ${fullName}` : ""}</h2>
+    <h2>Hi${fullName ? `, ${fullName}` : ""} 👋</h2>
     <p>Confirm your email to activate your DanceTime account.</p>
     <p>
       <a href="${verifyLink}" style="display:inline-block;padding:12px 18px;background:#7c3aed;color:#fff;text-decoration:none;border-radius:10px">
@@ -53,19 +38,23 @@ export async function sendVerifyEmail({ email, fullName, token, code }) {
     <p style="word-break:break-all">${verifyLink}</p>
     <p>Your verification code (optional): <b style="font-size:18px">${code}</b></p>
     <hr />
-    <p style="color:#666;font-size:12px">If you didn't request this, ignore the email.</p>
+    <p style="color:#666;font-size:12px">If you didn’t request this, ignore the email.</p>
   </div>`;
 
   try {
+    console.log('Attempting to send email to:', email);
     const info = await transporter.sendMail({
       from,
       to: email,
       subject: "Verify your DanceTime email",
       html,
     });
-    logMailSuccess("VERIFY EMAIL", email, info);
+    console.log('Email sent successfully:', info.messageId);
   } catch (err) {
-    logMailFailure("VERIFY EMAIL", err, { LINK: verifyLink, CODE: code });
+    console.log("⚠️ SMTP error (email not sent). Fallback to console:");
+    console.log("   SMTP:", err?.message || err);
+    console.log("   LINK:", verifyLink);
+    console.log("   CODE:", code);
   }
 }
 
@@ -73,6 +62,7 @@ export async function sendResetEmail({ email, fullName, token, code }) {
   const { FRONTEND_URL } = appUrls();
   const from = process.env.SMTP_FROM || "DanceTime <no-reply@dance.local>";
 
+  // ✅ ссылка на ФРОНТ
   const resetLink =
     `${FRONTEND_URL}/reset-password?token=${encodeURIComponent(token)}` +
     `&email=${encodeURIComponent(email)}`;
@@ -80,7 +70,7 @@ export async function sendResetEmail({ email, fullName, token, code }) {
   const transporter = getMailer();
 
   if (!transporter) {
-    console.log("RESET EMAIL SMTP NOT CONFIGURED");
+    console.log("⚠️ SMTP not configured. Fallback to console:");
     console.log("   RESET LINK:", resetLink);
     console.log("   RESET CODE:", code);
     return;
@@ -99,19 +89,21 @@ export async function sendResetEmail({ email, fullName, token, code }) {
     <p style="word-break:break-all">${resetLink}</p>
     <p>Your reset code (optional): <b style="font-size:18px">${code}</b></p>
     <hr />
-    <p style="color:#666;font-size:12px">If you didn't request this, ignore the email.</p>
+    <p style="color:#666;font-size:12px">If you didn’t request this, ignore the email.</p>
   </div>`;
 
   try {
-    const info = await transporter.sendMail({
+    await transporter.sendMail({
       from,
       to: email,
       subject: "Reset your DanceTime password",
       html,
     });
-    logMailSuccess("RESET EMAIL", email, info);
   } catch (err) {
-    logMailFailure("RESET EMAIL", err, { RESET_LINK: resetLink, RESET_CODE: code });
+    console.log("⚠️ SMTP error (reset email not sent). Fallback to console:");
+    console.log("   SMTP:", err?.message || err);
+    console.log("   RESET LINK:", resetLink);
+    console.log("   RESET CODE:", code);
   }
 }
 
@@ -126,7 +118,7 @@ export async function sendValidatorInviteEmail({ email, fullName, token, code, o
   const transporter = getMailer();
 
   if (!transporter) {
-    console.log("VALIDATOR INVITE SMTP NOT CONFIGURED");
+    console.log("SMTP not configured. Validator invite fallback to console:");
     console.log("   LINK:", verifyLink);
     console.log("   CODE:", code);
     return;
@@ -150,15 +142,17 @@ export async function sendValidatorInviteEmail({ email, fullName, token, code, o
   </div>`;
 
   try {
-    const info = await transporter.sendMail({
+    await transporter.sendMail({
       from,
       to: email,
       subject: "Activate your DanceTime validator account",
       html,
     });
-    logMailSuccess("VALIDATOR INVITE", email, info);
   } catch (err) {
-    logMailFailure("VALIDATOR INVITE", err, { LINK: verifyLink, CODE: code });
+    console.log("SMTP error (validator invite email not sent). Fallback to console:");
+    console.log("   SMTP:", err?.message || err);
+    console.log("   LINK:", verifyLink);
+    console.log("   CODE:", code);
   }
 }
 
@@ -167,7 +161,7 @@ export async function sendPasswordChangedEmail({ email, fullName }) {
   const transporter = getMailer();
 
   if (!transporter) {
-    console.log("PASSWORD CHANGED SMTP NOT CONFIGURED");
+    console.log("⚠️ SMTP not configured. Password changed email skipped.");
     console.log("   EMAIL:", email);
     return;
   }
@@ -183,15 +177,16 @@ export async function sendPasswordChangedEmail({ email, fullName }) {
   </div>`;
 
   try {
-    const info = await transporter.sendMail({
+    await transporter.sendMail({
       from,
       to: email,
       subject: "Your DanceTime password was changed",
       html,
     });
-    logMailSuccess("PASSWORD CHANGED EMAIL", email, info);
   } catch (err) {
-    logMailFailure("PASSWORD CHANGED EMAIL", err, { EMAIL: email });
+    console.log("⚠️ SMTP error (password changed email not sent).");
+    console.log("   SMTP:", err?.message || err);
+    console.log("   EMAIL:", email);
   }
 }
 
@@ -200,7 +195,7 @@ export async function sendRefundEmail({ email, fullName, ticketCode, ticketType,
   const transporter = getMailer();
 
   if (!transporter) {
-    console.log("REFUND EMAIL SMTP NOT CONFIGURED");
+    console.log("SMTP not configured. Refund email skipped.");
     console.log("   EMAIL:", email);
     console.log("   TICKET:", ticketCode);
     return false;
@@ -223,16 +218,18 @@ export async function sendRefundEmail({ email, fullName, ticketCode, ticketType,
   </div>`;
 
   try {
-    const info = await transporter.sendMail({
+    await transporter.sendMail({
       from,
       to: email,
       subject: "Your DanceTime refund is being processed",
       html,
     });
-    logMailSuccess("REFUND EMAIL", email, info);
     return true;
   } catch (err) {
-    logMailFailure("REFUND EMAIL", err, { EMAIL: email, TICKET: ticketCode });
+    console.log("SMTP error (refund email not sent).");
+    console.log("   SMTP:", err?.message || err);
+    console.log("   EMAIL:", email);
+    console.log("   TICKET:", ticketCode);
     return false;
   }
 }
