@@ -29,13 +29,12 @@ function logMailFailure(label, err, extra = {}) {
 export async function sendVerifyEmail({ email, fullName, token, code }) {
   const { FRONTEND_URL } = appUrls();
   const from = getMailFrom();
-  const provider = getMailerProvider();
-
   const verifyLink =
     `${FRONTEND_URL}/verify-email?token=${encodeURIComponent(token)}` +
     `&email=${encodeURIComponent(email)}`;
 
   const transporter = getMailer();
+  const provider = transporter?.provider || getMailerProvider();
 
   if (!transporter) {
     console.log("VERIFY EMAIL SMTP NOT CONFIGURED");
@@ -70,7 +69,7 @@ export async function sendVerifyEmail({ email, fullName, token, code }) {
       html,
     });
     logMailSuccess("VERIFY EMAIL", email, info, {
-      PROVIDER: provider,
+      PROVIDER: info?.provider || provider,
       FROM: from,
       LINK: verifyLink,
       CODE: code,
@@ -83,13 +82,12 @@ export async function sendVerifyEmail({ email, fullName, token, code }) {
 export async function sendResetEmail({ email, fullName, token, code }) {
   const { FRONTEND_URL } = appUrls();
   const from = getMailFrom();
-  const provider = getMailerProvider();
-
   const resetLink =
     `${FRONTEND_URL}/reset-password?token=${encodeURIComponent(token)}` +
     `&email=${encodeURIComponent(email)}`;
 
   const transporter = getMailer();
+  const provider = transporter?.provider || getMailerProvider();
 
   if (!transporter) {
     console.log("RESET EMAIL SMTP NOT CONFIGURED");
@@ -124,7 +122,7 @@ export async function sendResetEmail({ email, fullName, token, code }) {
       html,
     });
     logMailSuccess("RESET EMAIL", email, info, {
-      PROVIDER: provider,
+      PROVIDER: info?.provider || provider,
       FROM: from,
       RESET_LINK: resetLink,
       RESET_CODE: code,
@@ -137,13 +135,12 @@ export async function sendResetEmail({ email, fullName, token, code }) {
 export async function sendValidatorInviteEmail({ email, fullName, token, code, organizerName }) {
   const { FRONTEND_URL } = appUrls();
   const from = getMailFrom();
-  const provider = getMailerProvider();
-
   const verifyLink =
     `${FRONTEND_URL}/verify-email?token=${encodeURIComponent(token)}` +
     `&email=${encodeURIComponent(email)}`;
 
   const transporter = getMailer();
+  const provider = transporter?.provider || getMailerProvider();
 
   if (!transporter) {
     console.log("VALIDATOR INVITE SMTP NOT CONFIGURED");
@@ -179,7 +176,7 @@ export async function sendValidatorInviteEmail({ email, fullName, token, code, o
       html,
     });
     logMailSuccess("VALIDATOR INVITE", email, info, {
-      PROVIDER: provider,
+      PROVIDER: info?.provider || provider,
       FROM: from,
       LINK: verifyLink,
       CODE: code,
@@ -191,8 +188,8 @@ export async function sendValidatorInviteEmail({ email, fullName, token, code, o
 
 export async function sendPasswordChangedEmail({ email, fullName }) {
   const from = getMailFrom();
-  const provider = getMailerProvider();
   const transporter = getMailer();
+  const provider = transporter?.provider || getMailerProvider();
 
   if (!transporter) {
     console.log("PASSWORD CHANGED SMTP NOT CONFIGURED");
@@ -219,7 +216,7 @@ export async function sendPasswordChangedEmail({ email, fullName }) {
       subject: "Your DanceTime password was changed",
       html,
     });
-    logMailSuccess("PASSWORD CHANGED EMAIL", email, info, { PROVIDER: provider, FROM: from });
+    logMailSuccess("PASSWORD CHANGED EMAIL", email, info, { PROVIDER: info?.provider || provider, FROM: from });
   } catch (err) {
     logMailFailure("PASSWORD CHANGED EMAIL", err, { PROVIDER: provider, FROM: from, EMAIL: email });
   }
@@ -227,8 +224,8 @@ export async function sendPasswordChangedEmail({ email, fullName }) {
 
 export async function sendRefundEmail({ email, fullName, ticketCode, ticketType, event }) {
   const from = getMailFrom();
-  const provider = getMailerProvider();
   const transporter = getMailer();
+  const provider = transporter?.provider || getMailerProvider();
 
   if (!transporter) {
     console.log("REFUND EMAIL SMTP NOT CONFIGURED");
@@ -262,7 +259,7 @@ export async function sendRefundEmail({ email, fullName, ticketCode, ticketType,
       subject: "Your DanceTime refund is being processed",
       html,
     });
-    logMailSuccess("REFUND EMAIL", email, info, { PROVIDER: provider, FROM: from });
+    logMailSuccess("REFUND EMAIL", email, info, { PROVIDER: info?.provider || provider, FROM: from });
     return true;
   } catch (err) {
     logMailFailure("REFUND EMAIL", err, { PROVIDER: provider, FROM: from, EMAIL: email, TICKET: ticketCode });

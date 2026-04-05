@@ -12,9 +12,11 @@ function formatCurrency(amount) {
 export async function sendTicketEmail({ email, fullName, event, tickets }) {
   const transporter = getMailer();
   const from = process.env.RESEND_FROM || process.env.SMTP_FROM || "DanceTime <no-reply@dance.local>";
+  const provider = transporter?.provider || "none";
 
   if (!transporter) {
-    console.log("SMTP not configured. Ticket email skipped.");
+    console.log("EMAIL provider not configured. Ticket email skipped.");
+    console.log("PROVIDER:", provider);
     console.log("EMAIL:", email);
     console.log("TICKETS:", tickets.map((ticket) => ticket.ticketCode));
     return;
@@ -90,6 +92,7 @@ export async function sendTicketEmail({ email, fullName, event, tickets }) {
 
   console.log("TICKET EMAIL SENT");
   console.log("   to:", email);
+  console.log("   provider:", info?.provider || provider);
   console.log("   messageId:", info?.messageId);
   console.log("   accepted:", info?.accepted);
   console.log("   rejected:", info?.rejected);
