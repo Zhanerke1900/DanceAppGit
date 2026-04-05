@@ -1,6 +1,16 @@
 import nodemailer from "nodemailer";
 import { Resend } from "resend";
 
+export function getMailFrom() {
+  return process.env.RESEND_FROM || process.env.SMTP_FROM || "DanceTime <no-reply@dance.local>";
+}
+
+export function getMailerProvider() {
+  if (process.env.RESEND_API_KEY) return "resend";
+  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) return "smtp";
+  return "none";
+}
+
 function createResendMailer() {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return null;
@@ -23,7 +33,7 @@ function createResendMailer() {
         : undefined;
 
       const payload = {
-        from: options.from || process.env.RESEND_FROM || process.env.SMTP_FROM,
+        from: options.from || getMailFrom(),
         to: toList,
         cc: ccList.length ? ccList : undefined,
         bcc: bccList.length ? bccList : undefined,

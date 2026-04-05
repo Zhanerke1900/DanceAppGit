@@ -1,4 +1,4 @@
-import { getMailer } from "./mailer.js";
+import { getMailer, getMailerProvider, getMailFrom } from "./mailer.js";
 
 function appUrls() {
   const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:4000";
@@ -6,13 +6,16 @@ function appUrls() {
   return { BACKEND_URL, FRONTEND_URL };
 }
 
-function logMailSuccess(label, email, info) {
+function logMailSuccess(label, email, info, extra = {}) {
   console.log(`${label} SENT`);
   console.log("   to:", email);
   console.log("   messageId:", info?.messageId);
   console.log("   accepted:", info?.accepted);
   console.log("   rejected:", info?.rejected);
   console.log("   response:", info?.response);
+  for (const [key, value] of Object.entries(extra)) {
+    console.log(`   ${key}:`, value);
+  }
 }
 
 function logMailFailure(label, err, extra = {}) {
@@ -25,7 +28,8 @@ function logMailFailure(label, err, extra = {}) {
 
 export async function sendVerifyEmail({ email, fullName, token, code }) {
   const { FRONTEND_URL } = appUrls();
-  const from = process.env.SMTP_FROM || "DanceTime <no-reply@dance.local>";
+  const from = getMailFrom();
+  const provider = getMailerProvider();
 
   const verifyLink =
     `${FRONTEND_URL}/verify-email?token=${encodeURIComponent(token)}` +
@@ -35,6 +39,8 @@ export async function sendVerifyEmail({ email, fullName, token, code }) {
 
   if (!transporter) {
     console.log("VERIFY EMAIL SMTP NOT CONFIGURED");
+    console.log("   PROVIDER:", provider);
+    console.log("   FROM:", from);
     console.log("   LINK:", verifyLink);
     console.log("   CODE:", code);
     return;
@@ -63,15 +69,21 @@ export async function sendVerifyEmail({ email, fullName, token, code }) {
       subject: "Verify your DanceTime email",
       html,
     });
-    logMailSuccess("VERIFY EMAIL", email, info);
+    logMailSuccess("VERIFY EMAIL", email, info, {
+      PROVIDER: provider,
+      FROM: from,
+      LINK: verifyLink,
+      CODE: code,
+    });
   } catch (err) {
-    logMailFailure("VERIFY EMAIL", err, { LINK: verifyLink, CODE: code });
+    logMailFailure("VERIFY EMAIL", err, { PROVIDER: provider, FROM: from, LINK: verifyLink, CODE: code });
   }
 }
 
 export async function sendResetEmail({ email, fullName, token, code }) {
   const { FRONTEND_URL } = appUrls();
-  const from = process.env.SMTP_FROM || "DanceTime <no-reply@dance.local>";
+  const from = getMailFrom();
+  const provider = getMailerProvider();
 
   const resetLink =
     `${FRONTEND_URL}/reset-password?token=${encodeURIComponent(token)}` +
@@ -81,6 +93,8 @@ export async function sendResetEmail({ email, fullName, token, code }) {
 
   if (!transporter) {
     console.log("RESET EMAIL SMTP NOT CONFIGURED");
+    console.log("   PROVIDER:", provider);
+    console.log("   FROM:", from);
     console.log("   RESET LINK:", resetLink);
     console.log("   RESET CODE:", code);
     return;
@@ -109,15 +123,21 @@ export async function sendResetEmail({ email, fullName, token, code }) {
       subject: "Reset your DanceTime password",
       html,
     });
-    logMailSuccess("RESET EMAIL", email, info);
+    logMailSuccess("RESET EMAIL", email, info, {
+      PROVIDER: provider,
+      FROM: from,
+      RESET_LINK: resetLink,
+      RESET_CODE: code,
+    });
   } catch (err) {
-    logMailFailure("RESET EMAIL", err, { RESET_LINK: resetLink, RESET_CODE: code });
+    logMailFailure("RESET EMAIL", err, { PROVIDER: provider, FROM: from, RESET_LINK: resetLink, RESET_CODE: code });
   }
 }
 
 export async function sendValidatorInviteEmail({ email, fullName, token, code, organizerName }) {
   const { FRONTEND_URL } = appUrls();
-  const from = process.env.SMTP_FROM || "DanceTime <no-reply@dance.local>";
+  const from = getMailFrom();
+  const provider = getMailerProvider();
 
   const verifyLink =
     `${FRONTEND_URL}/verify-email?token=${encodeURIComponent(token)}` +
@@ -127,6 +147,8 @@ export async function sendValidatorInviteEmail({ email, fullName, token, code, o
 
   if (!transporter) {
     console.log("VALIDATOR INVITE SMTP NOT CONFIGURED");
+    console.log("   PROVIDER:", provider);
+    console.log("   FROM:", from);
     console.log("   LINK:", verifyLink);
     console.log("   CODE:", code);
     return;
@@ -156,18 +178,26 @@ export async function sendValidatorInviteEmail({ email, fullName, token, code, o
       subject: "Activate your DanceTime validator account",
       html,
     });
-    logMailSuccess("VALIDATOR INVITE", email, info);
+    logMailSuccess("VALIDATOR INVITE", email, info, {
+      PROVIDER: provider,
+      FROM: from,
+      LINK: verifyLink,
+      CODE: code,
+    });
   } catch (err) {
-    logMailFailure("VALIDATOR INVITE", err, { LINK: verifyLink, CODE: code });
+    logMailFailure("VALIDATOR INVITE", err, { PROVIDER: provider, FROM: from, LINK: verifyLink, CODE: code });
   }
 }
 
 export async function sendPasswordChangedEmail({ email, fullName }) {
-  const from = process.env.SMTP_FROM || "DanceTime <no-reply@dance.local>";
+  const from = getMailFrom();
+  const provider = getMailerProvider();
   const transporter = getMailer();
 
   if (!transporter) {
     console.log("PASSWORD CHANGED SMTP NOT CONFIGURED");
+    console.log("   PROVIDER:", provider);
+    console.log("   FROM:", from);
     console.log("   EMAIL:", email);
     return;
   }
@@ -189,18 +219,21 @@ export async function sendPasswordChangedEmail({ email, fullName }) {
       subject: "Your DanceTime password was changed",
       html,
     });
-    logMailSuccess("PASSWORD CHANGED EMAIL", email, info);
+    logMailSuccess("PASSWORD CHANGED EMAIL", email, info, { PROVIDER: provider, FROM: from });
   } catch (err) {
-    logMailFailure("PASSWORD CHANGED EMAIL", err, { EMAIL: email });
+    logMailFailure("PASSWORD CHANGED EMAIL", err, { PROVIDER: provider, FROM: from, EMAIL: email });
   }
 }
 
 export async function sendRefundEmail({ email, fullName, ticketCode, ticketType, event }) {
-  const from = process.env.SMTP_FROM || "DanceTime <no-reply@dance.local>";
+  const from = getMailFrom();
+  const provider = getMailerProvider();
   const transporter = getMailer();
 
   if (!transporter) {
     console.log("REFUND EMAIL SMTP NOT CONFIGURED");
+    console.log("   PROVIDER:", provider);
+    console.log("   FROM:", from);
     console.log("   EMAIL:", email);
     console.log("   TICKET:", ticketCode);
     return false;
@@ -229,10 +262,10 @@ export async function sendRefundEmail({ email, fullName, ticketCode, ticketType,
       subject: "Your DanceTime refund is being processed",
       html,
     });
-    logMailSuccess("REFUND EMAIL", email, info);
+    logMailSuccess("REFUND EMAIL", email, info, { PROVIDER: provider, FROM: from });
     return true;
   } catch (err) {
-    logMailFailure("REFUND EMAIL", err, { EMAIL: email, TICKET: ticketCode });
+    logMailFailure("REFUND EMAIL", err, { PROVIDER: provider, FROM: from, EMAIL: email, TICKET: ticketCode });
     return false;
   }
 }
