@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Ticket, Menu, X, User } from 'lucide-react';
 import { CitySelector } from './CitySelector';
 import { ProfileDropdown } from './ProfileDropdown';
+import { LanguageSwitcher } from './LanguageSwitcher';
+import { useI18n } from '../i18n';
 
 interface NavbarProps {
   selectedCity: string;
@@ -73,6 +75,7 @@ export const Navbar = ({
   const [isOpen, setIsOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const displayName = user?.fullName || user?.name || 'User';
+  const { t } = useI18n();
 
   useEffect(() => {
     const updateTheme = () => {
@@ -120,36 +123,37 @@ export const Navbar = ({
                     : 'border-purple-500/20 text-purple-700 hover:bg-purple-600/10 hover:text-purple-900'
                 }`}
               >
-                Organizer Dashboard
+                {t('navbar.organizerDashboard')}
               </button>
             )}
             {!organizerCompactMode && (
               <>
                 {showHomeLink && (
-                  <button onClick={() => navigateToSection('top')} className="text-muted-foreground hover:text-foreground transition-colors">Home</button>
+                  <button onClick={() => navigateToSection('top')} className="text-muted-foreground hover:text-foreground transition-colors">{t('common.home')}</button>
                 )}
                 {isValidator ? (
                   showValidatorNavLinks ? (
                   <>
-                    <button onClick={onValidatorEvents} className="text-muted-foreground hover:text-foreground transition-colors">My Events</button>
-                    <button onClick={onValidatorScan} className="text-muted-foreground hover:text-foreground transition-colors">Scan Ticket</button>
+                    <button onClick={onValidatorEvents} className="text-muted-foreground hover:text-foreground transition-colors">{t('navbar.myEvents')}</button>
+                    <button onClick={onValidatorScan} className="text-muted-foreground hover:text-foreground transition-colors">{t('navbar.scanTicket')}</button>
                   </>
                   ) : null
                 ) : (
                   <>
-                    <button onClick={() => navigateToSection('events')} className="text-muted-foreground hover:text-foreground transition-colors">Events</button>
-                    <button onClick={() => navigateToSection('about')} className="text-muted-foreground hover:text-foreground transition-colors">About us</button>
+                    <button onClick={() => navigateToSection('events')} className="text-muted-foreground hover:text-foreground transition-colors">{t('common.events')}</button>
+                    <button onClick={() => navigateToSection('about')} className="text-muted-foreground hover:text-foreground transition-colors">{t('common.aboutUs')}</button>
                   </>
                 )}
                 {isValidator ? null : isAdmin && showAdminPanelLink ? (
-                  <button onClick={onAdminPanel} className="text-muted-foreground hover:text-foreground transition-colors">Admin Panel</button>
+                  <button onClick={onAdminPanel} className="text-muted-foreground hover:text-foreground transition-colors">{t('navbar.adminPanel')}</button>
                 ) : isOrganizer && showOrganizerDashboardLink ? (
-                  <button onClick={onOrganizerDashboard} className="text-muted-foreground hover:text-foreground transition-colors">Organizer Dashboard</button>
+                  <button onClick={onOrganizerDashboard} className="text-muted-foreground hover:text-foreground transition-colors">{t('navbar.organizerDashboard')}</button>
                 ) : !isAdmin && !isOrganizer ? (
-                  <button onClick={() => navigateToSection('organizers')} className="text-muted-foreground hover:text-foreground transition-colors">For Organizers</button>
+                  <button onClick={() => navigateToSection('organizers')} className="text-muted-foreground hover:text-foreground transition-colors">{t('navbar.forOrganizers')}</button>
                 ) : null}
               </>
             )}
+            <LanguageSwitcher />
             {user ? (
               <ProfileDropdown 
                 user={user}
@@ -181,13 +185,13 @@ export const Navbar = ({
                   onClick={() => onOpenAuth('login')}
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Sign In
+                  {t('common.signIn')}
                 </button>
                 <button 
                   onClick={() => onOpenAuth('register')}
                   className="bg-purple-600 text-white px-5 py-2 rounded-full hover:bg-purple-700 transition-colors shadow-lg shadow-purple-600/20"
                 >
-                  Get Started
+                  {t('common.getStarted')}
                 </button>
               </>
               )
@@ -208,39 +212,40 @@ export const Navbar = ({
       {isOpen && !organizerCompactMode && (
         <div className="md:hidden bg-popover border-b border-border py-4 px-4 space-y-4 shadow-[0_18px_40px_rgba(35,31,54,0.08)]">
           {showHomeLink && (
-            <button onClick={() => navigateToSection('top')} className="block text-muted-foreground hover:text-foreground w-full text-left">Home</button>
+            <button onClick={() => navigateToSection('top')} className="block text-muted-foreground hover:text-foreground w-full text-left">{t('common.home')}</button>
           )}
           {isValidator ? (
             showValidatorNavLinks ? (
             <>
-              <button onClick={onValidatorEvents} className="block text-muted-foreground hover:text-foreground w-full text-left">My Events</button>
-              <button onClick={onValidatorScan} className="block text-muted-foreground hover:text-foreground w-full text-left">Scan Ticket</button>
+              <button onClick={onValidatorEvents} className="block text-muted-foreground hover:text-foreground w-full text-left">{t('navbar.myEvents')}</button>
+              <button onClick={onValidatorScan} className="block text-muted-foreground hover:text-foreground w-full text-left">{t('navbar.scanTicket')}</button>
             </>
             ) : null
           ) : (
             <>
-              <button onClick={() => navigateToSection('events')} className="block text-muted-foreground hover:text-foreground w-full text-left">Events</button>
-              <button onClick={() => navigateToSection('about')} className="block text-muted-foreground hover:text-foreground w-full text-left">About us</button>
+              <button onClick={() => navigateToSection('events')} className="block text-muted-foreground hover:text-foreground w-full text-left">{t('common.events')}</button>
+              <button onClick={() => navigateToSection('about')} className="block text-muted-foreground hover:text-foreground w-full text-left">{t('common.aboutUs')}</button>
             </>
           )}
           {isValidator ? null : isAdmin && showAdminPanelLink ? (
-            <button onClick={onAdminPanel} className="block text-muted-foreground hover:text-foreground w-full text-left">Admin Panel</button>
+            <button onClick={onAdminPanel} className="block text-muted-foreground hover:text-foreground w-full text-left">{t('navbar.adminPanel')}</button>
           ) : isOrganizer && showOrganizerDashboardLink ? (
-            <button onClick={onOrganizerDashboard} className="block text-muted-foreground hover:text-foreground w-full text-left">Organizer Dashboard</button>
+            <button onClick={onOrganizerDashboard} className="block text-muted-foreground hover:text-foreground w-full text-left">{t('navbar.organizerDashboard')}</button>
           ) : !isAdmin && !isOrganizer ? (
-            <button onClick={() => navigateToSection('organizers')} className="block text-muted-foreground hover:text-foreground w-full text-left">For Organizers</button>
+            <button onClick={() => navigateToSection('organizers')} className="block text-muted-foreground hover:text-foreground w-full text-left">{t('navbar.forOrganizers')}</button>
           ) : null}
+          <LanguageSwitcher mobile onSelect={() => setIsOpen(false)} />
           <div className="pt-4 flex flex-col gap-2">
             {user ? (
               <>
                 <div className="text-muted-foreground text-center py-2">
-                  Welcome, {displayName}
+                  {t('common.welcome')}, {displayName}
                 </div>
                 <button 
                   onClick={onLogout}
                   className="w-full text-center py-2 text-muted-foreground"
                 >
-                  Logout
+                  {t('common.logout')}
                 </button>
               </>
             ) : (
@@ -249,13 +254,13 @@ export const Navbar = ({
                   onClick={() => onOpenAuth('login')}
                   className="w-full text-center py-2 text-muted-foreground"
                 >
-                  Sign In
+                  {t('common.signIn')}
                 </button>
                 <button 
                   onClick={() => onOpenAuth('register')}
                   className="w-full bg-purple-600 text-white py-2 rounded-full shadow-lg shadow-purple-600/20"
                 >
-                  Get Started
+                  {t('common.getStarted')}
                 </button>
               </>
             )}

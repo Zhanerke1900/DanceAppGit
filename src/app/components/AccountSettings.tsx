@@ -4,6 +4,7 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import * as authApi from '../api/auth';
+import { useI18n } from '../i18n';
 
 interface AccountSettingsProps {
   user: any;
@@ -11,6 +12,34 @@ interface AccountSettingsProps {
 }
 
 export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUpdate }) => {
+  const { language } = useI18n();
+  const copy = {
+    title: language === 'ru' ? 'Настройки аккаунта' : language === 'kk' ? 'Аккаунт баптаулары' : 'Account Settings',
+    subtitle: language === 'ru' ? 'Управляйте данными аккаунта и безопасностью' : language === 'kk' ? 'Аккаунт ақпараты мен қауіпсіздікті басқарыңыз' : 'Manage your account information and security',
+    personal: language === 'ru' ? 'Личная информация' : language === 'kk' ? 'Жеке ақпарат' : 'Personal Information',
+    fullName: language === 'ru' ? 'Полное имя' : language === 'kk' ? 'Толық аты-жөні' : 'Full Name',
+    email: language === 'ru' ? 'Электронная почта' : language === 'kk' ? 'Электрондық пошта' : 'Email Address',
+    emailFixed: language === 'ru' ? 'Email нельзя изменить.' : language === 'kk' ? 'Email өзгертілмейді.' : 'Email cannot be changed.',
+    security: language === 'ru' ? 'Безопасность' : language === 'kk' ? 'Қауіпсіздік' : 'Security',
+    changePassword: language === 'ru' ? 'Сменить пароль' : language === 'kk' ? 'Құпиясөзді өзгерту' : 'Change Password',
+    notifications: language === 'ru' ? 'Настройки уведомлений' : language === 'kk' ? 'Хабарлама баптаулары' : 'Notification Preferences',
+    emailNotifications: language === 'ru' ? 'Email-уведомления' : language === 'kk' ? 'Email хабарламалары' : 'Email Notifications',
+    emailNotificationsDesc: language === 'ru' ? 'Получать обновления о билетах и событиях' : language === 'kk' ? 'Билеттер мен іс-шаралар туралы жаңартуларды алу' : 'Receive updates about your tickets and events',
+    eventReminders: language === 'ru' ? 'Напоминания о событиях' : language === 'kk' ? 'Іс-шара еске салғыштары' : 'Event Reminders',
+    eventRemindersDesc: language === 'ru' ? 'Напомнить за 24 часа до события' : language === 'kk' ? 'Іс-шараға 24 сағат қалғанда еске салу' : 'Remind me 24 hours before an event',
+    changesSaved: language === 'ru' ? 'Изменения сохранены!' : language === 'kk' ? 'Өзгерістер сақталды!' : 'Changes saved!',
+    saving: language === 'ru' ? 'Сохранение...' : language === 'kk' ? 'Сақталуда...' : 'Saving...',
+    saveChanges: language === 'ru' ? 'Сохранить изменения' : language === 'kk' ? 'Өзгерістерді сақтау' : 'Save Changes',
+    updatePasswordDesc: language === 'ru' ? 'Обновите пароль и сохраните аккаунт в безопасности' : language === 'kk' ? 'Құпиясөзді жаңартып, аккаунтты қауіпсіз ұстаңыз' : 'Update your password and keep your account secure',
+    currentPassword: language === 'ru' ? 'Текущий пароль' : language === 'kk' ? 'Ағымдағы құпиясөз' : 'Current Password',
+    enterCurrentPassword: language === 'ru' ? 'Введите текущий пароль' : language === 'kk' ? 'Ағымдағы құпиясөзді енгізіңіз' : 'Enter your current password',
+    newPassword: language === 'ru' ? 'Новый пароль' : language === 'kk' ? 'Жаңа құпиясөз' : 'New Password',
+    createPassword: language === 'ru' ? 'Создайте новый пароль' : language === 'kk' ? 'Жаңа құпиясөз жасаңыз' : 'Create a new password',
+    repeatNewPassword: language === 'ru' ? 'Повторите новый пароль' : language === 'kk' ? 'Жаңа құпиясөзді қайталаңыз' : 'Repeat New Password',
+    forgotPassword: language === 'ru' ? 'Забыли пароль?' : language === 'kk' ? 'Құпиясөзді ұмыттыңыз ба?' : 'Forgot password?',
+    updatingPassword: language === 'ru' ? 'Пароль обновляется...' : language === 'kk' ? 'Құпиясөз жаңартылуда...' : 'Updating Password...',
+    updatePassword: language === 'ru' ? 'Обновить пароль' : language === 'kk' ? 'Құпиясөзді жаңарту' : 'Update Password',
+  };
   const isAdmin = Boolean(user?.isAdmin);
   const isOrganizer = Boolean(user?.isOrganizer || user?.organizerStatus === 'approved');
   const isValidator = Boolean(user?.role === 'validator' || user?.isValidator);
@@ -184,22 +213,22 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
   return (
     <div className={compactLayout ? 'space-y-4' : 'space-y-6'}>
       <div className={compactLayout ? 'mb-4' : 'mb-8'}>
-        <h1 className={`${compactLayout ? 'text-2xl' : 'text-3xl'} font-bold text-white mb-2`}>Account Settings</h1>
-        <p className="text-gray-400">Manage your account information and security</p>
+        <h1 className={`${compactLayout ? 'text-2xl' : 'text-3xl'} mb-2 font-bold text-foreground dark:text-white`}>{copy.title}</h1>
+        <p className="text-muted-foreground dark:text-gray-400">{copy.subtitle}</p>
       </div>
 
       <form onSubmit={handleSave} className={compactLayout ? 'space-y-4' : 'space-y-8'}>
         {/* Personal Information */}
-        <div className={`bg-gradient-to-br from-gray-900 to-gray-950 border border-purple-500/20 rounded-2xl ${compactLayout ? 'p-5' : 'p-8'}`}>
+        <div className={`surface-card rounded-2xl ${compactLayout ? 'p-5' : 'p-8'} dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 dark:border-purple-500/20`}>
           <div className={`flex items-center gap-3 ${compactLayout ? 'mb-4' : 'mb-6'}`}>
-            <User className={`${compactLayout ? 'w-5 h-5' : 'w-6 h-6'} text-purple-400`} />
-            <h2 className="text-xl font-bold text-white">Personal Information</h2>
+            <User className={`${compactLayout ? 'w-5 h-5' : 'w-6 h-6'} text-primary dark:text-purple-400`} />
+            <h2 className="text-xl font-bold text-foreground dark:text-white">{copy.personal}</h2>
           </div>
 
           <div className={`grid md:grid-cols-2 ${compactLayout ? 'gap-4' : 'gap-6'}`}>
             <div>
-              <Label htmlFor="name" className="text-gray-200 mb-2">
-                Full Name
+              <Label htmlFor="name" className="text-foreground mb-2 dark:text-gray-200">
+                {copy.fullName}
               </Label>
               <Input
                 id="name"
@@ -207,13 +236,13 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
                 type="text"
                 value={formData.name}
                 onChange={handleChange}
-                className="bg-gray-950 border-gray-700 text-white placeholder:text-gray-600 focus:border-purple-500 focus:ring-purple-500/20"
+                className="border-border bg-input-background text-foreground placeholder:text-muted-foreground focus:border-purple-500 focus:ring-purple-500/20 dark:bg-gray-950 dark:border-gray-700 dark:text-white dark:placeholder:text-gray-600"
               />
             </div>
 
             <div>
-              <Label htmlFor="email" className="text-gray-200 mb-2">
-                Email Address
+              <Label htmlFor="email" className="text-foreground mb-2 dark:text-gray-200">
+                {copy.email}
               </Label>
               <Input
                 id="email"
@@ -222,21 +251,21 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
                 value={formData.email}
                 disabled
                 readOnly
-                className="bg-gray-950 border-gray-700 text-gray-400 placeholder:text-gray-600 opacity-70 cursor-not-allowed"
+                className="cursor-not-allowed border-border bg-input-background text-muted-foreground placeholder:text-muted-foreground opacity-70 dark:bg-gray-950 dark:border-gray-700 dark:text-gray-400 dark:placeholder:text-gray-600"
               />
-              <p className={`text-xs text-gray-500 ${compactLayout ? 'mt-1' : 'mt-2'}`}>Email cannot be changed.</p>
+              <p className={`text-xs text-muted-foreground dark:text-gray-500 ${compactLayout ? 'mt-1' : 'mt-2'}`}>{copy.emailFixed}</p>
             </div>
 
             <div>
-              <Label htmlFor="language" className="text-gray-200 mb-2">
-                Language
+              <Label htmlFor="language" className="text-foreground mb-2 dark:text-gray-200">
+                {language === 'ru' ? 'Язык' : language === 'kk' ? 'Тіл' : 'Language'}
               </Label>
               <select
                 id="language"
                 name="language"
                 value={formData.language}
                 onChange={handleChange}
-                className="w-full h-9 rounded-md bg-gray-950 border border-gray-700 text-white px-3 py-1 focus:border-purple-500 focus:ring-purple-500/20 focus:ring-[3px] outline-none transition-all"
+                className="h-9 w-full rounded-md border border-border bg-input-background px-3 py-1 text-foreground outline-none transition-all focus:border-purple-500 focus:ring-[3px] focus:ring-purple-500/20 dark:bg-gray-950 dark:border-gray-700 dark:text-white"
               >
                 <option value="en">English</option>
                 <option value="ru">Русский</option>
@@ -247,10 +276,10 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
         </div>
 
         {/* Security */}
-        <div className={`bg-gradient-to-br from-gray-900 to-gray-950 border border-purple-500/20 rounded-2xl ${compactLayout ? 'p-5' : 'p-8'}`}>
+        <div className={`surface-card rounded-2xl ${compactLayout ? 'p-5' : 'p-8'} dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 dark:border-purple-500/20`}>
           <div className={`flex items-center gap-3 ${compactLayout ? 'mb-4' : 'mb-6'}`}>
-            <Lock className={`${compactLayout ? 'w-5 h-5' : 'w-6 h-6'} text-purple-400`} />
-            <h2 className="text-xl font-bold text-white">Security</h2>
+            <Lock className={`${compactLayout ? 'w-5 h-5' : 'w-6 h-6'} text-primary dark:text-purple-400`} />
+            <h2 className="text-xl font-bold text-foreground dark:text-white">{copy.security}</h2>
           </div>
 
           <button
@@ -259,24 +288,24 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
               resetPasswordModalState();
               setIsPasswordModalOpen(true);
             }}
-            className={`bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-medium transition-all duration-300 ${compactLayout ? 'px-5 py-2.5' : 'px-6 py-3'}`}
+            className={`rounded-xl font-medium transition-all duration-300 bg-[rgba(94,72,166,0.12)] text-foreground hover:bg-[rgba(94,72,166,0.18)] dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white ${compactLayout ? 'px-5 py-2.5' : 'px-6 py-3'}`}
           >
-            Change Password
+            {copy.changePassword}
           </button>
         </div>
 
         {!isAdmin && !isOrganizer && !isValidator && (
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-purple-500/20 rounded-2xl p-8">
+          <div className="surface-card rounded-2xl p-8 dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 dark:border-purple-500/20">
             <div className="flex items-center gap-3 mb-6">
-              <Bell className="w-6 h-6 text-purple-400" />
-              <h2 className="text-xl font-bold text-white">Notification Preferences</h2>
+              <Bell className="w-6 h-6 text-primary dark:text-purple-400" />
+              <h2 className="text-xl font-bold text-foreground dark:text-white">{copy.notifications}</h2>
             </div>
 
             <div className="space-y-4">
-              <label className="flex items-center justify-between p-4 bg-gray-800/30 rounded-xl cursor-pointer hover:bg-gray-800/50 transition-colors">
+              <label className="flex cursor-pointer items-center justify-between rounded-xl p-4 transition-colors bg-[rgba(94,72,166,0.1)] hover:bg-[rgba(94,72,166,0.14)] dark:bg-gray-800/30 dark:hover:bg-gray-800/50">
                 <div>
-                  <p className="text-white font-medium mb-1">Email Notifications</p>
-                  <p className="text-gray-400 text-sm">Receive updates about your tickets and events</p>
+                  <p className="mb-1 font-medium text-foreground dark:text-white">{copy.emailNotifications}</p>
+                  <p className="text-sm text-muted-foreground dark:text-gray-400">{copy.emailNotificationsDesc}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -287,10 +316,10 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
                 />
               </label>
 
-              <label className="flex items-center justify-between p-4 bg-gray-800/30 rounded-xl cursor-pointer hover:bg-gray-800/50 transition-colors">
+              <label className="flex cursor-pointer items-center justify-between rounded-xl p-4 transition-colors bg-[rgba(94,72,166,0.1)] hover:bg-[rgba(94,72,166,0.14)] dark:bg-gray-800/30 dark:hover:bg-gray-800/50">
                 <div>
-                  <p className="text-white font-medium mb-1">Event Reminders</p>
-                  <p className="text-gray-400 text-sm">Remind me 24 hours before an event</p>
+                  <p className="mb-1 font-medium text-foreground dark:text-white">{copy.eventReminders}</p>
+                  <p className="text-sm text-muted-foreground dark:text-gray-400">{copy.eventRemindersDesc}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -309,7 +338,7 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
           {isSaved && (
             <div className="flex items-center gap-2 text-green-400">
               <CheckCircle2 className="w-5 h-5" />
-              <span className="font-medium">Changes saved!</span>
+              <span className="font-medium">{copy.changesSaved}</span>
             </div>
           )}
           {saveError && (
@@ -326,12 +355,12 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
             {isSaving ? (
               <>
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Saving...
+                {copy.saving}
               </>
             ) : (
               <>
                 <Save className="w-5 h-5" />
-                Save Changes
+                {copy.saveChanges}
               </>
             )}
           </button>
@@ -345,33 +374,33 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
           if (!open) resetPasswordModalState();
         }}
       >
-        <DialogContent className="bg-gray-900 border-purple-500/20 text-gray-100 max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-h-[90vh] max-w-md overflow-y-auto border-border bg-popover text-popover-foreground dark:bg-gray-900 dark:border-purple-500/20 dark:text-gray-100">
           <DialogHeader>
-            <DialogTitle className="text-2xl text-white">Change Password</DialogTitle>
-            <DialogDescription className="text-gray-400">
-              Update your password and keep your account secure
+            <DialogTitle className="text-2xl text-foreground dark:text-white">{copy.changePassword}</DialogTitle>
+            <DialogDescription className="text-muted-foreground dark:text-gray-400">
+              {copy.updatePasswordDesc}
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleChangePassword} className="space-y-4 mt-4">
             <div className="space-y-2">
-              <Label htmlFor="currentPassword" className="text-gray-300">Current Password</Label>
+              <Label htmlFor="currentPassword" className="text-foreground dark:text-gray-300">{copy.currentPassword}</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground dark:text-gray-500" />
                 <Input
                   id="currentPassword"
                   name="currentPassword"
                   type={showCurrentPassword ? 'text' : 'password'}
-                  placeholder="Enter your current password"
+                  placeholder={copy.enterCurrentPassword}
                   value={changePasswordForm.currentPassword}
                   onChange={handlePasswordFieldChange}
-                  className="pl-10 pr-10 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500"
+                  className="border-border bg-input-background pl-10 pr-10 text-foreground placeholder:text-muted-foreground focus:border-purple-500 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder:text-gray-500"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowCurrentPassword(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground dark:text-gray-500 dark:hover:text-gray-300"
                 >
                   {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -379,23 +408,23 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="newPassword" className="text-gray-300">New Password</Label>
+              <Label htmlFor="newPassword" className="text-foreground dark:text-gray-300">{copy.newPassword}</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground dark:text-gray-500" />
                 <Input
                   id="newPassword"
                   name="newPassword"
                   type={showNewPassword ? 'text' : 'password'}
-                  placeholder="Create a new password"
+                  placeholder={copy.createPassword}
                   value={changePasswordForm.newPassword}
                   onChange={handlePasswordFieldChange}
-                  className="pl-10 pr-10 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500"
+                  className="border-border bg-input-background pl-10 pr-10 text-foreground placeholder:text-muted-foreground focus:border-purple-500 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder:text-gray-500"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowNewPassword(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground dark:text-gray-500 dark:hover:text-gray-300"
                 >
                   {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -403,23 +432,23 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmNewPassword" className="text-gray-300">Repeat New Password</Label>
+              <Label htmlFor="confirmNewPassword" className="text-foreground dark:text-gray-300">{copy.repeatNewPassword}</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground dark:text-gray-500" />
                 <Input
                   id="confirmNewPassword"
                   name="confirmNewPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
-                  placeholder="Repeat your new password"
+                  placeholder={copy.repeatNewPassword}
                   value={changePasswordForm.confirmNewPassword}
                   onChange={handlePasswordFieldChange}
-                  className="pl-10 pr-10 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500"
+                  className="border-border bg-input-background pl-10 pr-10 text-foreground placeholder:text-muted-foreground focus:border-purple-500 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder:text-gray-500"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground dark:text-gray-500 dark:hover:text-gray-300"
                 >
                   {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -441,7 +470,7 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
             )}
 
             {forgotPasswordMessage && (
-              <div className="flex items-center gap-2 text-gray-300 text-sm">
+              <div className="flex items-center gap-2 text-sm text-foreground dark:text-gray-300">
                 <Mail className="w-4 h-4" />
                 {forgotPasswordMessage}
               </div>
@@ -452,9 +481,9 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
                 type="button"
                 onClick={handleForgotPassword}
                 disabled={isChangingPassword}
-                className="text-sm text-purple-400 hover:text-purple-300 disabled:text-gray-500"
+                className="text-sm text-purple-500 hover:text-purple-600 disabled:text-gray-500 dark:text-purple-400 dark:hover:text-purple-300"
               >
-                Forgot password?
+                {copy.forgotPassword}
               </button>
             </div>
 
@@ -463,7 +492,7 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
               disabled={isChangingPassword}
               className="w-full bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-600/30"
             >
-              {isChangingPassword ? 'Updating Password...' : 'Update Password'}
+              {isChangingPassword ? copy.updatingPassword : copy.updatePassword}
             </button>
           </form>
         </DialogContent>

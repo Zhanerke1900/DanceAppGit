@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { User, Ticket, Heart, ShoppingBag, Settings, LogOut, Building2, ChevronDown, Sun, Moon } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 interface ProfileDropdownProps {
   user: any;
@@ -51,6 +52,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
 }) => {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const displayName = user?.fullName || user?.name || 'User';
+  const { t } = useI18n();
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -111,7 +113,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
                 onSelect={onNavigateToMyTickets}
               >
                 <Ticket className="w-4 h-4" />
-                <span>My Tickets</span>
+                <span>{t('common.myTickets')}</span>
               </DropdownMenu.Item>
 
               <DropdownMenu.Item
@@ -119,7 +121,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
                 onSelect={onNavigateToFavorites}
               >
                 <Heart className="w-4 h-4" />
-                <span>Favorites</span>
+                <span>{t('common.favorites')}</span>
               </DropdownMenu.Item>
 
               <DropdownMenu.Item
@@ -127,7 +129,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
                 onSelect={onNavigateToPurchaseHistory}
               >
                 <ShoppingBag className="w-4 h-4" />
-                <span>Purchase History</span>
+                <span>{t('common.purchaseHistory')}</span>
               </DropdownMenu.Item>
             </>
           )}
@@ -137,7 +139,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
             onSelect={onNavigateToAccountSettings}
           >
             <Settings className="w-4 h-4" />
-            <span>Account Settings</span>
+            <span>{t('common.accountSettings')}</span>
           </DropdownMenu.Item>
 
           <DropdownMenu.Separator className="h-px bg-border my-2" />
@@ -147,7 +149,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
             onSelect={toggleTheme}
           >
             {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            <span>{theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}</span>
+            <span>{theme === 'dark' ? t('common.switchToLight') : t('common.switchToDark')}</span>
           </DropdownMenu.Item>
 
           {!isAdmin && !isOrganizer && !isValidator && (
@@ -159,7 +161,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
                 onSelect={onBecomeOrganizer}
               >
                 <Building2 className="w-4 h-4" />
-                <span>Become an Organizer</span>
+                <span>{t('common.becomeOrganizer')}</span>
               </DropdownMenu.Item>
             </>
           )}
@@ -170,7 +172,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
             onSelect={onLogout}
           >
             <LogOut className="w-4 h-4" />
-            <span>Logout</span>
+            <span>{t('common.logout')}</span>
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Portal>

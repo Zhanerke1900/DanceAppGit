@@ -34,6 +34,7 @@ import * as validatorApi from './api/validator';
 import type { TicketRecord } from './api/tickets';
 import { VerifyEmailPage } from './components/VerifyEmailPage';
 import { ResetPasswordPage } from './components/ResetPasswordPage';
+import { I18nProvider, useI18n } from './i18n';
 
 type ViewState = 'home' | 'all-events' | 'all-special-programs' | 'ticket-selection' | 'purchase-success' | 'profile' | 'become-organizer' | 'organizer-dashboard' | 'validator-dashboard' | 'admin-panel' | 'verify-email'
   | 'reset-password';
@@ -53,7 +54,7 @@ type FavoriteItem = {
   eventData?: any;
 };
 
-export default function App() {
+function AppContent() {
   const [selectedCity, setSelectedCity] = useState("Astana");
   const [pendingHomeSection, setPendingHomeSection] = useState<'top' | 'events' | 'about' | 'organizers' | null>(null);
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
@@ -103,6 +104,7 @@ export default function App() {
     currentView === 'profile' && profileTab === 'account-settings' && isOrganizer && !isAdmin;
   const isValidatorAccountSettingsView =
     currentView === 'profile' && profileTab === 'account-settings' && isValidator;
+  const { t } = useI18n();
 
   useEffect(() => {
     authApi.me()
@@ -920,7 +922,7 @@ useEffect(() => {
             <section className="py-12 border-b border-white/5 bg-black">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <p className="text-center text-sm font-semibold text-gray-500 uppercase tracking-widest mb-8">
-                  Empowering events in Kazakhstan
+                  {t('home.partners')}
                 </p>
                 <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
                   <span className="text-2xl font-black text-white italic">Astana Ballet</span>
@@ -963,19 +965,19 @@ useEffect(() => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
                   <div>
                     <div className="text-4xl md:text-5xl font-extrabold text-white mb-2">500+</div>
-                    <div className="text-purple-100 font-medium">Tickets Sold in KZ</div>
+                    <div className="text-purple-100 font-medium">{t('home.statsSold')}</div>
                   </div>
                   <div>
                     <div className="text-4xl md:text-5xl font-extrabold text-white mb-2">70+</div>
-                    <div className="text-purple-100 font-medium">Organizers</div>
+                    <div className="text-purple-100 font-medium">{t('home.statsOrganizers')}</div>
                   </div>
                   <div>
                     <div className="text-4xl md:text-5xl font-extrabold text-white mb-2">3</div>
-                    <div className="text-purple-100 font-medium">Major Cities</div>
+                    <div className="text-purple-100 font-medium">{t('home.statsCities')}</div>
                   </div>
                   <div>
                     <div className="text-4xl md:text-5xl font-extrabold text-white mb-2">24/7</div>
-                    <div className="text-purple-100 font-medium">Local Support</div>
+                    <div className="text-purple-100 font-medium">{t('home.statsSupport')}</div>
                   </div>
                 </div>
               </div>
@@ -1005,7 +1007,7 @@ useEffect(() => {
                   onClick={() => handleNavigateHomeSection('top')}
                   className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/10"
                 >
-                  Home
+                  {t('common.home')}
                 </button>
               </div>
             </section>
@@ -1210,5 +1212,21 @@ useEffect(() => {
         onRegister={handlePurchaseGateRegister}
       />
     </div>
+  );
+}
+
+export default function App() {
+  const [appUserLanguage, setAppUserLanguage] = useState<'en' | 'ru' | 'kk' | null>(null);
+
+  useEffect(() => {
+    authApi.me()
+      .then(({ user }) => setAppUserLanguage(user?.language || 'en'))
+      .catch(() => setAppUserLanguage('en'));
+  }, []);
+
+  return (
+    <I18nProvider userLanguage={appUserLanguage}>
+      <AppContent />
+    </I18nProvider>
   );
 }
