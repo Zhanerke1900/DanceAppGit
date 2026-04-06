@@ -168,7 +168,7 @@ export async function createFreedomPayPayment(order) {
     pg_order_id: String(order._id),
     pg_amount: orderAmount(order),
     pg_currency: config.currency,
-    pg_description: `DanceTime tickets: ${order.eventSnapshot?.title || "event"}`,
+    pg_description: `DanceTime order ${order._id}`,
     pg_result_url: resultUrl,
     pg_check_url: checkUrl,
     pg_request_method: "POST",
