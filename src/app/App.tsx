@@ -145,11 +145,40 @@ function AppContent() {
       .catch(() => setPublishedMarketplaceEvents([]));
   }, []);
 
-useEffect(() => {
-  const path = window.location.pathname;
-  if (path.startsWith('/verify-email')) setCurrentView('verify-email');
-  if (path.startsWith('/reset-password')) setCurrentView('reset-password');
-}, []);
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path.startsWith('/verify-email')) setCurrentView('verify-email');
+    if (path.startsWith('/reset-password')) setCurrentView('reset-password');
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const paymentStatus = params.get('payment');
+    if (!paymentStatus) return;
+
+    params.delete('payment');
+    params.delete('orderId');
+    params.delete('paymentId');
+    const nextQuery = params.toString();
+    window.history.replaceState({}, '', `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ''}${window.location.hash}`);
+
+    setPendingEvent(null);
+    setPurchaseDetails(null);
+    setRecentPurchaseTickets([]);
+
+    if (paymentStatus === 'success') {
+      setCurrentView('profile');
+      setProfileTab('my-tickets');
+      ticketsApi.myTickets()
+        .then((data) => setMyTickets(data.tickets || []))
+        .catch(() => {});
+      window.alert('Payment accepted. Your tickets will appear in My Tickets after confirmation.');
+      return;
+    }
+
+    window.alert('Payment was not completed. Please try again.');
+    setCurrentView('home');
+  }, []);
 
   useEffect(() => {
     if (isValidator) {
@@ -486,8 +515,18 @@ useEffect(() => {
       eventData: event,
       ticketDetails,
     });
-    setRecentPurchaseTickets(response.tickets || []);
-    setMyTickets((prev) => [...(response.tickets || []), ...prev]);
+    if (response.paymentUrl) {
+      window.location.assign(response.paymentUrl);
+      return;
+    }
+
+    const tickets = response.tickets || [];
+    if (tickets.length === 0) {
+      throw new Error('Payment was not initialized');
+    }
+
+    setRecentPurchaseTickets(tickets);
+    setMyTickets((prev) => [...tickets, ...prev]);
     refreshMyTickets();
     refreshPublishedMarketplaceEvents();
     setCurrentView('purchase-success');

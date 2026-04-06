@@ -132,7 +132,7 @@ export function publicTicket(ticket) {
   };
 }
 
-export async function purchaseTicketsForUser({ user, eventId, eventData, ticketDetails }) {
+async function buildTicketOrderDataForUser({ user, eventId, eventData, ticketDetails }) {
   const startedAt = Date.now();
   const items = normalizeTicketItems(ticketDetails);
   if (items.length === 0) {
@@ -209,41 +209,94 @@ export async function purchaseTicketsForUser({ user, eventId, eventData, ticketD
     }
   }
 
-  const order = await Order.create({
-    buyer: user._id,
-    buyerName: user.fullName,
-    buyerEmail: user.email,
-    event: event?._id || null,
-    organizer: organizerId,
-    eventSnapshot: snapshot,
-    items: items.map((item) => ({
-      name: item.name,
-      activityId: item.activityId,
-      quantity: item.quantity,
-      price: item.price,
-      kind: ticketKindFromName(item.name),
-    })),
-    quantity: totalQuantity,
-    subtotal,
-    serviceFee,
-    total,
-    paymentStatus: "paid",
-    checkInStatus: "not-checked-in",
-  });
+  return {
+    startedAt,
+    items,
+    totalQuantity,
+    orderData: {
+      buyer: user._id,
+      buyerName: user.fullName,
+      buyerEmail: user.email,
+      event: event?._id || null,
+      organizer: organizerId,
+      eventSnapshot: snapshot,
+      items: items.map((item) => ({
+        name: item.name,
+        activityId: item.activityId,
+        quantity: item.quantity,
+        price: item.price,
+        kind: ticketKindFromName(item.name),
+      })),
+      quantity: totalQuantity,
+      subtotal,
+      serviceFee,
+      total,
+      checkInStatus: "not-checked-in",
+    },
+  };
+}
 
+export async function createTicketOrderForUser({
+  user,
+  eventId,
+  eventData,
+  ticketDetails,
+  paymentStatus = "paid",
+  paymentProvider = "manual",
+}) {
+  const { orderData } = await buildTicketOrderDataForUser({ user, eventId, eventData, ticketDetails });
+  return Order.create({
+    ...orderData,
+    paymentStatus,
+    paymentProvider,
+  });
+}
+
+export function createPendingTicketOrderForUser({ user, eventId, eventData, ticketDetails }) {
+  return createTicketOrderForUser({
+    user,
+    eventId,
+    eventData,
+    ticketDetails,
+    paymentStatus: "pending",
+    paymentProvider: "freedompay",
+  });
+}
+
+export async function issueTicketsForPaidOrder(orderOrId) {
+  const order = typeof orderOrId === "string" || orderOrId?._bsontype === "ObjectId"
+    ? await Order.findById(orderOrId)
+    : orderOrId;
+
+  if (!order) {
+    throw new Error("Order not found");
+  }
+  if (order.paymentStatus !== "paid") {
+    throw new Error("Order is not paid");
+  }
+
+  const existingTickets = await Ticket.find({ order: order._id, status: { $ne: "cancelled" } }).sort({ createdAt: 1 });
+  if (existingTickets.length >= Number(order.quantity || 0)) {
+    return existingTickets.map(publicTicket);
+  }
+  if (existingTickets.length > 0) {
+    throw new Error("Ticket issue is incomplete for this order");
+  }
+
+  const startedAt = Date.now();
   const createdTickets = [];
-  for (const item of items) {
-    for (let index = 0; index < item.quantity; index += 1) {
+  for (const item of order.items || []) {
+    for (let index = 0; index < Number(item.quantity || 0); index += 1) {
       const ticketCode = await generateNextTicketCode();
       const ticketDraft = new Ticket({
         ticketCode,
-        user: user._id,
-        userEmail: user.email,
-        userFullName: user.fullName,
+        user: order.buyer,
+        userEmail: order.buyerEmail,
+        userFullName: order.buyerName,
         order: order._id,
-        event: event?._id || null,
-        organizer: organizerId,
-        eventSnapshot: snapshot,
+        event: order.event || null,
+        organizer: order.organizer || null,
+        eventSnapshot: order.eventSnapshot,
         ticketType: item.name,
         price: item.price,
         currency: "KZT",
@@ -276,10 +329,13 @@ export async function purchaseTicketsForUser({ user, eventId, eventData, ticketD
     }
   }
 
+  order.ticketsIssuedAt = new Date();
+  await order.save();
+
   queueTicketEmailDelivery({
-    email: user.email,
-    fullName: user.fullName,
-    event: snapshot,
+    email: order.buyerEmail,
+    fullName: order.buyerName,
+    event: order.eventSnapshot,
     tickets: createdTickets.map(({ document, qrToken }) => ({
       ticketCode: document.ticketCode,
       ticketType: document.ticketType,
@@ -289,13 +345,53 @@ export async function purchaseTicketsForUser({ user, eventId, eventData, ticketD
   });
 
   console.log(
-    `TICKET PURCHASE ${user.email} ok (quantity=${totalQuantity}, tickets=${createdTickets.length}, total=${Date.now() - startedAt}ms)`
+    `TICKET ISSUE ${order.buyerEmail} ok (order=${order._id}, quantity=${order.quantity}, tickets=${createdTickets.length}, total=${Date.now() - startedAt}ms)`
+  );
+
+  return createdTickets.map(({ document }) => publicTicket(document));
+}
+
+export async function purchaseTicketsForUser({ user, eventId, eventData, ticketDetails }) {
+  const startedAt = Date.now();
+  const order = await createTicketOrderForUser({
+    user,
+    eventId,
+    eventData,
+    ticketDetails,
+    paymentStatus: "paid",
+    paymentProvider: "manual",
+  });
+  const tickets = await issueTicketsForPaidOrder(order);
+
+  console.log(
+    `TICKET PURCHASE ${user.email} ok (quantity=${order.quantity}, tickets=${tickets.length}, total=${Date.now() - startedAt}ms)`
   );
 
   return {
     order,
-    tickets: createdTickets.map(({ document }) => publicTicket(document)),
+    tickets,
   };
+}
+
+export async function markOrderPaidAndIssueTickets(orderOrId, paymentFields = {}) {
+  const order = typeof orderOrId === "string" || orderOrId?._bsontype === "ObjectId"
+    ? await Order.findById(orderOrId)
+    : orderOrId;
+
+  if (!order) {
+    throw new Error("Order not found");
+  }
+
+  if (order.paymentStatus !== "paid") {
+    order.paymentStatus = "paid";
+    order.paidAt = order.paidAt || new Date();
+  }
+
+  Object.assign(order, paymentFields);
+  await order.save();
+
+  const tickets = await issueTicketsForPaidOrder(order);
+  return { order, tickets };
 }
 
 export async function getMyTickets(userId) {

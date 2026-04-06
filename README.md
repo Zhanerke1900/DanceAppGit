@@ -50,6 +50,11 @@ NODE_ENV=production
 FRONTEND_URL=https://your-frontend.vercel.app
 FRONTEND_URLS=http://localhost:5173,https://your-frontend.vercel.app
 BACKEND_URL=https://your-service.up.railway.app
+FREEDOMPAY_MERCHANT_ID=...
+FREEDOMPAY_SECRET_KEY=...
+FREEDOMPAY_INIT_URL=https://api.freedompay.kz/init_payment
+FREEDOMPAY_CURRENCY=KZT
+FREEDOMPAY_TESTING_MODE=1
 MAIL_PROVIDER=gmail
 MAIL_LOG_FALLBACK=true
 MAIL_LOG_COPY=false
@@ -62,6 +67,15 @@ GMAIL_FROM="DanceTime <yourgmail@gmail.com>"
 ```
 
 `FRONTEND_URLS` supports multiple comma-separated origins, which is useful if you want local development and production frontend to work at the same time.
+
+Freedom Pay uses these public backend callbacks:
+
+```text
+Result URL: https://your-service.up.railway.app/api/payment/result
+Check URL: https://your-service.up.railway.app/api/payment/check
+Success URL: https://your-service.up.railway.app/api/payment/success
+Failure URL: https://your-service.up.railway.app/api/payment/failure
+```
 
 For Gmail API, create a Google Cloud project, enable Gmail API, create OAuth 2.0 credentials, and generate a refresh token for the Gmail account that will send mail. This provider uses HTTPS API calls, not SMTP, so it works on Railway plans where SMTP is blocked.
 

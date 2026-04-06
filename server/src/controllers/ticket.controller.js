@@ -1,22 +1,58 @@
-import { getMyTickets, purchaseTicketsForUser, refundTicketForUser, validateTicketScan } from "../services/ticket.service.js";
+import { createFreedomPayPayment } from "../services/freedompay.service.js";
+import {
+  createPendingTicketOrderForUser,
+  getMyTickets,
+  markOrderPaidAndIssueTickets,
+  refundTicketForUser,
+  validateTicketScan,
+} from "../services/ticket.service.js";
 
 export async function purchaseTickets(req, res) {
   try {
     const { eventId, eventData, ticketDetails } = req.body || {};
-    const result = await purchaseTicketsForUser({
+    const order = await createPendingTicketOrderForUser({
       user: req.user,
       eventId,
       eventData,
       ticketDetails,
     });
+
+    if (Number(order.total || 0) <= 0) {
+      const result = await markOrderPaidAndIssueTickets(order, {
+        paymentProvider: "manual",
+        paidAt: new Date(),
+      });
+      return res.status(201).json({
+        message: "Tickets created successfully",
+        orderId: result.order._id,
+        tickets: result.tickets,
+      });
+    }
+
+    let payment;
+    try {
+      payment = await createFreedomPayPayment(order);
+    } catch (error) {
+      order.paymentStatus = "failed";
+      order.paymentFailureReason = `Freedom Pay init failed: ${error?.message || "unknown error"}`;
+      await order.save();
+      throw error;
+    }
+
+    if (payment.paymentId) {
+      order.freedomPayPaymentId = String(payment.paymentId);
+      await order.save();
+    }
+
     return res.status(201).json({
-      message: "Tickets created successfully",
-      orderId: result.order._id,
-      tickets: result.tickets,
+      message: "Payment initialized",
+      orderId: order._id,
+      paymentUrl: payment.paymentUrl,
+      paymentId: payment.paymentId,
     });
   } catch (error) {
     console.error(error);
-    return res.status(400).json({ message: error?.message || "Failed to create tickets" });
+    return res.status(400).json({ message: error?.message || "Failed to initialize payment" });
   }
 }
 

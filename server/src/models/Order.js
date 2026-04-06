@@ -38,6 +38,11 @@ const orderSchema = new mongoose.Schema(
     total: { type: Number, required: true, min: 0 },
 
     paymentStatus: { type: String, enum: ["paid", "pending", "failed", "refunded"], default: "paid" },
+    paymentProvider: { type: String, enum: ["manual", "freedompay"], default: "manual", index: true },
+    freedomPayPaymentId: { type: String, default: "", index: true },
+    paymentFailureReason: { type: String, default: "" },
+    paidAt: { type: Date, default: null },
+    ticketsIssuedAt: { type: Date, default: null },
     checkInStatus: { type: String, enum: ["not-checked-in", "checked-in"], default: "not-checked-in" },
   },
   { timestamps: true }

@@ -31,7 +31,13 @@ export async function purchaseTickets(payload: { eventId?: string; eventData: an
     json: payload,
   });
   if (!res.ok) throw new Error((data as any)?.message || "Failed to purchase tickets");
-  return data as { message: string; orderId: string; tickets: TicketRecord[] };
+  return data as {
+    message: string;
+    orderId: string;
+    tickets?: TicketRecord[];
+    paymentUrl?: string;
+    paymentId?: string;
+  };
 }
 
 export async function myTickets() {

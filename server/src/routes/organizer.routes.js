@@ -270,7 +270,7 @@ router.get("/orders", async (req, res) => {
   try {
     const orders = await Order.find({
       organizer: req.user._id,
-      paymentStatus: { $ne: "refunded" },
+      paymentStatus: "paid",
     }).sort({ createdAt: -1 }).limit(300);
     const orderIds = orders.map((order) => order._id);
     const usedTickets = orderIds.length
