@@ -98,19 +98,19 @@ export const BecomeOrganizer: React.FC<BecomeOrganizerProps> = ({ onBack, user, 
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-black pt-24 pb-20 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-background pt-24 pb-20 px-4 sm:px-6 lg:px-8 dark:bg-black">
         <div className="max-w-2xl mx-auto">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-purple-500/20 rounded-2xl p-12 text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-purple-600/20 rounded-full mb-6">
-              <CheckCircle2 className="w-10 h-10 text-purple-400" />
+          <div className="surface-card rounded-2xl p-12 text-center dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 dark:border-purple-500/20">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full mb-6 bg-[rgba(108,82,193,0.16)] dark:bg-purple-600/20">
+              <CheckCircle2 className="w-10 h-10 text-primary dark:text-purple-400" />
             </div>
-            <h2 className="text-3xl font-bold text-white mb-4">Application Submitted!</h2>
-            <p className="text-gray-400 text-lg mb-8">
+            <h2 className="text-3xl font-bold text-foreground mb-4 dark:text-white">Application Submitted!</h2>
+            <p className="text-muted-foreground text-lg mb-8 dark:text-gray-400">
               Your application is under review. Our team will get back to you within 2-3 business days.
             </p>
-            <div className="bg-purple-950/30 border border-purple-500/20 rounded-xl p-6 mb-8">
-              <p className="text-purple-300 text-sm mb-2">Application ID</p>
-              <p className="text-white font-mono text-lg">#{applicationId || 'ORG-PENDING'}</p>
+            <div className="rounded-xl p-6 mb-8 bg-[rgba(108,82,193,0.1)] border border-[rgba(108,82,193,0.18)] dark:bg-purple-950/30 dark:border-purple-500/20">
+              <p className="text-primary text-sm mb-2 dark:text-purple-300">Application ID</p>
+              <p className="text-foreground font-mono text-lg dark:text-white">#{applicationId || 'ORG-PENDING'}</p>
             </div>
             <button
               onClick={onBack}
@@ -125,32 +125,32 @@ export const BecomeOrganizer: React.FC<BecomeOrganizerProps> = ({ onBack, user, 
   }
 
   return (
-    <div className="min-h-screen bg-black pt-24 pb-20 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background pt-24 pb-20 px-4 sm:px-6 lg:px-8 dark:bg-black">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-gray-400 hover:text-purple-400 transition-colors mb-8 group"
+          className="mb-8 flex items-center gap-2 text-muted-foreground transition-colors group hover:text-primary dark:text-gray-400 dark:hover:text-purple-400"
         >
           <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
           <span>Back</span>
         </button>
 
         <div className="mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4 dark:text-white">
             Become an Organizer
           </h1>
-          <p className="text-gray-400 text-lg">
+          <p className="text-muted-foreground text-lg dark:text-gray-400">
             Join our network of event organizers and start hosting amazing dance events across Kazakhstan.
           </p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-gradient-to-br from-gray-900 to-gray-950 border border-purple-500/20 rounded-2xl p-8 md:p-10">
+        <form onSubmit={handleSubmit} className="surface-card rounded-2xl p-8 md:p-10 dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 dark:border-purple-500/20">
           {/* Organization Name */}
           <div className="mb-6">
-            <Label htmlFor="organizationName" className="text-gray-200 mb-2 flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-purple-400" />
+            <Label htmlFor="organizationName" className="text-foreground mb-2 flex items-center gap-2 dark:text-gray-200">
+              <Building2 className="w-4 h-4 text-primary dark:text-purple-400" />
               Organization / Team Name *
             </Label>
             <Input
@@ -160,7 +160,7 @@ export const BecomeOrganizer: React.FC<BecomeOrganizerProps> = ({ onBack, user, 
               value={formData.organizationName}
               onChange={handleChange}
               placeholder="e.g., Almaty Dance Studio"
-              className={`bg-gray-950 border-gray-700 text-white placeholder:text-gray-600 focus:border-purple-500 focus:ring-purple-500/20 ${
+              className={`border-border bg-input-background text-foreground placeholder:text-muted-foreground focus:border-purple-500 focus:ring-purple-500/20 dark:bg-gray-950 dark:border-gray-700 dark:text-white dark:placeholder:text-gray-600 ${
                 errors.organizationName ? 'border-red-500' : ''
               }`}
             />
@@ -171,7 +171,7 @@ export const BecomeOrganizer: React.FC<BecomeOrganizerProps> = ({ onBack, user, 
 
           {/* Description */}
           <div className="mb-6">
-            <Label htmlFor="description" className="text-gray-200 mb-2">
+            <Label htmlFor="description" className="text-foreground mb-2 dark:text-gray-200">
               Description *
             </Label>
             <Textarea
@@ -181,7 +181,7 @@ export const BecomeOrganizer: React.FC<BecomeOrganizerProps> = ({ onBack, user, 
               onChange={handleChange}
               placeholder="Tell us about your organization, your experience organizing events, and what type of events you plan to host..."
               rows={6}
-              className={`bg-gray-950 border-gray-700 text-white placeholder:text-gray-600 focus:border-purple-500 focus:ring-purple-500/20 ${
+              className={`border-border bg-input-background text-foreground placeholder:text-muted-foreground focus:border-purple-500 focus:ring-purple-500/20 dark:bg-gray-950 dark:border-gray-700 dark:text-white dark:placeholder:text-gray-600 ${
                 errors.description ? 'border-red-500' : ''
               }`}
             />
@@ -189,7 +189,7 @@ export const BecomeOrganizer: React.FC<BecomeOrganizerProps> = ({ onBack, user, 
               {errors.description ? (
                 <p className="text-red-400 text-sm">{errors.description}</p>
               ) : (
-                <p className="text-gray-500 text-sm">
+                <p className="text-muted-foreground text-sm dark:text-gray-500">
                   {formData.description.length} / 50 characters minimum
                 </p>
               )}
@@ -198,8 +198,8 @@ export const BecomeOrganizer: React.FC<BecomeOrganizerProps> = ({ onBack, user, 
 
           {/* Contact Email */}
           <div className="mb-6">
-            <Label htmlFor="email" className="text-gray-200 mb-2 flex items-center gap-2">
-              <Mail className="w-4 h-4 text-purple-400" />
+            <Label htmlFor="email" className="text-foreground mb-2 flex items-center gap-2 dark:text-gray-200">
+              <Mail className="w-4 h-4 text-primary dark:text-purple-400" />
               Contact Email *
             </Label>
             <Input
@@ -209,7 +209,7 @@ export const BecomeOrganizer: React.FC<BecomeOrganizerProps> = ({ onBack, user, 
               value={formData.email}
               onChange={handleChange}
               placeholder="your@email.com"
-              className={`bg-gray-950 border-gray-700 text-white placeholder:text-gray-600 focus:border-purple-500 focus:ring-purple-500/20 ${
+              className={`border-border bg-input-background text-foreground placeholder:text-muted-foreground focus:border-purple-500 focus:ring-purple-500/20 dark:bg-gray-950 dark:border-gray-700 dark:text-white dark:placeholder:text-gray-600 ${
                 errors.email ? 'border-red-500' : ''
               }`}
             />
@@ -220,8 +220,8 @@ export const BecomeOrganizer: React.FC<BecomeOrganizerProps> = ({ onBack, user, 
 
           {/* Phone Number */}
           <div className="mb-8">
-            <Label htmlFor="phone" className="text-gray-200 mb-2 flex items-center gap-2">
-              <Phone className="w-4 h-4 text-purple-400" />
+            <Label htmlFor="phone" className="text-foreground mb-2 flex items-center gap-2 dark:text-gray-200">
+              <Phone className="w-4 h-4 text-primary dark:text-purple-400" />
               Phone Number *
             </Label>
             <Input
@@ -231,7 +231,7 @@ export const BecomeOrganizer: React.FC<BecomeOrganizerProps> = ({ onBack, user, 
               value={formData.phone}
               onChange={handleChange}
               placeholder="+7 (777) 123-45-67"
-              className={`bg-gray-950 border-gray-700 text-white placeholder:text-gray-600 focus:border-purple-500 focus:ring-purple-500/20 ${
+              className={`border-border bg-input-background text-foreground placeholder:text-muted-foreground focus:border-purple-500 focus:ring-purple-500/20 dark:bg-gray-950 dark:border-gray-700 dark:text-white dark:placeholder:text-gray-600 ${
                 errors.phone ? 'border-red-500' : ''
               }`}
             />
@@ -241,14 +241,14 @@ export const BecomeOrganizer: React.FC<BecomeOrganizerProps> = ({ onBack, user, 
           </div>
 
           {/* Social Media Links */}
-          <div className="border-t border-gray-800 pt-8 mb-8">
-            <h3 className="text-xl font-semibold text-white mb-6">Social Media Links (Optional)</h3>
+          <div className="border-t border-border pt-8 mb-8 dark:border-gray-800">
+            <h3 className="text-xl font-semibold text-foreground mb-6 dark:text-white">Social Media Links (Optional)</h3>
             
             <div className="space-y-5">
               {/* Website */}
               <div>
-                <Label htmlFor="website" className="text-gray-200 mb-2 flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-purple-400" />
+                <Label htmlFor="website" className="text-foreground mb-2 flex items-center gap-2 dark:text-gray-200">
+                  <Globe className="w-4 h-4 text-primary dark:text-purple-400" />
                   Website
                 </Label>
                 <Input
@@ -258,14 +258,14 @@ export const BecomeOrganizer: React.FC<BecomeOrganizerProps> = ({ onBack, user, 
                   value={formData.website}
                   onChange={handleChange}
                   placeholder="https://yourwebsite.com"
-                  className="bg-gray-950 border-gray-700 text-white placeholder:text-gray-600 focus:border-purple-500 focus:ring-purple-500/20"
+                  className="border-border bg-input-background text-foreground placeholder:text-muted-foreground focus:border-purple-500 focus:ring-purple-500/20 dark:bg-gray-950 dark:border-gray-700 dark:text-white dark:placeholder:text-gray-600"
                 />
               </div>
 
               {/* Instagram */}
               <div>
-                <Label htmlFor="instagram" className="text-gray-200 mb-2 flex items-center gap-2">
-                  <Instagram className="w-4 h-4 text-purple-400" />
+                <Label htmlFor="instagram" className="text-foreground mb-2 flex items-center gap-2 dark:text-gray-200">
+                  <Instagram className="w-4 h-4 text-primary dark:text-purple-400" />
                   Instagram
                 </Label>
                 <Input
@@ -275,14 +275,14 @@ export const BecomeOrganizer: React.FC<BecomeOrganizerProps> = ({ onBack, user, 
                   value={formData.instagram}
                   onChange={handleChange}
                   placeholder="@yourorganization"
-                  className="bg-gray-950 border-gray-700 text-white placeholder:text-gray-600 focus:border-purple-500 focus:ring-purple-500/20"
+                  className="border-border bg-input-background text-foreground placeholder:text-muted-foreground focus:border-purple-500 focus:ring-purple-500/20 dark:bg-gray-950 dark:border-gray-700 dark:text-white dark:placeholder:text-gray-600"
                 />
               </div>
 
               {/* Facebook */}
               <div>
-                <Label htmlFor="facebook" className="text-gray-200 mb-2 flex items-center gap-2">
-                  <Facebook className="w-4 h-4 text-purple-400" />
+                <Label htmlFor="facebook" className="text-foreground mb-2 flex items-center gap-2 dark:text-gray-200">
+                  <Facebook className="w-4 h-4 text-primary dark:text-purple-400" />
                   Facebook
                 </Label>
                 <Input
@@ -292,7 +292,7 @@ export const BecomeOrganizer: React.FC<BecomeOrganizerProps> = ({ onBack, user, 
                   value={formData.facebook}
                   onChange={handleChange}
                   placeholder="facebook.com/yourpage"
-                  className="bg-gray-950 border-gray-700 text-white placeholder:text-gray-600 focus:border-purple-500 focus:ring-purple-500/20"
+                  className="border-border bg-input-background text-foreground placeholder:text-muted-foreground focus:border-purple-500 focus:ring-purple-500/20 dark:bg-gray-950 dark:border-gray-700 dark:text-white dark:placeholder:text-gray-600"
                 />
               </div>
             </div>
@@ -320,7 +320,7 @@ export const BecomeOrganizer: React.FC<BecomeOrganizerProps> = ({ onBack, user, 
             )}
           </button>
 
-          <p className="text-gray-500 text-sm text-center mt-6">
+          <p className="text-muted-foreground text-sm text-center mt-6 dark:text-gray-500">
             By submitting this form, you agree to our Terms of Service and Privacy Policy.
           </p>
         </form>
