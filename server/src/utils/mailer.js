@@ -25,6 +25,14 @@ function isSmtpConfigured() {
   return Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
 }
 
+function isRailwayRuntime() {
+  return Boolean(process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PROJECT_ID || process.env.RAILWAY_SERVICE_ID);
+}
+
+function shouldLogMailCopy() {
+  return isEnabled(process.env.MAIL_LOG_COPY, isRailwayRuntime());
+}
+
 function toList(value) {
   if (Array.isArray(value)) return value.filter(Boolean);
   return [value].filter(Boolean);
@@ -214,6 +222,9 @@ function withLogFallback(mailer, provider) {
     async sendMail(options = {}) {
       try {
         const info = await mailer.sendMail(options);
+        if (shouldLogMailCopy()) {
+          await createLogMailer(`${provider} send copy`).sendMail(options);
+        }
         return {
           ...info,
           provider: info?.provider || provider,

@@ -54,6 +54,7 @@ RESEND_API_KEY=re_xxxxxxxxx
 RESEND_FROM="DanceTime <onboarding@your-domain.com>"
 MAIL_PROVIDER=auto
 MAIL_LOG_FALLBACK=true
+MAIL_LOG_COPY=true
 ```
 
 `FRONTEND_URLS` supports multiple comma-separated origins, which is useful if you want local development and production frontend to work at the same time.
@@ -68,4 +69,4 @@ If you want a temporary Railway-only workaround while Resend is broken, set:
 MAIL_PROVIDER=log
 ```
 
-In `log` mode the backend does not try to deliver the message externally. Instead it prints the email payload to Railway logs so you can copy verification/reset links and inspect outgoing mail content. With `MAIL_LOG_FALLBACK=true`, failed `Resend` or SMTP sends also fall back to log output automatically.
+In `log` mode the backend does not try to deliver the message externally. Instead it prints the email payload to Railway logs so you can copy verification/reset links and inspect outgoing mail content. With `MAIL_LOG_FALLBACK=true`, failed `Resend` or SMTP sends also fall back to log output automatically. With `MAIL_LOG_COPY=true`, Railway logs get a copy of the email even when Resend/SMTP reports success.

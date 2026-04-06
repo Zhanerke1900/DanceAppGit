@@ -59,6 +59,9 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB connected");
+    console.log(
+      `Deploy source commit: ${process.env.RAILWAY_GIT_COMMIT_SHA || process.env.GIT_COMMIT_SHA || "local"}`
+    );
     app.listen(PORT, () => console.log(`Backend running on http://localhost:${PORT}`));
   })
   .catch((err) => {
