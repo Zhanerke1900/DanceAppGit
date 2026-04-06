@@ -14,6 +14,28 @@ function trimTrailingSlash(value) {
   return String(value || "").trim().replace(/\/+$/, "");
 }
 
+function firstValidUrl(...values) {
+  for (const value of values) {
+    const candidates = String(value || "")
+      .split(",")
+      .map((item) => trimTrailingSlash(item))
+      .filter(Boolean);
+
+    for (const candidate of candidates) {
+      try {
+        const parsed = new URL(candidate);
+        if (["http:", "https:"].includes(parsed.protocol)) {
+          return parsed.toString().replace(/\/+$/, "");
+        }
+      } catch {
+        // Try the next configured URL.
+      }
+    }
+  }
+
+  return "http://localhost:5173";
+}
+
 function randomSalt() {
   return crypto.randomBytes(16).toString("hex");
 }
@@ -109,13 +131,12 @@ export function getFreedomPayConfig() {
     currency: String(process.env.FREEDOMPAY_CURRENCY || "KZT").trim(),
     testingMode: String(process.env.FREEDOMPAY_TESTING_MODE || "").trim(),
     backendUrl: trimTrailingSlash(getRequiredEnv("BACKEND_URL")),
-    frontendUrl: trimTrailingSlash(getRequiredEnv("FRONTEND_URL")),
+    frontendUrl: firstValidUrl(process.env.FRONTEND_URL, process.env.FRONTEND_URLS),
   };
 }
 
 export function buildFrontendPaymentReturnUrl(status, payload = {}) {
-  const frontendUrl = trimTrailingSlash(process.env.FRONTEND_URL || "");
-  const url = new URL(frontendUrl || "http://localhost:5173");
+  const url = new URL(firstValidUrl(process.env.FRONTEND_URL, process.env.FRONTEND_URLS));
   url.searchParams.set("payment", status);
   if (payload.pg_order_id) url.searchParams.set("orderId", String(payload.pg_order_id));
   if (payload.pg_payment_id) url.searchParams.set("paymentId", String(payload.pg_payment_id));
