@@ -780,7 +780,7 @@ function AppContent() {
 
   const handleViewOrganizerEvent = (event: any) => {
     setPendingEvent(event);
-    setTicketSelectionReadOnly(true);
+    setTicketSelectionReadOnly(event?.status !== 'published' || Boolean(event?.soldOut));
     setCurrentView('ticket-selection');
     window.scrollTo(0, 0);
   };

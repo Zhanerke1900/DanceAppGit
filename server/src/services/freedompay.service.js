@@ -147,6 +147,13 @@ function orderAmount(order) {
   return Number(Number(order?.total || 0).toFixed(2));
 }
 
+function compactFreedomPayResponse(text) {
+  return String(text || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 800);
+}
+
 export async function createFreedomPayPayment(order) {
   const config = getFreedomPayConfig();
   const scriptName = getFreedomPayScriptName(config.initUrl);
@@ -181,24 +188,30 @@ export async function createFreedomPayPayment(order) {
 
   request.pg_sig = makeFreedomPaySignature(scriptName, request, config.secretKey);
 
-  const body = new URLSearchParams();
-  for (const [key, value] of Object.entries(request)) {
-    body.set(key, String(value));
-  }
-
   const response = await fetch(config.initUrl, {
     method: "POST",
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
+      "Content-Type": "application/json",
       Accept: "application/xml, text/xml, */*",
     },
-    body,
+    body: JSON.stringify(request),
   });
 
   const responseText = await response.text();
   const parsed = parseFreedomPayXml(responseText);
   if (!response.ok) {
-    throw new Error(`Freedom Pay init failed with HTTP ${response.status}`);
+    console.error("Freedom Pay init HTTP error", {
+      status: response.status,
+      statusText: response.statusText,
+      response: compactFreedomPayResponse(responseText),
+      orderId: String(order._id),
+      merchantId: config.merchantId,
+    });
+    throw new Error(
+      parsed.pg_error_description ||
+        parsed.pg_description ||
+        `Freedom Pay init failed with HTTP ${response.status}`
+    );
   }
 
   if (parsed.pg_sig && !verifyFreedomPaySignature(scriptName, parsed, config.secretKey)) {
