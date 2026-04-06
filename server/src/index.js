@@ -9,6 +9,7 @@ import adminRoutes from "./routes/admin.routes.js";
 import organizerRoutes from "./routes/organizer.routes.js";
 import eventsRoutes from "./routes/events.routes.js";
 import ordersRoutes from "./routes/orders.routes.js";
+import paymentRoutes from "./routes/payment.routes.js";
 import ticketRoutes from "./routes/ticket.routes.js";
 import validatorRoutes from "./routes/validator.routes.js";
 
@@ -50,6 +51,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/organizer", organizerRoutes);
 app.use("/api/events", eventsRoutes);
 app.use("/api/orders", ordersRoutes);
+app.use("/api/payment", paymentRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/validator", validatorRoutes);
 
