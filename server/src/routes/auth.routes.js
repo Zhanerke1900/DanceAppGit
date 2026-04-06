@@ -389,10 +389,18 @@ router.post("/forgot-password", async (req, res) => {
     const cleanEmail = String(email || "").trim().toLowerCase();
     if (!cleanEmail) return res.status(400).json({ message: "Email is required" });
 
+    console.log("FORGOT PASSWORD REQUEST");
+    console.log("   EMAIL:", cleanEmail);
+
     const user = await User.findOne({ email: cleanEmail });
 
     // всегда отвечаем “sent” (чтобы не палить существование email)
-    if (!user) return res.json({ message: "If that email exists, reset link was sent" });
+    if (!user) {
+      console.log("RESET EMAIL SKIPPED");
+      console.log("   REASON:", "USER_NOT_FOUND");
+      console.log("   EMAIL:", cleanEmail);
+      return res.json({ message: "If that email exists, reset link was sent" });
+    }
 
     const token = makeToken();
     const code = makeCode();

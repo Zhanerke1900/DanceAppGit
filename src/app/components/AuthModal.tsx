@@ -13,7 +13,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import * as authApi from '../api/auth';
 import { useI18n } from '../i18n';
 
-type AuthView = 'login' | 'register' | 'forgot-password' | 'verification-sent';
+type AuthView = 'login' | 'register' | 'forgot-password' | 'verification-sent' | 'reset-sent';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -175,7 +175,7 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
     try {
       setLoading(true);
       await authApi.forgotPassword(email.trim().toLowerCase());
-      setView('verification-sent');
+      setView('reset-sent');
     } catch (err: any) {
       setGeneralError(err?.message || t('auth.failedResetEmail'));
     } finally {
@@ -548,9 +548,9 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
             </motion.div>
           )}
 
-          {view === 'verification-sent' && (
+          {(view === 'verification-sent' || view === 'reset-sent') && (
             <motion.div
-              key="verification-sent"
+              key={view}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
@@ -562,7 +562,7 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
               </div>
               <h3 className="text-xl font-bold text-white mb-2">{t('common.checkInbox')}</h3>
               <p className="text-gray-400 mb-8">
-                {t('auth.verificationSentTo')} <br />
+                {view === 'reset-sent' ? 'Password reset instructions were sent to' : t('auth.verificationSentTo')} <br />
                 <span className="text-white font-medium">{email}</span>
               </p>
 
@@ -573,10 +573,15 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
                     try {
                       setLoading(true);
                       setGeneralError('');
-                      await authApi.resendVerification(email.trim().toLowerCase());
-                      setGeneralError(t('auth.verificationSentAgain'));
+                      if (view === 'reset-sent') {
+                        await authApi.forgotPassword(email.trim().toLowerCase());
+                        setGeneralError('Reset email sent again. Check Railway logs.');
+                      } else {
+                        await authApi.resendVerification(email.trim().toLowerCase());
+                        setGeneralError(t('auth.verificationSentAgain'));
+                      }
                     } catch (e: any) {
-                      setGeneralError((e && e.message) ? e.message : t('auth.verificationResendFailed'));
+                      setGeneralError((e && e.message) ? e.message : (view === 'reset-sent' ? t('auth.failedResetEmail') : t('auth.verificationResendFailed')));
                     } finally {
                       setLoading(false);
                     }
@@ -584,7 +589,7 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
                   disabled={loading}
                   className="w-full mb-3 bg-purple-600/20 hover:bg-purple-600/30 text-purple-200 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
                 >
-                  {loading ? t('common.sending') : t('common.resendVerificationEmail')}
+                  {loading ? t('common.sending') : (view === 'reset-sent' ? 'Resend reset email' : t('common.resendVerificationEmail'))}
                 </button>
               )}
 
