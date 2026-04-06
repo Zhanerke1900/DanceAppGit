@@ -49,6 +49,19 @@ function summarizeAttachments(attachments) {
   }));
 }
 
+function extractMailLinks(options = {}) {
+  const source = [options.text, options.html].filter(Boolean).join("\n");
+  const matches = source.match(/https?:\/\/[^\s"'<>]+/g) || [];
+
+  return Array.from(
+    new Set(
+      matches
+        .map((url) => url.replace(/&amp;/g, "&").replace(/[),.;]+$/g, ""))
+        .filter(Boolean)
+    )
+  );
+}
+
 export function getMailFrom() {
   return process.env.RESEND_FROM || process.env.SMTP_FROM || DEFAULT_FROM;
 }
@@ -154,6 +167,7 @@ function createLogMailer(reason = "MAIL_PROVIDER=log") {
       const html = clipForLogs(options.html);
       const text = clipForLogs(options.text);
       const attachments = summarizeAttachments(options.attachments);
+      const links = extractMailLinks(options);
 
       console.log("MAIL LOG DELIVERY");
       console.log("   provider:", "log");
@@ -164,6 +178,9 @@ function createLogMailer(reason = "MAIL_PROVIDER=log") {
       if (bcc.length) console.log("   bcc:", bcc);
       if (options.replyTo) console.log("   replyTo:", options.replyTo);
       if (options.subject) console.log("   subject:", options.subject);
+      links.forEach((link, index) => {
+        console.log(`   LINK_${index + 1}:`, link);
+      });
       if (text) {
         console.log("   text:");
         console.log(text);
