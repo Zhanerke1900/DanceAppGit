@@ -1,4 +1,4 @@
-import { getMailer } from "./mailer.js";
+import { getMailer, getMailFrom } from "./mailer.js";
 import { generateTicketQrBuffer } from "./ticketQr.js";
 import { generateTicketBarcodeBuffer } from "./ticketBarcode.js";
 
@@ -11,7 +11,7 @@ function formatCurrency(amount) {
 
 export async function sendTicketEmail({ email, fullName, event, tickets }) {
   const transporter = getMailer();
-  const from = process.env.RESEND_FROM || process.env.SMTP_FROM || "DanceTime <no-reply@dance.local>";
+  const from = getMailFrom();
   const provider = transporter?.provider || "none";
 
   if (!transporter) {

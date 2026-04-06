@@ -50,18 +50,24 @@ NODE_ENV=production
 FRONTEND_URL=https://your-frontend.vercel.app
 FRONTEND_URLS=http://localhost:5173,https://your-frontend.vercel.app
 BACKEND_URL=https://your-service.up.railway.app
-RESEND_API_KEY=re_xxxxxxxxx
-RESEND_FROM="DanceTime <onboarding@your-domain.com>"
-MAIL_PROVIDER=auto
+MAIL_PROVIDER=gmail
 MAIL_LOG_FALLBACK=true
-MAIL_LOG_COPY=true
+MAIL_LOG_COPY=false
+GMAIL_CLIENT_ID=...
+GMAIL_CLIENT_SECRET=...
+GMAIL_REDIRECT_URI=http://localhost:4000/oauth2callback
+GMAIL_REFRESH_TOKEN=...
+GMAIL_SENDER=yourgmail@gmail.com
+GMAIL_FROM="DanceTime <yourgmail@gmail.com>"
 ```
 
 `FRONTEND_URLS` supports multiple comma-separated origins, which is useful if you want local development and production frontend to work at the same time.
 
+For Gmail API, create a Google Cloud project, enable Gmail API, create OAuth 2.0 credentials, and generate a refresh token for the Gmail account that will send mail. This provider uses HTTPS API calls, not SMTP, so it works on Railway plans where SMTP is blocked.
+
 For Resend, create an API key and verify a sending domain or subdomain before using your `RESEND_FROM` address.
 
-SMTP variables are still supported as a fallback, but Resend is the recommended option for hosted deployments.
+SMTP variables are still supported as a fallback for local use or hosts that allow SMTP.
 
 If you want a temporary Railway-only workaround while Resend is broken, set:
 
@@ -69,4 +75,4 @@ If you want a temporary Railway-only workaround while Resend is broken, set:
 MAIL_PROVIDER=log
 ```
 
-In `log` mode the backend does not try to deliver the message externally. Instead it prints the email payload to Railway logs so you can copy verification/reset links and inspect outgoing mail content. With `MAIL_LOG_FALLBACK=true`, failed `Resend` or SMTP sends also fall back to log output automatically. With `MAIL_LOG_COPY=true`, Railway logs get a copy of the email even when Resend/SMTP reports success.
+In `log` mode the backend does not try to deliver the message externally. Instead it prints the email payload to Railway logs so you can copy verification/reset links and inspect outgoing mail content. With `MAIL_LOG_FALLBACK=true`, failed Gmail API, Resend, or SMTP sends also fall back to log output automatically. With `MAIL_LOG_COPY=true`, Railway logs get a copy of the email even when the provider reports success.
