@@ -64,7 +64,7 @@ export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) 
         onClick={() => setIsOpen(!isOpen)}
         aria-haspopup="dialog"
         aria-expanded={isOpen}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors text-gray-300 hover:text-purple-400 group"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-primary dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-purple-400 group"
       >
         <MapPin className="w-4 h-4 text-purple-500" />
         <span className="font-medium text-sm">{selectedCity}</span>
@@ -79,9 +79,9 @@ export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) 
               initial={{ opacity: 0, y: 10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              className="absolute top-full left-0 mt-2 w-64 bg-gray-900 border border-white/10 rounded-xl shadow-2xl z-[60] overflow-hidden hidden md:block"
+              className="absolute top-full left-0 mt-2 w-64 overflow-hidden hidden md:block rounded-xl border border-border bg-popover text-popover-foreground shadow-2xl z-[60] dark:border-white/10 dark:bg-gray-900"
             >
-              <div className="p-3 border-b border-white/5">
+              <div className="p-3 border-b border-border dark:border-white/5">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                   <input 
@@ -90,7 +90,7 @@ export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     autoFocus
-                    className="w-full bg-black/50 border border-white/10 rounded-lg py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-purple-500/50 transition-colors"
+                    className="w-full rounded-lg border border-border bg-input-background py-2 pl-9 pr-4 text-sm text-foreground transition-colors placeholder:text-muted-foreground focus:outline-none focus:border-purple-500/50 dark:border-white/10 dark:bg-black/50 dark:text-white"
                   />
                 </div>
               </div>
@@ -103,8 +103,8 @@ export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) 
                       onClick={() => handleSelect(city)}
                       className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
                         selectedCity === city 
-                          ? 'bg-purple-600/10 text-purple-400' 
-                          : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                          ? 'bg-purple-600/10 text-purple-600 dark:text-purple-400' 
+                          : 'text-muted-foreground hover:bg-accent hover:text-foreground dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white'
                       }`}
                     >
                       {city}
@@ -132,7 +132,7 @@ export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) 
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setIsOpen(false)}
-                className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] md:hidden"
+                className="fixed inset-0 bg-black/45 backdrop-blur-sm z-[200] md:hidden dark:bg-black/80"
               />
 
               <motion.div
@@ -144,54 +144,54 @@ export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) 
                 aria-modal="true"
                 aria-label={t('common.selectCity')}
                 ref={mobileSheetRef}
-                className="fixed bottom-0 left-0 right-0 max-h-[88dvh] bg-gray-900 rounded-t-3xl z-[210] flex flex-col md:hidden border-t border-white/10 shadow-[0_-20px_60px_rgba(0,0,0,0.55)]"
+                className="fixed bottom-0 left-0 right-0 max-h-[64dvh] rounded-t-2xl z-[210] flex flex-col md:hidden border-t border-border bg-popover text-popover-foreground shadow-[0_-20px_60px_rgba(52,43,76,0.2)] dark:border-white/10 dark:bg-gray-900 dark:text-white dark:shadow-[0_-20px_60px_rgba(0,0,0,0.55)]"
               >
-                <div className="p-5 pb-4">
-                  <div className="mx-auto mb-5 h-1 w-12 rounded-full bg-white/20" />
-                  <div className="flex items-center justify-between mb-5">
-                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                      <MapPin className="w-5 h-5 text-purple-500" />
+                <div className="p-4 pb-3">
+                  <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-muted-foreground/30 dark:bg-white/20" />
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-base font-bold text-foreground flex items-center gap-2 dark:text-white">
+                      <MapPin className="w-4 h-4 text-purple-500" />
                       {t('common.selectCity')}
                     </h3>
                     <button
                       type="button"
                       onClick={() => setIsOpen(false)}
-                      className="p-2 rounded-full bg-white/5 text-gray-400"
+                      className="p-2 rounded-lg bg-accent text-muted-foreground dark:bg-white/5 dark:text-gray-400"
                       aria-label="Close city selector"
                     >
-                      <X className="w-6 h-6" />
+                      <X className="w-5 h-5" />
                     </button>
                   </div>
 
                   <div className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                     <input
                       type="text"
                       placeholder={t('common.searchCityKazakhstan')}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       autoFocus
-                      className="w-full bg-black/50 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-purple-500 transition-colors"
+                      className="w-full rounded-xl border border-border bg-input-background py-3 pl-10 pr-3 text-sm text-foreground transition-colors placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 dark:border-white/10 dark:bg-black/50 dark:text-white"
                     />
                   </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto px-4 pb-[calc(2rem+env(safe-area-inset-bottom))]">
-                  <div className="grid grid-cols-1 gap-2">
+                <div className="flex-1 overflow-y-auto px-3 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+                  <div className="grid grid-cols-1 gap-1.5">
                     {filteredCities.length > 0 ? (
                       filteredCities.map((city) => (
                         <button
                           type="button"
                           key={city}
                           onClick={() => handleSelect(city)}
-                          className={`w-full flex items-center justify-between p-4 rounded-2xl text-lg font-medium transition-all ${
+                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                             selectedCity === city
                               ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20'
-                              : 'bg-white/5 text-gray-300 active:scale-95'
+                              : 'bg-accent text-foreground active:scale-95 dark:bg-white/5 dark:text-gray-300'
                           }`}
                         >
                           {city}
-                          {selectedCity === city && <Check className="w-5 h-5" />}
+                          {selectedCity === city && <Check className="w-4 h-4" />}
                         </button>
                       ))
                     ) : (

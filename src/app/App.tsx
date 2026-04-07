@@ -854,7 +854,7 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-black font-sans text-gray-100 selection:bg-purple-900 selection:text-purple-100">
+    <div className="min-h-screen bg-background font-sans text-foreground selection:bg-purple-900 selection:text-purple-100 dark:bg-black dark:text-gray-100">
       <style dangerouslySetInnerHTML={{ __html: `
         .custom-scrollbar::-webkit-scrollbar {
           width: 4px;
@@ -967,17 +967,17 @@ function AppContent() {
           <>
             <Hero />
             
-            <section className="py-12 border-b border-white/5 bg-black">
+            <section className="py-12 border-b border-border bg-[rgba(238,231,249,0.85)] dark:border-white/5 dark:bg-black">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <p className="text-center text-sm font-semibold text-gray-500 uppercase tracking-widest mb-8">
+                <p className="text-center text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-8 dark:text-gray-500">
                   {t('home.partners')}
                 </p>
-                <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
-                  <span className="text-2xl font-black text-white italic">Astana Ballet</span>
-                  <span className="text-2xl font-bold text-white">Tribal Pro</span>
-                  <span className="text-2xl font-serif text-white">SDance</span>
-                  <span className="text-2xl font-mono font-bold text-white tracking-tighter">Dream Way</span>
-                  <span className="text-2xl font-bold text-white">Prima</span>
+                <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-55 grayscale hover:grayscale-0 transition-all duration-500 dark:opacity-40">
+                  <span className="text-2xl font-black text-foreground italic dark:text-white">Astana Ballet</span>
+                  <span className="text-2xl font-bold text-foreground dark:text-white">Tribal Pro</span>
+                  <span className="text-2xl font-serif text-foreground dark:text-white">SDance</span>
+                  <span className="text-2xl font-mono font-bold text-foreground tracking-tighter dark:text-white">Dream Way</span>
+                  <span className="text-2xl font-bold text-foreground dark:text-white">Prima</span>
                 </div>
               </div>
             </section>

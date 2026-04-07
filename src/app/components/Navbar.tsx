@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Ticket, Menu, X, User } from 'lucide-react';
+import { Ticket, Menu, X, User, Heart, ShoppingBag, Settings, LogOut, Building2, Sun, Moon } from 'lucide-react';
 import { CitySelector } from './CitySelector';
 import { ProfileDropdown } from './ProfileDropdown';
 import { LanguageSwitcher } from './LanguageSwitcher';
@@ -83,6 +83,14 @@ export const Navbar = ({
       setIsDark(document.documentElement.classList.contains('dark'));
     };
 
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+      const storedTheme = window.localStorage.getItem('danceapp:theme');
+      if (storedTheme === 'dark' || storedTheme === 'light') {
+        document.documentElement.classList.toggle('dark', storedTheme === 'dark');
+        document.documentElement.classList.toggle('light', storedTheme === 'light');
+      }
+    }
+
     updateTheme();
 
     const observer = new MutationObserver(() => updateTheme());
@@ -95,6 +103,32 @@ export const Navbar = ({
     onNavigateHomeSection?.(section);
     setIsOpen(false);
   };
+
+  const closeAndRun = (handler?: () => void) => {
+    setIsOpen(false);
+    handler?.();
+  };
+
+  const toggleTheme = () => {
+    const nextTheme = isDark ? 'light' : 'dark';
+    setIsDark(nextTheme === 'dark');
+
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.toggle('dark', nextTheme === 'dark');
+      document.documentElement.classList.toggle('light', nextTheme === 'light');
+    }
+
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('danceapp:theme', nextTheme);
+    }
+
+    setIsOpen(false);
+  };
+
+  const mobileNavItemClass = "block w-full rounded-md px-2.5 py-1.5 text-left text-xs font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground";
+  const mobileActionItemClass = "flex min-h-9 w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-xs font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground";
+  const mobilePrimaryItemClass = "flex min-h-9 w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-xs font-semibold text-purple-600 transition-colors hover:bg-purple-600/10 dark:text-purple-400";
+  const mobileDangerItemClass = "flex min-h-9 w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-xs font-semibold text-red-500 transition-colors hover:bg-red-500/10";
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/90 bg-background/92 backdrop-blur-xl shadow-[0_14px_34px_rgba(50,38,92,0.09)]">
@@ -210,55 +244,95 @@ export const Navbar = ({
 
       {/* Mobile menu */}
       {isOpen && !organizerCompactMode && (
-        <div className="md:hidden bg-popover border-b border-border py-4 px-4 space-y-4 shadow-[0_18px_40px_rgba(35,31,54,0.08)]">
-          {showHomeLink && (
-            <button onClick={() => navigateToSection('top')} className="block text-muted-foreground hover:text-foreground w-full text-left">{t('common.home')}</button>
-          )}
-          {isValidator ? (
-            showValidatorNavLinks ? (
-            <>
-              <button onClick={onValidatorEvents} className="block text-muted-foreground hover:text-foreground w-full text-left">{t('navbar.myEvents')}</button>
-              <button onClick={onValidatorScan} className="block text-muted-foreground hover:text-foreground w-full text-left">{t('navbar.scanTicket')}</button>
-            </>
-            ) : null
-          ) : (
-            <>
-              <button onClick={() => navigateToSection('events')} className="block text-muted-foreground hover:text-foreground w-full text-left">{t('common.events')}</button>
-              <button onClick={() => navigateToSection('about')} className="block text-muted-foreground hover:text-foreground w-full text-left">{t('common.aboutUs')}</button>
-            </>
-          )}
-          {isValidator ? null : isAdmin && showAdminPanelLink ? (
-            <button onClick={onAdminPanel} className="block text-muted-foreground hover:text-foreground w-full text-left">{t('navbar.adminPanel')}</button>
-          ) : isOrganizer && showOrganizerDashboardLink ? (
-            <button onClick={onOrganizerDashboard} className="block text-muted-foreground hover:text-foreground w-full text-left">{t('navbar.organizerDashboard')}</button>
-          ) : !isAdmin && !isOrganizer ? (
-            <button onClick={() => navigateToSection('organizers')} className="block text-muted-foreground hover:text-foreground w-full text-left">{t('navbar.forOrganizers')}</button>
-          ) : null}
-          <LanguageSwitcher mobile onSelect={() => setIsOpen(false)} />
-          <div className="pt-4 flex flex-col gap-2">
+        <div className="md:hidden max-h-[calc(100dvh-4rem)] overflow-y-auto border-b border-border bg-popover px-2.5 py-2 shadow-[0_18px_40px_rgba(35,31,54,0.08)]">
+          <div className="grid grid-cols-2 gap-1">
+            {showHomeLink && (
+              <button onClick={() => navigateToSection('top')} className={mobileNavItemClass}>{t('common.home')}</button>
+            )}
+            {isValidator ? (
+              showValidatorNavLinks ? (
+              <>
+                <button onClick={() => closeAndRun(onValidatorEvents)} className={mobileNavItemClass}>{t('navbar.myEvents')}</button>
+                <button onClick={() => closeAndRun(onValidatorScan)} className={mobileNavItemClass}>{t('navbar.scanTicket')}</button>
+              </>
+              ) : null
+            ) : (
+              <>
+                <button onClick={() => navigateToSection('events')} className={mobileNavItemClass}>{t('common.events')}</button>
+                <button onClick={() => navigateToSection('about')} className={mobileNavItemClass}>{t('common.aboutUs')}</button>
+              </>
+            )}
+            {isValidator ? null : isAdmin && showAdminPanelLink ? (
+              <button onClick={() => closeAndRun(onAdminPanel)} className={mobileNavItemClass}>{t('navbar.adminPanel')}</button>
+            ) : isOrganizer && showOrganizerDashboardLink ? (
+              <button onClick={() => closeAndRun(onOrganizerDashboard)} className={mobileNavItemClass}>{t('navbar.organizerDashboard')}</button>
+            ) : !isAdmin && !isOrganizer ? (
+              <button onClick={() => navigateToSection('organizers')} className={mobileNavItemClass}>{t('navbar.forOrganizers')}</button>
+            ) : null}
+          </div>
+
+          <div className="mt-2">
+            <LanguageSwitcher mobile onSelect={() => setIsOpen(false)} />
+          </div>
+
+          <div className="mt-2 flex flex-col gap-1 border-t border-border pt-2">
             {user ? (
               <>
-                <div className="text-muted-foreground text-center py-2">
+                <div className="truncate px-2 pb-0.5 text-center text-[11px] font-medium text-muted-foreground">
                   {t('common.welcome')}, {displayName}
                 </div>
-                <button 
-                  onClick={onLogout}
-                  className="w-full text-center py-2 text-muted-foreground"
-                >
-                  {t('common.logout')}
-                </button>
+                {!isAdmin && !isValidator && !isOrganizer && (
+                  <div className="grid grid-cols-2 gap-1">
+                    <button onClick={() => closeAndRun(onNavigateToMyTickets)} className={mobileActionItemClass}>
+                      <Ticket className="w-4 h-4" />
+                      {t('common.myTickets')}
+                    </button>
+                    <button onClick={() => closeAndRun(onNavigateToFavorites)} className={mobileActionItemClass}>
+                      <Heart className="w-4 h-4" />
+                      {t('common.favorites')}
+                    </button>
+                    <button onClick={() => closeAndRun(onNavigateToPurchaseHistory)} className={`${mobileActionItemClass} col-span-2`}>
+                      <ShoppingBag className="w-4 h-4" />
+                      {t('common.purchaseHistory')}
+                    </button>
+                  </div>
+                )}
+                <div className="grid grid-cols-2 gap-1">
+                  <button onClick={() => closeAndRun(onNavigateToAccountSettings)} className={mobileActionItemClass}>
+                    <Settings className="w-4 h-4" />
+                    {t('common.accountSettings')}
+                  </button>
+                  <button onClick={toggleTheme} className={mobileActionItemClass}>
+                    {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                    {isDark ? t('common.switchToLight') : t('common.switchToDark')}
+                  </button>
+                  {!isAdmin && !isOrganizer && !isValidator && (
+                    <button onClick={() => closeAndRun(onBecomeOrganizer)} className={mobilePrimaryItemClass}>
+                      <Building2 className="w-4 h-4" />
+                      {t('common.becomeOrganizer')}
+                    </button>
+                  )}
+                  <button onClick={() => closeAndRun(onLogout)} className={mobileDangerItemClass}>
+                    <LogOut className="w-4 h-4" />
+                    {t('common.logout')}
+                  </button>
+                </div>
               </>
             ) : (
               <>
+                <button onClick={toggleTheme} className={mobileActionItemClass}>
+                  {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                  {isDark ? t('common.switchToLight') : t('common.switchToDark')}
+                </button>
                 <button 
-                  onClick={() => onOpenAuth('login')}
-                  className="w-full text-center py-2 text-muted-foreground"
+                  onClick={() => closeAndRun(() => onOpenAuth('login'))}
+                  className="w-full rounded-lg px-3 py-2 text-center text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                 >
                   {t('common.signIn')}
                 </button>
                 <button 
-                  onClick={() => onOpenAuth('register')}
-                  className="w-full bg-purple-600 text-white py-2 rounded-full shadow-lg shadow-purple-600/20"
+                  onClick={() => closeAndRun(() => onOpenAuth('register'))}
+                  className="w-full rounded-md bg-purple-600 px-2.5 py-1.5 text-xs font-semibold text-white shadow-md shadow-purple-600/20"
                 >
                   {t('common.getStarted')}
                 </button>

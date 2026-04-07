@@ -79,7 +79,7 @@ export const Hero = () => {
             {t('hero.badge')}
           </span>
           <h1
-            className={`text-5xl md:text-7xl font-bold leading-tight mb-6 ${
+            className={`mobile-hero-title text-5xl md:text-7xl font-bold leading-tight mb-6 ${
               themeMode === 'dark' ? 'text-white' : 'text-purple-950'
             }`}
           >
