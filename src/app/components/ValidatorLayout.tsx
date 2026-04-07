@@ -1,5 +1,6 @@
 import React from 'react';
 import { QrCode, CalendarDays, ShieldCheck } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 interface ValidatorLayoutProps {
   children: React.ReactNode;
@@ -8,9 +9,15 @@ interface ValidatorLayoutProps {
 }
 
 export const ValidatorLayout: React.FC<ValidatorLayoutProps> = ({ children, activeTab, onNavigate }) => {
+  const { language } = useI18n();
+  const copy = {
+    en: { portal: 'Validator Portal', events: 'Assigned Events', scan: 'Scan Ticket' },
+    ru: { portal: 'Портал валидатора', events: 'Назначенные события', scan: 'Сканировать билет' },
+    kk: { portal: 'Валидатор порталы', events: 'Тағайындалған іс-шаралар', scan: 'Билетті сканерлеу' },
+  }[language];
   const menuItems = [
-    { id: 'events', label: 'Assigned Events', icon: CalendarDays },
-    { id: 'scan', label: 'Scan Ticket', icon: QrCode },
+    { id: 'events', label: copy.events, icon: CalendarDays },
+    { id: 'scan', label: copy.scan, icon: QrCode },
   ] as const;
 
   return (
@@ -23,7 +30,7 @@ export const ValidatorLayout: React.FC<ValidatorLayoutProps> = ({ children, acti
                 <ShieldCheck className="h-6 w-6 text-white" />
               </div>
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-purple-200">Validator Portal</p>
+                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-purple-200">{copy.portal}</p>
               </div>
             </div>
           </div>

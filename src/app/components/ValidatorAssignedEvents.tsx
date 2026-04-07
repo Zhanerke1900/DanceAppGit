@@ -1,5 +1,6 @@
 import React from 'react';
 import { Calendar, MapPin, QrCode } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 interface ValidatorAssignedEventsProps {
   events: any[];
@@ -7,17 +8,38 @@ interface ValidatorAssignedEventsProps {
 }
 
 export const ValidatorAssignedEvents: React.FC<ValidatorAssignedEventsProps> = ({ events, onStartScan }) => {
+  const { language } = useI18n();
+  const copy = {
+    en: {
+      title: 'Assigned Events',
+      subtitle: 'Only the published events assigned to your validator account.',
+      empty: 'No assigned events yet.',
+      scan: 'Scan Ticket',
+    },
+    ru: {
+      title: 'Назначенные события',
+      subtitle: 'Только опубликованные события, назначенные на ваш аккаунт валидатора.',
+      empty: 'Назначенных событий пока нет.',
+      scan: 'Сканировать билет',
+    },
+    kk: {
+      title: 'Тағайындалған іс-шаралар',
+      subtitle: 'Валидатор аккаунтыңызға тағайындалған жарияланған іс-шаралар ғана.',
+      empty: 'Әзірге тағайындалған іс-шара жоқ.',
+      scan: 'Билетті сканерлеу',
+    },
+  }[language];
   return (
     <div className="min-h-screen bg-black p-8">
       <div className="mx-auto max-w-6xl space-y-8">
         <div>
-          <h1 className="mb-2 text-3xl font-bold text-white">Assigned Events</h1>
-          <p className="text-gray-400">Only the published events assigned to your validator account.</p>
+          <h1 className="mb-2 text-3xl font-bold text-white">{copy.title}</h1>
+          <p className="text-gray-400">{copy.subtitle}</p>
         </div>
 
         {events.length === 0 ? (
           <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-8 text-gray-400">
-            No assigned events yet.
+            {copy.empty}
           </div>
         ) : (
           <div className="grid gap-5 md:grid-cols-2">
@@ -40,7 +62,7 @@ export const ValidatorAssignedEvents: React.FC<ValidatorAssignedEventsProps> = (
                   className="mt-6 flex items-center gap-2 rounded-xl bg-purple-600 px-5 py-3 font-semibold text-white transition-all hover:bg-purple-700"
                 >
                   <QrCode className="h-4 w-4" />
-                  Scan Ticket
+                  {copy.scan}
                 </button>
               </div>
             ))}

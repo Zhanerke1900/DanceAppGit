@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Calendar, Eye, MapPin, Pencil, Plus, Trash2, Undo2 } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 interface OrganizerEvent {
   id: string;
@@ -30,10 +31,10 @@ interface OrganizerEventsProps {
 
 type EventsTab = 'active' | 'pending' | 'passed' | 'draft';
 
-const formatDate = (dateString: string) => {
+const formatDate = (dateString: string, locale = 'en-US') => {
   const date = new Date(dateString);
   if (Number.isNaN(date.getTime())) return dateString;
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return date.toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' });
 };
 
 const parseEventDate = (dateString: string) => {
@@ -91,11 +92,6 @@ const isPastEvent = (dateString: string) => {
   return parsed.getTime() < Date.now();
 };
 
-const getStatusLabel = (status: string) => {
-  if (status === 'pending-update-review') return 'Pending Update Review';
-  return status.charAt(0).toUpperCase() + status.slice(1);
-};
-
 export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
   events = [],
   onCreateEvent,
@@ -105,6 +101,92 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
   onDeleteEvent,
   canCreateEvent = true,
 }) => {
+  const { language } = useI18n();
+  const locale = language === 'ru' ? 'ru-RU' : language === 'kk' ? 'kk-KZ' : 'en-US';
+  const copy = {
+    en: {
+      title: 'Events',
+      subtitle: 'Manage your events by current publication status.',
+      createEvent: 'Create Event',
+      tabs: { active: 'Active', pending: 'Pending', passed: 'Passed', draft: 'Draft' },
+      status: {
+        published: 'Published',
+        draft: 'Draft',
+        archived: 'Archived',
+        pending: 'Pending',
+        'pending-update-review': 'Pending Update Review',
+      } as Record<string, string>,
+      at: 'at',
+      startingFrom: 'Starting from',
+      sold: 'Sold',
+      of: 'of',
+      soldOut: 'Sold out',
+      left: 'left',
+      category: 'Category',
+      statusLabel: 'Status',
+      view: 'View',
+      edit: 'Edit',
+      changeToDraft: 'Change to Draft',
+      delete: 'Delete',
+      noEvents: (tab: string) => `No ${tab} events`,
+      empty: 'Events in this status will appear here.',
+    },
+    ru: {
+      title: 'События',
+      subtitle: 'Управляйте событиями по текущему статусу публикации.',
+      createEvent: 'Создать событие',
+      tabs: { active: 'Активные', pending: 'На проверке', passed: 'Прошедшие', draft: 'Черновики' },
+      status: {
+        published: 'Опубликовано',
+        draft: 'Черновик',
+        archived: 'Архив',
+        pending: 'На проверке',
+        'pending-update-review': 'Проверка изменений',
+      } as Record<string, string>,
+      at: 'в',
+      startingFrom: 'Цена от',
+      sold: 'Продано',
+      of: 'из',
+      soldOut: 'Распродано',
+      left: 'осталось',
+      category: 'Категория',
+      statusLabel: 'Статус',
+      view: 'Просмотр',
+      edit: 'Редактировать',
+      changeToDraft: 'Вернуть в черновик',
+      delete: 'Удалить',
+      noEvents: (tab: string) => `Нет событий: ${tab.toLowerCase()}`,
+      empty: 'События с этим статусом появятся здесь.',
+    },
+    kk: {
+      title: 'Іс-шаралар',
+      subtitle: 'Іс-шараларды жариялау статусы бойынша басқарыңыз.',
+      createEvent: 'Іс-шара құру',
+      tabs: { active: 'Белсенді', pending: 'Қаралуда', passed: 'Өткен', draft: 'Черновик' },
+      status: {
+        published: 'Жарияланды',
+        draft: 'Черновик',
+        archived: 'Архив',
+        pending: 'Қаралуда',
+        'pending-update-review': 'Өзгерістер қаралуда',
+      } as Record<string, string>,
+      at: 'сағат',
+      startingFrom: 'Бағасы',
+      sold: 'Сатылды',
+      of: '/',
+      soldOut: 'Сатылып кетті',
+      left: 'қалды',
+      category: 'Санат',
+      statusLabel: 'Статус',
+      view: 'Көру',
+      edit: 'Өңдеу',
+      changeToDraft: 'Черновикке қайтару',
+      delete: 'Жою',
+      noEvents: (tab: string) => `${tab} іс-шаралары жоқ`,
+      empty: 'Бұл статустағы іс-шаралар осында пайда болады.',
+    },
+  }[language];
+  const getStatusLabel = (status: string) => copy.status[status] || status;
   const [activeTab, setActiveTab] = useState<EventsTab>('active');
 
   const filteredEvents = useMemo(() => {
@@ -123,10 +205,10 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
   }, [activeTab, events]);
 
   const tabs: { id: EventsTab; label: string }[] = [
-    { id: 'active', label: 'Active' },
-    { id: 'pending', label: 'Pending' },
-    { id: 'passed', label: 'Passed' },
-    { id: 'draft', label: 'Draft' },
+    { id: 'active', label: copy.tabs.active },
+    { id: 'pending', label: copy.tabs.pending },
+    { id: 'passed', label: copy.tabs.passed },
+    { id: 'draft', label: copy.tabs.draft },
   ];
 
   return (
@@ -134,8 +216,8 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
       <div className="mx-auto max-w-7xl">
         <div className="mb-8 flex items-center justify-between gap-4">
           <div>
-            <h1 className="mb-2 text-3xl font-bold text-white">Events</h1>
-            <p className="text-gray-400">Manage your events by current publication status.</p>
+            <h1 className="mb-2 text-3xl font-bold text-white">{copy.title}</h1>
+            <p className="text-gray-400">{copy.subtitle}</p>
           </div>
           <button
             onClick={onCreateEvent}
@@ -143,7 +225,7 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
             className="flex items-center gap-2 rounded-xl bg-purple-600 px-6 py-3 font-semibold text-white transition-all duration-300 hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-400"
           >
             <Plus className="h-5 w-5" />
-            Create Event
+            {copy.createEvent}
           </button>
         </div>
 
@@ -200,7 +282,7 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
                           <div className="space-y-1">
                             <div className="flex items-center gap-2 text-sm text-gray-400">
                               <Calendar className="h-4 w-4 text-purple-400" />
-                              <span>{formatDate(event.date)} at {event.time}</span>
+                              <span>{formatDate(event.date, locale)} {copy.at} {event.time}</span>
                             </div>
                             <div className="flex items-center gap-2 text-sm text-gray-400">
                               <MapPin className="h-4 w-4 text-purple-400" />
@@ -208,16 +290,16 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
                             </div>
                             {event.price && (
                               <div className="pt-1 text-sm text-gray-400">
-                                Starting from <span className="font-semibold text-white">{event.price}</span>
+                                {copy.startingFrom} <span className="font-semibold text-white">{event.price}</span>
                               </div>
                             )}
                             {event.ticketLimit ? (
                               <div className="pt-1 text-sm text-gray-400">
-                                Sold <span className="font-semibold text-white">{event.soldTickets || 0}</span> of{' '}
+                                {copy.sold} <span className="font-semibold text-white">{event.soldTickets || 0}</span> {copy.of}{' '}
                                 <span className="font-semibold text-white">{event.ticketLimit}</span>
                                 {event.remainingTickets !== null && event.remainingTickets !== undefined && (
                                   <span className={`ml-2 font-semibold ${event.soldOut ? 'text-red-400' : 'text-emerald-400'}`}>
-                                    {event.soldOut ? 'Sold out' : `${event.remainingTickets} left`}
+                                    {event.soldOut ? copy.soldOut : `${event.remainingTickets} ${copy.left}`}
                                   </span>
                                 )}
                               </div>
@@ -227,11 +309,11 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
 
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <p className="mb-1 text-xs text-gray-500">Category</p>
+                            <p className="mb-1 text-xs text-gray-500">{copy.category}</p>
                             <p className="font-semibold text-white">{event.category}</p>
                           </div>
                           <div>
-                            <p className="mb-1 text-xs text-gray-500">Status</p>
+                            <p className="mb-1 text-xs text-gray-500">{copy.statusLabel}</p>
                             <p className="font-semibold text-white">{getStatusLabel(event.status)}</p>
                           </div>
                         </div>
@@ -244,7 +326,7 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
                           className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
                         >
                           <Eye className="h-4 w-4" />
-                          View
+                          {copy.view}
                         </button>
                         {((event.status === 'published' && !isPastEvent(event.date)) || event.status === 'draft' || event.status === 'pending' || event.status === 'pending-update-review') && (
                           <button
@@ -253,7 +335,7 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
                             className="inline-flex items-center gap-2 rounded-xl border border-purple-500/30 bg-purple-600/10 px-4 py-2.5 text-sm font-semibold text-purple-200 transition-colors hover:bg-purple-600/20"
                           >
                             <Pencil className="h-4 w-4" />
-                            Edit
+                            {copy.edit}
                           </button>
                         )}
                         {event.status === 'pending' && (
@@ -263,7 +345,7 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
                             className="inline-flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-sm font-semibold text-amber-200 transition-colors hover:bg-amber-500/20"
                           >
                             <Undo2 className="h-4 w-4" />
-                            Change to Draft
+                            {copy.changeToDraft}
                           </button>
                         )}
                         {(event.status === 'pending' || event.status === 'draft') && (
@@ -273,7 +355,7 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
                             className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm font-semibold text-red-200 transition-colors hover:bg-red-500/20"
                           >
                             <Trash2 className="h-4 w-4" />
-                            Delete
+                            {copy.delete}
                           </button>
                         )}
                       </div>
@@ -288,8 +370,8 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
             <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-purple-600/15">
               <Calendar className="h-8 w-8 text-purple-400" />
             </div>
-            <h2 className="mb-2 text-xl font-bold text-white">No {activeTab} events</h2>
-            <p className="text-gray-400">Events in this status will appear here.</p>
+            <h2 className="mb-2 text-xl font-bold text-white">{copy.noEvents(copy.tabs[activeTab])}</h2>
+            <p className="text-gray-400">{copy.empty}</p>
           </div>
         )}
       </div>

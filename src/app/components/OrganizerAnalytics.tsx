@@ -1,5 +1,6 @@
 import React from 'react';
 import { BarChart3, Calendar, DollarSign, PieChart, ShoppingBag, Ticket } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 interface AnalyticsData {
   totalRevenue: number;
@@ -39,6 +40,75 @@ const formatCurrency = (value: number) =>
   }).format(value) + ' ₸';
 
 export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytics }) => {
+  const { language } = useI18n();
+  const copy = {
+    en: {
+      title: 'Analytics',
+      subtitle: 'Live performance snapshot for your organizer account.',
+      totalRevenue: 'Total Revenue',
+      ticketsSold: 'Tickets Sold',
+      ordersCount: 'Orders Count',
+      topEvents: 'Top Events',
+      salesByDay: 'Sales by Day',
+      salesByDayDesc: 'Revenue, orders, and tickets sold per date.',
+      noSales: 'No sales yet.',
+      publishedVsPending: 'Published vs Pending',
+      statusSplit: 'Status split for your created events.',
+      published: 'Published',
+      pending: 'Pending',
+      specialProgramSales: 'Special Program Sales',
+      specialProgramDesc: 'Full event pass vs separate activities.',
+      fullEventPass: 'Full Event Pass',
+      activityTickets: 'Activity Tickets',
+      topEventsEmpty: 'Top events will appear after your first sales.',
+      orders: 'orders',
+      tickets: 'tickets',
+    },
+    ru: {
+      title: 'Аналитика',
+      subtitle: 'Актуальная статистика по аккаунту организатора.',
+      totalRevenue: 'Общая выручка',
+      ticketsSold: 'Продано билетов',
+      ordersCount: 'Количество заказов',
+      topEvents: 'Лучшие события',
+      salesByDay: 'Продажи по дням',
+      salesByDayDesc: 'Выручка, заказы и проданные билеты по датам.',
+      noSales: 'Продаж пока нет.',
+      publishedVsPending: 'Опубликованные и на проверке',
+      statusSplit: 'Распределение статусов ваших событий.',
+      published: 'Опубликовано',
+      pending: 'На проверке',
+      specialProgramSales: 'Продажи специальных программ',
+      specialProgramDesc: 'Полный абонемент на событие и отдельные активности.',
+      fullEventPass: 'Полный абонемент',
+      activityTickets: 'Билеты на активности',
+      topEventsEmpty: 'Лучшие события появятся после первых продаж.',
+      orders: 'заказов',
+      tickets: 'билетов',
+    },
+    kk: {
+      title: 'Аналитика',
+      subtitle: 'Ұйымдастырушы аккаунты бойынша ағымдағы көрсеткіштер.',
+      totalRevenue: 'Жалпы табыс',
+      ticketsSold: 'Сатылған билеттер',
+      ordersCount: 'Тапсырыс саны',
+      topEvents: 'Үздік іс-шаралар',
+      salesByDay: 'Күндер бойынша сатылым',
+      salesByDayDesc: 'Күн бойынша табыс, тапсырыс және сатылған билеттер.',
+      noSales: 'Әзірге сатылым жоқ.',
+      publishedVsPending: 'Жарияланған және қаралуда',
+      statusSplit: 'Құрылған іс-шараларыңыздың статус үлесі.',
+      published: 'Жарияланды',
+      pending: 'Қаралуда',
+      specialProgramSales: 'Арнайы бағдарламалар сатылымы',
+      specialProgramDesc: 'Толық іс-шара билеті және жеке белсенділіктер.',
+      fullEventPass: 'Толық іс-шара билеті',
+      activityTickets: 'Белсенділік билеттері',
+      topEventsEmpty: 'Үздік іс-шаралар алғашқы сатылымнан кейін пайда болады.',
+      orders: 'тапсырыс',
+      tickets: 'билет',
+    },
+  }[language];
   const statusTotal = (analytics?.eventStatuses.published || 0) + (analytics?.eventStatuses.pending || 0);
   const fullPassTotal =
     (analytics?.specialPrograms.fullEventPassTickets || 0) + (analytics?.specialPrograms.activityTickets || 0);
@@ -47,16 +117,16 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
     <div className="min-h-screen bg-black p-8">
       <div className="mx-auto max-w-7xl space-y-8">
         <div>
-          <h1 className="mb-2 text-3xl font-bold text-white">Analytics</h1>
-          <p className="text-gray-400">Live performance snapshot for your organizer account.</p>
+          <h1 className="mb-2 text-3xl font-bold text-white">{copy.title}</h1>
+          <p className="text-gray-400">{copy.subtitle}</p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
           {[
-            { label: 'Total Revenue', value: formatCurrency(analytics?.totalRevenue || 0), icon: DollarSign },
-            { label: 'Tickets Sold', value: String(analytics?.ticketsSold || 0), icon: Ticket },
-            { label: 'Orders Count', value: String(analytics?.ordersCount || 0), icon: ShoppingBag },
-            { label: 'Top Events', value: String(analytics?.topEvents.length || 0), icon: BarChart3 },
+            { label: copy.totalRevenue, value: formatCurrency(analytics?.totalRevenue || 0), icon: DollarSign },
+            { label: copy.ticketsSold, value: String(analytics?.ticketsSold || 0), icon: Ticket },
+            { label: copy.ordersCount, value: String(analytics?.ordersCount || 0), icon: ShoppingBag },
+            { label: copy.topEvents, value: String(analytics?.topEvents.length || 0), icon: BarChart3 },
           ].map((card) => {
             const Icon = card.icon;
             return (
@@ -81,8 +151,8 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
                 <Calendar className="h-5 w-5 text-purple-400" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-white">Sales by Day</h2>
-                <p className="text-sm text-gray-400">Revenue, orders, and tickets sold per date.</p>
+                <h2 className="text-xl font-bold text-white">{copy.salesByDay}</h2>
+                <p className="text-sm text-gray-400">{copy.salesByDayDesc}</p>
               </div>
             </div>
 
@@ -92,13 +162,13 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
                   <div key={day.date} className="grid grid-cols-[1fr_auto_auto_auto] gap-4 rounded-xl bg-gray-800/40 p-4 text-sm">
                     <span className="font-medium text-white">{day.date}</span>
                     <span className="text-gray-300">{formatCurrency(day.revenue)}</span>
-                    <span className="text-gray-400">{day.orders} orders</span>
-                    <span className="text-gray-400">{day.ticketsSold} tickets</span>
+                    <span className="text-gray-400">{day.orders} {copy.orders}</span>
+                    <span className="text-gray-400">{day.ticketsSold} {copy.tickets}</span>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-gray-400">No sales yet.</p>
+              <p className="text-gray-400">{copy.noSales}</p>
             )}
           </div>
 
@@ -109,15 +179,15 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
                   <PieChart className="h-5 w-5 text-purple-400" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-white">Published vs Pending</h2>
-                  <p className="text-sm text-gray-400">Status split for your created events.</p>
+                  <h2 className="text-xl font-bold text-white">{copy.publishedVsPending}</h2>
+                  <p className="text-sm text-gray-400">{copy.statusSplit}</p>
                 </div>
               </div>
 
               <div className="space-y-4">
                 {[
-                  { label: 'Published', value: analytics?.eventStatuses.published || 0, color: 'bg-emerald-500' },
-                  { label: 'Pending', value: analytics?.eventStatuses.pending || 0, color: 'bg-amber-500' },
+                  { label: copy.published, value: analytics?.eventStatuses.published || 0, color: 'bg-emerald-500' },
+                  { label: copy.pending, value: analytics?.eventStatuses.pending || 0, color: 'bg-amber-500' },
                 ].map((item) => (
                   <div key={item.label}>
                     <div className="mb-2 flex items-center justify-between text-sm">
@@ -141,20 +211,20 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
                   <Ticket className="h-5 w-5 text-purple-400" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-white">Special Program Sales</h2>
-                  <p className="text-sm text-gray-400">Full event pass vs separate activities.</p>
+                  <h2 className="text-xl font-bold text-white">{copy.specialProgramSales}</h2>
+                  <p className="text-sm text-gray-400">{copy.specialProgramDesc}</p>
                 </div>
               </div>
 
               <div className="space-y-4">
                 {[
                   {
-                    label: 'Full Event Pass',
+                    label: copy.fullEventPass,
                     value: analytics?.specialPrograms.fullEventPassTickets || 0,
                     color: 'bg-fuchsia-500',
                   },
                   {
-                    label: 'Activity Tickets',
+                    label: copy.activityTickets,
                     value: analytics?.specialPrograms.activityTickets || 0,
                     color: 'bg-sky-500',
                   },
@@ -178,20 +248,20 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
         </div>
 
         <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-6">
-          <h2 className="mb-5 text-xl font-bold text-white">Top Events</h2>
+          <h2 className="mb-5 text-xl font-bold text-white">{copy.topEvents}</h2>
           {analytics?.topEvents.length ? (
             <div className="space-y-3">
               {analytics.topEvents.map((event) => (
                 <div key={event.eventId} className="grid grid-cols-[1fr_auto_auto_auto] gap-4 rounded-xl bg-gray-800/40 p-4 text-sm">
                   <span className="font-medium text-white">{event.title}</span>
                   <span className="text-gray-300">{formatCurrency(event.revenue)}</span>
-                  <span className="text-gray-400">{event.orders} orders</span>
-                  <span className="text-gray-400">{event.ticketsSold} tickets</span>
+                  <span className="text-gray-400">{event.orders} {copy.orders}</span>
+                  <span className="text-gray-400">{event.ticketsSold} {copy.tickets}</span>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-gray-400">Top events will appear after your first sales.</p>
+            <p className="text-gray-400">{copy.topEventsEmpty}</p>
           )}
         </div>
       </div>
