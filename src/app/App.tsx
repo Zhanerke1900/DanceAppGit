@@ -635,13 +635,14 @@ function AppContent() {
     window.scrollTo(0, 0);
   };
 
-  const handlePurchaseComplete = (ticketDetails: any) => {
+  const handlePurchaseComplete = async (ticketDetails: any) => {
     setPurchaseDetails(ticketDetails);
     
     if (user) {
-      completeTicketPurchase(pendingEvent, ticketDetails).catch((error) => {
+      return completeTicketPurchase(pendingEvent, ticketDetails).catch((error) => {
         console.error('Failed to complete ticket purchase', error);
         window.alert(error?.message || 'Failed to complete ticket purchase');
+        throw error;
       });
     } else {
       setIsPurchaseGateOpen(true);

@@ -32,9 +32,14 @@ interface Activity {
 interface TicketSelectionProps {
   event: any;
   onBack: () => void;
-  onPurchaseComplete?: (ticketDetails: any) => void;
+  onPurchaseComplete?: (ticketDetails: any) => void | Promise<void>;
   readOnly?: boolean;
 }
+
+const parseDisplayPrice = (value: any, fallback = 0) => {
+  const digits = String(value || '').replace(/\D/g, '');
+  return Number(digits || fallback);
+};
 
 export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = false }: TicketSelectionProps) => {
   const { language } = useI18n();
@@ -71,6 +76,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
     serviceFee: language === 'ru' ? 'Сервисный сбор' : language === 'kk' ? 'Қызмет ақысы' : 'Service Fee',
     total: language === 'ru' ? 'Итого' : language === 'kk' ? 'Жалпы' : 'Total',
     proceedCheckout: language === 'ru' ? 'Перейти к оплате' : language === 'kk' ? 'Төлемге өту' : 'Proceed to Checkout',
+    processing: language === 'ru' ? 'Обработка...' : language === 'kk' ? 'Өңделуде...' : 'Processing...',
     securePayment: language === 'ru' ? 'Безопасная SSL-оплата' : language === 'kk' ? 'Қауіпсіз SSL төлемі' : 'Secure SSL Payment',
     instantDelivery: language === 'ru' ? 'Мгновенная доставка' : language === 'kk' ? 'Жедел жеткізу' : 'Instant delivery',
     ticketsSentEmail: language === 'ru' ? 'Билеты будут отправлены на вашу почту.' : language === 'kk' ? 'Билеттер email-іңізге жіберіледі.' : 'Tickets sent to your email.',
@@ -83,7 +89,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
   const isSpecialProgram = event.eventType === 'special-program' || (event.activities && event.activities.length > 0 && event.longDescription);
   
   // Parse base price from event string (e.g., "5,000 ₸" -> 5000)
-  const basePrice = parseInt(event.price?.replace(/[^0-9]/g, '') || '5000') || 5000;
+  const basePrice = parseDisplayPrice(event.ticketPricing?.generalAdmission || event.price, 5000) || 5000;
   const serviceFeeRate = 0.05; // 5% service fee
   const fullPassPrice = Number(event.fullPassPrice || 25000);
   const ticketLimit = Number(event.ticketLimit || 0);
@@ -96,6 +102,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
   const [selectedActivities, setSelectedActivities] = useState<Record<string, number>>({});
   const [fullPassSelected, setFullPassSelected] = useState(false);
   const [activeActivityTab, setActiveActivityTab] = useState('All');
+  const [isCheckoutSubmitting, setIsCheckoutSubmitting] = useState(false);
 
   const activities: Activity[] = isSpecialProgram ? (event.activities || []) : [];
   const hasSoldOutLimitedActivity = activities.some((activity: any) => Boolean(activity.soldOut));
@@ -174,6 +181,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
   };
 
   const handleCheckout = () => {
+    if (isCheckoutSubmitting) return;
     if (isSoldOut) return;
     if (ticketQuantity === 0 && (!isSpecialProgram || (!fullPassSelected && Object.keys(selectedActivities).length === 0))) return;
 
@@ -213,9 +221,12 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
           ]
     };
     
-    if (onPurchaseComplete) {
-      onPurchaseComplete(ticketDetails);
-    }
+    if (!onPurchaseComplete) return;
+
+    setIsCheckoutSubmitting(true);
+    Promise.resolve(onPurchaseComplete(ticketDetails))
+      .catch(() => {})
+      .finally(() => setIsCheckoutSubmitting(false));
   };
 
   const activityCategories = ['All', 'Masterclass', 'Battle', 'Contest', 'Camp'];
@@ -1003,11 +1014,11 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                 </div>
                 
                 <button 
-                  disabled={isSoldOut || (ticketQuantity === 0 && (!isSpecialProgram || (!fullPassSelected && Object.keys(selectedActivities).length === 0)))}
+                  disabled={isCheckoutSubmitting || isSoldOut || (ticketQuantity === 0 && (!isSpecialProgram || (!fullPassSelected && Object.keys(selectedActivities).length === 0)))}
                   onClick={handleCheckout}
                   className="w-full mt-6 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-800 disabled:text-gray-500 text-white py-4 rounded-xl font-bold transition-all shadow-lg shadow-purple-600/20 disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
                 >
-                  {isSoldOut ? copy.soldOut : copy.proceedCheckout}
+                  {isSoldOut ? copy.soldOut : isCheckoutSubmitting ? copy.processing : copy.proceedCheckout}
                   <ArrowLeft className="w-4 h-4 rotate-180 group-hover:translate-x-1 transition-transform" />
                 </button>
                 
@@ -1048,11 +1059,11 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
             <span className="text-xl font-bold text-white">{formatCurrency(total)}</span>
           </div>
           <button 
-            disabled={isSoldOut || (ticketQuantity === 0 && (!isSpecialProgram || (!fullPassSelected && Object.keys(selectedActivities).length === 0)))}
+            disabled={isCheckoutSubmitting || isSoldOut || (ticketQuantity === 0 && (!isSpecialProgram || (!fullPassSelected && Object.keys(selectedActivities).length === 0)))}
             onClick={handleCheckout}
             className="flex-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-800 disabled:text-gray-500 text-white py-3.5 px-6 rounded-xl font-bold transition-all shadow-lg shadow-purple-600/20 disabled:shadow-none disabled:cursor-not-allowed text-center"
           >
-            {isSoldOut ? copy.soldOut : copy.checkout}
+            {isSoldOut ? copy.soldOut : isCheckoutSubmitting ? copy.processing : copy.checkout}
           </button>
         </div>
       </div>}

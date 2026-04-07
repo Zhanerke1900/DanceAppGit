@@ -43,11 +43,46 @@ function normalizeTicketItems(ticketDetails = {}) {
     .filter((item) => item.name && item.quantity > 0);
 }
 
+function parsePriceValue(value) {
+  if (Number.isFinite(Number(value))) return Number(value);
+  const digits = String(value || "").replace(/\D/g, "");
+  return Number(digits || 0);
+}
+
 function ticketKindFromName(name) {
   const lowerName = String(name || "").toLowerCase();
   if (lowerName === "full event pass") return "full-event-pass";
   if (lowerName === "event ticket") return "event-ticket";
   return "activity";
+}
+
+function applyManagedEventPrices(items, event) {
+  if (!event) return items;
+
+  const activitiesById = new Map((event.activities || []).map((activity) => [String(activity.id), activity]));
+  const eventTicketPrice =
+    parsePriceValue(event.ticketPricing?.generalAdmission) ||
+    parsePriceValue(event.price);
+  const fullPassPrice = Number(event.fullPassPrice || 0);
+
+  return items.map((item) => {
+    const kind = ticketKindFromName(item.name);
+    let price = Number(item.price || 0);
+
+    if (kind === "event-ticket" && eventTicketPrice > 0) {
+      price = eventTicketPrice;
+    } else if (kind === "full-event-pass" && fullPassPrice > 0) {
+      price = fullPassPrice;
+    } else if (kind === "activity" && item.activityId) {
+      const activity = activitiesById.get(String(item.activityId));
+      if (activity) price = Number(activity.price || 0);
+    }
+
+    return {
+      ...item,
+      price,
+    };
+  });
 }
 
 function parseEventStartDate(eventSnapshot = {}) {
@@ -134,7 +169,7 @@ export function publicTicket(ticket) {
 
 async function buildTicketOrderDataForUser({ user, eventId, eventData, ticketDetails }) {
   const startedAt = Date.now();
-  const items = normalizeTicketItems(ticketDetails);
+  let items = normalizeTicketItems(ticketDetails);
   if (items.length === 0) {
     throw new Error("At least one ticket item is required");
   }
@@ -158,6 +193,7 @@ async function buildTicketOrderDataForUser({ user, eventId, eventData, ticketDet
       image: event.image,
     });
     organizerId = event.organizer || null;
+    items = applyManagedEventPrices(items, event);
   } else {
     snapshot = toEventSnapshot(eventData);
   }
@@ -166,10 +202,15 @@ async function buildTicketOrderDataForUser({ user, eventId, eventData, ticketDet
     throw new Error("Event snapshot is incomplete");
   }
 
-  const subtotal = Number(ticketDetails?.subtotal || items.reduce((sum, item) => sum + item.price * item.quantity, 0));
-  const serviceFee = Number(ticketDetails?.serviceFee || 0);
-  const total = Number(ticketDetails?.total || subtotal + serviceFee);
+  const calculatedSubtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = Number((event ? calculatedSubtotal : Number(ticketDetails?.subtotal || calculatedSubtotal)).toFixed(2));
+  const serviceFee = Number((event ? Math.round(subtotal * 0.05) : Number(ticketDetails?.serviceFee || 0)).toFixed(2));
+  const total = Number((event ? subtotal + serviceFee : Number(ticketDetails?.total || subtotal + serviceFee)).toFixed(2));
   const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+
+  if (!Number.isFinite(subtotal) || !Number.isFinite(serviceFee) || !Number.isFinite(total) || total < 0) {
+    throw new Error("Payment amount is invalid");
+  }
 
   if (event?.ticketLimit > 0) {
     const soldTickets = await getEventSoldTickets(event._id);

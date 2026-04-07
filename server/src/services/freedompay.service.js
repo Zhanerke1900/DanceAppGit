@@ -206,6 +206,11 @@ export async function createFreedomPayPayment(order) {
       response: compactFreedomPayResponse(responseText),
       orderId: String(order._id),
       merchantId: config.merchantId,
+      amount: request.pg_amount,
+      currency: request.pg_currency,
+      testingMode: config.testingMode || "off",
+      resultUrl,
+      checkUrl,
     });
     throw new Error(
       parsed.pg_error_description ||
