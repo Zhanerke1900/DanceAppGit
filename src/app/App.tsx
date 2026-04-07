@@ -42,6 +42,14 @@ type ProfileTab = 'my-tickets' | 'favorites' | 'purchase-history' | 'account-set
 type OrganizerTab = 'dashboard' | 'events' | 'create-event' | 'validators' | 'orders' | 'analytics';
 type ValidatorTab = 'events' | 'scan';
 type AdminTab = 'dashboard' | 'requests' | 'users' | 'moderation';
+
+const redirectToPaymentProvider = (paymentUrl: string) => {
+  window.location.href = paymentUrl;
+  window.setTimeout(() => {
+    window.location.assign(paymentUrl);
+  }, 150);
+};
+
 type FavoriteItem = {
   id: string;
   title: string;
@@ -516,7 +524,7 @@ function AppContent() {
       ticketDetails,
     });
     if (response.paymentUrl) {
-      window.location.assign(response.paymentUrl);
+      redirectToPaymentProvider(response.paymentUrl);
       return;
     }
 
