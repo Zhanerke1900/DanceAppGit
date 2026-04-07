@@ -1,4 +1,4 @@
-﻿import { request } from "./http";
+﻿import { clearAuthToken, request, setAuthToken } from "./http";
 
 export type User = {
   id?: string;
@@ -208,7 +208,7 @@ export async function register(payload: { fullName: string; email: string; passw
 }
 
 export async function login(payload: { email: string; password: string }) {
-  const { res, data } = await request<{ user?: User; message?: string; code?: string }>("/api/auth/login", {
+  const { res, data } = await request<{ user?: User; token?: string; message?: string; code?: string }>("/api/auth/login", {
     method: "POST",
     json: payload,
   });
@@ -219,6 +219,7 @@ export async function login(payload: { email: string; password: string }) {
     throw err;
   }
 
+  setAuthToken(data.token);
   return data;
 }
 
@@ -265,9 +266,13 @@ export async function submitOrganizerRequest(payload: {
 }
 
 export async function logout() {
-  const { res, data } = await request<{ message?: string }>("/api/auth/logout", { method: "POST" });
-  if (!res.ok) throw new Error((data as any)?.message || "Logout failed");
-  return data;
+  try {
+    const { res, data } = await request<{ message?: string }>("/api/auth/logout", { method: "POST" });
+    if (!res.ok) throw new Error((data as any)?.message || "Logout failed");
+    return data;
+  } finally {
+    clearAuthToken();
+  }
 }
 
 export async function acknowledgeOrganizerApproval() {

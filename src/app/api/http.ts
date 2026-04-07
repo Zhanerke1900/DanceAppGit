@@ -6,6 +6,26 @@ const isLocalDevHost =
 export const API_URL =
   import.meta.env.VITE_API_URL || (isLocalDevHost ? "http://localhost:4000" : "");
 
+const AUTH_TOKEN_KEY = "danceapp:auth-token";
+
+export function getAuthToken() {
+  if (typeof window === "undefined") return "";
+  return window.localStorage.getItem(AUTH_TOKEN_KEY) || "";
+}
+
+export function setAuthToken(token?: string) {
+  if (typeof window === "undefined") return;
+  if (token) {
+    window.localStorage.setItem(AUTH_TOKEN_KEY, token);
+  } else {
+    window.localStorage.removeItem(AUTH_TOKEN_KEY);
+  }
+}
+
+export function clearAuthToken() {
+  setAuthToken("");
+}
+
 async function parseJson(res: Response) {
   const text = await res.text();
   try {
@@ -30,6 +50,8 @@ export async function request<T>(
   };
 
   if (options.json !== undefined) headers["Content-Type"] = "application/json";
+  const authToken = getAuthToken();
+  if (authToken && !headers.Authorization) headers.Authorization = `Bearer ${authToken}`;
 
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
@@ -45,6 +67,7 @@ export async function request<T>(
     !path.startsWith("/api/auth/login") &&
     typeof window !== "undefined"
   ) {
+    clearAuthToken();
     window.dispatchEvent(new CustomEvent("auth:blocked", { detail: data }));
   }
   return { res, data };

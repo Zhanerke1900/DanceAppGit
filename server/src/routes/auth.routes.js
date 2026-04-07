@@ -24,6 +24,7 @@ function authCookieOptions() {
 function setAuthCookie(res, userId) {
   const token = jwt.sign({ sub: userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
   res.cookie("token", token, authCookieOptions());
+  return token;
 }
 
 function publicUser(u) {
@@ -200,12 +201,12 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ message: "Incorrect password", code: "WRONG_PASSWORD" });
     }
 
-    setAuthCookie(res, user._id.toString());
+    const authToken = setAuthCookie(res, user._id.toString());
     console.log(
       `LOGIN ${cleanEmail} ok (findUser=${findDuration}ms, compare=${passwordDuration}ms, total=${Date.now() - startedAt}ms)`
     );
 
-    return res.json({ user: publicUser(user), message: "Logged in" });
+    return res.json({ user: publicUser(user), token: authToken, message: "Logged in" });
   } catch (e) {
     console.error(e);
     return res.status(500).json({ message: "Server error" });
