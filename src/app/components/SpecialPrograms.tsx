@@ -359,7 +359,7 @@ export const programs: Program[] = [
     time: "February 12-14, 2027",
     location: "Astana Arena Expo Hall",
     city: "Astana",
-    price: "From 18,000 в‚ё",
+    price: "From 18,000 ₸",
     image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&q=80&w=1000",
     description: "Three days of festival showcases, social nights, and open-format dance labs in the capital.",
     longDescription: "Astana Rhythm Weekend brings together dancers from across Kazakhstan for a packed three-day festival featuring open classes, evening performances, themed social parties, and collaborative freestyle labs. The program is designed for dancers who want both structured learning and a strong social dance atmosphere in one event.",
@@ -394,7 +394,7 @@ export const programs: Program[] = [
     time: "March 06, 2027",
     location: "Congress Center, Astana",
     city: "Astana",
-    price: "7,000 в‚ё",
+    price: "7,000 ₸",
     image: "https://images.unsplash.com/photo-1547153760-18fc86324498?auto=format&fit=crop&q=80&w=1000",
     description: "A citywide crew competition with showcase, battle, and judges' critique rounds.",
     longDescription: "Astana Crew Clash is a high-energy competition built for university teams, studio crews, and independent collectives. The event includes qualification rounds, live battle segments, and professional judges' feedback sessions, making it both a competition and a development platform for emerging teams.",
@@ -429,7 +429,7 @@ export const programs: Program[] = [
     time: "April 10, 2027",
     location: "Astana Performance Lab",
     city: "Astana",
-    price: "14,000 в‚ё",
+    price: "14,000 ₸",
     image: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&q=80&w=1000",
     description: "An intensive special program focused on projection, confidence, and storytelling on stage.",
     longDescription: "Stage Presence Intensive is a one-day immersive program built for dancers who want to strengthen performance quality, emotional connection, and confidence in front of an audience. Through guided drills and coached combinations, participants learn how to command attention and elevate their stage impact.",
@@ -462,6 +462,8 @@ export const programs: Program[] = [
   }
 ];
 
+const hasDisplayImage = (item: any) => Boolean(String(item?.image || '').trim());
+
 interface SpecialProgramsProps {
   onBookTicket: (event: any) => void;
   selectedCity: string;
@@ -486,7 +488,7 @@ export const SpecialPrograms = ({
   const [activeCategory, setActiveCategory] = useState('All');
   const { t } = useI18n();
 
-  const mergedPrograms = [...dynamicPrograms, ...programs];
+  const mergedPrograms = [...dynamicPrograms, ...programs].filter(hasDisplayImage);
 
   const filteredPrograms = mergedPrograms.filter(p => {
     const matchesCategory = activeCategory === 'All' || p.category === activeCategory;

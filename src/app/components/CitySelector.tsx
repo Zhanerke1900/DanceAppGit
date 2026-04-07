@@ -64,7 +64,7 @@ export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) 
         onClick={() => setIsOpen(!isOpen)}
         aria-haspopup="dialog"
         aria-expanded={isOpen}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-primary dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-purple-400 group"
+        className="flex touch-manipulation items-center gap-2 px-3 py-1.5 rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-primary dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-purple-400 group"
       >
         <MapPin className="w-4 h-4 text-purple-500" />
         <span className="font-medium text-sm">{selectedCity}</span>
@@ -89,8 +89,7 @@ export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) 
                     placeholder={t('common.searchCity')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    autoFocus
-                    className="w-full rounded-lg border border-border bg-input-background py-2 pl-9 pr-4 text-sm text-foreground transition-colors placeholder:text-muted-foreground focus:outline-none focus:border-purple-500/50 dark:border-white/10 dark:bg-black/50 dark:text-white"
+                    className="w-full rounded-lg border border-border bg-input-background py-2 pl-9 pr-4 text-base text-foreground transition-colors placeholder:text-muted-foreground focus:outline-none focus:border-purple-500/50 md:text-sm dark:border-white/10 dark:bg-black/50 dark:text-white"
                   />
                 </div>
               </div>
@@ -170,8 +169,7 @@ export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) 
                       placeholder={t('common.searchCityKazakhstan')}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      autoFocus
-                      className="w-full rounded-xl border border-border bg-input-background py-3 pl-10 pr-3 text-sm text-foreground transition-colors placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 dark:border-white/10 dark:bg-black/50 dark:text-white"
+                      className="w-full rounded-xl border border-border bg-input-background py-3 pl-10 pr-3 text-base text-foreground transition-colors placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 dark:border-white/10 dark:bg-black/50 dark:text-white"
                     />
                   </div>
                 </div>
@@ -184,10 +182,10 @@ export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) 
                           type="button"
                           key={city}
                           onClick={() => handleSelect(city)}
-                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                          className={`w-full touch-manipulation flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                             selectedCity === city
                               ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20'
-                              : 'bg-accent text-foreground active:scale-95 dark:bg-white/5 dark:text-gray-300'
+                              : 'bg-accent text-foreground dark:bg-white/5 dark:text-gray-300'
                           }`}
                         >
                           {city}

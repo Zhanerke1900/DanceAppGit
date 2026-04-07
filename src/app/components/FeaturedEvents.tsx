@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { EventCard } from './EventCard';
 import { motion, AnimatePresence } from 'motion/react';
 import { MapPinOff } from 'lucide-react';
-import soulsideImage from './soulside.png';
 
 
 interface FeaturedEventsProps {
@@ -20,15 +19,6 @@ interface FeaturedEventsProps {
 const categories = ['All', 'Hip Hop', 'Contemporary', 'Ballet', 'Latin', 'Ballroom'];
 
 const events = [
-  {
-    category: "Hip Hop",
-    title: "😱 ВПЕРВЫЕ В КАЗАХСТАНЕ  Эмиль Даливалов 😱",
-    date: "April 15, 2026",
-    location: "Republic Square, Astana, Kazakhstan",
-    city: "Astana",
-    price: "5,000 ₸",
-    image: soulsideImage
-  },
   {
     category: "Ballet",
     title: "Almaty Grand Opera Night",
@@ -189,7 +179,7 @@ const events = [
     date: "December 03, 2026",
     location: "Freedom Hall, Baitursynov St 26, Astana, Kazakhstan",
     city: "Astana",
-    price: "5,500 в‚ё",
+    price: "5,500 ₸",
     image: "https://images.unsplash.com/photo-1544717305-2782549b5136?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
   },
   {
@@ -198,7 +188,7 @@ const events = [
     date: "December 12, 2026",
     location: "Art Residence, Kabanbay Batyr Ave 18, Astana, Kazakhstan",
     city: "Astana",
-    price: "6,500 в‚ё",
+    price: "6,500 ₸",
     image: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
   },
   {
@@ -207,7 +197,7 @@ const events = [
     date: "December 18, 2026",
     location: "Skyline Club, Timiryazev St 42, Astana, Kazakhstan",
     city: "Astana",
-    price: "4,000 в‚ё",
+    price: "4,000 ₸",
     image: "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
   },
   {
@@ -216,7 +206,7 @@ const events = [
     date: "January 16, 2027",
     location: "Congress Hall, Ovsyanikova St 10, Astana, Kazakhstan",
     city: "Astana",
-    price: "13,000 в‚ё",
+    price: "13,000 ₸",
     image: "https://images.unsplash.com/photo-1524594152303-9fd13543fe6e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
   }
 ];
@@ -278,6 +268,8 @@ const extraEvents = [
   },
 ];
 
+const hasDisplayImage = (item: any) => Boolean(String(item?.image || '').trim());
+
 export const FeaturedEvents = ({
   selectedCity,
   onCityChange,
@@ -294,15 +286,16 @@ export const FeaturedEvents = ({
   const mergedEvents = expandedMode
     ? [...dynamicEvents, ...events, ...extraEvents]
     : [...dynamicEvents, ...events];
+  const displayEvents = mergedEvents.filter(hasDisplayImage);
 
-  const filteredEvents = mergedEvents.filter(event => {
+  const filteredEvents = displayEvents.filter(event => {
     const matchesCity = event.city === selectedCity;
     const matchesCategory = activeCategory === 'All' || event.category === activeCategory;
     return matchesCity && matchesCategory;
   });
   const visibleEvents = expandedMode ? filteredEvents : filteredEvents.slice(0, 8);
 
-  const cityEventsCount = mergedEvents.filter((event) => event.city === selectedCity).length;
+  const cityEventsCount = displayEvents.filter((event) => event.city === selectedCity).length;
   const shouldShowExploreMoreButton = showExploreMoreButton && cityEventsCount >= 9;
 
   const handleExploreOtherCities = () => {
@@ -356,7 +349,7 @@ export const FeaturedEvents = ({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
+                className="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-8 xl:grid-cols-4"
               >
                 {visibleEvents.map((event, index) => (
                   (() => {
