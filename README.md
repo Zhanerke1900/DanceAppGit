@@ -4,7 +4,7 @@ Quick start and deployment notes.
 
 ## Running the code
 
-Frontend:
+Frontend app:
 
 ```bash
 npm i
