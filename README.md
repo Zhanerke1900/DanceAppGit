@@ -1,5 +1,7 @@
 # Dance App
 
+Quick start and deployment notes.
+
 ## Running the code
 
 Frontend:
