@@ -1,3 +1,5 @@
+# Dance App
+
 ## Running the code
 
 Frontend:
