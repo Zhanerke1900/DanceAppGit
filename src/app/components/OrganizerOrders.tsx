@@ -10,6 +10,10 @@ interface OrganizerOrder {
   ticketType: string;
   quantity: number;
   total: number;
+  amountPaid?: number;
+  balanceDue?: number;
+  paymentType?: string;
+  balanceDueDeadlineAt?: string | null;
   purchaseDate: string;
   paymentStatus: string;
   checkInStatus: string;
@@ -44,34 +48,43 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders }) => {
       title: 'Orders',
       subtitle: 'Real purchases for your published events.',
       emptyTitle: 'No orders yet',
-      emptyDesc: 'Orders will appear here when people buy tickets for your published events.',
+      emptyDesc: 'Orders and reservations will appear here when people buy or reserve tickets.',
       order: 'Order',
-      amount: 'Amount',
+      amount: 'Full Amount',
+      paid: 'Paid',
+      balance: 'Balance',
+      deadline: 'Balance deadline',
       payment: 'Payment',
       checkIn: 'Check-in',
-      status: { paid: 'paid', pending: 'pending', checked: 'checked', 'not-checked': 'not checked', 'checked-in': 'checked-in' } as Record<string, string>,
+      status: { paid: 'paid', reserved: 'reserved', pending: 'pending', checked: 'checked', 'not-checked': 'not checked', 'checked-in': 'checked-in', 'not-checked-in': 'not checked', 'no-ticket-yet': 'no ticket yet' } as Record<string, string>,
     },
     ru: {
       title: 'Заказы',
-      subtitle: 'Реальные покупки по вашим опубликованным событиям.',
+      subtitle: 'Покупки и брони по вашим опубликованным событиям.',
       emptyTitle: 'Заказов пока нет',
-      emptyDesc: 'Заказы появятся здесь, когда люди купят билеты на ваши опубликованные события.',
+      emptyDesc: 'Заказы и брони появятся здесь, когда люди купят или забронируют билеты.',
       order: 'Заказ',
-      amount: 'Сумма',
+      amount: 'Полная сумма',
+      paid: 'Оплачено',
+      balance: 'Остаток',
+      deadline: 'Оплатить до',
       payment: 'Оплата',
       checkIn: 'Вход',
-      status: { paid: 'оплачено', pending: 'ожидает', checked: 'проверен', 'not-checked': 'не проверен', 'checked-in': 'вошёл' } as Record<string, string>,
+      status: { paid: 'оплачено', reserved: 'бронь', pending: 'ожидает', checked: 'проверен', 'not-checked': 'не проверен', 'checked-in': 'вошёл', 'not-checked-in': 'не проверен', 'no-ticket-yet': 'билета ещё нет' } as Record<string, string>,
     },
     kk: {
       title: 'Тапсырыстар',
-      subtitle: 'Жарияланған іс-шараларыңыз бойынша нақты сатып алулар.',
+      subtitle: 'Жарияланған іс-шараларыңыз бойынша сатып алулар мен броньдар.',
       emptyTitle: 'Әзірге тапсырыс жоқ',
-      emptyDesc: 'Адамдар жарияланған іс-шараларыңызға билет сатып алғанда, тапсырыстар осында пайда болады.',
+      emptyDesc: 'Адамдар билет сатып алғанда немесе брондағанда, тапсырыстар осында пайда болады.',
       order: 'Тапсырыс',
-      amount: 'Сома',
+      amount: 'Толық сома',
+      paid: 'Төленді',
+      balance: 'Қалдық',
+      deadline: 'Дейін төлеу',
       payment: 'Төлем',
       checkIn: 'Кіру',
-      status: { paid: 'төленді', pending: 'күтуде', checked: 'тексерілді', 'not-checked': 'тексерілмеді', 'checked-in': 'кірді' } as Record<string, string>,
+      status: { paid: 'төленді', reserved: 'бронь', pending: 'күтуде', checked: 'тексерілді', 'not-checked': 'тексерілмеді', 'checked-in': 'кірді', 'not-checked-in': 'тексерілмеді', 'no-ticket-yet': 'билет әлі жоқ' } as Record<string, string>,
     },
   }[language];
   return (
@@ -128,10 +141,21 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders }) => {
                     <div className="rounded-xl bg-gray-800/40 p-4">
                       <p className="mb-1 text-xs uppercase tracking-wider text-gray-500">{copy.amount}</p>
                       <p className="text-lg font-bold text-white">{formatCurrency(order.total)}</p>
+                      {order.paymentStatus === 'reserved' && (
+                        <div className="mt-2 space-y-1 text-xs text-gray-300">
+                          <p>{copy.paid}: <span className="font-semibold text-emerald-300">{formatCurrency(order.amountPaid || 0)}</span></p>
+                          <p>{copy.balance}: <span className="font-semibold text-amber-300">{formatCurrency(order.balanceDue || 0)}</span></p>
+                          {order.balanceDueDeadlineAt && (
+                            <p>{copy.deadline}: <span className="font-semibold text-white">{formatDate(order.balanceDueDeadlineAt)}</span></p>
+                          )}
+                        </div>
+                      )}
                     </div>
                     <div className="rounded-xl bg-gray-800/40 p-4">
                       <p className="mb-1 text-xs uppercase tracking-wider text-gray-500">{copy.payment}</p>
-                      <p className="font-semibold capitalize text-emerald-300">{copy.status[order.paymentStatus] || order.paymentStatus}</p>
+                      <p className={`font-semibold capitalize ${order.paymentStatus === 'reserved' ? 'text-amber-300' : 'text-emerald-300'}`}>
+                        {copy.status[order.paymentStatus] || order.paymentStatus}
+                      </p>
                     </div>
                     <div className="rounded-xl bg-gray-800/40 p-4">
                       <p className="mb-1 text-xs uppercase tracking-wider text-gray-500">{copy.checkIn}</p>

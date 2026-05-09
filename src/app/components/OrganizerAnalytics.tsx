@@ -5,12 +5,16 @@ import { useI18n } from '../i18n';
 interface AnalyticsData {
   totalRevenue: number;
   ticketsSold: number;
+  reservedTickets?: number;
+  reservationsCount?: number;
+  outstandingBalance?: number;
   ordersCount: number;
   topEvents: Array<{
     eventId: string;
     title: string;
     orders: number;
     ticketsSold: number;
+    reservedTickets?: number;
     revenue: number;
   }>;
   salesByDay: Array<{
@@ -18,6 +22,7 @@ interface AnalyticsData {
     revenue: number;
     orders: number;
     ticketsSold: number;
+    reservations?: number;
   }>;
   eventStatuses: {
     published: number;
@@ -47,6 +52,9 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
       subtitle: 'Live performance snapshot for your organizer account.',
       totalRevenue: 'Total Revenue',
       ticketsSold: 'Tickets Sold',
+      reservedTickets: 'Reserved Tickets',
+      reservationsCount: 'Reservations',
+      outstandingBalance: 'Outstanding Balance',
       ordersCount: 'Orders Count',
       topEvents: 'Top Events',
       salesByDay: 'Sales by Day',
@@ -69,6 +77,9 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
       subtitle: 'Актуальная статистика по аккаунту организатора.',
       totalRevenue: 'Общая выручка',
       ticketsSold: 'Продано билетов',
+      reservedTickets: 'Билетов в бронях',
+      reservationsCount: 'Брони',
+      outstandingBalance: 'Остаток к оплате',
       ordersCount: 'Количество заказов',
       topEvents: 'Лучшие события',
       salesByDay: 'Продажи по дням',
@@ -91,6 +102,9 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
       subtitle: 'Ұйымдастырушы аккаунты бойынша ағымдағы көрсеткіштер.',
       totalRevenue: 'Жалпы табыс',
       ticketsSold: 'Сатылған билеттер',
+      reservedTickets: 'Броньдағы билеттер',
+      reservationsCount: 'Броньдар',
+      outstandingBalance: 'Төленетін қалдық',
       ordersCount: 'Тапсырыс саны',
       topEvents: 'Үздік іс-шаралар',
       salesByDay: 'Күндер бойынша сатылым',
@@ -125,7 +139,10 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
           {[
             { label: copy.totalRevenue, value: formatCurrency(analytics?.totalRevenue || 0), icon: DollarSign },
             { label: copy.ticketsSold, value: String(analytics?.ticketsSold || 0), icon: Ticket },
+            { label: copy.reservedTickets, value: String(analytics?.reservedTickets || 0), icon: Ticket },
+            { label: copy.outstandingBalance, value: formatCurrency(analytics?.outstandingBalance || 0), icon: DollarSign },
             { label: copy.ordersCount, value: String(analytics?.ordersCount || 0), icon: ShoppingBag },
+            { label: copy.reservationsCount, value: String(analytics?.reservationsCount || 0), icon: ShoppingBag },
             { label: copy.topEvents, value: String(analytics?.topEvents.length || 0), icon: BarChart3 },
           ].map((card) => {
             const Icon = card.icon;
@@ -159,11 +176,12 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
             {analytics?.salesByDay.length ? (
               <div className="space-y-3">
                 {analytics.salesByDay.map((day) => (
-                  <div key={day.date} className="grid grid-cols-[1fr_auto_auto_auto] gap-4 rounded-xl bg-gray-800/40 p-4 text-sm">
+                  <div key={day.date} className="grid gap-3 rounded-xl bg-gray-800/40 p-4 text-sm md:grid-cols-[1fr_auto_auto_auto_auto]">
                     <span className="font-medium text-white">{day.date}</span>
                     <span className="text-gray-300">{formatCurrency(day.revenue)}</span>
                     <span className="text-gray-400">{day.orders} {copy.orders}</span>
                     <span className="text-gray-400">{day.ticketsSold} {copy.tickets}</span>
+                    {day.reservations ? <span className="text-amber-300">{day.reservations} {copy.reservationsCount}</span> : null}
                   </div>
                 ))}
               </div>
@@ -252,11 +270,12 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
           {analytics?.topEvents.length ? (
             <div className="space-y-3">
               {analytics.topEvents.map((event) => (
-                <div key={event.eventId} className="grid grid-cols-[1fr_auto_auto_auto] gap-4 rounded-xl bg-gray-800/40 p-4 text-sm">
+                <div key={event.eventId} className="grid gap-3 rounded-xl bg-gray-800/40 p-4 text-sm md:grid-cols-[1fr_auto_auto_auto_auto]">
                   <span className="font-medium text-white">{event.title}</span>
                   <span className="text-gray-300">{formatCurrency(event.revenue)}</span>
                   <span className="text-gray-400">{event.orders} {copy.orders}</span>
                   <span className="text-gray-400">{event.ticketsSold} {copy.tickets}</span>
+                  {event.reservedTickets ? <span className="text-amber-300">{event.reservedTickets} {copy.reservedTickets}</span> : null}
                 </div>
               ))}
             </div>

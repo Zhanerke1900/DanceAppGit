@@ -7,7 +7,13 @@ import {
   getFreedomPayScriptName,
   verifyFreedomPaySignature,
 } from "../services/freedompay.service.js";
-import { markOrderPaidAndIssueTickets } from "../services/ticket.service.js";
+import {
+  completeReservationAndIssueTickets,
+  getOrderPaymentDueNow,
+  markOrderPaidAndIssueTickets,
+  markOrderReserved,
+} from "../services/ticket.service.js";
+import { invalidatePublishedEventsCache } from "./events.routes.js";
 
 const router = express.Router();
 
@@ -96,7 +102,8 @@ function canReject(payload) {
 
 function amountMatches(order, payload) {
   if (!payload.pg_amount) return true;
-  return Math.round(Number(order.total || 0) * 100) === Math.round(Number(payload.pg_amount || 0) * 100);
+  const expectedAmount = getOrderPaymentDueNow(order);
+  return Math.round(expectedAmount * 100) === Math.round(Number(payload.pg_amount || 0) * 100);
 }
 
 function currencyMatches(payload) {
@@ -107,6 +114,11 @@ function currencyMatches(payload) {
 
 async function rejectOrFailOrder(order, reason) {
   if (!order || order.paymentStatus === "paid") return;
+  if (order.paymentStatus === "reserved") {
+    order.paymentFailureReason = reason;
+    await order.save();
+    return;
+  }
   order.paymentStatus = "failed";
   order.paymentFailureReason = reason;
   await order.save();
@@ -125,10 +137,16 @@ router.all("/check", async (req, res) => {
     }
 
     const order = await Order.findById(pickOrderId(payload));
-    if (!order || order.paymentStatus !== "pending") {
+    if (!order || !["pending", "reserved"].includes(order.paymentStatus)) {
       return sendFreedomPayResponse(req, res, {
         pg_status: "rejected",
         pg_description: "Order is not available for payment",
+      });
+    }
+    if (order.paymentStatus === "reserved" && order.balanceDueDeadlineAt && new Date(order.balanceDueDeadlineAt).getTime() <= Date.now()) {
+      return sendFreedomPayResponse(req, res, {
+        pg_status: "rejected",
+        pg_description: "Reservation must be fully paid at least 5 hours before the event",
       });
     }
 
@@ -195,16 +213,25 @@ router.all("/result", async (req, res) => {
       });
     }
 
-    await markOrderPaidAndIssueTickets(order, {
+    const paymentFields = {
       paymentProvider: "freedompay",
       freedomPayPaymentId: String(payload.pg_payment_id || order.freedomPayPaymentId || ""),
       paidAt: order.paidAt || new Date(),
       paymentFailureReason: "",
-    });
+    };
+
+    if (order.paymentStatus === "pending" && order.paymentType === "deposit") {
+      await markOrderReserved(order, paymentFields);
+    } else if (order.paymentStatus === "reserved") {
+      await completeReservationAndIssueTickets(order, paymentFields);
+    } else {
+      await markOrderPaidAndIssueTickets(order, paymentFields);
+    }
+    invalidatePublishedEventsCache();
 
     return sendFreedomPayResponse(req, res, {
       pg_status: "ok",
-      pg_description: "Order paid",
+      pg_description: "Payment processed",
     });
   } catch (error) {
     console.error("Freedom Pay result error:", error?.message || error);

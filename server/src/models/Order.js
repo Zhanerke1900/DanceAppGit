@@ -36,8 +36,17 @@ const orderSchema = new mongoose.Schema(
     subtotal: { type: Number, required: true, min: 0 },
     serviceFee: { type: Number, required: true, min: 0 },
     total: { type: Number, required: true, min: 0 },
+    paymentType: { type: String, enum: ["full", "deposit"], default: "deposit", index: true },
+    depositRate: { type: Number, default: 0.4, min: 0, max: 1 },
+    depositAmount: { type: Number, default: 0, min: 0 },
+    amountPaid: { type: Number, default: 0, min: 0 },
+    balanceDue: { type: Number, default: 0, min: 0 },
+    refundPolicyHours: { type: Number, default: 48, min: 0 },
+    balanceDueDeadlineHours: { type: Number, default: 5, min: 0 },
+    balanceDueDeadlineAt: { type: Date, default: null, index: true },
+    reservedAt: { type: Date, default: null },
 
-    paymentStatus: { type: String, enum: ["paid", "pending", "failed", "refunded"], default: "paid" },
+    paymentStatus: { type: String, enum: ["paid", "pending", "reserved", "failed", "refunded"], default: "paid" },
     paymentProvider: { type: String, enum: ["manual", "freedompay"], default: "manual", index: true },
     freedomPayPaymentId: { type: String, default: "", index: true },
     paymentFailureReason: { type: String, default: "" },
@@ -47,5 +56,9 @@ const orderSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+orderSchema.index({ event: 1, paymentStatus: 1, balanceDueDeadlineAt: 1 });
+orderSchema.index({ buyer: 1, paymentStatus: 1, createdAt: -1 });
+orderSchema.index({ organizer: 1, paymentStatus: 1, createdAt: -1 });
 
 export default mongoose.model("Order", orderSchema);

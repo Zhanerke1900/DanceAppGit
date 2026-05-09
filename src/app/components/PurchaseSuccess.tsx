@@ -10,6 +10,9 @@ interface PurchaseSuccessProps {
   ticketDetails: {
     quantity: number;
     total: number;
+    paymentType?: 'full' | 'deposit';
+    depositAmount?: number;
+    balanceDue?: number;
     ticketTypes: Array<{
       name: string;
       quantity: number;
@@ -36,8 +39,12 @@ export const PurchaseSuccess = ({
 }: PurchaseSuccessProps) => {
   const { language } = useI18n();
   const copy = {
-    title: language === 'ru' ? 'Покупка завершена!' : language === 'kk' ? 'Сатып алу аяқталды!' : 'Purchase Complete!',
-    created: language === 'ru' ? 'настоящих билетов создано и отправлено вам на почту' : language === 'kk' ? 'нақты билет жасалып, email-іңізге жіберілді' : 'real tickets have been created and emailed to you',
+    title: ticketDetails.paymentType === 'deposit'
+      ? (language === 'ru' ? 'Бронь оформлена!' : language === 'kk' ? 'Бронь жасалды!' : 'Booking Complete!')
+      : (language === 'ru' ? 'Покупка завершена!' : language === 'kk' ? 'Сатып алу аяқталды!' : 'Purchase Complete!'),
+    created: ticketDetails.paymentType === 'deposit'
+      ? (language === 'ru' ? 'билетов забронировано' : language === 'kk' ? 'билет брондалды' : 'tickets have been reserved')
+      : (language === 'ru' ? 'настоящих билетов создано и отправлено вам на почту' : language === 'kk' ? 'нақты билет жасалып, email-іңізге жіберілді' : 'real tickets have been created and emailed to you'),
     ticketSingle: language === 'ru' ? 'билет' : language === 'kk' ? 'билет' : 'Ticket',
     ticketsPlural: language === 'ru' ? 'билетов' : language === 'kk' ? 'билет' : 'Tickets',
     dateTime: language === 'ru' ? 'Дата и время' : language === 'kk' ? 'Күні мен уақыты' : 'Date & Time',
@@ -48,7 +55,11 @@ export const PurchaseSuccess = ({
     barcode: language === 'ru' ? 'Штрихкод первого билета' : language === 'kk' ? 'Бірінші билеттің штрихкоды' : 'First ticket barcode',
     barcodeNote: language === 'ru' ? 'У каждого купленного билета есть свой уникальный код, QR, штрихкод и запись в базе.' : language === 'kk' ? 'Әр билетте бірегей код, QR, штрихкод және дерекқор жазбасы бар.' : 'Every purchased ticket has its own unique code, QR, barcode, and database record.',
     ticketDetails: language === 'ru' ? 'Детали билетов' : language === 'kk' ? 'Билет мәліметтері' : 'Ticket Details',
-    totalPaid: language === 'ru' ? 'Оплачено всего' : language === 'kk' ? 'Жалпы төленді' : 'Total Paid',
+    totalPaid: ticketDetails.paymentType === 'deposit'
+      ? (language === 'ru' ? 'Предоплата' : language === 'kk' ? 'Алдын ала төлем' : 'Deposit Paid')
+      : (language === 'ru' ? 'Оплачено всего' : language === 'kk' ? 'Жалпы төленді' : 'Total Paid'),
+    fullTotal: language === 'ru' ? 'Полная стоимость' : language === 'kk' ? 'Толық құны' : 'Full Total',
+    balanceDue: language === 'ru' ? 'Остаток на событии' : language === 'kk' ? 'Іс-шарадағы қалдық' : 'Balance at event',
     download: language === 'ru' ? 'Скачать' : language === 'kk' ? 'Жүктеу' : 'Download',
     viewTickets: language === 'ru' ? 'Мои билеты' : language === 'kk' ? 'Менің билеттерім' : 'View My Tickets',
     back: language === 'ru' ? 'Назад к событиям' : language === 'kk' ? 'Іс-шараларға оралу' : 'Back to Events',
@@ -199,9 +210,21 @@ export const PurchaseSuccess = ({
               <div className="flex justify-between border-t border-border/80 pt-3 dark:border-white/10">
                 <span className="font-bold text-foreground dark:text-white">{copy.totalPaid}</span>
                 <span className="bg-gradient-to-r from-purple-400 to-fuchsia-400 bg-clip-text text-2xl font-bold text-transparent">
-                  {formatCurrency(ticketDetails.total)}
+                  {formatCurrency(ticketDetails.paymentType === 'deposit' ? (ticketDetails.depositAmount ?? ticketDetails.total) : ticketDetails.total)}
                 </span>
               </div>
+              {ticketDetails.paymentType === 'deposit' && (
+                <>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground dark:text-gray-400">{copy.fullTotal}</span>
+                    <span className="font-semibold text-foreground dark:text-white">{formatCurrency(ticketDetails.total)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground dark:text-gray-400">{copy.balanceDue}</span>
+                    <span className="font-semibold text-foreground dark:text-white">{formatCurrency(ticketDetails.balanceDue || 0)}</span>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="mb-8 grid gap-3">

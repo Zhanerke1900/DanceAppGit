@@ -108,6 +108,56 @@ function parseEventStartDate(eventSnapshot = {}) {
   return null;
 }
 
+const DEFAULT_DEPOSIT_RATE = 0.4;
+const DEFAULT_REFUND_POLICY_HOURS = 48;
+const DEFAULT_BALANCE_DEADLINE_HOURS = 5;
+
+function money(value) {
+  return Number(Number(value || 0).toFixed(2));
+}
+
+function normalizePaymentType(value) {
+  return String(value || "deposit").trim().toLowerCase() === "full" ? "full" : "deposit";
+}
+
+function buildBalanceDueDeadline(eventSnapshot = {}) {
+  const eventStart = parseEventStartDate(eventSnapshot);
+  if (!eventStart) return null;
+  return new Date(eventStart.getTime() - DEFAULT_BALANCE_DEADLINE_HOURS * 60 * 60 * 1000);
+}
+
+function buildBookingPaymentFields(total, ticketDetails = {}, eventSnapshot = {}) {
+  const paymentType = normalizePaymentType(ticketDetails?.paymentType);
+  const depositRate = paymentType === "deposit" ? DEFAULT_DEPOSIT_RATE : 1;
+  const depositAmount = money(paymentType === "deposit" ? total * depositRate : total);
+  const amountPaid = depositAmount;
+  const balanceDue = money(Math.max(total - amountPaid, 0));
+
+  return {
+    paymentType,
+    depositRate,
+    depositAmount,
+    amountPaid,
+    balanceDue,
+    refundPolicyHours: DEFAULT_REFUND_POLICY_HOURS,
+    balanceDueDeadlineHours: DEFAULT_BALANCE_DEADLINE_HOURS,
+    balanceDueDeadlineAt: paymentType === "deposit" ? buildBalanceDueDeadline(eventSnapshot) : null,
+  };
+}
+
+function reservationCanBeCompleted(order) {
+  if (order.paymentType !== "deposit") return true;
+  if (!order.balanceDueDeadlineAt) return true;
+  return new Date(order.balanceDueDeadlineAt).getTime() > Date.now();
+}
+
+export function getOrderPaymentDueNow(order) {
+  if (order.paymentStatus === "reserved") {
+    return money(order.balanceDue || 0);
+  }
+  return money(order.amountPaid || order.depositAmount || order.total || 0);
+}
+
 function isPastEventSnapshot(eventSnapshot = {}) {
   const eventStart = parseEventStartDate(eventSnapshot);
   if (!eventStart || Number.isNaN(eventStart.getTime())) return false;
@@ -115,24 +165,30 @@ function isPastEventSnapshot(eventSnapshot = {}) {
 }
 
 async function getEventSoldTickets(eventId) {
-  const paidOrders = await Order.find({
+  const inventoryOrders = await Order.find({
     event: eventId,
-    paymentStatus: "paid",
-  }).select("quantity");
+    $or: [
+      { paymentStatus: "paid" },
+      { paymentStatus: "reserved", $or: [{ balanceDueDeadlineAt: null }, { balanceDueDeadlineAt: { $gt: new Date() } }] },
+    ],
+  }).select("quantity").lean();
 
-  return paidOrders.reduce((sum, order) => sum + Number(order.quantity || 0), 0);
+  return inventoryOrders.reduce((sum, order) => sum + Number(order.quantity || 0), 0);
 }
 
 async function getActivityUsageMap(event) {
   const usageMap = new Map((event.activities || []).map((activity) => [String(activity.id), 0]));
   if (!event?._id || !(event.activities || []).length) return usageMap;
 
-  const paidOrders = await Order.find({
+  const inventoryOrders = await Order.find({
     event: event._id,
-    paymentStatus: "paid",
-  }).select("items");
+    $or: [
+      { paymentStatus: "paid" },
+      { paymentStatus: "reserved", $or: [{ balanceDueDeadlineAt: null }, { balanceDueDeadlineAt: { $gt: new Date() } }] },
+    ],
+  }).select("items").lean();
 
-  for (const order of paidOrders) {
+  for (const order of inventoryOrders) {
     for (const item of order.items || []) {
       if (item.kind === "full-event-pass") {
         for (const activity of event.activities || []) {
@@ -160,10 +216,42 @@ export function publicTicket(ticket) {
     ticketType: ticket.ticketType,
     price: ticket.price,
     currency: ticket.currency,
+    paymentType: ticket.paymentType || "full",
+    depositRate: Number(ticket.depositRate || 1),
+    amountPaid: Number(ticket.amountPaid || ticket.price || 0),
+    balanceDue: Number(ticket.balanceDue || 0),
+    orderTotal: Number(ticket.orderTotal || ticket.price || 0),
+    refundPolicyHours: Number(ticket.refundPolicyHours || DEFAULT_REFUND_POLICY_HOURS),
     qrCodeDataUrl: ticket.qrCodeDataUrl,
     barcodeDataUrl: ticket.barcodeDataUrl,
     event: ticket.eventSnapshot,
     isPast: isPastEventSnapshot(ticket.eventSnapshot),
+  };
+}
+
+export function publicReservation(order) {
+  const eventStart = parseEventStartDate(order.eventSnapshot);
+  return {
+    id: order._id,
+    orderId: order._id,
+    status: order.paymentStatus,
+    createdAt: order.createdAt,
+    reservedAt: order.reservedAt || order.paidAt || order.createdAt,
+    quantity: Number(order.quantity || 0),
+    items: order.items || [],
+    subtotal: Number(order.subtotal || 0),
+    serviceFee: Number(order.serviceFee || 0),
+    total: Number(order.total || 0),
+    paymentType: order.paymentType || "deposit",
+    depositRate: Number(order.depositRate || DEFAULT_DEPOSIT_RATE),
+    amountPaid: Number(order.amountPaid || order.depositAmount || 0),
+    balanceDue: Number(order.balanceDue || 0),
+    balanceDueDeadlineAt: order.balanceDueDeadlineAt,
+    balanceDueDeadlineHours: Number(order.balanceDueDeadlineHours || DEFAULT_BALANCE_DEADLINE_HOURS),
+    refundPolicyHours: Number(order.refundPolicyHours || DEFAULT_REFUND_POLICY_HOURS),
+    canPayBalance: reservationCanBeCompleted(order),
+    isPast: eventStart ? eventStart.getTime() < Date.now() : false,
+    event: order.eventSnapshot,
   };
 }
 
@@ -207,6 +295,7 @@ async function buildTicketOrderDataForUser({ user, eventId, eventData, ticketDet
   const serviceFee = Number((event ? Math.round(subtotal * 0.05) : Number(ticketDetails?.serviceFee || 0)).toFixed(2));
   const total = Number((event ? subtotal + serviceFee : Number(ticketDetails?.total || subtotal + serviceFee)).toFixed(2));
   const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+  const bookingPayment = buildBookingPaymentFields(total, ticketDetails, snapshot);
 
   if (!Number.isFinite(subtotal) || !Number.isFinite(serviceFee) || !Number.isFinite(total) || total < 0) {
     throw new Error("Payment amount is invalid");
@@ -272,6 +361,7 @@ async function buildTicketOrderDataForUser({ user, eventId, eventData, ticketDet
       subtotal,
       serviceFee,
       total,
+      ...bookingPayment,
       checkInStatus: "not-checked-in",
     },
   };
@@ -316,7 +406,7 @@ export async function issueTicketsForPaidOrder(orderOrId) {
     throw new Error("Order is not paid");
   }
 
-  const existingTickets = await Ticket.find({ order: order._id, status: { $ne: "cancelled" } }).sort({ createdAt: 1 });
+  const existingTickets = await Ticket.find({ order: order._id, status: { $ne: "cancelled" } }).sort({ createdAt: 1 }).lean();
   if (existingTickets.length >= Number(order.quantity || 0)) {
     return existingTickets.map(publicTicket);
   }
@@ -326,9 +416,13 @@ export async function issueTicketsForPaidOrder(orderOrId) {
 
   const startedAt = Date.now();
   const createdTickets = [];
+  const orderAmountPaid = Number(order.amountPaid || order.total || 0);
+  const orderBalanceDue = Number(order.balanceDue || 0);
+  const orderSubtotal = Number(order.subtotal || 0);
   for (const item of order.items || []) {
     for (let index = 0; index < Number(item.quantity || 0); index += 1) {
       const ticketCode = await generateNextTicketCode();
+      const itemRatio = orderSubtotal > 0 ? Number(item.price || 0) / orderSubtotal : 1 / Number(order.quantity || 1);
       const ticketDraft = new Ticket({
         ticketCode,
         user: order.buyer,
@@ -341,6 +435,12 @@ export async function issueTicketsForPaidOrder(orderOrId) {
         ticketType: item.name,
         price: item.price,
         currency: "KZT",
+        paymentType: order.paymentType || "full",
+        depositRate: Number(order.depositRate || 1),
+        amountPaid: money(orderAmountPaid * itemRatio),
+        balanceDue: money(orderBalanceDue * itemRatio),
+        orderTotal: Number(order.total || item.price || 0),
+        refundPolicyHours: Number(order.refundPolicyHours || DEFAULT_REFUND_POLICY_HOURS),
         qrPayload: "",
         qrSignature: "",
         qrCodeDataUrl: "",
@@ -428,6 +528,9 @@ export async function markOrderPaidAndIssueTickets(orderOrId, paymentFields = {}
     order.paidAt = order.paidAt || new Date();
   }
 
+  order.amountPaid = Number(order.total || order.amountPaid || 0);
+  order.balanceDue = 0;
+  order.depositAmount = Number(order.depositAmount || order.amountPaid || 0);
   Object.assign(order, paymentFields);
   await order.save();
 
@@ -435,9 +538,102 @@ export async function markOrderPaidAndIssueTickets(orderOrId, paymentFields = {}
   return { order, tickets };
 }
 
+export async function markOrderReserved(orderOrId, paymentFields = {}) {
+  const order = typeof orderOrId === "string" || orderOrId?._bsontype === "ObjectId"
+    ? await Order.findById(orderOrId)
+    : orderOrId;
+
+  if (!order) {
+    throw new Error("Order not found");
+  }
+  if (order.paymentType !== "deposit") {
+    throw new Error("Only deposit orders can be reserved");
+  }
+
+  order.paymentStatus = "reserved";
+  order.reservedAt = order.reservedAt || new Date();
+  order.paidAt = order.paidAt || new Date();
+  order.amountPaid = Number(order.depositAmount || order.amountPaid || 0);
+  order.balanceDue = money(Math.max(Number(order.total || 0) - Number(order.amountPaid || 0), 0));
+  Object.assign(order, paymentFields);
+  await order.save();
+
+  return { order, reservation: publicReservation(order) };
+}
+
+export async function completeReservationAndIssueTickets(orderOrId, paymentFields = {}) {
+  const order = typeof orderOrId === "string" || orderOrId?._bsontype === "ObjectId"
+    ? await Order.findById(orderOrId)
+    : orderOrId;
+
+  if (!order) {
+    throw new Error("Order not found");
+  }
+  if (order.paymentStatus !== "reserved") {
+    throw new Error("Reservation is not available for payment");
+  }
+  if (!reservationCanBeCompleted(order)) {
+    order.paymentStatus = "failed";
+    order.paymentFailureReason = "Reservation payment deadline has passed";
+    await order.save();
+    throw new Error("Reservation must be fully paid at least 5 hours before the event");
+  }
+
+  return markOrderPaidAndIssueTickets(order, {
+    ...paymentFields,
+    amountPaid: Number(order.total || 0),
+    balanceDue: 0,
+    paymentFailureReason: "",
+  });
+}
+
 export async function getMyTickets(userId) {
-  const tickets = await Ticket.find({ user: userId, status: { $ne: "cancelled" } }).sort({ createdAt: -1 }).limit(300);
+  const tickets = await Ticket.find({ user: userId, status: { $ne: "cancelled" } }).sort({ createdAt: -1 }).limit(300).lean();
   return tickets.map(publicTicket);
+}
+
+export async function getMyReservations(userId) {
+  const reservations = await Order.find({
+    buyer: userId,
+    paymentStatus: "reserved",
+  }).sort({ createdAt: -1 }).limit(300).lean();
+
+  return reservations.map(publicReservation);
+}
+
+export async function cancelReservationForUser({ orderId, user }) {
+  const order = await Order.findOne({
+    _id: orderId,
+    buyer: user._id,
+    paymentStatus: "reserved",
+  });
+
+  if (!order) {
+    throw new Error("Reservation not found");
+  }
+
+  const eventStart = parseEventStartDate(order.eventSnapshot);
+  if (!eventStart) {
+    throw new Error("Reservation refund is unavailable for this event");
+  }
+
+  const msUntilEvent = eventStart.getTime() - Date.now();
+  const refundPolicyMs = Number(order.refundPolicyHours || DEFAULT_REFUND_POLICY_HOURS) * 60 * 60 * 1000;
+  const refundEligible = msUntilEvent > refundPolicyMs;
+
+  order.paymentStatus = refundEligible ? "refunded" : "failed";
+  order.paymentFailureReason = refundEligible
+    ? "Reservation cancelled by user; prepayment refund requested"
+    : "Reservation cancelled by user; prepayment is non-refundable";
+  await order.save();
+
+  return {
+    orderId: order._id,
+    refundEligible,
+    message: refundEligible
+      ? "Reservation cancellation requested successfully"
+      : "Reservation cancelled. Prepayment is non-refundable less than 48 hours before the event",
+  };
 }
 
 export async function refundTicketForUser({ ticketId, user }) {
@@ -464,13 +660,17 @@ export async function refundTicketForUser({ ticketId, user }) {
   }
 
   const msUntilEvent = eventStart.getTime() - Date.now();
-  if (msUntilEvent < 24 * 60 * 60 * 1000) {
-    throw new Error("Refund is available only more than 1 day before the event");
-  }
-
   const order = await Order.findById(ticket.order);
   if (!order) {
     throw new Error("Order not found");
+  }
+
+  const refundPolicyMs = Number(order.refundPolicyHours || ticket.refundPolicyHours || DEFAULT_REFUND_POLICY_HOURS) * 60 * 60 * 1000;
+  if (order.paymentType === "deposit" && msUntilEvent <= refundPolicyMs) {
+    throw new Error("Prepayment is non-refundable less than 48 hours before the event");
+  }
+  if (order.paymentType !== "deposit" && msUntilEvent < 24 * 60 * 60 * 1000) {
+    throw new Error("Refund is available only more than 1 day before the event");
   }
 
   ticket.status = "cancelled";
@@ -488,6 +688,9 @@ export async function refundTicketForUser({ ticketId, user }) {
   order.quantity = Math.max(Number(order.quantity || 0) - 1, 0);
   order.subtotal = Math.max(Number(order.subtotal || 0) - Number(ticket.price || 0), 0);
   order.total = Math.max(Number(order.total || 0) - Number(ticket.price || 0), 0);
+  order.amountPaid = Math.max(Number(order.amountPaid || 0) - Number(ticket.amountPaid || 0), 0);
+  order.depositAmount = Math.max(Number(order.depositAmount || 0) - Number(ticket.amountPaid || 0), 0);
+  order.balanceDue = Math.max(Number(order.balanceDue || 0) - Number(ticket.balanceDue || 0), 0);
 
   if (order.quantity === 0 || (order.items || []).length === 0) {
     await Order.deleteOne({ _id: order._id });

@@ -1,6 +1,7 @@
 import express from "express";
 import User from "../models/User.js";
 import Event from "../models/Event.js";
+import Order from "../models/Order.js";
 import { requireAuth } from "../middleware/auth.middleware.js";
 import { getUserRole, requireRole } from "../middleware/role.middleware.js";
 
@@ -53,6 +54,8 @@ router.get("/overview", async (req, res) => {
       usersByMonth,
       organizersByMonth,
       eventsByMonth,
+      activeReservations,
+      paidAndReservedOrders,
     ] = await Promise.all([
       User.countDocuments(),
       User.countDocuments(organizerFilter),
@@ -98,7 +101,17 @@ router.get("/overview", async (req, res) => {
           },
         },
       ]),
+      Order.countDocuments({ paymentStatus: "reserved" }),
+      Order.find({ paymentStatus: { $in: ["paid", "reserved"] } }).select("paymentStatus amountPaid total balanceDue").lean(),
     ]);
+
+    const collectedRevenue = paidAndReservedOrders.reduce(
+      (sum, order) => sum + Number(order.amountPaid || order.total || 0),
+      0
+    );
+    const outstandingBalance = paidAndReservedOrders
+      .filter((order) => order.paymentStatus === "reserved")
+      .reduce((sum, order) => sum + Number(order.balanceDue || 0), 0);
 
     const monthLabels = Array.from({ length: 6 }, (_, index) => {
       const date = new Date(now.getFullYear(), now.getMonth() - (5 - index), 1);
@@ -131,6 +144,9 @@ router.get("/overview", async (req, res) => {
       usersAddedThisMonth,
       organizersAddedThisMonth,
       eventsAddedThisMonth,
+      activeReservations,
+      collectedRevenue,
+      outstandingBalance,
       monthlyGrowth,
     });
   } catch (e) {

@@ -29,6 +29,12 @@ const ticketSchema = new mongoose.Schema(
     ticketType: { type: String, required: true },
     price: { type: Number, required: true, min: 0 },
     currency: { type: String, default: "KZT" },
+    paymentType: { type: String, enum: ["full", "deposit"], default: "deposit", index: true },
+    depositRate: { type: Number, default: 0.4, min: 0, max: 1 },
+    amountPaid: { type: Number, default: 0, min: 0 },
+    balanceDue: { type: Number, default: 0, min: 0 },
+    orderTotal: { type: Number, default: 0, min: 0 },
+    refundPolicyHours: { type: Number, default: 48, min: 0 },
 
     qrPayload: { type: String, required: true },
     qrSignature: { type: String, required: true },

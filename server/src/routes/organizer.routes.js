@@ -235,17 +235,25 @@ async function loadOrganizerEventAvailability(events) {
   const eventIds = events.map((event) => event._id);
   if (!eventIds.length) return new Map();
 
-  const soldOrders = await Order.aggregate([
-    { $match: { event: { $in: eventIds }, paymentStatus: "paid" } },
+  const inventoryOrders = await Order.aggregate([
+    {
+      $match: {
+        event: { $in: eventIds },
+        $or: [
+          { paymentStatus: "paid" },
+          { paymentStatus: "reserved", $or: [{ balanceDueDeadlineAt: null }, { balanceDueDeadlineAt: { $gt: new Date() } }] },
+        ],
+      },
+    },
     { $group: { _id: "$event", soldTickets: { $sum: "$quantity" } } },
   ]);
 
-  return new Map(soldOrders.map((item) => [String(item._id), Number(item.soldTickets || 0)]));
+  return new Map(inventoryOrders.map((item) => [String(item._id), Number(item.soldTickets || 0)]));
 }
 
 router.get("/events", async (req, res) => {
   try {
-    const events = await Event.find({ organizer: req.user._id }).sort({ createdAt: -1 }).limit(200);
+    const events = await Event.find({ organizer: req.user._id }).sort({ createdAt: -1 }).limit(200).lean();
     const soldMap = await loadOrganizerEventAvailability(events);
     return res.json({
       events: events.map((event) => {
@@ -270,14 +278,14 @@ router.get("/orders", async (req, res) => {
   try {
     const orders = await Order.find({
       organizer: req.user._id,
-      paymentStatus: "paid",
-    }).sort({ createdAt: -1 }).limit(300);
+      paymentStatus: { $in: ["paid", "reserved"] },
+    }).sort({ createdAt: -1 }).limit(300).lean();
     const orderIds = orders.map((order) => order._id);
     const usedTickets = orderIds.length
       ? await Ticket.find({
           order: { $in: orderIds },
           status: "used",
-        }).select("order")
+        }).select("order").lean()
       : [];
 
     const checkedInOrderIds = new Set(usedTickets.map((ticket) => String(ticket.order)));
@@ -292,9 +300,17 @@ router.get("/orders", async (req, res) => {
         ticketType: order.items.map((item) => item.name).join(", "),
         quantity: order.quantity,
         total: order.total,
+        amountPaid: order.amountPaid,
+        balanceDue: order.balanceDue,
+        paymentType: order.paymentType,
+        balanceDueDeadlineAt: order.balanceDueDeadlineAt,
         purchaseDate: order.createdAt,
         paymentStatus: order.paymentStatus,
-        checkInStatus: checkedInOrderIds.has(String(order._id)) ? "checked-in" : order.checkInStatus,
+        checkInStatus: order.paymentStatus === "reserved"
+          ? "no-ticket-yet"
+          : checkedInOrderIds.has(String(order._id))
+            ? "checked-in"
+            : order.checkInStatus,
       })),
     });
   } catch (e) {
@@ -306,13 +322,18 @@ router.get("/orders", async (req, res) => {
 router.get("/analytics", async (req, res) => {
   try {
     const [orders, events] = await Promise.all([
-      Order.find({ organizer: req.user._id, paymentStatus: "paid" }).sort({ createdAt: -1 }).limit(1000),
-      Event.find({ organizer: req.user._id }).limit(500),
+      Order.find({ organizer: req.user._id, paymentStatus: { $in: ["paid", "reserved"] } }).sort({ createdAt: -1 }).limit(1000).lean(),
+      Event.find({ organizer: req.user._id }).limit(500).lean(),
     ]);
 
-    const totalRevenue = orders.reduce((sum, order) => sum + Number(order.total || 0), 0);
-    const ticketsSold = orders.reduce((sum, order) => sum + Number(order.quantity || 0), 0);
+    const paidOrders = orders.filter((order) => order.paymentStatus === "paid");
+    const reservedOrders = orders.filter((order) => order.paymentStatus === "reserved");
+    const totalRevenue = orders.reduce((sum, order) => sum + Number(order.amountPaid || order.total || 0), 0);
+    const ticketsSold = paidOrders.reduce((sum, order) => sum + Number(order.quantity || 0), 0);
+    const reservedTickets = reservedOrders.reduce((sum, order) => sum + Number(order.quantity || 0), 0);
+    const outstandingBalance = reservedOrders.reduce((sum, order) => sum + Number(order.balanceDue || 0), 0);
     const ordersCount = orders.length;
+    const reservationsCount = reservedOrders.length;
 
     const topEventsMap = new Map();
     for (const order of orders) {
@@ -322,21 +343,24 @@ router.get("/analytics", async (req, res) => {
         title: order.eventSnapshot?.title || "Event",
         orders: 0,
         ticketsSold: 0,
+        reservedTickets: 0,
         revenue: 0,
       };
       current.orders += 1;
-      current.ticketsSold += Number(order.quantity || 0);
-      current.revenue += Number(order.total || 0);
+      if (order.paymentStatus === "paid") current.ticketsSold += Number(order.quantity || 0);
+      if (order.paymentStatus === "reserved") current.reservedTickets += Number(order.quantity || 0);
+      current.revenue += Number(order.amountPaid || order.total || 0);
       topEventsMap.set(key, current);
     }
 
     const salesByDayMap = new Map();
     for (const order of orders) {
       const dayKey = order.createdAt.toISOString().slice(0, 10);
-      const current = salesByDayMap.get(dayKey) || { date: dayKey, revenue: 0, orders: 0, ticketsSold: 0 };
-      current.revenue += Number(order.total || 0);
+      const current = salesByDayMap.get(dayKey) || { date: dayKey, revenue: 0, orders: 0, ticketsSold: 0, reservations: 0 };
+      current.revenue += Number(order.amountPaid || order.total || 0);
       current.orders += 1;
-      current.ticketsSold += Number(order.quantity || 0);
+      if (order.paymentStatus === "paid") current.ticketsSold += Number(order.quantity || 0);
+      if (order.paymentStatus === "reserved") current.reservations += 1;
       salesByDayMap.set(dayKey, current);
     }
 
@@ -345,7 +369,7 @@ router.get("/analytics", async (req, res) => {
 
     let fullEventPassTickets = 0;
     let activityTickets = 0;
-    for (const order of orders) {
+    for (const order of paidOrders) {
       for (const item of order.items || []) {
         if (item.kind === "full-event-pass") fullEventPassTickets += Number(item.quantity || 0);
         if (item.kind === "activity") activityTickets += Number(item.quantity || 0);
@@ -355,6 +379,9 @@ router.get("/analytics", async (req, res) => {
     return res.json({
       totalRevenue,
       ticketsSold,
+      reservedTickets,
+      reservationsCount,
+      outstandingBalance,
       ordersCount,
       topEvents: Array.from(topEventsMap.values()).sort((a, b) => b.revenue - a.revenue).slice(0, 5),
       salesByDay: Array.from(salesByDayMap.values()).sort((a, b) => a.date.localeCompare(b.date)),

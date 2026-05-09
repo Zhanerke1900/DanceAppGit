@@ -74,16 +74,23 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
     allActivitiesIncluded: language === 'ru' ? 'Все активности включены' : language === 'kk' ? 'Барлық белсенділік кіреді' : 'All activities included',
     subtotal: language === 'ru' ? 'Подытог' : language === 'kk' ? 'Аралық сома' : 'Subtotal',
     serviceFee: language === 'ru' ? 'Сервисный сбор' : language === 'kk' ? 'Қызмет ақысы' : 'Service Fee',
-    total: language === 'ru' ? 'Итого' : language === 'kk' ? 'Жалпы' : 'Total',
-    proceedCheckout: language === 'ru' ? 'Перейти к оплате' : language === 'kk' ? 'Төлемге өту' : 'Proceed to Checkout',
+    total: language === 'ru' ? 'Полная стоимость' : language === 'kk' ? 'Толық құны' : 'Full Total',
+    deposit: language === 'ru' ? 'Предоплата 40%' : language === 'kk' ? '40% алдын ала төлем' : '40% Deposit',
+    balanceDue: language === 'ru' ? 'Остаток на событии' : language === 'kk' ? 'Іс-шарадағы қалдық' : 'Balance at event',
+    depositPolicy: language === 'ru' ? 'Билет появится только после полной оплаты. Остаток нужно оплатить, пока до события больше 5 часов. Предоплата не возвращается за 48 часов до события.' : language === 'kk' ? 'Билет толық төлемнен кейін ғана пайда болады. Қалдықты іс-шараға 5 сағаттан көп қалғанда төлеу керек. Алдын ала төлем 48 сағат ішінде қайтарылмайды.' : 'Ticket appears only after full payment. Pay the balance while more than 5 hours remain. Deposit is non-refundable within 48 hours.',
+    buyMode: language === 'ru' ? 'Купить полностью' : language === 'kk' ? 'Толық сатып алу' : 'Buy in full',
+    reserveMode: language === 'ru' ? 'Забронировать 40%' : language === 'kk' ? '40% брондау' : 'Reserve 40%',
+    dueNow: language === 'ru' ? 'К оплате сейчас' : language === 'kk' ? 'Қазір төлеу' : 'Due now',
+    proceedCheckout: language === 'ru' ? 'Забронировать за 40%' : language === 'kk' ? '40%-бен брондау' : 'Reserve with 40%',
+    proceedFullCheckout: language === 'ru' ? 'Купить билет' : language === 'kk' ? 'Билетті сатып алу' : 'Buy ticket',
     processing: language === 'ru' ? 'Обработка...' : language === 'kk' ? 'Өңделуде...' : 'Processing...',
     securePayment: language === 'ru' ? 'Безопасная SSL-оплата' : language === 'kk' ? 'Қауіпсіз SSL төлемі' : 'Secure SSL Payment',
     instantDelivery: language === 'ru' ? 'Мгновенная доставка' : language === 'kk' ? 'Жедел жеткізу' : 'Instant delivery',
     ticketsSentEmail: language === 'ru' ? 'Билеты будут отправлены на вашу почту.' : language === 'kk' ? 'Билеттер email-іңізге жіберіледі.' : 'Tickets sent to your email.',
     verifiedTickets: language === 'ru' ? 'Проверенные билеты' : language === 'kk' ? 'Расталған билеттер' : 'Verified tickets',
     authenticGuarantee: language === 'ru' ? '100% гарантия подлинности.' : language === 'kk' ? '100% түпнұсқалық кепілдігі.' : '100% authentic guarantee.',
-    totalAmount: language === 'ru' ? 'Общая сумма' : language === 'kk' ? 'Жалпы сома' : 'Total Amount',
-    checkout: language === 'ru' ? 'Оформить' : language === 'kk' ? 'Рәсімдеу' : 'Checkout',
+    totalAmount: language === 'ru' ? 'К оплате сейчас' : language === 'kk' ? 'Қазір төлеу' : 'Due Now',
+    checkout: language === 'ru' ? 'Забронировать' : language === 'kk' ? 'Брондау' : 'Reserve',
   };
   // Check if this is a special program event (has activities with organizer info)
   const isSpecialProgram = event.eventType === 'special-program' || (event.activities && event.activities.length > 0 && event.longDescription);
@@ -103,6 +110,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
   const [fullPassSelected, setFullPassSelected] = useState(false);
   const [activeActivityTab, setActiveActivityTab] = useState('All');
   const [isCheckoutSubmitting, setIsCheckoutSubmitting] = useState(false);
+  const [paymentMode, setPaymentMode] = useState<'deposit' | 'full'>('deposit');
 
   const activities: Activity[] = isSpecialProgram ? (event.activities || []) : [];
   const hasSoldOutLimitedActivity = activities.some((activity: any) => Boolean(activity.soldOut));
@@ -175,6 +183,10 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
   const subtotal = (basePrice * ticketQuantity) + (isSpecialProgram ? calculateActivitiesTotal() : 0);
   const serviceFee = Math.round(subtotal * serviceFeeRate);
   const total = subtotal + serviceFee;
+  const depositRate = 0.4;
+  const depositAmount = Math.round(total * depositRate);
+  const balanceDue = paymentMode === 'deposit' ? Math.max(total - depositAmount, 0) : 0;
+  const dueNow = paymentMode === 'deposit' ? depositAmount : total;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US').format(amount).replace(/,/g, ' ') + ' ₸';
@@ -190,6 +202,11 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
       subtotal: subtotal,
       serviceFee: serviceFee,
       total: total,
+      paymentType: paymentMode,
+      depositRate: paymentMode === 'deposit' ? depositRate : 1,
+      depositAmount: paymentMode === 'deposit' ? depositAmount : total,
+      amountPaid: dueNow,
+      balanceDue,
       ticketTypes: isSpecialProgram
         ? [
             ...(ticketQuantity > 0 ? [{
@@ -995,6 +1012,27 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                   )}
                 </div>
 
+                <div className="mb-4 grid grid-cols-2 gap-2 rounded-xl border border-white/10 bg-black/20 p-1">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMode('deposit')}
+                    className={`rounded-lg px-3 py-2 text-sm font-bold transition ${
+                      paymentMode === 'deposit' ? 'bg-emerald-500 text-black' : 'text-gray-300 hover:bg-white/10'
+                    }`}
+                  >
+                    {copy.reserveMode}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMode('full')}
+                    className={`rounded-lg px-3 py-2 text-sm font-bold transition ${
+                      paymentMode === 'full' ? 'bg-purple-500 text-white' : 'text-gray-300 hover:bg-white/10'
+                    }`}
+                  >
+                    {copy.buyMode}
+                  </button>
+                </div>
+
                 <div className="border-t border-white/10 pt-4 space-y-3">
                   <div className="flex justify-between items-center text-gray-400">
                     <span>{copy.subtotal}</span>
@@ -1011,6 +1049,21 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                     <span>{copy.total}</span>
                     <span className="text-purple-500 drop-shadow-[0_0_8px_rgba(168,85,247,0.3)]">{formatCurrency(total)}</span>
                   </div>
+                  <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3">
+                    <div className="flex justify-between items-center text-emerald-100 font-bold">
+                      <span>{paymentMode === 'deposit' ? copy.deposit : copy.dueNow}</span>
+                      <span>{formatCurrency(dueNow)}</span>
+                    </div>
+                    {paymentMode === 'deposit' && (
+                      <>
+                        <div className="mt-2 flex justify-between text-xs text-emerald-200/80">
+                          <span>{copy.balanceDue}</span>
+                          <span>{formatCurrency(balanceDue)}</span>
+                        </div>
+                        <p className="mt-2 text-[11px] leading-relaxed text-emerald-100/70">{copy.depositPolicy}</p>
+                      </>
+                    )}
+                  </div>
                 </div>
                 
                 <button 
@@ -1018,7 +1071,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                   onClick={handleCheckout}
                   className="w-full mt-6 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-800 disabled:text-gray-500 text-white py-4 rounded-xl font-bold transition-all shadow-lg shadow-purple-600/20 disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
                 >
-                  {isSoldOut ? copy.soldOut : isCheckoutSubmitting ? copy.processing : copy.proceedCheckout}
+                  {isSoldOut ? copy.soldOut : isCheckoutSubmitting ? copy.processing : paymentMode === 'deposit' ? copy.proceedCheckout : copy.proceedFullCheckout}
                   <ArrowLeft className="w-4 h-4 rotate-180 group-hover:translate-x-1 transition-transform" />
                 </button>
                 
@@ -1056,14 +1109,14 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div className="flex flex-col">
             <span className="text-gray-400 text-[10px] uppercase font-bold tracking-wider">{copy.totalAmount}</span>
-            <span className="text-xl font-bold text-white">{formatCurrency(total)}</span>
+            <span className="text-xl font-bold text-white">{formatCurrency(dueNow)}</span>
           </div>
           <button 
             disabled={isCheckoutSubmitting || isSoldOut || (ticketQuantity === 0 && (!isSpecialProgram || (!fullPassSelected && Object.keys(selectedActivities).length === 0)))}
             onClick={handleCheckout}
             className="flex-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-800 disabled:text-gray-500 text-white py-3.5 px-6 rounded-xl font-bold transition-all shadow-lg shadow-purple-600/20 disabled:shadow-none disabled:cursor-not-allowed text-center"
           >
-            {isSoldOut ? copy.soldOut : isCheckoutSubmitting ? copy.processing : copy.checkout}
+            {isSoldOut ? copy.soldOut : isCheckoutSubmitting ? copy.processing : paymentMode === 'deposit' ? copy.checkout : copy.proceedFullCheckout}
           </button>
         </div>
       </div>}

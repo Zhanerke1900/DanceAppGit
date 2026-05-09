@@ -4,6 +4,13 @@ import Event from "../models/Event.js";
 import Order from "../models/Order.js";
 
 const router = express.Router();
+const PUBLISHED_EVENTS_CACHE_MS = Number(process.env.PUBLISHED_EVENTS_CACHE_MS || 15000);
+let publishedEventsCache = { expiresAt: 0, payload: null };
+let publishedEventsInFlight = null;
+
+export function invalidatePublishedEventsCache() {
+  publishedEventsCache = { expiresAt: 0, payload: null };
+}
 
 function isUpcomingOrCurrentEvent(dateString = "") {
   const parsed = new Date(`${String(dateString).trim()}T23:59:59`);
@@ -11,21 +18,32 @@ function isUpcomingOrCurrentEvent(dateString = "") {
   return parsed.getTime() >= Date.now();
 }
 
-async function loadActivityUsage(events) {
-  const eventIds = events.map((event) => event._id);
-  if (!eventIds.length) return new Map();
-
-  const paidOrders = await Order.find({
+function activeInventoryQuery(eventIds) {
+  return {
     event: { $in: eventIds },
-    paymentStatus: "paid",
-  }).select("event items");
+    $or: [
+      { paymentStatus: "paid" },
+      { paymentStatus: "reserved", $or: [{ balanceDueDeadlineAt: null }, { balanceDueDeadlineAt: { $gt: new Date() } }] },
+    ],
+  };
+}
 
-  const usageByEvent = new Map(events.map((event) => [String(event._id), new Map((event.activities || []).map((activity) => [String(activity.id), 0]))]));
+async function loadAvailability(events) {
+  const eventIds = events.map((event) => event._id);
+  const soldMap = new Map();
+  const activityUsageByEvent = new Map(
+    events.map((event) => [String(event._id), new Map((event.activities || []).map((activity) => [String(activity.id), 0]))])
+  );
+  if (!eventIds.length) return { soldMap, activityUsageByEvent };
 
-  for (const order of paidOrders) {
+  const eventsById = new Map(events.map((event) => [String(event._id), event]));
+  const inventoryOrders = await Order.find(activeInventoryQuery(eventIds)).select("event items quantity").lean();
+
+  for (const order of inventoryOrders) {
     const eventKey = String(order.event);
-    const event = events.find((item) => String(item._id) === eventKey);
-    const usageMap = usageByEvent.get(eventKey) || new Map();
+    const event = eventsById.get(eventKey);
+    const usageMap = activityUsageByEvent.get(eventKey) || new Map();
+    soldMap.set(eventKey, (soldMap.get(eventKey) || 0) + Number(order.quantity || 0));
 
     for (const item of order.items || []) {
       if (item.kind === "full-event-pass") {
@@ -39,10 +57,10 @@ async function loadActivityUsage(events) {
       }
     }
 
-    usageByEvent.set(eventKey, usageMap);
+    activityUsageByEvent.set(eventKey, usageMap);
   }
 
-  return usageByEvent;
+  return { soldMap, activityUsageByEvent };
 }
 
 function publicPublishedEvent(event, availability = {}) {
@@ -75,7 +93,7 @@ function publicPublishedEvent(event, availability = {}) {
     fullPassDiscount: event.fullPassDiscount,
     schedule: event.schedule || [],
     activities: (event.activities || []).map((activity) => ({
-      ...(activity.toObject ? activity.toObject() : activity),
+      ...activity,
       ticketLimit: Number(activity.ticketLimit || 0),
       soldTickets: Number(availability.activityUsage?.get(String(activity.id)) || 0),
       remainingTickets: Number(activity.ticketLimit || 0) > 0
@@ -88,38 +106,51 @@ function publicPublishedEvent(event, availability = {}) {
   };
 }
 
-router.get("/published", async (_req, res) => {
+async function buildPublishedEventsPayload() {
+  const allPublishedEvents = await Event.find({ status: "published" }).sort({ createdAt: -1 }).limit(400).lean();
+  const events = allPublishedEvents.filter((event) => isUpcomingOrCurrentEvent(event.date));
+  const { soldMap, activityUsageByEvent } = await loadAvailability(events);
+
+  return {
+    events: events.map((event) => {
+      const soldTickets = soldMap.get(String(event._id)) || 0;
+      const hasLimit = Number(event.ticketLimit || 0) > 0;
+      const remainingTickets = hasLimit ? Math.max(Number(event.ticketLimit) - soldTickets, 0) : null;
+
+      return publicPublishedEvent(event, {
+        soldTickets,
+        remainingTickets,
+        soldOut: hasLimit ? remainingTickets === 0 : false,
+        activityUsage: activityUsageByEvent.get(String(event._id)) || new Map(),
+      });
+    }),
+  };
+}
+
+router.get("/published", async (req, res) => {
   try {
-    const allPublishedEvents = await Event.find({ status: "published" }).sort({ createdAt: -1 }).limit(400);
-    const events = allPublishedEvents.filter((event) => isUpcomingOrCurrentEvent(event.date));
-    const eventIds = events.map((event) => event._id);
-    const soldOrders = eventIds.length
-      ? await Order.aggregate([
-          { $match: { event: { $in: eventIds }, paymentStatus: "paid" } },
-          { $group: { _id: "$event", soldTickets: { $sum: "$quantity" } } },
-        ])
-      : [];
+    const skipCache = String(req.query.fresh || "") === "1";
+    if (!skipCache && publishedEventsCache.payload && publishedEventsCache.expiresAt > Date.now()) {
+      return res.set("X-Cache", "HIT").json(publishedEventsCache.payload);
+    }
 
-    const soldMap = new Map(soldOrders.map((item) => [String(item._id), Number(item.soldTickets || 0)]));
-    const activityUsageByEvent = await loadActivityUsage(events);
+    if (!skipCache && publishedEventsInFlight) {
+      const payload = await publishedEventsInFlight;
+      return res.set("X-Cache", "INFLIGHT").json(payload);
+    }
 
-    return res.json({
-      events: events.map((event) => {
-        const soldTickets = soldMap.get(String(event._id)) || 0;
-        const hasLimit = Number(event.ticketLimit || 0) > 0;
-        const remainingTickets = hasLimit ? Math.max(Number(event.ticketLimit) - soldTickets, 0) : null;
-
-        return publicPublishedEvent(event, {
-          soldTickets,
-          remainingTickets,
-          soldOut: hasLimit ? remainingTickets === 0 : false,
-          activityUsage: activityUsageByEvent.get(String(event._id)) || new Map(),
-        });
-      }),
-    });
+    publishedEventsInFlight = buildPublishedEventsPayload();
+    const payload = await publishedEventsInFlight;
+    publishedEventsCache = {
+      expiresAt: Date.now() + PUBLISHED_EVENTS_CACHE_MS,
+      payload,
+    };
+    return res.set("X-Cache", "MISS").json(payload);
   } catch (e) {
     console.error(e);
     return res.status(500).json({ message: "Server error" });
+  } finally {
+    publishedEventsInFlight = null;
   }
 });
 

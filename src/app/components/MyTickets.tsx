@@ -1,15 +1,18 @@
 import React, { useMemo, useState } from 'react';
 import { motion } from 'motion/react';
-import { Calendar, MapPin, Ticket, ChevronRight, QrCode, Barcode, X } from 'lucide-react';
+import { Calendar, MapPin, Ticket, ChevronRight, QrCode, Barcode, X, CreditCard, Clock } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import type { TicketRecord } from '../api/tickets';
+import type { ReservationRecord, TicketRecord } from '../api/tickets';
 import { useI18n } from '../i18n';
 
 interface MyTicketsProps {
   onBack?: () => void;
   tickets?: TicketRecord[];
+  reservations?: ReservationRecord[];
   onOpenTicket?: (ticket: TicketRecord) => void;
   onRefundTicket?: (ticket: TicketRecord) => Promise<{ emailSent?: boolean } | void>;
+  onPayReservation?: (reservation: ReservationRecord) => Promise<void>;
+  onCancelReservation?: (reservation: ReservationRecord) => Promise<void>;
 }
 
 const formatDate = (value: string) => {
@@ -52,15 +55,33 @@ const getRefundDeadlineMs = (ticket: TicketRecord) => {
   return -1;
 };
 
-export const MyTickets = ({ onBack, tickets = [], onOpenTicket, onRefundTicket }: MyTicketsProps) => {
+export const MyTickets = ({
+  onBack,
+  tickets = [],
+  reservations = [],
+  onOpenTicket,
+  onRefundTicket,
+  onPayReservation,
+  onCancelReservation,
+}: MyTicketsProps) => {
   const { language } = useI18n();
   const copy = {
-    title: language === 'ru' ? 'Мои билеты' : language === 'kk' ? 'Менің билеттерім' : 'My Tickets',
-    subtitle: language === 'ru' ? 'Ваши реальные купленные билеты с уникальными QR и штрихкодом.' : language === 'kk' ? 'Бірегей QR мен штрихкоды бар нақты сатып алынған билеттеріңіз.' : 'Your real purchased tickets with unique QR and barcode.',
+    title: language === 'ru' ? 'Мои билеты и брони' : language === 'kk' ? 'Менің билеттерім мен броньдарым' : 'My Tickets & Reservations',
+    subtitle: language === 'ru' ? 'Брони отображаются без QR. Нажмите «Оплатить остаток», чтобы получить настоящий билет.' : language === 'kk' ? 'Броньдар QR-сыз көрсетіледі. Нақты билет алу үшін «Қалдықты төлеу» түймесін басыңыз.' : 'Reservations appear without QR. Pay the balance to receive a real ticket.',
     upcoming: language === 'ru' ? 'Предстоящие' : language === 'kk' ? 'Алдағы' : 'Upcoming',
     past: language === 'ru' ? 'Прошедшие' : language === 'kk' ? 'Өткен' : 'Past Events',
     purchased: language === 'ru' ? 'Куплено:' : language === 'kk' ? 'Сатып алынған:' : 'Purchased:',
     price: language === 'ru' ? 'Цена:' : language === 'kk' ? 'Бағасы:' : 'Price:',
+    prepaid: language === 'ru' ? 'Предоплата:' : language === 'kk' ? 'Алдын ала төлем:' : 'Deposit paid:',
+    balanceDue: language === 'ru' ? 'Остаток:' : language === 'kk' ? 'Қалдық:' : 'Balance due:',
+    reserved: language === 'ru' ? 'Бронь по предоплате' : language === 'kk' ? 'Алдын ала төлеммен бронь' : 'Deposit booking',
+    refundPolicy: language === 'ru' ? 'Предоплата возвращается только если до события больше 48 часов.' : language === 'kk' ? 'Алдын ала төлем іс-шараға 48 сағаттан көп қалғанда ғана қайтарылады.' : 'Deposit is refundable only more than 48 hours before the event.',
+    reservations: language === 'ru' ? 'Брони' : language === 'kk' ? 'Броньдар' : 'Reservations',
+    noTicketYet: language === 'ru' ? 'Билет и QR появятся после полной оплаты.' : language === 'kk' ? 'Билет пен QR толық төлемнен кейін пайда болады.' : 'Ticket and QR appear after full payment.',
+    payBalance: language === 'ru' ? 'Оплатить остаток' : language === 'kk' ? 'Қалдықты төлеу' : 'Pay balance',
+    cancelReservation: language === 'ru' ? 'Отменить бронь' : language === 'kk' ? 'Броньды тоқтату' : 'Cancel reservation',
+    deadline: language === 'ru' ? 'Оплатить до:' : language === 'kk' ? 'Дейін төлеу:' : 'Pay before:',
+    deadlinePassed: language === 'ru' ? 'Срок полной оплаты истёк' : language === 'kk' ? 'Толық төлем мерзімі өтті' : 'Payment deadline passed',
     showTicket: language === 'ru' ? 'Показать билет' : language === 'kk' ? 'Билетті көрсету' : 'Show Ticket',
     viewEvent: language === 'ru' ? 'Открыть событие' : language === 'kk' ? 'Іс-шараны ашу' : 'View Event',
     processingRefund: language === 'ru' ? 'Возврат...' : language === 'kk' ? 'Қайтарылуда...' : 'Processing refund...',
@@ -89,6 +110,7 @@ export const MyTickets = ({ onBack, tickets = [], onOpenTicket, onRefundTicket }
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
   const [selectedTicket, setSelectedTicket] = useState<TicketRecord | null>(null);
   const [refundingTicketId, setRefundingTicketId] = useState<string | null>(null);
+  const [processingReservationId, setProcessingReservationId] = useState<string | null>(null);
   const [refundCandidate, setRefundCandidate] = useState<TicketRecord | null>(null);
   const [refundSuccessMessage, setRefundSuccessMessage] = useState<string | null>(null);
   const [refundErrorMessage, setRefundErrorMessage] = useState<string | null>(null);
@@ -96,6 +118,10 @@ export const MyTickets = ({ onBack, tickets = [], onOpenTicket, onRefundTicket }
   const filteredTickets = useMemo(
     () => tickets.filter((ticket) => (activeTab === 'upcoming' ? !ticket.isPast : ticket.isPast)),
     [activeTab, tickets]
+  );
+  const filteredReservations = useMemo(
+    () => reservations.filter((reservation) => (activeTab === 'upcoming' ? !reservation.isPast : reservation.isPast)),
+    [activeTab, reservations]
   );
 
   return (
@@ -138,8 +164,101 @@ export const MyTickets = ({ onBack, tickets = [], onOpenTicket, onRefundTicket }
         </button>
       </div>
 
-      {filteredTickets.length > 0 ? (
+      {filteredTickets.length > 0 || filteredReservations.length > 0 ? (
         <div className="grid grid-cols-1 gap-6">
+          {filteredReservations.map((reservation, index) => (
+            <motion.div
+              key={reservation.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.06 }}
+              className="surface-card overflow-hidden rounded-2xl border-emerald-500/20 bg-emerald-500/5"
+            >
+              <div className="flex flex-col md:flex-row">
+                <div className="relative h-48 w-full flex-shrink-0 overflow-hidden md:h-auto md:w-64">
+                  <ImageWithFallback
+                    src={reservation.event.image}
+                    alt={reservation.event.title}
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute left-4 top-4 rounded-full bg-emerald-500 px-3 py-1 text-xs font-bold uppercase text-black">
+                    {copy.reserved}
+                  </div>
+                </div>
+
+                <div className="flex flex-1 flex-col justify-between p-6">
+                  <div>
+                    <div className="mb-4 flex items-start justify-between gap-4">
+                      <div>
+                        <p className="mb-2 text-xs font-bold uppercase tracking-wider text-emerald-500">{copy.reservations}</p>
+                        <h3 className="text-2xl font-bold text-foreground dark:text-white">{reservation.event.title}</h3>
+                        <p className="mt-2 text-sm text-muted-foreground dark:text-gray-500">{copy.noTicketYet}</p>
+                      </div>
+                    </div>
+                    <div className="mb-4 space-y-2">
+                      <div className="flex items-center gap-2 text-muted-foreground dark:text-gray-400">
+                        <Calendar className="h-4 w-4" />
+                        <span className="text-sm">{reservation.event.date}{reservation.event.time ? ` - ${reservation.event.time}` : ''}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-muted-foreground dark:text-gray-400">
+                        <MapPin className="h-4 w-4" />
+                        <span className="text-sm">{reservation.event.location}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-muted-foreground dark:text-gray-400">
+                        <Clock className="h-4 w-4" />
+                        <span className="text-sm">
+                          {reservation.canPayBalance && reservation.balanceDueDeadlineAt
+                            ? `${copy.deadline} ${formatDate(reservation.balanceDueDeadlineAt)}`
+                            : copy.deadlinePassed}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-sm">
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-emerald-100">
+                        <span>{copy.prepaid} <b>{formatCurrency(reservation.amountPaid)}</b></span>
+                        <span>{copy.balanceDue} <b>{formatCurrency(reservation.balanceDue)}</b></span>
+                      </div>
+                      <p className="mt-1 text-xs text-emerald-100/70">{copy.refundPolicy}</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap items-center gap-3">
+                    <button
+                      disabled={!reservation.canPayBalance || !onPayReservation || processingReservationId === reservation.id}
+                      onClick={async () => {
+                        if (!onPayReservation || !reservation.canPayBalance) return;
+                        setProcessingReservationId(reservation.id);
+                        try {
+                          await onPayReservation(reservation);
+                        } finally {
+                          setProcessingReservationId(null);
+                        }
+                      }}
+                      className="flex items-center gap-2 rounded-lg bg-purple-600 px-5 py-2 text-sm font-semibold text-white transition-all hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-gray-800 disabled:text-gray-500"
+                    >
+                      <CreditCard className="h-4 w-4" />
+                      {processingReservationId === reservation.id ? copy.processing : copy.payBalance}
+                    </button>
+                    <button
+                      disabled={!onCancelReservation || processingReservationId === reservation.id}
+                      onClick={async () => {
+                        if (!onCancelReservation) return;
+                        setProcessingReservationId(reservation.id);
+                        try {
+                          await onCancelReservation(reservation);
+                        } finally {
+                          setProcessingReservationId(null);
+                        }
+                      }}
+                      className="rounded-lg border border-red-500/30 bg-red-500/10 px-5 py-2 text-sm font-semibold text-red-200 transition-all hover:bg-red-500/20 disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/5 disabled:text-gray-500"
+                    >
+                      {copy.cancelReservation}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
           {filteredTickets.map((ticket, index) => (
             <motion.div
               key={ticket.id}
@@ -177,7 +296,7 @@ export const MyTickets = ({ onBack, tickets = [], onOpenTicket, onRefundTicket }
                               : 'bg-emerald-500/20 text-emerald-300'
                         }`}
                       >
-                        {ticket.status}
+                        {ticket.paymentType === 'deposit' && Number(ticket.balanceDue || 0) > 0 && ticket.status === 'active' ? copy.reserved : ticket.status}
                       </span>
                     </div>
 
@@ -202,6 +321,15 @@ export const MyTickets = ({ onBack, tickets = [], onOpenTicket, onRefundTicket }
                     <div className="mt-1 text-sm text-muted-foreground dark:text-gray-400">
                       {copy.price} <span className="text-foreground dark:text-white">{formatCurrency(ticket.price, ticket.currency)}</span>
                     </div>
+                    {ticket.paymentType === 'deposit' && Number(ticket.balanceDue || 0) > 0 && (
+                      <div className="mt-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-sm">
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-emerald-100">
+                          <span>{copy.prepaid} <b>{formatCurrency(ticket.amountPaid || 0, ticket.currency)}</b></span>
+                          <span>{copy.balanceDue} <b>{formatCurrency(ticket.balanceDue || 0, ticket.currency)}</b></span>
+                        </div>
+                        <p className="mt-1 text-xs text-emerald-100/70">{copy.refundPolicy}</p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -221,7 +349,8 @@ export const MyTickets = ({ onBack, tickets = [], onOpenTicket, onRefundTicket }
                     </button>
                     {activeTab === 'upcoming' && ticket.status === 'active' && !ticket.isPast && (() => {
                       const refundDeadlineMs = getRefundDeadlineMs(ticket);
-                      const canRefund = refundDeadlineMs >= 24 * 60 * 60 * 1000;
+                      const refundPolicyHours = ticket.paymentType === 'deposit' ? (ticket.refundPolicyHours || 48) : 24;
+                      const canRefund = refundDeadlineMs > refundPolicyHours * 60 * 60 * 1000;
                       return (
                         <button
                           onClick={() => {

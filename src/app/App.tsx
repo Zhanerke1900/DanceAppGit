@@ -31,7 +31,7 @@ import { AdminPanel } from './components/AdminPanel';
 import * as authApi from './api/auth';
 import * as ticketsApi from './api/tickets';
 import * as validatorApi from './api/validator';
-import type { TicketRecord } from './api/tickets';
+import type { ReservationRecord, TicketRecord } from './api/tickets';
 import { VerifyEmailPage } from './components/VerifyEmailPage';
 import { ResetPasswordPage } from './components/ResetPasswordPage';
 import { I18nProvider, useI18n } from './i18n';
@@ -67,6 +67,7 @@ function AppContent() {
   const [pendingHomeSection, setPendingHomeSection] = useState<'top' | 'events' | 'about' | 'organizers' | null>(null);
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [myTickets, setMyTickets] = useState<TicketRecord[]>([]);
+  const [myReservations, setMyReservations] = useState<ReservationRecord[]>([]);
   
   // Auth State
   const [user, setUser] = useState<any>(null);
@@ -127,6 +128,7 @@ function AppContent() {
       setUser(null);
       setFavorites([]);
       setMyTickets([]);
+      setMyReservations([]);
       setOrganizerEvents([]);
       setOrganizerOrders([]);
       setOrganizerAnalytics(null);
@@ -178,9 +180,12 @@ function AppContent() {
       setCurrentView('profile');
       setProfileTab('my-tickets');
       ticketsApi.myTickets()
-        .then((data) => setMyTickets(data.tickets || []))
+        .then((data) => {
+          setMyTickets(data.tickets || []);
+          setMyReservations(data.reservations || []);
+        })
         .catch(() => {});
-      window.alert('Payment accepted. Your tickets will appear in My Tickets after confirmation.');
+      window.alert('Payment accepted. Your profile has been updated.');
       return;
     }
 
@@ -209,6 +214,7 @@ function AppContent() {
     if (!userStorageKey) {
       setFavorites([]);
       setMyTickets([]);
+      setMyReservations([]);
       return;
     }
 
@@ -304,12 +310,19 @@ function AppContent() {
   useEffect(() => {
     if (!user?._id && !user?.id) {
       setMyTickets([]);
+      setMyReservations([]);
       return;
     }
 
     ticketsApi.myTickets()
-      .then((data) => setMyTickets(data.tickets || []))
-      .catch(() => setMyTickets([]));
+      .then((data) => {
+        setMyTickets(data.tickets || []);
+        setMyReservations(data.reservations || []);
+      })
+      .catch(() => {
+        setMyTickets([]);
+        setMyReservations([]);
+      });
   }, [user?._id, user?.id, user?.email]);
 
   const refreshAdminRequests = () => {
@@ -339,7 +352,10 @@ function AppContent() {
 
   const refreshMyTickets = () => {
     ticketsApi.myTickets()
-      .then((data) => setMyTickets(data.tickets || []))
+      .then((data) => {
+        setMyTickets(data.tickets || []);
+        setMyReservations(data.reservations || []);
+      })
       .catch(() => {});
   };
 
@@ -493,6 +509,33 @@ function AppContent() {
     return result;
   };
 
+  const handlePayReservation = async (reservation: ReservationRecord) => {
+    const response = await ticketsApi.payReservationBalance(reservation.id);
+    if (response.paymentUrl) {
+      redirectToPaymentProvider(response.paymentUrl);
+      return;
+    }
+
+    const tickets = response.tickets || [];
+    if (tickets.length > 0) {
+      setMyReservations((prev) => prev.filter((item) => String(item.id) !== String(reservation.id)));
+      setMyTickets((prev) => [...tickets, ...prev]);
+      refreshMyTickets();
+      refreshPublishedMarketplaceEvents();
+      window.alert('Полная оплата принята. Билет создан и доступен в Моих билетах.');
+      return;
+    }
+
+    refreshMyTickets();
+  };
+
+  const handleCancelReservation = async (reservation: ReservationRecord) => {
+    const result = await ticketsApi.cancelReservation(reservation.id);
+    setMyReservations((prev) => prev.filter((item) => String(item.id) !== String(reservation.id)));
+    refreshPublishedMarketplaceEvents();
+    window.alert(result.message || 'Бронь отменена.');
+  };
+
   const handleBookTicket = (event: any) => {
     if (isValidator) {
       setCurrentView('validator-dashboard');
@@ -525,6 +568,17 @@ function AppContent() {
     });
     if (response.paymentUrl) {
       redirectToPaymentProvider(response.paymentUrl);
+      return;
+    }
+
+    if (response.reservation) {
+      setMyReservations((prev) => [response.reservation!, ...prev]);
+      refreshMyTickets();
+      refreshPublishedMarketplaceEvents();
+      setCurrentView('profile');
+      setProfileTab('my-tickets');
+      window.alert('Бронь создана. Билет появится после полной оплаты остатка.');
+      window.scrollTo(0, 0);
       return;
     }
 
@@ -587,6 +641,7 @@ function AppContent() {
     setUser(null);
     setFavorites([]);
     setMyTickets([]);
+    setMyReservations([]);
     setOrganizerEvents([]);
     setOrganizerOrders([]);
     setOrganizerAnalytics(null);
@@ -1105,8 +1160,11 @@ function AppContent() {
               <MyTickets
                 onBack={handleBackToEvents}
                 tickets={myTickets}
+                reservations={myReservations}
                 onOpenTicket={handleOpenTicket}
                 onRefundTicket={handleRefundTicket}
+                onPayReservation={handlePayReservation}
+                onCancelReservation={handleCancelReservation}
               />
             )}
             {!isAdmin && !isOrganizer && !isValidator && profileTab === 'favorites' && (

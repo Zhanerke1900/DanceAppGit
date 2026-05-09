@@ -17,6 +17,9 @@ interface AdminPanelProps {
     usersAddedThisMonth?: number;
     organizersAddedThisMonth?: number;
     eventsAddedThisMonth?: number;
+    activeReservations?: number;
+    collectedRevenue?: number;
+    outstandingBalance?: number;
     monthlyGrowth?: Array<{
       label: string;
       users: number;
@@ -74,6 +77,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       totalOrganizers: 'Total Organizers',
       pendingOrganizerApplications: 'Pending Organizer Applications',
       publishedPendingEvents: 'Published / Pending Events',
+      activeReservations: 'Active Reservations',
+      collectedRevenue: 'Collected Revenue',
+      outstandingBalance: 'Outstanding Balance',
       thisMonth: (count: number) => `+${count} this month`,
       newThisMonth: (count: number) => `+${count} new this month`,
       waitingForReview: 'Waiting for review',
@@ -138,6 +144,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       totalOrganizers: 'Всего организаторов',
       pendingOrganizerApplications: 'Заявки организаторов на проверке',
       publishedPendingEvents: 'Опубликовано / на проверке',
+      activeReservations: 'Активные брони',
+      collectedRevenue: 'Полученная выручка',
+      outstandingBalance: 'Остаток к оплате',
       thisMonth: (count: number) => `+${count} за месяц`,
       newThisMonth: (count: number) => `+${count} новых за месяц`,
       waitingForReview: 'Ожидают проверки',
@@ -202,6 +211,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       totalOrganizers: 'Барлық ұйымдастырушылар',
       pendingOrganizerApplications: 'Қаралудағы ұйымдастырушы өтінімдері',
       publishedPendingEvents: 'Жарияланған / қаралуда',
+      activeReservations: 'Белсенді броньдар',
+      collectedRevenue: 'Алынған табыс',
+      outstandingBalance: 'Төленетін қалдық',
       thisMonth: (count: number) => `+${count} осы айда`,
       newThisMonth: (count: number) => `+${count} жаңа осы айда`,
       waitingForReview: 'Тексеруді күтуде',
@@ -272,6 +284,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     { id: 'moderation', label: copy.eventModeration, icon: FileText },
   ] as const;
 
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat('ru-KZ', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value) + ' ₸';
+
   const statCards = useMemo(() => [
     {
       label: copy.totalUsers,
@@ -296,6 +314,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       value: `${overview?.publishedEvents ?? 0} / ${overview?.pendingEvents ?? 0}`,
       change: copy.newThisMonth(overview?.eventsAddedThisMonth ?? 0),
       icon: Calendar,
+    },
+    {
+      label: copy.activeReservations,
+      value: overview?.activeReservations ?? 0,
+      change: copy.outstandingBalance,
+      icon: ClipboardList,
+    },
+    {
+      label: copy.collectedRevenue,
+      value: formatCurrency(overview?.collectedRevenue ?? 0),
+      change: `${copy.outstandingBalance}: ${formatCurrency(overview?.outstandingBalance ?? 0)}`,
+      icon: TrendingUp,
     },
   ], [copy, overview]);
 

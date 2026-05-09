@@ -1,5 +1,7 @@
 import crypto from "crypto";
 
+import { getOrderPaymentDueNow } from "./ticket.service.js";
+
 const DEFAULT_INIT_URL = "https://api.freedompay.kz/init_payment";
 
 function getRequiredEnv(name) {
@@ -144,7 +146,7 @@ export function buildFrontendPaymentReturnUrl(status, payload = {}) {
 }
 
 function orderAmount(order) {
-  return Number(Number(order?.total || 0).toFixed(2));
+  return Number(Number(getOrderPaymentDueNow(order)).toFixed(2));
 }
 
 function compactFreedomPayResponse(text) {
@@ -168,7 +170,11 @@ export async function createFreedomPayPayment(order) {
     pg_order_id: String(order._id),
     pg_amount: orderAmount(order),
     pg_currency: config.currency,
-    pg_description: `DanceTime order ${order._id}`,
+    pg_description: order.paymentStatus === "reserved"
+      ? `DanceTime balance payment ${order._id}`
+      : order.paymentType === "deposit"
+        ? `DanceTime booking deposit ${order._id}`
+        : `DanceTime order ${order._id}`,
     pg_result_url: resultUrl,
     pg_check_url: checkUrl,
     pg_request_method: "POST",
