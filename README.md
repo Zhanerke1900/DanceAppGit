@@ -11,7 +11,7 @@ npm i
 npm run dev
 ```
 
-Backend:
+Backend service:
 
 ```bash
 cd server
