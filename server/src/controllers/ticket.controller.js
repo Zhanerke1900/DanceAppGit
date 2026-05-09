@@ -7,6 +7,17 @@ import {
   validateTicketScan,
 } from "../services/ticket.service.js";
 
+function freedomPayConfigMissing() {
+  return !String(process.env.FREEDOMPAY_MERCHANT_ID || "").trim() ||
+    !String(process.env.FREEDOMPAY_SECRET_KEY || "").trim();
+}
+
+function isLocalDevelopmentPaymentFallbackEnabled() {
+  const nodeEnv = String(process.env.NODE_ENV || "development").trim().toLowerCase();
+  const frontendUrl = String(process.env.FRONTEND_URL || "").trim();
+  return nodeEnv !== "production" || frontendUrl.includes("localhost") || frontendUrl.includes("127.0.0.1");
+}
+
 export async function purchaseTickets(req, res) {
   try {
     const { eventId, eventData, ticketDetails } = req.body || {};
@@ -21,6 +32,19 @@ export async function purchaseTickets(req, res) {
       const result = await markOrderPaidAndIssueTickets(order, {
         paymentProvider: "manual",
         paidAt: new Date(),
+      });
+      return res.status(201).json({
+        message: "Tickets created successfully",
+        orderId: result.order._id,
+        tickets: result.tickets,
+      });
+    }
+
+    if (freedomPayConfigMissing() && isLocalDevelopmentPaymentFallbackEnabled()) {
+      const result = await markOrderPaidAndIssueTickets(order, {
+        paymentProvider: "manual",
+        paidAt: new Date(),
+        paymentFailureReason: "",
       });
       return res.status(201).json({
         message: "Tickets created successfully",
