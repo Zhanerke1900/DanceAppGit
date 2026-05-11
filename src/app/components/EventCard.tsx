@@ -18,9 +18,6 @@ interface EventCardProps {
   soldOut?: boolean;
 }
 
-const FALLBACK_EVENT_IMAGE =
-  'https://images.unsplash.com/photo-1547153760-18fc86324498?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080';
-
 const formatKzt = (value: number) =>
   new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 }).format(value) + ' ₸';
 
@@ -51,11 +48,14 @@ export const EventCard = ({
 }: EventCardProps) => {
   const { t } = useI18n();
   const actionLabel = soldOut ? t('common.viewDetails') : t('common.buyTicket');
-  const displayImage = String(image || '').trim() || FALLBACK_EVENT_IMAGE;
+  const displayImage = String(image || '').trim();
   const displayTitle = stripCityFromTitle(title);
   const numericPrice = getNumericPrice(price);
   const priceLabel = numericPrice ? `от ${formatKzt(numericPrice)}` : price;
-  const cashbackLabel = numericPrice ? `от ${formatKzt(Math.max(Math.round(numericPrice * 0.88 / 50) * 50, 0))} с кешбэком` : `${price} с кешбэком`;
+
+  if (!displayImage) {
+    return null;
+  }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -110,9 +110,6 @@ export const EventCard = ({
           </div>
         </div>
         <div className="mt-3 flex flex-col items-start gap-1.5">
-          <span className="max-w-full truncate rounded-lg bg-emerald-100 px-2.5 py-1.5 text-[11px] font-extrabold leading-none text-cyan-700 sm:text-[15px] dark:bg-emerald-500/15 dark:text-emerald-200">
-            {cashbackLabel}
-          </span>
           <span className="max-w-full truncate rounded-lg bg-gray-100 px-2.5 py-1.5 text-[11px] font-extrabold leading-none text-gray-900 sm:text-[15px] dark:bg-white/10 dark:text-white">
             {priceLabel}
           </span>

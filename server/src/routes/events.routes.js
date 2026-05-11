@@ -12,6 +12,10 @@ export function invalidatePublishedEventsCache() {
   publishedEventsCache = { expiresAt: 0, payload: null };
 }
 
+function hasDisplayImage(event) {
+  return Boolean(String(event?.image || "").trim());
+}
+
 function activeInventoryQuery(eventIds) {
   return {
     event: { $in: eventIds },
@@ -101,8 +105,11 @@ function publicPublishedEvent(event, availability = {}) {
 }
 
 async function buildPublishedEventsPayload() {
-  const allPublishedEvents = await Event.find({ status: "published" }).sort({ createdAt: -1 }).limit(400).lean();
-  const events = allPublishedEvents;
+  const allPublishedEvents = await Event.find({ status: "published", image: { $exists: true, $nin: ["", null] } })
+    .sort({ createdAt: -1 })
+    .limit(400)
+    .lean();
+  const events = allPublishedEvents.filter(hasDisplayImage);
   const { soldMap, activityUsageByEvent } = await loadAvailability(events);
 
   return {

@@ -331,9 +331,6 @@ const extraEvents = [
   },
 ];
 
-const FALLBACK_EVENT_IMAGE =
-  'https://images.unsplash.com/photo-1547153760-18fc86324498?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080';
-
 const normalizeCity = (value: string) => {
   const normalized = String(value || '').trim().toLowerCase();
   const aliases: Record<string, string> = {
@@ -354,6 +351,8 @@ const normalizeCity = (value: string) => {
   return aliases[normalized] || normalized;
 };
 
+const hasDisplayImage = (event: any) => Boolean(String(event?.image || '').trim());
+
 export const FeaturedEvents = ({
   selectedCity,
   onCityChange,
@@ -371,7 +370,7 @@ export const FeaturedEvents = ({
   const mergedEvents = expandedMode
     ? [...dynamicEvents, ...events, ...extraEvents]
     : [...dynamicEvents, ...events];
-  const displayEvents = mergedEvents;
+  const displayEvents = mergedEvents.filter(hasDisplayImage);
   const normalizedSearchQuery = searchQuery.trim().toLowerCase();
 
   const filteredEvents = displayEvents.filter(event => {
@@ -469,7 +468,7 @@ export const FeaturedEvents = ({
                   (() => {
                     const eventWithImage = {
                       ...event,
-                      image: String(event.image || '').trim() || FALLBACK_EVENT_IMAGE,
+                      image: String(event.image || '').trim(),
                     };
                     const eventId = event.id || `${event.title}-${event.date}-${event.location}`;
                     return (
