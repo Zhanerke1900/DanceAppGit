@@ -52,7 +52,7 @@ export const EventCard = ({
 
   return (
     <div
-      className={`group flex flex-col overflow-hidden rounded-xl transition-all hover:-translate-y-0.5 sm:rounded-2xl ${
+      className={`group flex h-full flex-col overflow-hidden rounded-xl transition-all hover:-translate-y-0.5 sm:rounded-2xl ${
         isDark
           ? 'border border-white/5 bg-gray-900 hover:border-purple-500/25 hover:shadow-[0_22px_52px_rgba(91,78,224,0.16)]'
           : 'border border-[rgba(98,78,156,0.28)] hover:border-purple-500/30 hover:shadow-[0_22px_52px_rgba(91,78,224,0.18)]'
@@ -115,8 +115,8 @@ export const EventCard = ({
           <Heart className={`h-3 w-3 sm:h-4 sm:w-4 ${isFavorite ? 'fill-current' : ''}`} />
         </button>
       </div>
-      <div className="p-2 sm:p-6">
-        <h3 className={`mb-1.5 line-clamp-2 text-[11px] font-bold leading-[1.15] text-foreground transition-colors sm:mb-4 sm:text-xl sm:leading-normal ${isDark ? 'group-hover:text-purple-400' : 'group-hover:text-purple-600'}`}>
+      <div className="flex flex-1 flex-col p-2 sm:p-6">
+        <h3 className={`mb-1.5 min-h-[1.6rem] line-clamp-2 text-[11px] font-bold leading-[1.15] text-foreground transition-colors sm:mb-4 sm:min-h-0 sm:text-xl sm:leading-normal ${isDark ? 'group-hover:text-purple-400' : 'group-hover:text-purple-600'}`}>
           {title}
         </h3>
         <div className="mb-2 space-y-1 sm:mb-6 sm:space-y-2">
@@ -129,7 +129,7 @@ export const EventCard = ({
             <span className="line-clamp-1">{location}</span>
           </div>
         </div>
-        <div className="flex items-end justify-between gap-1.5 border-t border-border/70 pt-2 sm:items-center sm:gap-3 sm:pt-4">
+        <div className="mt-auto flex items-end justify-between gap-1.5 border-t border-border/70 pt-2 sm:items-center sm:gap-3 sm:pt-4">
           <div className="min-w-0">
             <span className="hidden text-sm text-muted-foreground sm:inline">{t('common.ticketsFrom')}</span>
             <div className={`truncate text-[11px] font-bold leading-tight sm:text-xl sm:leading-normal ${isDark ? 'text-purple-400' : 'text-purple-700'}`}>{price}</div>

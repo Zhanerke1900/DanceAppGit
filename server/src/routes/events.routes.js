@@ -18,6 +18,10 @@ function isUpcomingOrCurrentEvent(dateString = "") {
   return parsed.getTime() >= Date.now();
 }
 
+function hasDisplayImage(event) {
+  return Boolean(String(event?.image || "").trim());
+}
+
 function activeInventoryQuery(eventIds) {
   return {
     event: { $in: eventIds },
@@ -107,8 +111,8 @@ function publicPublishedEvent(event, availability = {}) {
 }
 
 async function buildPublishedEventsPayload() {
-  const allPublishedEvents = await Event.find({ status: "published" }).sort({ createdAt: -1 }).limit(400).lean();
-  const events = allPublishedEvents.filter((event) => isUpcomingOrCurrentEvent(event.date));
+  const allPublishedEvents = await Event.find({ status: "published", image: { $ne: "" } }).sort({ createdAt: -1 }).limit(400).lean();
+  const events = allPublishedEvents.filter((event) => hasDisplayImage(event) && isUpcomingOrCurrentEvent(event.date));
   const { soldMap, activityUsageByEvent } = await loadAvailability(events);
 
   return {

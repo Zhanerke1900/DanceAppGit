@@ -39,6 +39,10 @@ function normalizeText(value) {
   return String(value || "").trim();
 }
 
+function hasEventImage(value) {
+  return Boolean(normalizeText(value));
+}
+
 function normalizeHighlights(value) {
   return Array.isArray(value) ? value.map((item) => normalizeText(item)).filter(Boolean) : [];
 }
@@ -552,6 +556,9 @@ router.post("/events", async (req, res) => {
     if (!isDraft && !organizerCanSendRequests(req.user)) {
       return res.status(403).json({ message: "Organizer account is deactivated. New moderation requests are disabled." });
     }
+    if (!isDraft && !hasEventImage(payload.image)) {
+      return res.status(400).json({ message: "Event poster is required before publishing." });
+    }
 
     const event = new Event({
       organizer: req.user._id,
@@ -604,6 +611,11 @@ router.put("/events/:id", async (req, res) => {
     const requestedStatus = String(req.body?.status || "").trim();
     const isPublishedEvent = event.status === "published";
     const hasCriticalChanges = isPublishedEvent ? hasCriticalPublishedChanges(event, payload) : false;
+    const willStayDraft = !isPublishedEvent && requestedStatus === "draft";
+
+    if (!willStayDraft && !hasEventImage(payload.image)) {
+      return res.status(400).json({ message: "Event poster is required before publishing." });
+    }
 
     if (isPublishedEvent && hasCriticalChanges && !organizerCanSendRequests(req.user)) {
       return res.status(403).json({ message: "Organizer account is deactivated. New moderation requests are disabled." });

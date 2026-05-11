@@ -564,7 +564,7 @@ export const SpecialPrograms = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 min-h-[400px]">
+        <div className="grid min-h-[400px] auto-rows-fr grid-cols-1 gap-8 md:grid-cols-2">
           <AnimatePresence mode="sync">
             {visiblePrograms.length > 0 ? (
               visiblePrograms.map((program, index) => (
@@ -574,10 +574,10 @@ export const SpecialPrograms = ({
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.4 }}
-                  className="group relative surface-card rounded-[32px] overflow-hidden transition-all duration-500 hover:border-purple-500/30 hover:shadow-[0_20px_40px_-15px_rgba(168,85,247,0.1)] dark:bg-gray-900/40 dark:border-white/5"
+                  className="group relative surface-card h-full rounded-[32px] overflow-hidden transition-all duration-500 hover:border-purple-500/30 hover:shadow-[0_20px_40px_-15px_rgba(168,85,247,0.1)] dark:bg-gray-900/40 dark:border-white/5"
                 >
                   <div className="flex flex-col sm:flex-row h-full">
-                    <div className="w-full sm:w-2/5 relative overflow-hidden h-48 sm:h-auto">
+                    <div className="relative h-64 w-full overflow-hidden sm:h-auto sm:w-[48%]">
                       <ImageWithFallback
                         src={program.image}
                         alt={program.title}
@@ -608,7 +608,7 @@ export const SpecialPrograms = ({
                       <div className="absolute inset-0 bg-gradient-to-t from-[rgba(45,35,67,0.55)] via-transparent to-transparent sm:bg-gradient-to-r sm:from-transparent sm:via-transparent sm:to-[rgba(45,35,67,0.16)] dark:from-gray-900 dark:via-transparent dark:to-transparent dark:sm:to-gray-900/20" />
                     </div>
 
-                    <div className="p-8 sm:w-3/5 flex flex-col justify-between">
+                    <div className="flex flex-1 flex-col justify-between p-5 sm:w-[52%] sm:p-6 lg:p-8">
                       <div>
                         <div className="flex items-center gap-3 text-purple-400 font-bold text-xs uppercase tracking-widest mb-3">
                           {getIcon(program.category)}

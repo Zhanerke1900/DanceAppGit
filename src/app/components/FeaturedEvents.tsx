@@ -128,15 +128,6 @@ const events = [
     image: "https://images.unsplash.com/photo-1535525153412-5a42439a210d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoaXAlMjBob3AlMjBkYW5jZXxlbnwxfHx8fDE3NzAwMzA4MjF8MA"
   },
   {
-    category: "Festival",
-    title: "Astana Dance Festival 2026",
-    date: "July 15-17, 2026",
-    location: "Expo City, Expo Blvd 1, Astana, Kazakhstan",
-    city: "Astana",
-    price: "9,500 ₸",
-    image: "https://images.unsplash.com/photo-1514525253361-bee8718a7439?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkYW5jZSUyMGZlc3RpdmFsfGVufDF8fHx8MTc3MDAzMDgyMXww"
-  },
-  {
     category: "Contemporary",
     title: "Almaty Modern Movement",
     date: "August 22, 2026",
@@ -349,7 +340,7 @@ export const FeaturedEvents = ({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="grid grid-cols-2 items-start gap-x-2.5 gap-y-5 sm:gap-4 lg:grid-cols-3 lg:gap-8 xl:grid-cols-4"
+                className="grid auto-rows-fr grid-cols-2 gap-x-2.5 gap-y-5 sm:gap-4 lg:grid-cols-3 lg:gap-8 xl:grid-cols-4"
               >
                 {visibleEvents.map((event, index) => (
                   (() => {

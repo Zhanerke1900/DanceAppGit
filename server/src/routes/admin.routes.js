@@ -7,6 +7,10 @@ import { getUserRole, requireRole } from "../middleware/role.middleware.js";
 
 const router = express.Router();
 
+function hasEventImage(event) {
+  return Boolean(String(event?.image || "").trim());
+}
+
 function publicAdminEvent(event) {
   return {
     id: event._id,
@@ -448,6 +452,9 @@ router.post("/events/:id/approve", async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
     if (!event) return res.status(404).json({ message: "Event not found" });
+    if (!hasEventImage(event)) {
+      return res.status(400).json({ message: "Event poster is required before publishing." });
+    }
     event.status = "published";
     event.pendingUpdateSnapshot = null;
     await event.save();
