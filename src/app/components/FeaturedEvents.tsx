@@ -305,9 +305,9 @@ export const FeaturedEvents = ({
   };
 
   return (
-    <section id="events" className="py-24 bg-background">
+    <section id="events" className="bg-background py-16 sm:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 gap-8">
+        <div className="mb-8 flex flex-col justify-between gap-6 sm:mb-12 lg:flex-row lg:items-end lg:gap-8">
           <div>
             <h2 className="text-3xl font-bold text-foreground mb-4">
               Events in <span className="text-purple-600">{selectedCity}</span>
@@ -349,7 +349,7 @@ export const FeaturedEvents = ({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 lg:gap-8 xl:grid-cols-4"
+                className="grid grid-cols-2 items-start gap-x-2.5 gap-y-5 sm:gap-4 lg:grid-cols-3 lg:gap-8 xl:grid-cols-4"
               >
                 {visibleEvents.map((event, index) => (
                   (() => {

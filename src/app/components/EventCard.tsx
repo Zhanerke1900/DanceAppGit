@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Calendar, Heart, MapPin } from 'lucide-react';
+import { ArrowRight, Calendar, Heart, MapPin, Ticket } from 'lucide-react';
 import { ImageWithFallback } from '@/app/components/figma/ImageWithFallback';
 import { useI18n } from '../i18n';
 
@@ -33,6 +33,8 @@ export const EventCard = ({
 }: EventCardProps) => {
   const [isDark, setIsDark] = useState(false);
   const { t } = useI18n();
+  const actionLabel = soldOut ? t('common.viewDetails') : t('common.buyTicket');
+  const ActionIcon = soldOut ? ArrowRight : Ticket;
 
   useEffect(() => {
     const updateTheme = () => {
@@ -50,7 +52,7 @@ export const EventCard = ({
 
   return (
     <div
-      className={`group overflow-hidden rounded-lg transition-all hover:-translate-y-0.5 sm:rounded-2xl ${
+      className={`group flex flex-col overflow-hidden rounded-xl transition-all hover:-translate-y-0.5 sm:rounded-2xl ${
         isDark
           ? 'border border-white/5 bg-gray-900 hover:border-purple-500/25 hover:shadow-[0_22px_52px_rgba(91,78,224,0.16)]'
           : 'border border-[rgba(98,78,156,0.28)] hover:border-purple-500/30 hover:shadow-[0_22px_52px_rgba(91,78,224,0.18)]'
@@ -66,7 +68,7 @@ export const EventCard = ({
             }
         }
     >
-      <div className="relative h-28 overflow-hidden sm:h-48">
+      <div className="relative h-36 overflow-hidden sm:h-48">
         <ImageWithFallback
           src={image}
           alt={title}
@@ -113,8 +115,8 @@ export const EventCard = ({
           <Heart className={`h-3 w-3 sm:h-4 sm:w-4 ${isFavorite ? 'fill-current' : ''}`} />
         </button>
       </div>
-      <div className="p-2.5 sm:p-6">
-        <h3 className={`mb-2 min-h-[2.5rem] line-clamp-2 text-xs font-bold leading-tight text-foreground transition-colors sm:mb-4 sm:min-h-0 sm:text-xl sm:leading-normal ${isDark ? 'group-hover:text-purple-400' : 'group-hover:text-purple-600'}`}>
+      <div className="p-2 sm:p-6">
+        <h3 className={`mb-1.5 line-clamp-2 text-[11px] font-bold leading-[1.15] text-foreground transition-colors sm:mb-4 sm:text-xl sm:leading-normal ${isDark ? 'group-hover:text-purple-400' : 'group-hover:text-purple-600'}`}>
           {title}
         </h3>
         <div className="mb-2 space-y-1 sm:mb-6 sm:space-y-2">
@@ -127,10 +129,10 @@ export const EventCard = ({
             <span className="line-clamp-1">{location}</span>
           </div>
         </div>
-        <div className="flex flex-col items-stretch gap-1 border-t border-border/70 pt-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:pt-4">
+        <div className="flex items-end justify-between gap-1.5 border-t border-border/70 pt-2 sm:items-center sm:gap-3 sm:pt-4">
           <div className="min-w-0">
             <span className="hidden text-sm text-muted-foreground sm:inline">{t('common.ticketsFrom')}</span>
-            <div className={`truncate text-xs font-bold leading-tight sm:text-xl sm:leading-normal ${isDark ? 'text-purple-400' : 'text-purple-700'}`}>{price}</div>
+            <div className={`truncate text-[11px] font-bold leading-tight sm:text-xl sm:leading-normal ${isDark ? 'text-purple-400' : 'text-purple-700'}`}>{price}</div>
             {soldOut ? (
               <div className="mt-0.5 truncate text-[9px] font-semibold text-red-400 sm:mt-1 sm:text-sm">{t('common.soldOut')}</div>
             ) : remainingTickets !== null && remainingTickets <= 15 ? (
@@ -139,7 +141,8 @@ export const EventCard = ({
           </div>
           <button 
             onClick={onBuyTicket}
-            className={`w-full rounded-md px-1.5 py-1.5 text-[10px] font-semibold leading-none transition-colors sm:w-auto sm:rounded-lg sm:px-4 sm:py-2 sm:text-base sm:font-medium sm:leading-normal ${
+            aria-label={actionLabel}
+            className={`shrink-0 whitespace-nowrap rounded-md px-2 py-1.5 text-[9px] font-semibold leading-none transition-colors sm:rounded-lg sm:px-4 sm:py-2 sm:text-base sm:font-medium sm:leading-normal ${
               isDark
                 ? 'bg-gray-800 hover:bg-purple-600 hover:text-white text-gray-300'
                 : 'hover:bg-purple-600 hover:text-white text-foreground border border-[rgba(98,78,156,0.14)]'
@@ -150,7 +153,8 @@ export const EventCard = ({
                 : { background: 'linear-gradient(180deg, rgba(234,226,247,0.96) 0%, rgba(217,204,240,0.96) 100%)' }
             }
           >
-            {soldOut ? t('common.viewDetails') : t('common.buyTicket')}
+            <ActionIcon className="h-3.5 w-3.5 sm:hidden" />
+            <span className="hidden sm:inline">{actionLabel}</span>
           </button>
         </div>
       </div>
