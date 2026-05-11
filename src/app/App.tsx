@@ -31,6 +31,7 @@ import { AdminPanel } from './components/AdminPanel';
 import * as authApi from './api/auth';
 import * as ticketsApi from './api/tickets';
 import * as validatorApi from './api/validator';
+import { getAuthToken } from './api/http';
 import type { ReservationRecord, TicketRecord } from './api/tickets';
 import { VerifyEmailPage } from './components/VerifyEmailPage';
 import { ResetPasswordPage } from './components/ResetPasswordPage';
@@ -116,6 +117,11 @@ function AppContent() {
   const { t } = useI18n();
 
   useEffect(() => {
+    if (!getAuthToken()) {
+      setUser(null);
+      return;
+    }
+
     authApi.me()
       .then(({ user }) => setUser(user))
       .catch(() => {});
@@ -1325,6 +1331,11 @@ export default function App() {
   const [appUserLanguage, setAppUserLanguage] = useState<'en' | 'ru' | 'kk' | null>(null);
 
   useEffect(() => {
+    if (!getAuthToken()) {
+      setAppUserLanguage('en');
+      return;
+    }
+
     authApi.me()
       .then(({ user }) => setAppUserLanguage(user?.language || 'en'))
       .catch(() => setAppUserLanguage('en'));
