@@ -124,9 +124,9 @@ export const EventCard = ({
             <Calendar className="h-3 w-3 shrink-0 sm:h-4 sm:w-4" />
             <span className="truncate">{date}</span>
           </div>
-          <div className="hidden items-center gap-2 text-muted-foreground text-sm sm:flex">
-            <MapPin className="h-4 w-4 shrink-0" />
-            <span className="line-clamp-1">{location}</span>
+          <div className="flex items-center gap-1 text-[9px] leading-tight text-muted-foreground sm:gap-2 sm:text-sm">
+            <MapPin className="h-3 w-3 shrink-0 sm:h-4 sm:w-4" />
+            <span className="truncate">{location}</span>
           </div>
         </div>
         <div className="mt-auto flex items-end justify-between gap-1.5 border-t border-border/70 pt-2 sm:items-center sm:gap-3 sm:pt-4">

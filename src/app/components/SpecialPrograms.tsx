@@ -564,7 +564,7 @@ export const SpecialPrograms = ({
           </div>
         </div>
 
-        <div className="grid min-h-[400px] grid-cols-1 items-start gap-6 md:grid-cols-2 lg:gap-8">
+        <div className="grid min-h-[400px] grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
           <AnimatePresence mode="sync">
             {visiblePrograms.length > 0 ? (
               visiblePrograms.map((program, index) => (
@@ -574,10 +574,10 @@ export const SpecialPrograms = ({
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.4 }}
-                  className="group relative surface-card rounded-[28px] overflow-hidden transition-all duration-500 hover:border-purple-500/30 hover:shadow-[0_20px_40px_-15px_rgba(168,85,247,0.1)] dark:bg-gray-900/40 dark:border-white/5"
+                  className="group relative surface-card rounded-[28px] overflow-hidden transition-all duration-500 hover:border-purple-500/30 hover:shadow-[0_20px_40px_-15px_rgba(168,85,247,0.1)] sm:rounded-[32px] dark:bg-gray-900/40 dark:border-white/5"
                 >
                   <div className="flex flex-col sm:flex-row h-full">
-                    <div className="relative h-52 w-full overflow-hidden sm:h-auto sm:w-[48%]">
+                    <div className="relative h-52 w-full overflow-hidden sm:h-auto sm:w-2/5">
                       <ImageWithFallback
                         src={program.image}
                         alt={program.title}
@@ -608,21 +608,21 @@ export const SpecialPrograms = ({
                       <div className="absolute inset-0 bg-gradient-to-t from-[rgba(45,35,67,0.55)] via-transparent to-transparent sm:bg-gradient-to-r sm:from-transparent sm:via-transparent sm:to-[rgba(45,35,67,0.16)] dark:from-gray-900 dark:via-transparent dark:to-transparent dark:sm:to-gray-900/20" />
                     </div>
 
-                    <div className="flex flex-1 flex-col justify-between p-4 sm:w-[52%] sm:p-5 lg:p-6">
+                    <div className="flex flex-1 flex-col justify-between p-4 sm:w-3/5 sm:p-8">
                       <div>
-                        <div className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-purple-400">
+                        <div className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-purple-400 sm:mb-3 sm:gap-3 sm:text-xs">
                           {getIcon(program.category)}
                           {categoryLabels[program.category] || program.category}
                         </div>
-                        <h3 className="mb-2 text-xl font-bold leading-tight text-foreground transition-colors group-hover:text-primary dark:text-white dark:group-hover:text-purple-400 lg:text-2xl">
+                        <h3 className="mb-2 text-xl font-bold leading-tight text-foreground transition-colors group-hover:text-primary sm:mb-4 sm:text-2xl sm:leading-normal dark:text-white dark:group-hover:text-purple-400">
                           {program.title}
                         </h3>
-                        <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground dark:text-gray-400">
+                        <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground sm:mb-6 sm:line-clamp-3 dark:text-gray-400">
                           {program.description}
                         </p>
                       </div>
 
-                      <div className="mt-5 flex items-center justify-between border-t border-border pt-4 dark:border-white/5">
+                      <div className="mt-5 flex items-center justify-between border-t border-border pt-4 sm:mt-8 sm:pt-6 dark:border-white/5">
                         <div>
                           <span className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-muted-foreground dark:text-gray-500">{t('common.startsAt')}</span>
                           <span className="text-xl font-black text-foreground dark:text-white">{program.price}</span>
