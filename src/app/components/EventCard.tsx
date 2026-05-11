@@ -18,6 +18,9 @@ interface EventCardProps {
   soldOut?: boolean;
 }
 
+const FALLBACK_EVENT_IMAGE =
+  'https://images.unsplash.com/photo-1547153760-18fc86324498?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080';
+
 export const EventCard = ({
   image,
   category,
@@ -34,12 +37,13 @@ export const EventCard = ({
   const { t } = useI18n();
   const actionLabel = soldOut ? t('common.viewDetails') : t('common.buyTicket');
   const ActionIcon = soldOut ? ArrowRight : Ticket;
+  const displayImage = String(image || '').trim() || FALLBACK_EVENT_IMAGE;
 
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-[18px] border border-[rgba(98,78,156,0.28)] bg-[linear-gradient(180deg,rgba(224,214,244,0.98)_0%,rgba(211,197,237,0.99)_100%)] shadow-[0_18px_40px_rgba(61,41,110,0.14),inset_0_1px_0_rgba(255,255,255,0.26)] transition-colors hover:border-purple-500/35 dark:border-white/5 dark:bg-gray-900 dark:bg-none dark:shadow-none">
       <div className="relative h-40 overflow-hidden sm:h-56">
         <ImageWithFallback
-          src={image}
+          src={displayImage}
           alt={title}
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
         />

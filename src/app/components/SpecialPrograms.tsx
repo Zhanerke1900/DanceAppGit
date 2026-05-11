@@ -462,7 +462,8 @@ export const programs: Program[] = [
   }
 ];
 
-const hasDisplayImage = (item: any) => Boolean(String(item?.image || '').trim());
+const FALLBACK_PROGRAM_IMAGE =
+  'https://images.unsplash.com/photo-1514525253361-bee8718a7439?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080';
 
 interface SpecialProgramsProps {
   onBookTicket: (event: any) => void;
@@ -488,7 +489,7 @@ export const SpecialPrograms = ({
   const [activeCategory, setActiveCategory] = useState('All');
   const { t } = useI18n();
 
-  const mergedPrograms = [...dynamicPrograms, ...programs].filter(hasDisplayImage);
+  const mergedPrograms = [...dynamicPrograms, ...programs];
 
   const filteredPrograms = mergedPrograms.filter(p => {
     const matchesCategory = activeCategory === 'All' || p.category === activeCategory;
@@ -558,7 +559,12 @@ export const SpecialPrograms = ({
         <div className="grid min-h-[400px] grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
           <AnimatePresence mode="sync">
             {visiblePrograms.length > 0 ? (
-              visiblePrograms.map((program, index) => (
+              visiblePrograms.map((program, index) => {
+                const programWithImage = {
+                  ...program,
+                  image: String(program.image || '').trim() || FALLBACK_PROGRAM_IMAGE,
+                };
+                return (
                 <motion.div
                   key={`${program.title}-${activeCategory}`}
                   initial={{ opacity: 0, scale: 0.95 }}
@@ -570,7 +576,7 @@ export const SpecialPrograms = ({
                   <div className="flex flex-col sm:flex-row h-full">
                     <div className="relative h-52 w-full overflow-hidden sm:h-auto sm:w-2/5">
                       <ImageWithFallback
-                        src={program.image}
+                        src={programWithImage.image}
                         alt={program.title}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                       />
@@ -582,10 +588,10 @@ export const SpecialPrograms = ({
                           date: program.time,
                           location: program.location,
                           city: program.city,
-                          image: program.image,
+                          image: programWithImage.image,
                           category: program.category,
                           price: program.price,
-                          eventData: program,
+                          eventData: programWithImage,
                         })}
                         className={`absolute top-4 right-4 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full border backdrop-blur-md transition-all ${
                           favoriteIds.includes(program.id || `${program.title}-${program.time}-${program.location}`)
@@ -624,7 +630,7 @@ export const SpecialPrograms = ({
                           ) : null}
                         </div>
                         <button 
-                          onClick={() => onBookTicket(program)}
+                          onClick={() => onBookTicket(programWithImage)}
                           className="group/btn cursor-pointer rounded-lg bg-purple-600 p-4 text-white transition-colors hover:bg-purple-500 active:scale-95"
                         >
                           <ChevronRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
@@ -633,7 +639,8 @@ export const SpecialPrograms = ({
                     </div>
                   </div>
                 </motion.div>
-              ))
+                );
+              })
             ) : (
               <motion.div 
                 key="empty"

@@ -259,7 +259,8 @@ const extraEvents = [
   },
 ];
 
-const hasDisplayImage = (item: any) => Boolean(String(item?.image || '').trim());
+const FALLBACK_EVENT_IMAGE =
+  'https://images.unsplash.com/photo-1547153760-18fc86324498?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080';
 
 export const FeaturedEvents = ({
   selectedCity,
@@ -278,7 +279,7 @@ export const FeaturedEvents = ({
   const mergedEvents = expandedMode
     ? [...dynamicEvents, ...events, ...extraEvents]
     : [...dynamicEvents, ...events];
-  const displayEvents = mergedEvents.filter(hasDisplayImage);
+  const displayEvents = mergedEvents;
   const normalizedSearchQuery = searchQuery.trim().toLowerCase();
 
   const filteredEvents = displayEvents.filter(event => {
@@ -369,12 +370,16 @@ export const FeaturedEvents = ({
               >
                 {visibleEvents.map((event, index) => (
                   (() => {
+                    const eventWithImage = {
+                      ...event,
+                      image: String(event.image || '').trim() || FALLBACK_EVENT_IMAGE,
+                    };
                     const eventId = event.id || `${event.title}-${event.date}-${event.location}`;
                     return (
                   <EventCard 
                     key={`${eventId}-${index}`} 
                     id={eventId}
-                    image={event.image}
+                    image={eventWithImage.image}
                     category={event.category}
                     title={event.title}
                     date={event.date}
@@ -382,7 +387,7 @@ export const FeaturedEvents = ({
                     price={event.price}
                     remainingTickets={event.remainingTickets ?? null}
                     soldOut={Boolean(event.soldOut)}
-                    onBuyTicket={() => onBookTicket(event)}
+                    onBuyTicket={() => onBookTicket(eventWithImage)}
                     isFavorite={favoriteIds.includes(eventId)}
                     onToggleFavorite={() => onToggleFavorite?.({
                       id: eventId,
@@ -390,10 +395,10 @@ export const FeaturedEvents = ({
                       date: event.date,
                       location: event.location,
                       city: event.city,
-                      image: event.image,
+                      image: eventWithImage.image,
                       category: event.category,
                       price: event.price,
-                      eventData: event,
+                      eventData: eventWithImage,
                     })}
                   />
                     );
