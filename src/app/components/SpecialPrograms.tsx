@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Star, Trophy, GraduationCap, Tent, Clock, MapPin, LayoutGrid, Sparkles, Heart } from 'lucide-react';
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { Star, Trophy, GraduationCap, Tent, LayoutGrid, Sparkles } from 'lucide-react';
 import { useI18n } from '../i18n';
+import { EventCard } from './EventCard';
 
 const programCategories = ['All', 'Festivals', 'Competitions', 'Masterclasses', 'Camps'];
 
@@ -490,12 +490,13 @@ export const SpecialPrograms = ({
   const [activeCategory, setActiveCategory] = useState('All');
   const { t } = useI18n();
   const normalizedSearchQuery = searchQuery.trim().toLowerCase();
+  const isSearching = Boolean(normalizedSearchQuery);
 
   const mergedPrograms = [...dynamicPrograms, ...programs].filter(hasDisplayImage);
 
   const filteredPrograms = mergedPrograms.filter(p => {
-    const matchesCategory = activeCategory === 'All' || p.category === activeCategory;
-    const matchesCity = p.city === selectedCity;
+    const matchesCategory = isSearching || activeCategory === 'All' || p.category === activeCategory;
+    const matchesCity = isSearching || p.city === selectedCity;
     const matchesSearch = !normalizedSearchQuery || [
       p.title,
       p.location,
@@ -520,9 +521,9 @@ export const SpecialPrograms = ({
 
     return matchesCategory && matchesCity && matchesSearch;
   });
-  const visiblePrograms = expandedMode || normalizedSearchQuery ? filteredPrograms : filteredPrograms.slice(0, 6);
+  const visiblePrograms = expandedMode || isSearching ? filteredPrograms : filteredPrograms.slice(0, 6);
   const cityProgramsCount = mergedPrograms.filter((program) => program.city === selectedCity).length;
-  const shouldShowExploreMoreButton = showExploreMoreButton && !normalizedSearchQuery && cityProgramsCount > 6 && Boolean(onExploreMore);
+  const shouldShowExploreMoreButton = showExploreMoreButton && !isSearching && cityProgramsCount > 6 && Boolean(onExploreMore);
 
   const getIcon = (category: string) => {
     switch (category) {
@@ -580,111 +581,60 @@ export const SpecialPrograms = ({
           </div>
         </div>
 
-        <div className="grid min-h-[400px] grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
-          <AnimatePresence mode="sync">
+        <div className="min-h-[500px]">
+          <AnimatePresence mode="wait">
             {visiblePrograms.length > 0 ? (
-              visiblePrograms.map((program) => {
-                const programWithImage = {
-                  ...program,
-                  image: String(program.image || '').trim(),
-                };
-                const programId = program.id || `${program.title}-${program.time}-${program.location}`;
-                return (
-                <motion.div
-                  key={`${program.title}-${activeCategory}`}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => onBookTicket(programWithImage)}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                      event.preventDefault();
-                      onBookTicket(programWithImage);
-                    }
-                  }}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.4 }}
-                  className="group relative surface-card cursor-pointer overflow-hidden rounded-[18px] outline-none transition-colors duration-300 hover:border-purple-500/30 focus-visible:ring-2 focus-visible:ring-purple-500 sm:rounded-[20px] dark:bg-gray-900/40 dark:border-white/5"
-                >
-                  <div className="flex flex-col sm:flex-row h-full">
-                    <div className="relative h-52 w-full overflow-hidden sm:h-auto sm:w-2/5">
-                      <ImageWithFallback
-                        src={programWithImage.image}
-                        alt={program.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      />
-                      <button
-                        type="button"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          onToggleFavorite?.({
-                            id: programId,
-                            title: program.title,
-                            date: program.time,
-                            location: program.location,
-                            city: program.city,
-                            image: programWithImage.image,
-                            category: program.category,
-                            price: program.price,
-                            eventData: programWithImage,
-                          });
-                        }}
-                        className={`absolute top-4 right-4 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full border backdrop-blur-md transition-all ${
-                          favoriteIds.includes(programId)
-                            ? 'bg-rose-500/90 border-rose-300/70 text-white shadow-lg shadow-rose-900/30'
-                            : 'bg-[rgba(238,231,249,0.92)] border-[rgba(90,70,150,0.18)] text-primary hover:bg-rose-500/85 hover:border-rose-300/60 hover:text-white dark:bg-black/55 dark:border-white/10 dark:text-white/85'
-                        }`}
-                        aria-label={favoriteIds.includes(programId) ? t('common.removeFromFavorites') : t('common.addToFavorites')}
-                      >
-                        <Heart className={`w-4 h-4 ${favoriteIds.includes(programId) ? 'fill-current' : ''}`} />
-                      </button>
-                      <div className="absolute inset-0 bg-gradient-to-t from-[rgba(45,35,67,0.55)] via-transparent to-transparent sm:bg-gradient-to-r sm:from-transparent sm:via-transparent sm:to-[rgba(45,35,67,0.16)] dark:from-gray-900 dark:via-transparent dark:to-transparent dark:sm:to-gray-900/20" />
-                    </div>
+              <motion.div
+                key={`${selectedCity}-${activeCategory}-${normalizedSearchQuery}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="grid auto-rows-fr grid-cols-2 gap-x-3 gap-y-7 sm:gap-x-5 sm:gap-y-8 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+              >
+                {visiblePrograms.map((program) => {
+                  const programWithImage = {
+                    ...program,
+                    image: String(program.image || '').trim(),
+                  };
+                  const programId = program.id || `${program.title}-${program.time}-${program.location}`;
 
-                    <div className="flex flex-1 flex-col justify-between p-4 sm:w-3/5 sm:p-8">
-                      <div>
-                        <div className="mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-purple-500 sm:gap-3 sm:text-xs">
-                          {getIcon(program.category)}
-                          {categoryLabels[program.category] || program.category}
-                        </div>
-                        <h3 className="mb-4 line-clamp-2 text-[19px] font-extrabold leading-[1.12] text-foreground transition-colors group-hover:text-purple-700 sm:text-[24px] dark:text-white dark:group-hover:text-purple-300">
-                          {program.title}
-                        </h3>
-                        <div className="space-y-2.5 text-muted-foreground dark:text-gray-400">
-                          <div className="flex items-center gap-2 text-sm font-semibold leading-tight sm:text-base">
-                            <Clock className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
-                            <span className="truncate">{program.time}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-sm font-semibold leading-tight sm:text-base">
-                            <MapPin className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
-                            <span className="truncate">{program.location}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="mt-5 flex flex-col items-start gap-2 border-t border-border pt-4 sm:mt-8 sm:pt-6 dark:border-white/5">
-                        <div className="flex max-w-full flex-col items-start gap-2">
-                          <span className="max-w-full truncate rounded-lg bg-gray-100 px-3 py-2 text-sm font-extrabold leading-none text-gray-900 sm:text-base dark:bg-white/10 dark:text-white">{program.price}</span>
-                          {program.soldOut ? (
-                            <span className="mt-1 block text-sm font-semibold text-red-400">{t('common.soldOut')}</span>
-                          ) : program.remainingTickets !== undefined && program.remainingTickets !== null && program.remainingTickets <= 15 ? (
-                            <span className="mt-1 block text-sm font-medium text-emerald-400">{t('common.ticketsLeft', { count: program.remainingTickets })}</span>
-                          ) : null}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-                );
-              })
+                  return (
+                    <EventCard
+                      key={programId}
+                      id={programId}
+                      image={programWithImage.image}
+                      category={program.category}
+                      title={program.title}
+                      date={program.time}
+                      location={program.location}
+                      price={program.price}
+                      remainingTickets={program.remainingTickets ?? null}
+                      soldOut={Boolean(program.soldOut)}
+                      onBuyTicket={() => onBookTicket(programWithImage)}
+                      isFavorite={favoriteIds.includes(programId)}
+                      onToggleFavorite={() => onToggleFavorite?.({
+                        id: programId,
+                        title: program.title,
+                        date: program.time,
+                        location: program.location,
+                        city: program.city,
+                        image: programWithImage.image,
+                        category: program.category,
+                        price: program.price,
+                        eventData: programWithImage,
+                      })}
+                    />
+                  );
+                })}
+              </motion.div>
             ) : (
               <motion.div 
                 key="empty"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="col-span-1 md:col-span-2 flex flex-col items-center justify-center py-20 text-center"
+                className="flex flex-col items-center justify-center py-20 text-center"
               >
                 <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-purple-600/10">
                   <Sparkles className="w-10 h-10 text-purple-500/50" />

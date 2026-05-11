@@ -338,6 +338,7 @@ export const FeaturedEvents = ({
     [dynamicEvents]
   );
   const normalizedSearchQuery = searchQuery.trim().toLowerCase();
+  const isSearching = Boolean(normalizedSearchQuery);
   const currentCity = normalizeCity(selectedCity);
 
   const cityEvents = useMemo(
@@ -349,10 +350,12 @@ export const FeaturedEvents = ({
     [currentCity, displayEvents]
   );
 
-  const baseEvents = expandedMode || normalizedSearchQuery ? cityEvents : cityEvents.slice(0, 8);
+  const searchScopeEvents = isSearching ? displayEvents : cityEvents;
+  const baseEvents = expandedMode || isSearching ? searchScopeEvents : searchScopeEvents.slice(0, 8);
 
   const visibleEvents = baseEvents.filter((event) => {
     const matchesCategory =
+      isSearching ||
       activeCategory === 'All' ||
       String(event.category || '').trim().toLowerCase() === activeCategory.toLowerCase();
     const matchesSearch = !normalizedSearchQuery || [
@@ -368,7 +371,7 @@ export const FeaturedEvents = ({
   });
 
   const shouldShowExploreMoreButton =
-    showExploreMoreButton && !normalizedSearchQuery && cityEvents.length >= 9;
+    showExploreMoreButton && !isSearching && cityEvents.length >= 9;
 
   const handleExploreOtherCities = () => {
     const hub = selectedCity === 'Almaty' ? 'Astana' : 'Almaty';

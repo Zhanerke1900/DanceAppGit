@@ -71,24 +71,24 @@ interface MarketplaceSearchProps {
 }
 
 const MarketplaceSearch = ({ value, onChange, elevated = false }: MarketplaceSearchProps) => (
-  <section className={`${elevated ? 'pt-24' : 'pt-10'} border-b border-border bg-background px-4 pb-6 sm:px-6 lg:px-8`}>
+  <section className={`${elevated ? 'pt-24' : 'pt-9'} bg-background px-4 pb-4 sm:px-6 lg:px-8`}>
     <div className="mx-auto max-w-7xl">
-      <div className="relative">
-        <Search className="pointer-events-none absolute left-0 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+      <div className="relative mx-auto h-11 w-full max-w-[640px] rounded-full bg-[#f1f2f4] shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] dark:bg-white/10">
+        <Search className="pointer-events-none absolute left-6 top-1/2 h-5 w-5 -translate-y-1/2 text-[#6f7782] dark:text-white/60" />
         <input
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          placeholder="Search events, programs, venue, style..."
-          className="h-14 w-full rounded-none border-0 border-b border-border bg-transparent pl-8 pr-11 text-base font-semibold text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-purple-500"
+          placeholder="Найти среди 1000 событий..."
+          className="h-full w-full rounded-full border-0 bg-transparent pl-14 pr-12 text-[16px] font-medium text-foreground outline-none placeholder:text-[#a1a8b3] dark:placeholder:text-white/45"
         />
         {value && (
           <button
             type="button"
             onClick={() => onChange('')}
             aria-label="Clear search"
-            className="absolute right-0 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            className="absolute right-2 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-[#6f7782] transition-colors hover:bg-black/5 hover:text-foreground dark:text-white/60 dark:hover:bg-white/10 dark:hover:text-white"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
           </button>
         )}
       </div>
