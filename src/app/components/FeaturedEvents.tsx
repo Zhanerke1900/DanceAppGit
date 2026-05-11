@@ -17,19 +17,287 @@ interface FeaturedEventsProps {
 
 const categories = ['All', 'Hip Hop', 'Contemporary', 'Ballet', 'Latin', 'Ballroom'];
 
+const events = [
+  {
+    category: "Contemporary",
+    title: "Velvet Motion Night",
+    date: "February 14, 2027",
+    location: "Qazaqstan Concert Hall, Tauelsizdik Ave 10, Astana, Kazakhstan",
+    city: "Astana",
+    price: "16,000 ₸",
+    image: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+  },
+  {
+    category: "Hip Hop",
+    title: "Neon Floor Battle",
+    date: "March 06, 2027",
+    location: "Jastar Palace, Respublika Ave 34, Astana, Kazakhstan",
+    city: "Astana",
+    price: "7,500 ₸",
+    image: "https://images.unsplash.com/photo-1502519144081-acca18599776?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+  },
+  {
+    category: "Latin",
+    title: "Midnight Bachata Club",
+    date: "March 19, 2027",
+    location: "Skyline Club, Timiryazev St 42, Astana, Kazakhstan",
+    city: "Astana",
+    price: "6,000 ₸",
+    image: "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+  },
+  {
+    category: "Ballroom",
+    title: "Silk Road Vogue Ball",
+    date: "April 11, 2027",
+    location: "Congress Center, Kunaev St 4, Astana, Kazakhstan",
+    city: "Astana",
+    price: "18,500 ₸",
+    image: "https://images.unsplash.com/photo-1524594152303-9fd13543fe6e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+  },
+  {
+    category: "Ballet",
+    title: "Prima Lights Gala",
+    date: "April 25, 2027",
+    location: "Astana Opera, Dinmukhamed Kunayev St 1, Astana, Kazakhstan",
+    city: "Astana",
+    price: "22,000 ₸",
+    image: "https://images.unsplash.com/photo-1518834107812-67b0b7c58434?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+  },
+  {
+    category: "Festival",
+    title: "Pulse Weekend",
+    date: "May 02-03, 2027",
+    location: "EXPO Arena, Mangilik El Ave 53, Astana, Kazakhstan",
+    city: "Astana",
+    price: "14,000 ₸",
+    image: "https://images.unsplash.com/photo-1514525253361-bee8718a7439?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+  },
+  {
+    category: "Latin",
+    title: "Golden Hour Social",
+    date: "May 16, 2027",
+    location: "Downtown Hall, Lomonosov St 23, Astana, Kazakhstan",
+    city: "Astana",
+    price: "5,500 ₸",
+    image: "https://images.unsplash.com/photo-1545959570-a94084071b5d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+  },
+  {
+    category: "Hip Hop",
+    title: "Rhythm Orbit",
+    date: "June 01, 2027",
+    location: "Urban Stage, Mangilik El Ave 55, Astana, Kazakhstan",
+    city: "Astana",
+    price: "8,000 ₸",
+    image: "https://images.unsplash.com/photo-1544717305-2782549b5136?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+  },
+  {
+    category: "Ballet",
+    title: "Grand Opera Night",
+    date: "April 02, 2026",
+    location: "Abay Opera House, Abay Ave 71, Almaty, Kazakhstan",
+    city: "Almaty",
+    price: "12,000 ₸",
+    image: "https://images.unsplash.com/photo-1508807526345-15e9b5f4eaff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiYWxsZXR8ZW58MXx8fHwxNzcwMDMwODIxfDA"
+  },
+  {
+    category: "Contemporary",
+    title: "Modern Dance Fest",
+    date: "May 12, 2026",
+    location: "Turkestan Hall, Tauke Khan Ave 30, Shymkent, Kazakhstan",
+    city: "Shymkent",
+    price: "4,500 ₸",
+    image: "https://images.unsplash.com/photo-1547153760-18fc86324498?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb250ZW1wb3JhcnklMjBkYW5jZXxlbnwxfHx8fDE3NzAwMzA4MjF8MA"
+  },
+  {
+    category: "Festival",
+    title: "Groove Days",
+    date: "June 20-22, 2026",
+    location: "Central Park, Tobyl Street 89, Karaganda, Kazakhstan",
+    city: "Karaganda",
+    price: "8,000 ₸",
+    image: "https://images.unsplash.com/photo-1514525253361-bee8718a7439?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkYW5jZSUyMGZlc3RpdmFsfGVufDF8fHx8MTc3MDAzMDgyMXww"
+  },
+  {
+    category: "Latin",
+    title: "Salsa Night",
+    date: "July 10, 2026",
+    location: "Social Club, Baganaly St 45, Aktobe, Kazakhstan",
+    city: "Aktobe",
+    price: "3,000 ₸",
+    image: "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzYWxzYSUyMGRhbmNlJTIwcGFydHl8ZW58MXx8fHwxNzcwMDMwODIxfDA"
+  },
+  {
+    category: "Ballroom",
+    title: "Waltz Invitationals",
+    date: "August 05, 2026",
+    location: "Radisson Hotel, Yesenberlin Ave 14, Astana, Kazakhstan",
+    city: "Astana",
+    price: "15,000 ₸",
+    image: "https://images.unsplash.com/photo-1524594152303-9fd13543fe6e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiYWxscm9vbSUyMGRhbmNlfGVufDF8fHx8MTc3MDAzMDgyMXww"
+  },
+  {
+    category: "Traditional",
+    title: "Folk Heritage",
+    date: "September 18, 2026",
+    location: "City Palace, Kurmangazy St 20, Pavlodar, Kazakhstan",
+    city: "Pavlodar",
+    price: "4,000 ₸",
+    image: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmcmVlc3R5bGUlMjBkYW5jZXxlbnwxfHx8fDE3NzAwMzA4MjF8MA"
+  },
+  {
+    category: "Hip Hop",
+    title: "Freestyle Lab",
+    date: "October 24, 2026",
+    location: "Sports Arena, Sportivnaya St 2, Oskemen, Kazakhstan",
+    city: "Ust-Kamenogorsk",
+    price: "6,000 ₸",
+    image: "https://images.unsplash.com/photo-1502519144081-acca18599776?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHicmVha2RhbmNlfGVufDF8fHx8MTc3MDAzMDgyMXww"
+  },
+  {
+    category: "Ballroom",
+    title: "Ballroom Masters",
+    date: "November 12, 2026",
+    location: "Rixos, Al-Farabi Ave 77, Almaty, Kazakhstan",
+    city: "Almaty",
+    price: "10,000 ₸",
+    image: "https://images.unsplash.com/photo-1542010589005-d1eacc3918f2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiYWxscm9vbSUyMGRhbmNlfGVufDF8fHx8MTc3MDAzMDgyMXww"
+  },
+  {
+    category: "Contemporary",
+    title: "Contemporary Showcase",
+    date: "April 28, 2026",
+    location: "Kazakhstan National Opera, Abay Ave 78, Astana, Kazakhstan",
+    city: "Astana",
+    price: "7,500 ₸",
+    image: "https://images.unsplash.com/photo-1508807526345-15e9b5f4eaff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb250ZW1wb3JhcnklMjBkYW5jZXxlbnwxfHx8fDE3NzAwMzA4MjF8MA"
+  },
+  {
+    category: "Latin",
+    title: "Latin Heat",
+    date: "April 18, 2026",
+    location: "Dostyk Plaza, Dostyk Ave 106, Almaty, Kazakhstan",
+    city: "Almaty",
+    price: "5,500 ₸",
+    image: "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzYWxzYSUyMGRhbmNlJTIwcGFydHl8ZW58MXx8fHwxNzcwMDMwODIxfDA"
+  },
+  {
+    category: "Ballet",
+    title: "Ballet Spring Gala",
+    date: "May 05, 2026",
+    location: "Kazakhstan Opera House, Abay Ave 14, Astana, Kazakhstan",
+    city: "Astana",
+    price: "18,000 ₸",
+    image: "https://images.unsplash.com/photo-1508807526345-15e9b5f4eaff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiYWxsZXR8ZW58MXx8fHwxNzcwMDMwODIxfDA"
+  },
+  {
+    category: "Hip Hop",
+    title: "B-Boy Battle",
+    date: "June 08, 2026",
+    location: "Central Stadium, Tauke Khan Ave 85, Almaty, Kazakhstan",
+    city: "Almaty",
+    price: "4,000 ₸",
+    image: "https://images.unsplash.com/photo-1535525153412-5a42439a210d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoaXAlMjBob3AlMjBkYW5jZXxlbnwxfHx8fDE3NzAwMzA4MjF8MA"
+  },
+  {
+    category: "Contemporary",
+    title: "Modern Movement",
+    date: "August 22, 2026",
+    location: "Almaty Theatre, Bogenbai Batyr St 47, Almaty, Kazakhstan",
+    city: "Almaty",
+    price: "6,500 ₸",
+    image: "https://images.unsplash.com/photo-1547153760-18fc86324498?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb250ZW1wb3JhcnklMjBkYW5jZXxlbnwxfHx8fDE3NzAwMzA4MjF8MA"
+  },
+  {
+    category: "Ballroom",
+    title: "Tango Night",
+    date: "September 09, 2026",
+    location: "Grand Hotel, Abaya Ave 40, Shymkent, Kazakhstan",
+    city: "Shymkent",
+    price: "7,000 ₸",
+    image: "https://images.unsplash.com/photo-1524594152303-9fd13543fe6e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiYWxscm9vbSUyMGRhbmNlfGVufDF8fHx8MTc3MDAzMDgyMXww"
+  },
+  {
+    category: "Hip Hop",
+    title: "Urban Jam",
+    date: "October 10, 2026",
+    location: "Youth Center, Zhetysu St 12, Karaganda, Kazakhstan",
+    city: "Karaganda",
+    price: "3,500 ₸",
+    image: "https://images.unsplash.com/photo-1502519144081-acca18599776?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHicmVha2RhbmNlfGVufDF8fHx8MTc3MDAzMDgyMXww"
+  },
+  {
+    category: "Latin",
+    title: "Bachata Social",
+    date: "November 20, 2026",
+    location: "Dance Studio, Kurmangazy St 34, Pavlodar, Kazakhstan",
+    city: "Pavlodar",
+    price: "2,500 ₸",
+    image: "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzYWxzYSUyMGRhbmNlJTIwcGFydHl8ZW58MXx8fHwxNzcwMDMwODIxfDA"
+  },
+  {
+    category: "Hip Hop",
+    title: "Beat District",
+    date: "December 03, 2026",
+    location: "Freedom Hall, Baitursynov St 26, Astana, Kazakhstan",
+    city: "Astana",
+    price: "5,500 ₸",
+    image: "https://images.unsplash.com/photo-1544717305-2782549b5136?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+  },
+  {
+    category: "Contemporary",
+    title: "Motion Theatre",
+    date: "December 12, 2026",
+    location: "Art Residence, Kabanbay Batyr Ave 18, Astana, Kazakhstan",
+    city: "Astana",
+    price: "6,500 ₸",
+    image: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+  },
+  {
+    category: "Latin",
+    title: "Bachata Under Lights",
+    date: "December 18, 2026",
+    location: "Skyline Club, Timiryazev St 42, Astana, Kazakhstan",
+    city: "Astana",
+    price: "4,000 ₸",
+    image: "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+  },
+  {
+    category: "Ballroom",
+    title: "Winter Ballroom Cup",
+    date: "January 16, 2027",
+    location: "Congress Hall, Ovsyanikova St 10, Astana, Kazakhstan",
+    city: "Astana",
+    price: "13,000 ₸",
+    image: "https://images.unsplash.com/photo-1524594152303-9fd13543fe6e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+  }
+];
+
 const normalizeCity = (value: string) => {
   const normalized = String(value || '').trim().toLowerCase();
   const aliases: Record<string, string> = {
     'astana': 'astana',
     'nur-sultan': 'astana',
     'nursultan': 'astana',
+    'астана': 'astana',
+    'нур-султан': 'astana',
+    'нурсултан': 'astana',
     'almaty': 'almaty',
+    'алматы': 'almaty',
     'shymkent': 'shymkent',
+    'шымкент': 'shymkent',
+    'чимкент': 'shymkent',
     'karaganda': 'karaganda',
+    'караганда': 'karaganda',
+    'қарағанды': 'karaganda',
     'pavlodar': 'pavlodar',
+    'павлодар': 'pavlodar',
     'aktobe': 'aktobe',
+    'ақтөбе': 'aktobe',
+    'актобе': 'aktobe',
     'atyrau': 'atyrau',
+    'атырау': 'atyrau',
     'taraz': 'taraz',
+    'тараз': 'taraz',
   };
   return aliases[normalized] || normalized;
 };
@@ -65,7 +333,7 @@ export const FeaturedEvents = ({
   const [searchQuery, setSearchQuery] = useState('');
 
   const displayEvents = useMemo(
-    () => dedupeEvents(dynamicEvents.filter(hasDisplayImage)),
+    () => dedupeEvents([...dynamicEvents, ...events].filter(hasDisplayImage)),
     [dynamicEvents]
   );
   const normalizedSearchQuery = searchQuery.trim().toLowerCase();
