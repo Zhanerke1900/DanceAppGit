@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Calendar, Heart, MapPin } from 'lucide-react';
-import { ImageWithFallback } from '@/app/components/figma/ImageWithFallback';
 import { useI18n } from '../i18n';
 
 interface EventCardProps {
@@ -49,11 +48,16 @@ export const EventCard = ({
   const { t } = useI18n();
   const actionLabel = soldOut ? t('common.viewDetails') : t('common.buyTicket');
   const displayImage = String(image || '').trim();
+  const [imageFailed, setImageFailed] = useState(false);
   const displayTitle = stripCityFromTitle(title);
   const numericPrice = getNumericPrice(price);
   const priceLabel = numericPrice ? `от ${formatKzt(numericPrice)}` : price;
 
-  if (!displayImage) {
+  useEffect(() => {
+    setImageFailed(false);
+  }, [displayImage]);
+
+  if (!displayImage || imageFailed) {
     return null;
   }
 
@@ -74,10 +78,11 @@ export const EventCard = ({
       className="group flex h-full cursor-pointer flex-col bg-transparent outline-none"
     >
       <div className="relative aspect-[4/5] overflow-hidden rounded-xl bg-gray-200 shadow-[0_10px_24px_rgba(61,41,110,0.14)] transition-transform duration-300 group-hover:-translate-y-0.5 group-focus-visible:ring-2 group-focus-visible:ring-purple-500 dark:bg-gray-900">
-        <ImageWithFallback
+        <img
           src={displayImage}
           alt={displayTitle}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.035]"
+          onError={() => setImageFailed(true)}
         />
         <button
           type="button"
