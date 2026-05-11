@@ -1049,7 +1049,7 @@ function AppContent() {
               onBookTicket={handleBookTicket}
               favoriteIds={favorites.map(item => item.id)}
               onToggleFavorite={handleToggleFavorite}
-              dynamicEvents={publishedMarketplaceEvents.filter((event) => event.eventType === 'usual-event')}
+              dynamicEvents={publishedMarketplaceEvents.filter((event) => event.eventType !== 'special-program')}
               onExploreMore={handleExploreMoreEvents}
             />
             
@@ -1104,7 +1104,7 @@ function AppContent() {
             onBookTicket={handleBookTicket}
             favoriteIds={favorites.map(item => item.id)}
             onToggleFavorite={handleToggleFavorite}
-            dynamicEvents={publishedMarketplaceEvents.filter((event) => event.eventType === 'usual-event')}
+            dynamicEvents={publishedMarketplaceEvents.filter((event) => event.eventType !== 'special-program')}
             expandedMode
             showExploreMoreButton={false}
           />

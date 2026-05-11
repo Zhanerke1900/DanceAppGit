@@ -12,12 +12,6 @@ export function invalidatePublishedEventsCache() {
   publishedEventsCache = { expiresAt: 0, payload: null };
 }
 
-function isUpcomingOrCurrentEvent(dateString = "") {
-  const parsed = new Date(`${String(dateString).trim()}T23:59:59`);
-  if (Number.isNaN(parsed.getTime())) return true;
-  return parsed.getTime() >= Date.now();
-}
-
 function activeInventoryQuery(eventIds) {
   return {
     event: { $in: eventIds },
@@ -108,7 +102,7 @@ function publicPublishedEvent(event, availability = {}) {
 
 async function buildPublishedEventsPayload() {
   const allPublishedEvents = await Event.find({ status: "published" }).sort({ createdAt: -1 }).limit(400).lean();
-  const events = allPublishedEvents.filter((event) => isUpcomingOrCurrentEvent(event.date));
+  const events = allPublishedEvents;
   const { soldMap, activityUsageByEvent } = await loadAvailability(events);
 
   return {

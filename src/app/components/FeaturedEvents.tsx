@@ -334,6 +334,26 @@ const extraEvents = [
 const FALLBACK_EVENT_IMAGE =
   'https://images.unsplash.com/photo-1547153760-18fc86324498?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080';
 
+const normalizeCity = (value: string) => {
+  const normalized = String(value || '').trim().toLowerCase();
+  const aliases: Record<string, string> = {
+    'астана': 'astana',
+    'нур-султан': 'astana',
+    'нурсултан': 'astana',
+    'алматы': 'almaty',
+    'шымкент': 'shymkent',
+    'чимкент': 'shymkent',
+    'караганда': 'karaganda',
+    'қарағанды': 'karaganda',
+    'павлодар': 'pavlodar',
+    'ақтөбе': 'aktobe',
+    'актобе': 'aktobe',
+    'атырау': 'atyrau',
+    'тараз': 'taraz',
+  };
+  return aliases[normalized] || normalized;
+};
+
 export const FeaturedEvents = ({
   selectedCity,
   onCityChange,
@@ -355,7 +375,9 @@ export const FeaturedEvents = ({
   const normalizedSearchQuery = searchQuery.trim().toLowerCase();
 
   const filteredEvents = displayEvents.filter(event => {
-    const matchesCity = event.city === selectedCity;
+    const eventCity = normalizeCity(event.city);
+    const currentCity = normalizeCity(selectedCity);
+    const matchesCity = !eventCity || eventCity === currentCity;
     const matchesCategory = activeCategory === 'All' || event.category === activeCategory;
     const matchesSearch = !normalizedSearchQuery || [
       event.title,
@@ -369,7 +391,10 @@ export const FeaturedEvents = ({
   });
   const visibleEvents = expandedMode ? filteredEvents : filteredEvents.slice(0, 8);
 
-  const cityEventsCount = displayEvents.filter((event) => event.city === selectedCity).length;
+  const cityEventsCount = displayEvents.filter((event) => {
+    const eventCity = normalizeCity(event.city);
+    return !eventCity || eventCity === normalizeCity(selectedCity);
+  }).length;
   const shouldShowExploreMoreButton = showExploreMoreButton && !normalizedSearchQuery && cityEventsCount >= 9;
 
   const handleExploreOtherCities = () => {
