@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, Calendar, Heart, MapPin, Ticket } from 'lucide-react';
+import { Calendar, Heart, MapPin } from 'lucide-react';
 import { ImageWithFallback } from '@/app/components/figma/ImageWithFallback';
 import { useI18n } from '../i18n';
 
@@ -21,6 +21,21 @@ interface EventCardProps {
 const FALLBACK_EVENT_IMAGE =
   'https://images.unsplash.com/photo-1547153760-18fc86324498?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080';
 
+const formatKzt = (value: number) =>
+  new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 }).format(value) + ' ₸';
+
+const getNumericPrice = (value: string) => {
+  const parsed = Number(String(value || '').replace(/[^\d]/g, ''));
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+};
+
+const stripCityFromTitle = (value: string) => {
+  const cityNames = 'Almaty|Astana|Shymkent|Karaganda|Pavlodar|Aktobe|Oskemen|Ust-Kamenogorsk|Алматы|Астане|Астана|Шымкенте|Шымкент|Караганде|Караганда|Павлодаре|Павлодар|Актобе|Оскемен';
+  const withoutSuffix = String(value || '').replace(new RegExp(`\\s+(в|in)\\s+(${cityNames})\\b`, 'gi'), '');
+  const withoutPrefix = withoutSuffix.replace(new RegExp(`^(${cityNames})\\s+`, 'i'), '');
+  return withoutPrefix.trim() || value;
+};
+
 export const EventCard = ({
   image,
   category,
@@ -36,67 +51,76 @@ export const EventCard = ({
 }: EventCardProps) => {
   const { t } = useI18n();
   const actionLabel = soldOut ? t('common.viewDetails') : t('common.buyTicket');
-  const ActionIcon = soldOut ? ArrowRight : Ticket;
   const displayImage = String(image || '').trim() || FALLBACK_EVENT_IMAGE;
+  const displayTitle = stripCityFromTitle(title);
+  const numericPrice = getNumericPrice(price);
+  const priceLabel = numericPrice ? `от ${formatKzt(numericPrice)}` : price;
+  const cashbackLabel = numericPrice ? `от ${formatKzt(Math.max(Math.round(numericPrice * 0.88 / 50) * 50, 0))} с кешбэком` : `${price} с кешбэком`;
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onBuyTicket?.();
+    }
+  };
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-[18px] border border-[rgba(98,78,156,0.28)] bg-[linear-gradient(180deg,rgba(224,214,244,0.98)_0%,rgba(211,197,237,0.99)_100%)] shadow-[0_18px_40px_rgba(61,41,110,0.14),inset_0_1px_0_rgba(255,255,255,0.26)] transition-colors hover:border-purple-500/35 dark:border-white/5 dark:bg-gray-900 dark:bg-none dark:shadow-none">
-      <div className="relative h-40 overflow-hidden sm:h-56">
+    <article
+      role="button"
+      tabIndex={0}
+      aria-label={actionLabel}
+      onClick={onBuyTicket}
+      onKeyDown={handleKeyDown}
+      className="group flex h-full cursor-pointer flex-col bg-transparent outline-none"
+    >
+      <div className="relative aspect-[4/5] overflow-hidden rounded-xl bg-gray-200 shadow-[0_10px_24px_rgba(61,41,110,0.14)] transition-transform duration-300 group-hover:-translate-y-0.5 group-focus-visible:ring-2 group-focus-visible:ring-purple-500 dark:bg-gray-900">
         <ImageWithFallback
           src={displayImage}
-          alt={title}
-          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+          alt={displayTitle}
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.035]"
         />
-        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[rgba(36,26,58,0.54)] to-transparent dark:from-black/70" />
         <button
           type="button"
-          onClick={onToggleFavorite}
-          className={`absolute right-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-md border backdrop-blur-md transition-all sm:right-4 sm:top-4 sm:h-10 sm:w-10 ${
+          onClick={(event) => {
+            event.stopPropagation();
+            onToggleFavorite?.();
+          }}
+          className={`absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full border backdrop-blur-md transition-all sm:h-9 sm:w-9 ${
             isFavorite
               ? 'bg-rose-500/90 border-rose-300/70 text-white shadow-lg shadow-rose-900/30'
-              : 'border-[rgba(98,78,156,0.2)] bg-[rgba(238,231,248,0.92)] text-[#4b4366] hover:bg-rose-500/85 hover:border-rose-300/60 hover:text-white dark:border-white/10 dark:bg-black/55 dark:text-white/85'
+              : 'border-white/50 bg-white/80 text-[#4b4366] hover:bg-rose-500/85 hover:border-rose-300/60 hover:text-white dark:border-white/10 dark:bg-black/55 dark:text-white/85'
           }`}
           aria-label={isFavorite ? t('common.removeFromFavorites') : t('common.addToFavorites')}
         >
-          <Heart className={`h-3 w-3 sm:h-4 sm:w-4 ${isFavorite ? 'fill-current' : ''}`} />
+          <Heart className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
         </button>
       </div>
-      <div className="flex flex-1 flex-col p-3 sm:p-5">
-        <div className="mb-2 flex items-center gap-2 text-[9px] font-extrabold uppercase leading-none tracking-[0.2em] text-purple-600 sm:text-[11px] dark:text-purple-300">
-          <span className="h-px w-5 bg-purple-500/70" />
-          <span className="truncate">{category}</span>
-        </div>
-        <h3 className="font-display mb-2 min-h-[2.35rem] line-clamp-2 text-[16px] font-bold leading-[0.98] text-foreground transition-colors group-hover:text-purple-600 sm:mb-4 sm:min-h-[3.9rem] sm:text-[2rem] sm:leading-[0.98] dark:group-hover:text-purple-300">
-          {title}
+      <div className="flex flex-1 flex-col pt-3">
+        <h3 className="line-clamp-2 min-h-[2.55rem] text-[15px] font-extrabold leading-[1.18] text-foreground transition-colors group-hover:text-purple-700 sm:min-h-[3.35rem] sm:text-[20px] dark:text-white dark:group-hover:text-purple-300">
+          {displayTitle}
         </h3>
-        <div className="mb-3 space-y-1.5 sm:mb-5 sm:space-y-2">
-          <div className="flex items-center gap-1 text-[9px] leading-tight text-muted-foreground sm:gap-2 sm:text-sm">
-            <Calendar className="h-3 w-3 shrink-0 sm:h-4 sm:w-4" />
+        <div className="mt-3 space-y-2 text-muted-foreground">
+          <div className="flex items-center gap-2 text-[12px] leading-tight sm:text-[17px]">
+            <Calendar className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
             <span className="truncate">{date}</span>
           </div>
-          <div className="flex items-center gap-1 text-[9px] leading-tight text-muted-foreground sm:gap-2 sm:text-sm">
-            <MapPin className="h-3 w-3 shrink-0 sm:h-4 sm:w-4" />
+          <div className="flex items-center gap-2 text-[12px] leading-tight sm:text-[17px]">
+            <MapPin className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
             <span className="truncate">{location}</span>
           </div>
         </div>
-        <div className="mt-auto flex items-end justify-between gap-2 border-t border-border/70 pt-3 sm:items-center sm:gap-3 sm:pt-4">
-          <div className="min-w-0">
-            <span className="hidden text-sm text-muted-foreground sm:inline">{t('common.ticketsFrom')}</span>
-            <div className="truncate text-[12px] font-extrabold leading-tight text-purple-700 sm:text-xl sm:leading-normal dark:text-purple-300">{price}</div>
-            {soldOut ? (
-              <div className="mt-0.5 truncate text-[9px] font-semibold text-red-400 sm:mt-1 sm:text-sm">{t('common.soldOut')}</div>
-            ) : remainingTickets !== null && remainingTickets <= 15 ? (
-              <div className="mt-0.5 truncate text-[9px] font-medium text-emerald-500 sm:mt-1 sm:text-sm">{t('common.ticketsLeft', { count: remainingTickets })}</div>
-            ) : null}
-          </div>
-          <button 
-            onClick={onBuyTicket}
-            aria-label={actionLabel}
-            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[rgba(98,78,156,0.14)] bg-[linear-gradient(180deg,rgba(234,226,247,0.96)_0%,rgba(217,204,240,0.96)_100%)] text-foreground transition-colors hover:bg-purple-600 hover:bg-none hover:text-white sm:h-auto sm:w-auto sm:px-4 sm:py-2 sm:text-sm sm:font-bold dark:bg-gray-800 dark:bg-none dark:text-gray-300"
-          >
-            <ActionIcon className="h-3.5 w-3.5 sm:hidden" />
-            <span className="hidden sm:inline">{actionLabel}</span>
-          </button>
+        <div className="mt-3 flex flex-col items-start gap-1.5">
+          <span className="max-w-full truncate rounded-lg bg-emerald-100 px-2.5 py-1.5 text-[11px] font-extrabold leading-none text-cyan-700 sm:text-[15px] dark:bg-emerald-500/15 dark:text-emerald-200">
+            {cashbackLabel}
+          </span>
+          <span className="max-w-full truncate rounded-lg bg-gray-100 px-2.5 py-1.5 text-[11px] font-extrabold leading-none text-gray-900 sm:text-[15px] dark:bg-white/10 dark:text-white">
+            {priceLabel}
+          </span>
+          {soldOut ? (
+            <span className="text-[11px] font-semibold text-red-500 sm:text-sm">{t('common.soldOut')}</span>
+          ) : remainingTickets !== null && remainingTickets <= 15 ? (
+            <span className="text-[11px] font-semibold text-emerald-500 sm:text-sm">{t('common.ticketsLeft', { count: remainingTickets })}</span>
+          ) : null}
         </div>
       </div>
     </article>

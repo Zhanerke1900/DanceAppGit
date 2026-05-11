@@ -20,8 +20,80 @@ const categories = ['All', 'Hip Hop', 'Contemporary', 'Ballet', 'Latin', 'Ballro
 
 const events = [
   {
+    category: "Contemporary",
+    title: "Velvet Motion Night",
+    date: "February 14, 2027",
+    location: "Qazaqstan Concert Hall, Tauelsizdik Ave 10, Astana, Kazakhstan",
+    city: "Astana",
+    price: "16,000 в‚ё",
+    image: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+  },
+  {
+    category: "Hip Hop",
+    title: "Neon Floor Battle",
+    date: "March 06, 2027",
+    location: "Jastar Palace, Respublika Ave 34, Astana, Kazakhstan",
+    city: "Astana",
+    price: "7,500 в‚ё",
+    image: "https://images.unsplash.com/photo-1502519144081-acca18599776?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+  },
+  {
+    category: "Latin",
+    title: "Midnight Bachata Club",
+    date: "March 19, 2027",
+    location: "Skyline Club, Timiryazev St 42, Astana, Kazakhstan",
+    city: "Astana",
+    price: "6,000 в‚ё",
+    image: "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+  },
+  {
+    category: "Ballroom",
+    title: "Silk Road Vogue Ball",
+    date: "April 11, 2027",
+    location: "Congress Center, Kunaev St 4, Astana, Kazakhstan",
+    city: "Astana",
+    price: "18,500 в‚ё",
+    image: "https://images.unsplash.com/photo-1524594152303-9fd13543fe6e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+  },
+  {
     category: "Ballet",
-    title: "Almaty Grand Opera Night",
+    title: "Prima Lights Gala",
+    date: "April 25, 2027",
+    location: "Astana Opera, Dinmukhamed Kunayev St 1, Astana, Kazakhstan",
+    city: "Astana",
+    price: "22,000 в‚ё",
+    image: "https://images.unsplash.com/photo-1518834107812-67b0b7c58434?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+  },
+  {
+    category: "Festival",
+    title: "Pulse Weekend",
+    date: "May 02-03, 2027",
+    location: "EXPO Arena, Mangilik El Ave 53, Astana, Kazakhstan",
+    city: "Astana",
+    price: "14,000 в‚ё",
+    image: "https://images.unsplash.com/photo-1514525253361-bee8718a7439?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+  },
+  {
+    category: "Latin",
+    title: "Golden Hour Social",
+    date: "May 16, 2027",
+    location: "Downtown Hall, Lomonosov St 23, Astana, Kazakhstan",
+    city: "Astana",
+    price: "5,500 в‚ё",
+    image: "https://images.unsplash.com/photo-1545959570-a94084071b5d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+  },
+  {
+    category: "Hip Hop",
+    title: "Rhythm Orbit",
+    date: "June 01, 2027",
+    location: "Urban Stage, Mangilik El Ave 55, Astana, Kazakhstan",
+    city: "Astana",
+    price: "8,000 в‚ё",
+    image: "https://images.unsplash.com/photo-1544717305-2782549b5136?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+  },
+  {
+    category: "Ballet",
+    title: "Grand Opera Night",
     date: "April 02, 2026",
     location: "Abay Opera House, Abay Ave 71, Almaty, Kazakhstan",
     city: "Almaty",
@@ -30,7 +102,7 @@ const events = [
   },
   {
     category: "Contemporary",
-    title: "Shymkent Modern Dance Fest",
+    title: "Modern Dance Fest",
     date: "May 12, 2026",
     location: "Turkestan Hall, Tauke Khan Ave 30, Shymkent, Kazakhstan",
     city: "Shymkent",
@@ -39,7 +111,7 @@ const events = [
   },
   {
     category: "Festival",
-    title: "Karaganda Groove Days",
+    title: "Groove Days",
     date: "June 20-22, 2026",
     location: "Central Park, Tobyl Street 89, Karaganda, Kazakhstan",
     city: "Karaganda",
@@ -48,7 +120,7 @@ const events = [
   },
   {
     category: "Latin",
-    title: "Salsa Night in Aktobe",
+    title: "Salsa Night",
     date: "July 10, 2026",
     location: "Social Club, Baganaly St 45, Aktobe, Kazakhstan",
     city: "Aktobe",
@@ -57,7 +129,7 @@ const events = [
   },
   {
     category: "Ballroom",
-    title: "Astana Waltz Invitationals",
+    title: "Waltz Invitationals",
     date: "August 05, 2026",
     location: "Radisson Hotel, Yesenberlin Ave 14, Astana, Kazakhstan",
     city: "Astana",
@@ -66,7 +138,7 @@ const events = [
   },
   {
     category: "Traditional",
-    title: "Pavlodar Folk Heritage",
+    title: "Folk Heritage",
     date: "September 18, 2026",
     location: "City Palace, Kurmangazy St 20, Pavlodar, Kazakhstan",
     city: "Pavlodar",
@@ -75,7 +147,7 @@ const events = [
   },
   {
     category: "Hip Hop",
-    title: "Ust-Kamenogorsk Freestyle",
+    title: "Freestyle Lab",
     date: "October 24, 2026",
     location: "Sports Arena, Sportivnaya St 2, Oskemen, Kazakhstan",
     city: "Ust-Kamenogorsk",
@@ -84,7 +156,7 @@ const events = [
   },
   {
     category: "Ballroom",
-    title: "Almaty Ballroom Masters",
+    title: "Ballroom Masters",
     date: "November 12, 2026",
     location: "Rixos, Al-Farabi Ave 77, Almaty, Kazakhstan",
     city: "Almaty",
@@ -93,7 +165,7 @@ const events = [
   },
   {
     category: "Contemporary",
-    title: "Astana Contemporary Showcase",
+    title: "Contemporary Showcase",
     date: "April 28, 2026",
     location: "Kazakhstan National Opera, Abay Ave 78, Astana, Kazakhstan",
     city: "Astana",
@@ -102,7 +174,7 @@ const events = [
   },
   {
     category: "Latin",
-    title: "Almaty Latin Heat",
+    title: "Latin Heat",
     date: "April 18, 2026",
     location: "Dostyk Plaza, Dostyk Ave 106, Almaty, Kazakhstan",
     city: "Almaty",
@@ -111,7 +183,7 @@ const events = [
   },
   {
     category: "Ballet",
-    title: "Astana Ballet Spring Gala",
+    title: "Ballet Spring Gala",
     date: "May 05, 2026",
     location: "Kazakhstan Opera House, Abay Ave 14, Astana, Kazakhstan",
     city: "Astana",
@@ -120,7 +192,7 @@ const events = [
   },
   {
     category: "Hip Hop",
-    title: "Almaty B-Boy Battle",
+    title: "B-Boy Battle",
     date: "June 08, 2026",
     location: "Central Stadium, Tauke Khan Ave 85, Almaty, Kazakhstan",
     city: "Almaty",
@@ -129,7 +201,7 @@ const events = [
   },
   {
     category: "Contemporary",
-    title: "Almaty Modern Movement",
+    title: "Modern Movement",
     date: "August 22, 2026",
     location: "Almaty Theatre, Bogenbai Batyr St 47, Almaty, Kazakhstan",
     city: "Almaty",
@@ -138,7 +210,7 @@ const events = [
   },
   {
     category: "Ballroom",
-    title: "Shymkent Tango Night",
+    title: "Tango Night",
     date: "September 09, 2026",
     location: "Grand Hotel, Abaya Ave 40, Shymkent, Kazakhstan",
     city: "Shymkent",
@@ -147,7 +219,7 @@ const events = [
   },
   {
     category: "Hip Hop",
-    title: "Karaganda Urban Jam",
+    title: "Urban Jam",
     date: "October 10, 2026",
     location: "Youth Center, Zhetysu St 12, Karaganda, Kazakhstan",
     city: "Karaganda",
@@ -156,7 +228,7 @@ const events = [
   },
   {
     category: "Latin",
-    title: "Pavlodar Bachata Social",
+    title: "Bachata Social",
     date: "November 20, 2026",
     location: "Dance Studio, Kurmangazy St 34, Pavlodar, Kazakhstan",
     city: "Pavlodar",
@@ -166,7 +238,7 @@ const events = [
   ,
   {
     category: "Hip Hop",
-    title: "Astana Beat District",
+    title: "Beat District",
     date: "December 03, 2026",
     location: "Freedom Hall, Baitursynov St 26, Astana, Kazakhstan",
     city: "Astana",
@@ -175,7 +247,7 @@ const events = [
   },
   {
     category: "Contemporary",
-    title: "Astana Motion Theatre",
+    title: "Motion Theatre",
     date: "December 12, 2026",
     location: "Art Residence, Kabanbay Batyr Ave 18, Astana, Kazakhstan",
     city: "Astana",
@@ -193,7 +265,7 @@ const events = [
   },
   {
     category: "Ballroom",
-    title: "Astana Winter Ballroom Cup",
+    title: "Winter Ballroom Cup",
     date: "January 16, 2027",
     location: "Congress Hall, Ovsyanikova St 10, Astana, Kazakhstan",
     city: "Astana",
@@ -205,7 +277,7 @@ const events = [
 const extraEvents = [
   {
     category: "Hip Hop",
-    title: "Astana Cypher Sessions",
+    title: "Cypher Sessions",
     date: "September 03, 2026",
     location: "Creative Hub, Kabanbay Batyr Ave 37, Astana, Kazakhstan",
     city: "Astana",
@@ -214,7 +286,7 @@ const extraEvents = [
   },
   {
     category: "Contemporary",
-    title: "Movement Lab Astana",
+    title: "Movement Lab",
     date: "September 14, 2026",
     location: "Art Space, Saryarka Ave 12, Astana, Kazakhstan",
     city: "Astana",
@@ -232,7 +304,7 @@ const extraEvents = [
   },
   {
     category: "Latin",
-    title: "Astana Salsa Weekend",
+    title: "Salsa Weekend",
     date: "October 18, 2026",
     location: "Downtown Hall, Lomonosov St 23, Astana, Kazakhstan",
     city: "Astana",
@@ -366,7 +438,7 @@ export const FeaturedEvents = ({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="grid auto-rows-fr grid-cols-2 gap-x-2.5 gap-y-5 sm:gap-4 lg:grid-cols-3 lg:gap-8"
+                className="grid auto-rows-fr grid-cols-2 gap-x-3 gap-y-7 sm:gap-x-5 sm:gap-y-8 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
               >
                 {visibleEvents.map((event, index) => (
                   (() => {
