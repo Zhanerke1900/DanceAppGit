@@ -29,7 +29,7 @@ export const OrganizerLayout: React.FC<OrganizerLayoutProps> = ({
     <div className="min-h-screen bg-black pt-20">
       <div className="2xl:flex">
         {/* Sidebar Navigation */}
-        <aside className="sticky top-20 z-30 border-b border-purple-500/20 bg-gradient-to-r from-gray-900 via-gray-900 to-gray-950 shadow-lg shadow-purple-900/10 md:flex md:items-center md:gap-4 md:px-6 md:py-3 2xl:fixed 2xl:left-0 2xl:top-20 2xl:flex 2xl:h-[calc(100vh-5rem)] 2xl:w-60 2xl:flex-col 2xl:items-stretch 2xl:gap-0 2xl:overflow-y-auto 2xl:border-b-0 2xl:border-r 2xl:bg-gradient-to-b 2xl:px-0 2xl:py-0">
+        <aside className="sticky top-20 z-30 border-b border-purple-500/20 bg-gray-900/95 shadow-[0_12px_28px_rgba(61,41,110,0.14)] backdrop-blur-xl md:flex md:items-center md:gap-4 md:px-6 md:py-2 2xl:fixed 2xl:left-0 2xl:top-20 2xl:flex 2xl:h-[calc(100vh-5rem)] 2xl:w-60 2xl:flex-col 2xl:items-stretch 2xl:gap-0 2xl:overflow-y-auto 2xl:border-b-0 2xl:border-r 2xl:px-0 2xl:py-0">
           <div className="flex items-center gap-3 border-b border-purple-500/20 px-4 py-3 md:border-b-0 md:px-0 md:py-0 2xl:hidden">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-purple-600 to-purple-800 shadow-md shadow-purple-600/20">
               <LayoutDashboard className="h-5 w-5 text-white" />
@@ -61,30 +61,15 @@ export const OrganizerLayout: React.FC<OrganizerLayoutProps> = ({
                     if (item.id === 'create-event' && !canCreateEvent) return;
                     onNavigate(item.id);
                   }}
-                  className={`relative flex min-w-max items-center gap-2 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 group 2xl:w-full 2xl:gap-3 2xl:px-4 2xl:py-3 2xl:text-base ${
+                  className={`relative flex min-w-max items-center gap-2 border-b-2 px-1.5 py-3 text-sm transition-colors duration-200 2xl:w-full 2xl:border-b-0 2xl:border-l-2 2xl:gap-3 2xl:px-4 2xl:py-3 2xl:text-base ${
                     isActive
-                      ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-md shadow-purple-600/30'
-                      : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+                      ? 'border-purple-400 bg-white/5 text-white'
+                      : 'border-transparent text-gray-400 hover:border-purple-400/50 hover:bg-white/5 hover:text-white'
                   } ${item.id === 'create-event' && !canCreateEvent ? 'cursor-not-allowed opacity-40 hover:bg-transparent hover:text-gray-400' : ''}`}
                   disabled={item.id === 'create-event' && !canCreateEvent}
                 >
-                  {/* Active indicator glow */}
-                  {isActive && (
-                    <div className="absolute inset-0 bg-purple-600 rounded-lg blur-xl opacity-20 -z-10" />
-                  )}
-                  
-                  {/* Hover glow effect */}
-                  {!isActive && (
-                    <div className="absolute inset-0 bg-purple-600 rounded-lg blur-xl opacity-0 group-hover:opacity-10 transition-opacity duration-300 -z-10" />
-                  )}
-                  
-                  <Icon className={`w-5 h-5 ${isActive ? 'drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]' : ''}`} />
+                  <Icon className="h-5 w-5" />
                   <span className="whitespace-nowrap font-medium">{item.label}</span>
-                  
-                  {/* Active indicator line */}
-                  {isActive && (
-                    <div className="absolute left-0 top-1/2 hidden h-8 w-1 -translate-y-1/2 rounded-r-full bg-white shadow-lg shadow-white/50 2xl:block" />
-                  )}
                 </button>
               );
             })}

@@ -71,11 +71,12 @@ export const Hero = () => {
           transition={{ duration: 0.8 }}
           className="max-w-2xl"
         >
-          <span className={`inline-block py-1 px-4 rounded-full text-sm font-medium mb-6 ${
+          <span className={`mb-6 inline-flex items-center gap-3 text-sm font-extrabold uppercase tracking-[0.22em] ${
             themeMode === 'dark'
-              ? 'bg-purple-500/20 border border-purple-500/30 text-purple-100'
-              : 'bg-purple-500/12 border border-purple-500/20 text-purple-800'
+              ? 'text-purple-100'
+              : 'text-purple-800'
           }`}>
+            <span className="h-px w-10 bg-purple-500" />
             {t('hero.badge')}
           </span>
           <h1
@@ -96,7 +97,7 @@ export const Hero = () => {
           <div className="flex flex-col sm:flex-row gap-4">
             <button 
               onClick={scrollToEvents}
-              className="flex items-center justify-center gap-2 bg-purple-600 text-white px-8 py-4 rounded-xl font-semibold hover:bg-purple-700 transition-all hover:scale-105 shadow-lg shadow-purple-600/20"
+              className="flex items-center justify-center gap-2 rounded-md bg-purple-600 px-8 py-4 font-bold text-white shadow-[0_14px_30px_rgba(91,78,224,0.22)] transition-colors hover:bg-purple-700"
             >
               {t('hero.cta')} <ArrowRight className="w-5 h-5" />
             </button>

@@ -520,8 +520,6 @@ export const SpecialPrograms = ({
 
   return (
     <section className="relative overflow-hidden border-t border-border py-24 bg-[linear-gradient(180deg,rgba(228,220,243,0.72)_0%,rgba(221,211,239,0.94)_100%)] dark:border-white/5 dark:bg-black dark:[background-image:none]">
-      <div className="absolute top-0 right-0 h-96 w-96 rounded-full bg-purple-600/8 blur-[120px] -translate-y-1/2 translate-x-1/2 dark:bg-purple-600/5" />
-      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-16 gap-8">
           <div className="space-y-4">
@@ -537,25 +535,18 @@ export const SpecialPrograms = ({
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
             {programCategories.map((category) => (
               <button
                 key={category}
                 onClick={() => setActiveCategory(category)}
-                className={`px-6 py-3 rounded-full text-sm font-bold transition-all cursor-pointer relative overflow-hidden ${
+                className={`relative cursor-pointer border-b-2 px-0 py-2 text-sm font-bold transition-colors ${
                   activeCategory === category 
-                    ? 'text-white' 
-                    : 'surface-soft text-foreground hover:bg-[rgba(165,141,212,0.95)] hover:text-foreground dark:bg-gray-900/50 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300 dark:border dark:border-white/5'
+                    ? 'border-purple-500 text-purple-600 dark:text-purple-300'
+                    : 'border-transparent text-muted-foreground hover:border-purple-400/50 hover:text-foreground dark:text-gray-500 dark:hover:text-gray-300'
                 }`}
               >
-                {activeCategory === category && (
-                  <motion.div 
-                    layoutId="activeProgramPill"
-                    className="absolute inset-0 bg-gradient-to-r from-purple-600 to-fuchsia-600"
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                  />
-                )}
-                <div className="relative z-10 flex items-center gap-2">
+                <div className="flex items-center gap-2">
                   {getIcon(category)}
                   {categoryLabels[category] || category}
                 </div>
@@ -574,7 +565,7 @@ export const SpecialPrograms = ({
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.4 }}
-                  className="group relative surface-card rounded-[28px] overflow-hidden transition-all duration-500 hover:border-purple-500/30 hover:shadow-[0_20px_40px_-15px_rgba(168,85,247,0.1)] sm:rounded-[32px] dark:bg-gray-900/40 dark:border-white/5"
+                  className="group relative surface-card overflow-hidden rounded-[18px] transition-colors duration-300 hover:border-purple-500/30 sm:rounded-[20px] dark:bg-gray-900/40 dark:border-white/5"
                 >
                   <div className="flex flex-col sm:flex-row h-full">
                     <div className="relative h-52 w-full overflow-hidden sm:h-auto sm:w-2/5">
@@ -634,7 +625,7 @@ export const SpecialPrograms = ({
                         </div>
                         <button 
                           onClick={() => onBookTicket(program)}
-                          className="p-4 bg-purple-600 hover:bg-purple-500 text-white rounded-2xl transition-all active:scale-95 shadow-lg shadow-purple-600/20 group/btn cursor-pointer"
+                          className="group/btn cursor-pointer rounded-lg bg-purple-600 p-4 text-white transition-colors hover:bg-purple-500 active:scale-95"
                         >
                           <ChevronRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
                         </button>

@@ -306,56 +306,50 @@ export const FeaturedEvents = ({
   };
 
   return (
-    <section id="events" className="bg-background py-16 sm:py-24">
+    <section id="events" className="bg-background py-14 sm:py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 flex flex-col justify-between gap-6 sm:mb-12 xl:flex-row xl:items-end xl:gap-8">
+        <div className="mb-8 grid gap-7 sm:mb-12 lg:grid-cols-[minmax(0,0.9fr)_minmax(360px,0.72fr)] lg:items-start lg:gap-12">
           <div>
-            <h2 className="text-3xl font-bold text-foreground mb-4">
+            <div className="mb-3 h-px w-16 bg-purple-500" />
+            <h2 className="font-display mb-4 text-4xl font-bold leading-[0.95] text-foreground sm:text-5xl">
               Events in <span className="text-purple-600">{selectedCity}</span>
             </h2>
-            <p className="text-muted-foreground max-w-xl">
+            <p className="max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
               Discover and book tickets for the hottest dance performances, workshops, and competitions in {selectedCity}.
             </p>
           </div>
-          <div className="w-full space-y-3 xl:max-w-2xl">
+          <div className="w-full space-y-4">
             <div className="relative">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="pointer-events-none absolute left-0 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 placeholder="Search events, venue, style..."
-                className="h-12 w-full rounded-2xl border border-border bg-card pl-11 pr-11 text-sm text-foreground outline-none shadow-[0_8px_24px_rgba(50,38,92,0.06)] transition-colors placeholder:text-muted-foreground focus:border-purple-500"
+                className="h-12 w-full rounded-none border-0 border-b border-border bg-transparent pl-7 pr-10 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-purple-500"
               />
               {searchQuery && (
                 <button
                   type="button"
                   onClick={() => setSearchQuery('')}
                   aria-label="Clear search"
-                  className="absolute right-3 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                  className="absolute right-0 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                 >
                   <X className="h-4 w-4" />
                 </button>
               )}
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-x-5 gap-y-2">
               {categories.map((category) => (
                 <button
                   key={category}
                   onClick={() => setActiveCategory(category)}
-                  className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all cursor-pointer relative overflow-hidden ${
+                  className={`relative cursor-pointer border-b-2 px-0 py-2 text-sm font-bold transition-colors ${
                     activeCategory === category
-                      ? 'text-primary-foreground'
-                      : 'bg-card text-muted-foreground border border-border shadow-[0_4px_12px_rgba(50,38,92,0.04)] hover:bg-accent hover:text-foreground'
+                      ? 'border-purple-600 text-purple-700 dark:text-purple-300'
+                      : 'border-transparent text-muted-foreground hover:border-purple-400/50 hover:text-foreground'
                   }`}
                 >
-                  {activeCategory === category && (
-                    <motion.div
-                      layoutId="activePill"
-                      className="absolute inset-0 bg-gradient-to-r from-purple-600 to-fuchsia-600"
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                    />
-                  )}
-                  <span className="relative z-10">{category}</span>
+                  {category}
                 </button>
               ))}
             </div>
@@ -371,7 +365,7 @@ export const FeaturedEvents = ({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="grid auto-rows-fr grid-cols-2 gap-x-2.5 gap-y-5 sm:gap-4 lg:grid-cols-3 lg:gap-8 xl:grid-cols-4"
+                className="grid auto-rows-fr grid-cols-2 gap-x-2.5 gap-y-5 sm:gap-4 lg:grid-cols-3 lg:gap-8"
               >
                 {visibleEvents.map((event, index) => (
                   (() => {
@@ -447,7 +441,7 @@ export const FeaturedEvents = ({
         </div>
 
         {shouldShowExploreMoreButton && <div className="mt-20 text-center">
-          <button onClick={onExploreMore ?? handleExploreOtherCities} className="inline-flex items-center gap-2 px-8 py-4 bg-card hover:bg-accent text-foreground rounded-2xl border border-border font-bold transition-all group">
+          <button onClick={onExploreMore ?? handleExploreOtherCities} className="group inline-flex items-center gap-2 border-b-2 border-purple-500 px-1 py-3 font-bold text-foreground transition-colors hover:text-purple-700">
             Explore All Events
             <span className="text-xl group-hover:translate-x-1 transition-transform">→</span>
           </button>

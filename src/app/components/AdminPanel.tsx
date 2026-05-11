@@ -366,7 +366,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   return (
     <div className="min-h-screen bg-black pt-20">
       <div className="2xl:flex">
-        <aside className="sticky top-20 z-30 border-b border-purple-500/20 bg-gradient-to-r from-gray-900 via-gray-900 to-gray-950 shadow-lg shadow-purple-900/10 md:flex md:items-center md:gap-4 md:px-6 md:py-3 2xl:fixed 2xl:left-0 2xl:top-20 2xl:block 2xl:h-[calc(100vh-5rem)] 2xl:w-64 2xl:overflow-y-auto 2xl:border-b-0 2xl:border-r 2xl:bg-gradient-to-b 2xl:px-0 2xl:pt-0 2xl:pb-8">
+        <aside className="sticky top-20 z-30 border-b border-purple-500/20 bg-gray-900/95 shadow-[0_12px_28px_rgba(61,41,110,0.14)] backdrop-blur-xl md:flex md:items-center md:gap-4 md:px-6 md:py-2 2xl:fixed 2xl:left-0 2xl:top-20 2xl:block 2xl:h-[calc(100vh-5rem)] 2xl:w-64 2xl:overflow-y-auto 2xl:border-b-0 2xl:border-r 2xl:px-0 2xl:pt-0 2xl:pb-8">
           <div className="flex items-center gap-3 border-b border-purple-500/20 px-4 py-3 md:border-b-0 md:px-0 md:py-0 2xl:hidden">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-purple-600 to-fuchsia-600 shadow-md shadow-purple-600/20">
               <Shield className="h-5 w-5 text-white" />
@@ -393,10 +393,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 <button
                   key={item.id}
                   onClick={() => onNavigate(item.id)}
-                  className={`flex min-w-max items-center gap-2 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 2xl:w-full 2xl:gap-3 2xl:px-4 2xl:py-3 2xl:text-base ${
+                  className={`flex min-w-max items-center gap-2 border-b-2 px-1.5 py-3 text-sm transition-colors duration-200 2xl:w-full 2xl:border-b-0 2xl:border-l-2 2xl:gap-3 2xl:px-4 2xl:py-3 2xl:text-base ${
                     isActive
-                      ? 'bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-md shadow-purple-600/30'
-                      : 'text-gray-400 hover:bg-gray-800/50 hover:text-white'
+                      ? 'border-purple-400 bg-white/5 text-white'
+                      : 'border-transparent text-gray-400 hover:border-purple-400/50 hover:bg-white/5 hover:text-white'
                   }`}
                 >
                   <Icon className="h-5 w-5" />
