@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { EventCard } from './EventCard';
 import { motion, AnimatePresence } from 'motion/react';
-import { MapPinOff, Search, X } from 'lucide-react';
+import { MapPinOff } from 'lucide-react';
 
 interface FeaturedEventsProps {
   selectedCity: string;
@@ -13,6 +13,7 @@ interface FeaturedEventsProps {
   expandedMode?: boolean;
   onExploreMore?: () => void;
   showExploreMoreButton?: boolean;
+  searchQuery?: string;
 }
 
 const categories = ['All', 'Hip Hop', 'Contemporary', 'Ballet', 'Latin', 'Ballroom'];
@@ -328,9 +329,9 @@ export const FeaturedEvents = ({
   expandedMode = false,
   onExploreMore,
   showExploreMoreButton = true,
+  searchQuery = '',
 }: FeaturedEventsProps) => {
   const [activeCategory, setActiveCategory] = useState('All');
-  const [searchQuery, setSearchQuery] = useState('');
 
   const displayEvents = useMemo(
     () => dedupeEvents([...dynamicEvents, ...events].filter(hasDisplayImage)),
@@ -348,7 +349,7 @@ export const FeaturedEvents = ({
     [currentCity, displayEvents]
   );
 
-  const baseEvents = expandedMode ? cityEvents : cityEvents.slice(0, 8);
+  const baseEvents = expandedMode || normalizedSearchQuery ? cityEvents : cityEvents.slice(0, 8);
 
   const visibleEvents = baseEvents.filter((event) => {
     const matchesCategory =
@@ -388,25 +389,6 @@ export const FeaturedEvents = ({
             </p>
           </div>
           <div className="w-full space-y-4">
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-0 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search events, venue, style..."
-                className="h-12 w-full rounded-none border-0 border-b border-border bg-transparent pl-7 pr-10 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-purple-500"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery('')}
-                  aria-label="Clear search"
-                  className="absolute right-0 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
             <div className="flex flex-wrap gap-x-5 gap-y-2">
               {categories.map((category) => (
                 <button

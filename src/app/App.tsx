@@ -36,6 +36,7 @@ import type { ReservationRecord, TicketRecord } from './api/tickets';
 import { VerifyEmailPage } from './components/VerifyEmailPage';
 import { ResetPasswordPage } from './components/ResetPasswordPage';
 import { I18nProvider, useI18n } from './i18n';
+import { Search, X } from 'lucide-react';
 
 type ViewState = 'home' | 'all-events' | 'all-special-programs' | 'ticket-selection' | 'purchase-success' | 'profile' | 'become-organizer' | 'organizer-dashboard' | 'validator-dashboard' | 'admin-panel' | 'verify-email'
   | 'reset-password';
@@ -63,8 +64,41 @@ type FavoriteItem = {
   eventData?: any;
 };
 
+interface MarketplaceSearchProps {
+  value: string;
+  onChange: (value: string) => void;
+  elevated?: boolean;
+}
+
+const MarketplaceSearch = ({ value, onChange, elevated = false }: MarketplaceSearchProps) => (
+  <section className={`${elevated ? 'pt-24' : 'pt-10'} border-b border-border bg-background px-4 pb-6 sm:px-6 lg:px-8`}>
+    <div className="mx-auto max-w-7xl">
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-0 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+        <input
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder="Search events, programs, venue, style..."
+          className="h-14 w-full rounded-none border-0 border-b border-border bg-transparent pl-8 pr-11 text-base font-semibold text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-purple-500"
+        />
+        {value && (
+          <button
+            type="button"
+            onClick={() => onChange('')}
+            aria-label="Clear search"
+            className="absolute right-0 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
+      </div>
+    </div>
+  </section>
+);
+
 function AppContent() {
   const [selectedCity, setSelectedCity] = useState("Astana");
+  const [marketplaceSearchQuery, setMarketplaceSearchQuery] = useState('');
   const [pendingHomeSection, setPendingHomeSection] = useState<'top' | 'events' | 'about' | 'organizers' | null>(null);
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [myTickets, setMyTickets] = useState<TicketRecord[]>([]);
@@ -1043,6 +1077,11 @@ function AppContent() {
               </div>
             </section>
 
+            <MarketplaceSearch
+              value={marketplaceSearchQuery}
+              onChange={setMarketplaceSearchQuery}
+            />
+
             <FeaturedEvents 
               selectedCity={selectedCity} 
               onCityChange={setSelectedCity}
@@ -1051,6 +1090,7 @@ function AppContent() {
               onToggleFavorite={handleToggleFavorite}
               dynamicEvents={publishedMarketplaceEvents.filter((event) => event.eventType !== 'special-program')}
               onExploreMore={handleExploreMoreEvents}
+              searchQuery={marketplaceSearchQuery}
             />
             
             <SpecialPrograms
@@ -1059,6 +1099,7 @@ function AppContent() {
               favoriteIds={favorites.map(item => item.id)}
               onToggleFavorite={handleToggleFavorite}
               onExploreMore={handleExploreMoreSpecialPrograms}
+              searchQuery={marketplaceSearchQuery}
               dynamicPrograms={publishedMarketplaceEvents
                 .filter((event) => event.eventType === 'special-program')
                 .map((event) => ({
@@ -1098,33 +1139,46 @@ function AppContent() {
               />
           </>
         ) : currentView === 'all-events' ? (
-          <FeaturedEvents
-            selectedCity={selectedCity}
-            onCityChange={setSelectedCity}
-            onBookTicket={handleBookTicket}
-            favoriteIds={favorites.map(item => item.id)}
-            onToggleFavorite={handleToggleFavorite}
-            dynamicEvents={publishedMarketplaceEvents.filter((event) => event.eventType !== 'special-program')}
-            expandedMode
-            showExploreMoreButton={false}
-          />
+          <>
+            <MarketplaceSearch
+              value={marketplaceSearchQuery}
+              onChange={setMarketplaceSearchQuery}
+              elevated
+            />
+            <FeaturedEvents
+              selectedCity={selectedCity}
+              onCityChange={setSelectedCity}
+              onBookTicket={handleBookTicket}
+              favoriteIds={favorites.map(item => item.id)}
+              onToggleFavorite={handleToggleFavorite}
+              dynamicEvents={publishedMarketplaceEvents.filter((event) => event.eventType !== 'special-program')}
+              expandedMode
+              showExploreMoreButton={false}
+              searchQuery={marketplaceSearchQuery}
+            />
+          </>
         ) : currentView === 'all-special-programs' ? (
           <>
-            <section className="bg-black px-4 pt-24 sm:px-6 lg:px-8">
+            <section className="bg-background px-4 pt-24 sm:px-6 lg:px-8">
               <div className="mx-auto flex max-w-7xl justify-start">
                 <button
                   onClick={() => handleNavigateHomeSection('top')}
-                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+                  className="rounded-xl border border-border bg-card px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
                 >
                   {t('common.home')}
                 </button>
               </div>
             </section>
+            <MarketplaceSearch
+              value={marketplaceSearchQuery}
+              onChange={setMarketplaceSearchQuery}
+            />
             <SpecialPrograms
               onBookTicket={handleBookTicket}
               selectedCity={selectedCity}
               favoriteIds={favorites.map(item => item.id)}
               onToggleFavorite={handleToggleFavorite}
+              searchQuery={marketplaceSearchQuery}
               dynamicPrograms={publishedMarketplaceEvents
                 .filter((event) => event.eventType === 'special-program')
                 .map((event) => ({

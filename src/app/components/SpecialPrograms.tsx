@@ -473,6 +473,7 @@ interface SpecialProgramsProps {
   expandedMode?: boolean;
   onExploreMore?: () => void;
   showExploreMoreButton?: boolean;
+  searchQuery?: string;
 }
 
 export const SpecialPrograms = ({
@@ -484,20 +485,44 @@ export const SpecialPrograms = ({
   expandedMode = false,
   onExploreMore,
   showExploreMoreButton = true,
+  searchQuery = '',
 }: SpecialProgramsProps) => {
   const [activeCategory, setActiveCategory] = useState('All');
   const { t } = useI18n();
+  const normalizedSearchQuery = searchQuery.trim().toLowerCase();
 
   const mergedPrograms = [...dynamicPrograms, ...programs].filter(hasDisplayImage);
 
   const filteredPrograms = mergedPrograms.filter(p => {
     const matchesCategory = activeCategory === 'All' || p.category === activeCategory;
     const matchesCity = p.city === selectedCity;
-    return matchesCategory && matchesCity;
+    const matchesSearch = !normalizedSearchQuery || [
+      p.title,
+      p.location,
+      p.city,
+      p.category,
+      p.time,
+      p.price,
+      p.description,
+      p.longDescription,
+      p.targetAudience,
+      ...(p.highlights || []),
+      ...(p.activities || []).flatMap((activity: Activity) => [
+        activity.name,
+        activity.type,
+        activity.time,
+        activity.description,
+        activity.instructor,
+        activity.location,
+        activity.organizer?.name,
+      ]),
+    ].some((value) => String(value || '').toLowerCase().includes(normalizedSearchQuery));
+
+    return matchesCategory && matchesCity && matchesSearch;
   });
-  const visiblePrograms = expandedMode ? filteredPrograms : filteredPrograms.slice(0, 6);
+  const visiblePrograms = expandedMode || normalizedSearchQuery ? filteredPrograms : filteredPrograms.slice(0, 6);
   const cityProgramsCount = mergedPrograms.filter((program) => program.city === selectedCity).length;
-  const shouldShowExploreMoreButton = showExploreMoreButton && cityProgramsCount > 6 && Boolean(onExploreMore);
+  const shouldShowExploreMoreButton = showExploreMoreButton && !normalizedSearchQuery && cityProgramsCount > 6 && Boolean(onExploreMore);
 
   const getIcon = (category: string) => {
     switch (category) {
