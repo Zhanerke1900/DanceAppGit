@@ -353,7 +353,7 @@ export const FeaturedEvents = ({
   );
 
   const searchScopeEvents = isSearching ? displayEvents : cityEvents;
-  const baseEvents = expandedMode || isSearching ? searchScopeEvents : searchScopeEvents.slice(0, 8);
+  const baseEvents = expandedMode || isSearching ? searchScopeEvents : searchScopeEvents.slice(0, 10);
 
   const visibleEvents = baseEvents.filter((event) => {
     const matchesCategory =
@@ -373,7 +373,7 @@ export const FeaturedEvents = ({
   });
 
   const shouldShowExploreMoreButton =
-    showExploreMoreButton && !isSearching && cityEvents.length >= 9;
+    showExploreMoreButton && !isSearching && cityEvents.length >= 11;
 
   const handleExploreOtherCities = () => {
     const hub = selectedCity === 'Almaty' ? 'Astana' : 'Almaty';

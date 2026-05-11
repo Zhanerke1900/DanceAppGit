@@ -400,6 +400,134 @@ html.light :is(.from-purple-600.to-purple-700, .from-purple-600.to-purple-800, .
     border: 1px solid color-mix(in srgb, var(--primary) 20%, transparent);
   }
 
+  .role-view {
+    background:
+      radial-gradient(circle at 8% 0%, rgba(124, 92, 190, 0.12), transparent 28%),
+      linear-gradient(180deg, #f7f4fb 0%, #eee9f7 100%);
+    color: #181421;
+  }
+
+  html.dark .role-view {
+    background: #090a10;
+    color: #f5f3ff;
+  }
+
+  .role-view .min-h-screen.bg-black {
+    background: transparent !important;
+  }
+
+  .role-view [class*="from-gray-900"],
+  .role-view [class*="via-gray-900"],
+  .role-view [class*="via-gray-950"],
+  .role-view [class*="to-gray-950"],
+  .role-view [class*="to-black"],
+  .role-view [class*="bg-gray-900"],
+  .role-view [class*="bg-gray-800"] {
+    background-image: none !important;
+    background-color: rgba(255, 255, 255, 0.88) !important;
+    border-color: rgba(79, 70, 115, 0.16) !important;
+    box-shadow: 0 12px 28px rgba(50, 43, 76, 0.08) !important;
+  }
+
+  html.dark .role-view [class*="from-gray-900"],
+  html.dark .role-view [class*="via-gray-900"],
+  html.dark .role-view [class*="via-gray-950"],
+  html.dark .role-view [class*="to-gray-950"],
+  html.dark .role-view [class*="to-black"],
+  html.dark .role-view [class*="bg-gray-900"],
+  html.dark .role-view [class*="bg-gray-800"] {
+    background-color: rgba(18, 20, 30, 0.92) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  .role-view main .text-white,
+  .role-view main .text-gray-300 {
+    color: #1f1a2f !important;
+  }
+
+  .role-view main .text-gray-400,
+  .role-view main .text-gray-500 {
+    color: #665d78 !important;
+  }
+
+  .role-view main .text-purple-100,
+  .role-view main .text-purple-200,
+  .role-view main .text-purple-300,
+  .role-view main .text-purple-400 {
+    color: #6d43cc !important;
+  }
+
+  html.dark .role-view main .text-white {
+    color: #f8f7ff !important;
+  }
+
+  html.dark .role-view main .text-gray-300 {
+    color: #d6d3df !important;
+  }
+
+  html.dark .role-view main .text-gray-400,
+  html.dark .role-view main .text-gray-500 {
+    color: #a9a3b8 !important;
+  }
+
+  .role-view aside .text-purple-100,
+  .role-view aside .text-purple-200,
+  .role-view aside .text-purple-300 {
+    color: #332b4e !important;
+  }
+
+  html.dark .role-view aside .text-purple-100,
+  html.dark .role-view aside .text-purple-200,
+  html.dark .role-view aside .text-purple-300 {
+    color: #ddd6fe !important;
+  }
+
+  .role-view main button[class~="bg-purple-600"],
+  .role-view main button[class~="bg-green-600"],
+  .role-view main button[class~="bg-red-600"],
+  .role-view main button[class~="bg-amber-600"] {
+    color: #fff !important;
+  }
+
+  .role-view .rounded-3xl {
+    border-radius: 1rem !important;
+  }
+
+  .role-view .rounded-2xl {
+    border-radius: 0.75rem !important;
+  }
+
+  .role-view .p-8 {
+    padding: 1.25rem !important;
+  }
+
+  .role-view .p-6,
+  .role-view .p-5 {
+    padding: 1rem !important;
+  }
+
+  .role-view .py-3 {
+    padding-top: 0.625rem !important;
+    padding-bottom: 0.625rem !important;
+  }
+
+  .role-view .px-6,
+  .role-view .px-5 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .role-view main .text-3xl {
+    font-size: 1.5rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .role-view main .text-2xl {
+    font-size: 1.25rem !important;
+    line-height: 1.25 !important;
+  }
+
   html.light .surface-card {
     background:
       linear-gradient(180deg, rgba(225, 210, 243, 0.99) 0%, rgba(208, 189, 234, 0.99) 100%);
