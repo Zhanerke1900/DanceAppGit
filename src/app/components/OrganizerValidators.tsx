@@ -134,15 +134,15 @@ export const OrganizerValidators: React.FC<OrganizerValidatorsProps> = ({
   const publishedEvents = events.filter((event) => event.status === 'published');
 
   return (
-    <div className="min-h-screen bg-black p-8">
+    <div className="min-h-screen bg-black p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl">
         <div className="mb-8">
-          <h1 className="mb-2 text-3xl font-bold text-white">{copy.title}</h1>
+          <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl">{copy.title}</h1>
           <p className="text-gray-400">{copy.subtitle}</p>
         </div>
 
         <div className="grid gap-8 xl:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-6">
+          <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6">
             <div className="mb-5 flex items-center gap-3">
               <div className="rounded-xl bg-purple-600/15 p-3">
                 <UserPlus className="h-5 w-5 text-purple-300" />
@@ -226,7 +226,7 @@ export const OrganizerValidators: React.FC<OrganizerValidatorsProps> = ({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-6">
+          <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6">
             <div className="mb-5 flex items-center gap-3">
               <div className="rounded-xl bg-purple-600/15 p-3">
                 <ShieldCheck className="h-5 w-5 text-purple-300" />

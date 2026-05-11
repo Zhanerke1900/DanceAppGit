@@ -128,10 +128,10 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
     (analytics?.specialPrograms.fullEventPassTickets || 0) + (analytics?.specialPrograms.activityTickets || 0);
 
   return (
-    <div className="min-h-screen bg-black p-8">
+    <div className="min-h-screen bg-black p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl space-y-8">
         <div>
-          <h1 className="mb-2 text-3xl font-bold text-white">{copy.title}</h1>
+          <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl">{copy.title}</h1>
           <p className="text-gray-400">{copy.subtitle}</p>
         </div>
 
@@ -149,7 +149,7 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
             return (
               <div
                 key={card.label}
-                className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-6"
+                className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6"
               >
                 <div className="mb-4 inline-flex rounded-xl bg-purple-600/15 p-3">
                   <Icon className="h-6 w-6 text-purple-400" />
@@ -162,7 +162,7 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
         </div>
 
         <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-          <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-6">
+          <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6">
             <div className="mb-5 flex items-center gap-3">
               <div className="rounded-xl bg-purple-600/15 p-2">
                 <Calendar className="h-5 w-5 text-purple-400" />
@@ -176,7 +176,7 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
             {analytics?.salesByDay.length ? (
               <div className="space-y-3">
                 {analytics.salesByDay.map((day) => (
-                  <div key={day.date} className="grid gap-3 rounded-xl bg-gray-800/40 p-4 text-sm md:grid-cols-[1fr_auto_auto_auto_auto]">
+                  <div key={day.date} className="grid grid-cols-1 gap-2 rounded-xl bg-gray-800/40 p-4 text-sm sm:grid-cols-[1fr_auto_auto_auto_auto] sm:gap-4">
                     <span className="font-medium text-white">{day.date}</span>
                     <span className="text-gray-300">{formatCurrency(day.revenue)}</span>
                     <span className="text-gray-400">{day.orders} {copy.orders}</span>
@@ -191,7 +191,7 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
           </div>
 
           <div className="space-y-6">
-            <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-6">
+            <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6">
               <div className="mb-5 flex items-center gap-3">
                 <div className="rounded-xl bg-purple-600/15 p-2">
                   <PieChart className="h-5 w-5 text-purple-400" />
@@ -223,7 +223,7 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
               </div>
             </div>
 
-            <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-6">
+            <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6">
               <div className="mb-5 flex items-center gap-3">
                 <div className="rounded-xl bg-purple-600/15 p-2">
                   <Ticket className="h-5 w-5 text-purple-400" />
@@ -265,12 +265,12 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
           </div>
         </div>
 
-        <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-6">
+        <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6">
           <h2 className="mb-5 text-xl font-bold text-white">{copy.topEvents}</h2>
           {analytics?.topEvents.length ? (
             <div className="space-y-3">
               {analytics.topEvents.map((event) => (
-                <div key={event.eventId} className="grid gap-3 rounded-xl bg-gray-800/40 p-4 text-sm md:grid-cols-[1fr_auto_auto_auto_auto]">
+                <div key={event.eventId} className="grid grid-cols-1 gap-2 rounded-xl bg-gray-800/40 p-4 text-sm sm:grid-cols-[1fr_auto_auto_auto_auto] sm:gap-4">
                   <span className="font-medium text-white">{event.title}</span>
                   <span className="text-gray-300">{formatCurrency(event.revenue)}</span>
                   <span className="text-gray-400">{event.orders} {copy.orders}</span>

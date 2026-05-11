@@ -501,7 +501,7 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
   };
 
   return (
-    <div className="min-h-screen bg-black p-6">
+    <div className="min-h-screen bg-black p-4 sm:p-6">
       <div className="max-w-5xl mx-auto">
         <div className="mb-6">
           <button
@@ -511,7 +511,7 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
             <ArrowLeft className="w-5 h-5" />
             <span>{tr('Back to Events', 'Назад к событиям', 'Іс-шараларға оралу')}</span>
           </button>
-          <h1 className="text-3xl font-bold text-white mb-2">{isEditMode ? tr('Edit Event', 'Редактировать событие', 'Іс-шараны өңдеу') : tr('Create New Event', 'Создать новое событие', 'Жаңа іс-шара құру')}</h1>
+          <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl">{isEditMode ? tr('Edit Event', 'Редактировать событие', 'Іс-шараны өңдеу') : tr('Create New Event', 'Создать новое событие', 'Жаңа іс-шара құру')}</h1>
           <p className="text-gray-400">
             {isEditMode
               ? isPublishedEdit
@@ -522,7 +522,7 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
         </div>
 
         <form className="space-y-5">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-purple-500/20 rounded-2xl p-6">
+          <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-purple-600/20 rounded-lg">
                 <Type className="w-5 h-5 text-purple-400" />
@@ -605,7 +605,7 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-purple-500/20 rounded-2xl p-6">
+          <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-purple-600/20 rounded-lg">
                 <Calendar className="w-5 h-5 text-purple-400" />
@@ -704,7 +704,7 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-purple-500/20 rounded-2xl p-6">
+          <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-purple-600/20 rounded-lg">
                 <FileText className="w-5 h-5 text-purple-400" />
@@ -798,7 +798,7 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-purple-500/20 rounded-2xl p-6">
+          <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-purple-600/20 rounded-lg">
                 <Clock className="w-5 h-5 text-purple-400" />
@@ -943,7 +943,7 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
             </button>
           </div>
 
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-purple-500/20 rounded-2xl p-6">
+          <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-purple-600/20 rounded-lg">
                 <Ticket className="w-5 h-5 text-purple-400" />
@@ -1039,7 +1039,7 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
             )}
           </div>
 
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-purple-500/20 rounded-2xl p-6">
+          <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-purple-600/20 rounded-lg">
                 <ImageIcon className="w-5 h-5 text-purple-400" />
@@ -1212,13 +1212,13 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
                 </button>
               </div>
 
-              <div className="grid grid-cols-7 gap-2 text-center text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold uppercase tracking-wide text-gray-500 sm:gap-2 sm:text-xs">
                 {localizedWeekdays.map((day) => (
                   <div key={day} className="py-2">{day}</div>
                 ))}
               </div>
 
-              <div className="mt-2 grid grid-cols-7 gap-2">
+              <div className="mt-2 grid grid-cols-7 gap-1 sm:gap-2">
                 {calendarDays.map((day) => {
                   const isSelected = formData.date === day.value;
                   return (

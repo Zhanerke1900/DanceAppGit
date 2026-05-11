@@ -27,11 +27,11 @@ export const OrganizerLayout: React.FC<OrganizerLayoutProps> = ({
 
   return (
     <div className="min-h-screen bg-black pt-20">
-      <div className="flex">
+      <div className="lg:flex">
         {/* Sidebar Navigation */}
-        <aside className="w-64 h-[calc(100vh-5rem)] bg-gradient-to-b from-gray-900 via-gray-900 to-black border-r border-purple-500/20 fixed left-0 top-20 flex flex-col shadow-2xl shadow-purple-900/10 overflow-y-auto">
+        <aside className="sticky top-20 z-30 border-b border-purple-500/20 bg-gradient-to-b from-gray-900 via-gray-900 to-black shadow-2xl shadow-purple-900/10 lg:fixed lg:left-0 lg:top-20 lg:flex lg:h-[calc(100vh-5rem)] lg:w-64 lg:flex-col lg:overflow-y-auto lg:border-b-0 lg:border-r">
           {/* Logo/Brand */}
-          <div className="p-6 border-b border-purple-500/20">
+          <div className="hidden p-6 border-b border-purple-500/20 lg:block">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-purple-800 rounded-lg flex items-center justify-center shadow-lg shadow-purple-600/30">
                 <LayoutDashboard className="w-6 h-6 text-white" />
@@ -43,7 +43,7 @@ export const OrganizerLayout: React.FC<OrganizerLayoutProps> = ({
           </div>
 
           {/* Navigation Menu */}
-          <nav className="flex-1 p-4 space-y-2">
+          <nav className="flex gap-2 overflow-x-auto p-3 lg:flex-1 lg:flex-col lg:space-y-2 lg:overflow-visible lg:p-4">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -55,7 +55,7 @@ export const OrganizerLayout: React.FC<OrganizerLayoutProps> = ({
                     if (item.id === 'create-event' && !canCreateEvent) return;
                     onNavigate(item.id);
                   }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 relative group ${
+                  className={`relative flex min-w-max items-center gap-2 rounded-xl px-3 py-2.5 text-sm transition-all duration-300 group lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:text-base ${
                     isActive
                       ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg shadow-purple-600/50'
                       : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
@@ -73,11 +73,11 @@ export const OrganizerLayout: React.FC<OrganizerLayoutProps> = ({
                   )}
                   
                   <Icon className={`w-5 h-5 ${isActive ? 'drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]' : ''}`} />
-                  <span className="font-medium">{item.label}</span>
+                  <span className="whitespace-nowrap font-medium">{item.label}</span>
                   
                   {/* Active indicator line */}
                   {isActive && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white rounded-r-full shadow-lg shadow-white/50" />
+                    <div className="absolute left-0 top-1/2 hidden h-8 w-1 -translate-y-1/2 rounded-r-full bg-white shadow-lg shadow-white/50 lg:block" />
                   )}
                 </button>
               );
@@ -87,7 +87,7 @@ export const OrganizerLayout: React.FC<OrganizerLayoutProps> = ({
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 ml-64 pb-16">
+        <main className="min-w-0 flex-1 pb-16 lg:ml-64">
           <div className="min-h-screen bg-black">
             {children}
           </div>

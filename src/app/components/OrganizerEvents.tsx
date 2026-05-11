@@ -212,17 +212,17 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
   ];
 
   return (
-    <div className="min-h-screen bg-black p-8">
+    <div className="min-h-screen bg-black p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-8 flex items-center justify-between gap-4">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="mb-2 text-3xl font-bold text-white">{copy.title}</h1>
+            <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl">{copy.title}</h1>
             <p className="text-gray-400">{copy.subtitle}</p>
           </div>
           <button
             onClick={onCreateEvent}
             disabled={!canCreateEvent}
-            className="flex items-center gap-2 rounded-xl bg-purple-600 px-6 py-3 font-semibold text-white transition-all duration-300 hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-400"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-purple-600 px-6 py-3 font-semibold text-white transition-all duration-300 hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-400 sm:w-auto"
           >
             <Plus className="h-5 w-5" />
             {copy.createEvent}
@@ -253,7 +253,7 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
                 className="group rounded-xl border border-gray-700/50 bg-gray-800/30 p-4 transition-all duration-300 hover:border-purple-500/30"
               >
                 <div className="flex flex-col gap-4 xl:flex-row">
-                  <div className="relative h-32 w-full flex-shrink-0 overflow-hidden rounded-lg xl:w-32">
+                  <div className="relative h-36 w-full flex-shrink-0 overflow-hidden rounded-lg sm:h-40 xl:h-32 xl:w-32">
                     {event.image ? (
                       <img
                         src={event.image}
@@ -319,11 +319,11 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-3 lg:justify-end">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center lg:justify-end">
                         <button
                           type="button"
                           onClick={() => onViewEvent(event)}
-                          className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10 sm:w-auto"
                         >
                           <Eye className="h-4 w-4" />
                           {copy.view}
@@ -332,7 +332,7 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
                           <button
                             type="button"
                             onClick={() => onEditEvent(event)}
-                            className="inline-flex items-center gap-2 rounded-xl border border-purple-500/30 bg-purple-600/10 px-4 py-2.5 text-sm font-semibold text-purple-200 transition-colors hover:bg-purple-600/20"
+                            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-purple-500/30 bg-purple-600/10 px-4 py-2.5 text-sm font-semibold text-purple-200 transition-colors hover:bg-purple-600/20 sm:w-auto"
                           >
                             <Pencil className="h-4 w-4" />
                             {copy.edit}
@@ -342,7 +342,7 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
                           <button
                             type="button"
                             onClick={() => onMoveToDraft(event)}
-                            className="inline-flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-sm font-semibold text-amber-200 transition-colors hover:bg-amber-500/20"
+                            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-sm font-semibold text-amber-200 transition-colors hover:bg-amber-500/20 sm:w-auto"
                           >
                             <Undo2 className="h-4 w-4" />
                             {copy.changeToDraft}
@@ -352,7 +352,7 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
                           <button
                             type="button"
                             onClick={() => onDeleteEvent(event)}
-                            className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm font-semibold text-red-200 transition-colors hover:bg-red-500/20"
+                            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm font-semibold text-red-200 transition-colors hover:bg-red-500/20 sm:w-auto"
                           >
                             <Trash2 className="h-4 w-4" />
                             {copy.delete}

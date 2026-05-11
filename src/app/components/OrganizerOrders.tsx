@@ -88,10 +88,10 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders }) => {
     },
   }[language];
   return (
-    <div className="min-h-screen bg-black p-8">
+    <div className="min-h-screen bg-black p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl space-y-8">
         <div>
-          <h1 className="mb-2 text-3xl font-bold text-white">{copy.title}</h1>
+          <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl">{copy.title}</h1>
           <p className="text-gray-400">{copy.subtitle}</p>
         </div>
 
@@ -108,7 +108,7 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders }) => {
             {orders.map((order) => (
               <div
                 key={order.id}
-                className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-6"
+                className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6"
               >
                 <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                   <div className="space-y-3">
@@ -137,7 +137,7 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders }) => {
                     </div>
                   </div>
 
-                  <div className="grid min-w-[260px] grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-1">
+                  <div className="grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-3 lg:w-[260px] lg:grid-cols-1">
                     <div className="rounded-xl bg-gray-800/40 p-4">
                       <p className="mb-1 text-xs uppercase tracking-wider text-gray-500">{copy.amount}</p>
                       <p className="text-lg font-bold text-white">{formatCurrency(order.total)}</p>

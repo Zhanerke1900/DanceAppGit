@@ -365,9 +365,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
   return (
     <div className="min-h-screen bg-black pt-20">
-      <div className="flex">
-        <aside className="fixed left-0 top-20 h-[calc(100vh-5rem)] w-72 overflow-y-auto border-r border-purple-500/20 bg-gradient-to-b from-gray-900 via-gray-900 to-black pb-8">
-          <div className="border-b border-purple-500/20 p-6">
+      <div className="lg:flex">
+        <aside className="sticky top-20 z-30 border-b border-purple-500/20 bg-gradient-to-b from-gray-900 via-gray-900 to-black shadow-2xl shadow-purple-900/10 lg:fixed lg:left-0 lg:top-20 lg:h-[calc(100vh-5rem)] lg:w-72 lg:overflow-y-auto lg:border-b-0 lg:border-r lg:pb-8">
+          <div className="hidden border-b border-purple-500/20 p-6 lg:block">
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-fuchsia-600 shadow-lg shadow-purple-600/30">
                 <Shield className="h-6 w-6 text-white" />
@@ -378,7 +378,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             </div>
           </div>
 
-          <nav className="space-y-2 p-4">
+          <nav className="flex gap-2 overflow-x-auto p-3 lg:block lg:space-y-2 lg:overflow-visible lg:p-4">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -386,25 +386,25 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 <button
                   key={item.id}
                   onClick={() => onNavigate(item.id)}
-                  className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 transition-all ${
+                  className={`flex min-w-max items-center gap-2 rounded-xl px-3 py-2.5 text-sm transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:text-base ${
                     isActive
                       ? 'bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-lg shadow-purple-600/30'
                       : 'text-gray-400 hover:bg-gray-800/50 hover:text-white'
                   }`}
                 >
                   <Icon className="h-5 w-5" />
-                  <span className="font-medium">{item.label}</span>
+                  <span className="whitespace-nowrap font-medium">{item.label}</span>
                 </button>
               );
             })}
           </nav>
         </aside>
 
-        <main className="ml-72 flex-1 p-8 pb-16">
+        <main className="min-w-0 flex-1 p-4 pb-16 sm:p-6 lg:ml-72 lg:p-8">
           {activeTab === 'dashboard' && (
             <div className="space-y-8">
               <div>
-                <h1 className="mb-2 text-3xl font-bold text-white">{copy.adminPanel}</h1>
+                <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl">{copy.adminPanel}</h1>
                 <p className="text-gray-400">{copy.overview}</p>
               </div>
 
@@ -412,7 +412,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 {statCards.map((card) => {
                   const Icon = card.icon;
                   return (
-                    <div key={card.label} className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-6">
+                    <div key={card.label} className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6">
                       <div className="mb-4 flex items-start justify-between">
                         <div className="rounded-xl bg-purple-600/15 p-3">
                           <Icon className="h-6 w-6 text-purple-400" />
@@ -427,7 +427,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               </div>
 
               <div className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
-                <div className="overflow-hidden rounded-3xl border border-purple-500/20 bg-gradient-to-br from-gray-900 via-gray-950 to-black p-6">
+                <div className="overflow-hidden rounded-3xl border border-purple-500/20 bg-gradient-to-br from-gray-900 via-gray-950 to-black p-5 sm:p-6">
                   <div className="mb-6 flex items-center justify-between">
                     <div>
                       <p className="text-sm uppercase tracking-[0.3em] text-purple-300">{copy.growth}</p>
@@ -464,7 +464,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 </div>
 
                 <div className="space-y-6">
-                  <div className="rounded-3xl border border-purple-500/20 bg-gradient-to-br from-purple-900/30 via-gray-950 to-black p-6">
+                  <div className="rounded-3xl border border-purple-500/20 bg-gradient-to-br from-purple-900/30 via-gray-950 to-black p-5 sm:p-6">
                     <p className="text-sm uppercase tracking-[0.25em] text-purple-300">{copy.thisMonthTitle}</p>
                     <h3 className="mt-3 text-2xl font-bold text-white">{copy.freshActivity}</h3>
                     <div className="mt-6 space-y-4">
@@ -481,11 +481,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           {activeTab === 'requests' && (
             <div className="space-y-6">
               <div>
-                <h1 className="mb-2 text-3xl font-bold text-white">{copy.requests}</h1>
+                <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl">{copy.requests}</h1>
                 <p className="text-gray-400">{copy.requestsDesc}</p>
               </div>
 
-              <div className="inline-flex rounded-2xl border border-purple-500/20 bg-gray-900/70 p-1">
+              <div className="grid grid-cols-2 rounded-2xl border border-purple-500/20 bg-gray-900/70 p-1 sm:inline-flex">
                 <button onClick={() => setRequestView('pending')} className={`rounded-xl px-5 py-2 text-sm font-medium transition-colors ${requestView === 'pending' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:text-white'}`}>{copy.pending}</button>
                 <button onClick={() => setRequestView('archive')} className={`rounded-xl px-5 py-2 text-sm font-medium transition-colors ${requestView === 'archive' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:text-white'}`}>{copy.archive}</button>
               </div>
@@ -496,7 +496,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     {requestView === 'pending' ? copy.noPendingRequests : copy.archiveEmpty}
                   </div>
                 ) : displayedRequests.map((request) => (
-                  <div key={request.id} className="rounded-2xl border border-purple-500/20 bg-gray-900 p-6">
+                  <div key={request.id} className="rounded-2xl border border-purple-500/20 bg-gray-900 p-5 sm:p-6">
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                       <div>
                         <p className="text-lg font-semibold text-white">{request.fullName}</p>
@@ -520,10 +520,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       </div>
                     )}
 
-                    <div className="mt-5 flex flex-wrap gap-3">
-                      <button onClick={() => onApproveRequest(request.id)} className="flex items-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25"><CheckCircle2 className="h-4 w-4" />{copy.approve}</button>
+                    <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                      <button onClick={() => onApproveRequest(request.id)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25 sm:w-auto"><CheckCircle2 className="h-4 w-4" />{copy.approve}</button>
                       {request.organizerStatus !== 'rejected' && (
-                        <button onClick={() => onRejectRequest(request.id)} className="flex items-center gap-2 rounded-xl bg-red-600/15 px-4 py-2 text-red-300 transition-colors hover:bg-red-600/25"><XCircle className="h-4 w-4" />{copy.reject}</button>
+                        <button onClick={() => onRejectRequest(request.id)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600/15 px-4 py-2 text-red-300 transition-colors hover:bg-red-600/25 sm:w-auto"><XCircle className="h-4 w-4" />{copy.reject}</button>
                       )}
                     </div>
                   </div>
@@ -535,7 +535,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           {activeTab === 'users' && (
             <div className="space-y-6">
               <div>
-                <h1 className="mb-2 text-3xl font-bold text-white">{copy.userManagement}</h1>
+                <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl">{copy.userManagement}</h1>
                 <p className="text-gray-400">{copy.usersDesc}</p>
               </div>
 
@@ -560,7 +560,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                         <div>
                           <p className="font-semibold text-white">{item.fullName}</p>
-                          <p className="mt-1 flex items-center gap-2 text-gray-400"><Mail className="h-4 w-4" />{item.email}</p>
+                          <p className="mt-1 flex items-center gap-2 text-gray-400"><Mail className="h-4 w-4 shrink-0" /><span className="min-w-0 break-all">{item.email}</span></p>
                           <p className="mt-2 text-sm text-gray-500">{copy.createdAt}: {formatDateTime(item.createdAt)}</p>
                         </div>
                         <div className="flex flex-wrap items-center gap-2">
@@ -571,10 +571,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         </div>
                       </div>
 
-                      <div className="mt-4 flex flex-wrap gap-3">
+                      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                         <button
                           onClick={() => setSelectedUser(item)}
-                          className="flex items-center gap-2 rounded-xl bg-white/5 px-4 py-2 text-white transition-colors hover:bg-white/10"
+                          className="flex w-full items-center justify-center gap-2 rounded-xl bg-white/5 px-4 py-2 text-white transition-colors hover:bg-white/10 sm:w-auto"
                         >
                           <Eye className="h-4 w-4" />
                           {copy.view}
@@ -582,7 +582,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         {(item.role === 'organizer' || item.organizerStatus === 'approved') && item.organizerAccessStatus !== 'deactivated' && (
                           <button
                             onClick={() => onDeactivateOrganizer(item.id).then((data) => syncSelectedUser(data.user)).catch(() => {})}
-                            className="flex items-center gap-2 rounded-xl bg-amber-600/15 px-4 py-2 text-amber-300 transition-colors hover:bg-amber-600/25"
+                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-600/15 px-4 py-2 text-amber-300 transition-colors hover:bg-amber-600/25 sm:w-auto"
                           >
                             <RotateCcw className="h-4 w-4" />
                             {copy.deactivate}
@@ -591,7 +591,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         {(item.role === 'organizer' || item.organizerStatus === 'approved') && item.organizerAccessStatus === 'deactivated' && (
                           <button
                             onClick={() => onActivateOrganizer(item.id).then((data) => syncSelectedUser(data.user)).catch(() => {})}
-                            className="flex items-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25"
+                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25 sm:w-auto"
                           >
                             <RotateCcw className="h-4 w-4" />
                             {copy.activate}
@@ -600,7 +600,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         {item.accountStatus === 'blocked' ? (
                           <button
                             onClick={() => onUnblockUser(item.id).then((data) => syncSelectedUser(data.user)).catch(() => {})}
-                            className="flex items-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25"
+                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25 sm:w-auto"
                           >
                             <CheckCircle2 className="h-4 w-4" />
                             {copy.unblock}
@@ -611,7 +611,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                               setBlockTarget(item);
                               setBlockReason('Fraud');
                             }}
-                            className="flex items-center gap-2 rounded-xl bg-red-600/15 px-4 py-2 text-red-300 transition-colors hover:bg-red-600/25"
+                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600/15 px-4 py-2 text-red-300 transition-colors hover:bg-red-600/25 sm:w-auto"
                           >
                             <Ban className="h-4 w-4" />
                             {copy.block}
@@ -622,7 +622,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   ))}
                 </div>
 
-                <div className="sticky top-8 h-fit rounded-2xl border border-purple-500/20 bg-gray-900 p-6">
+                <div className="h-fit rounded-2xl border border-purple-500/20 bg-gray-900 p-5 lg:sticky lg:top-8 lg:p-6">
                   <h2 className="mb-4 text-xl font-bold text-white">{copy.userDetails}</h2>
                   {selectedUser ? (
                     <div className="space-y-4">
@@ -648,11 +648,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           {activeTab === 'moderation' && (
             <div className="space-y-6">
               <div>
-                <h1 className="mb-2 text-3xl font-bold text-white">{copy.eventModeration}</h1>
+                <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl">{copy.eventModeration}</h1>
                 <p className="text-gray-400">{copy.moderationDesc}</p>
               </div>
 
-              <div className="inline-flex rounded-2xl border border-purple-500/20 bg-gray-900/70 p-1">
+              <div className="grid grid-cols-2 rounded-2xl border border-purple-500/20 bg-gray-900/70 p-1 sm:inline-flex">
                 <button onClick={() => setModerationView('pending')} className={`rounded-xl px-5 py-2 text-sm font-medium transition-colors ${moderationView === 'pending' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:text-white'}`}>{copy.pending}</button>
                 <button onClick={() => setModerationView('archive')} className={`rounded-xl px-5 py-2 text-sm font-medium transition-colors ${moderationView === 'archive' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:text-white'}`}>{copy.archive}</button>
               </div>
@@ -674,11 +674,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         <span className="rounded-full border border-gray-700 bg-gray-800 px-3 py-1 text-sm text-gray-300">{displayStatus(event.status)}</span>
                       </div>
 
-                      <div className="mt-4 flex flex-wrap gap-3">
-                        <button onClick={() => onViewEvent(event)} className="flex items-center gap-2 rounded-xl bg-white/5 px-4 py-2 text-white transition-colors hover:bg-white/10"><Eye className="h-4 w-4" />{copy.viewDetails}</button>
-                        <button onClick={() => onApproveEvent(event.id)} className="flex items-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25"><CheckCircle2 className="h-4 w-4" />{copy.approve}</button>
+                      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                        <button onClick={() => onViewEvent(event)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-white/5 px-4 py-2 text-white transition-colors hover:bg-white/10 sm:w-auto"><Eye className="h-4 w-4" />{copy.viewDetails}</button>
+                        <button onClick={() => onApproveEvent(event.id)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25 sm:w-auto"><CheckCircle2 className="h-4 w-4" />{copy.approve}</button>
                         {moderationView !== 'archive' && (
-                          <button onClick={() => onRejectEvent(event.id)} className="flex items-center gap-2 rounded-xl bg-red-600/15 px-4 py-2 text-red-300 transition-colors hover:bg-red-600/25"><XCircle className="h-4 w-4" />{copy.reject}</button>
+                          <button onClick={() => onRejectEvent(event.id)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600/15 px-4 py-2 text-red-300 transition-colors hover:bg-red-600/25 sm:w-auto"><XCircle className="h-4 w-4" />{copy.reject}</button>
                         )}
                       </div>
                     </div>
@@ -692,7 +692,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
       {blockTarget && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 px-4">
-          <div className="w-full max-w-md rounded-3xl border border-red-500/20 bg-gradient-to-br from-gray-900 to-black p-6 shadow-2xl shadow-red-900/20">
+          <div className="w-full max-w-md rounded-3xl border border-red-500/20 bg-gradient-to-br from-gray-900 to-black p-5 shadow-2xl shadow-red-900/20 sm:p-6">
             <h3 className="text-2xl font-bold text-white">{copy.blockUser}</h3>
             <p className="mt-2 text-gray-400">{copy.blockReasonPrompt} <span className="text-white">{blockTarget.fullName}</span>.</p>
 

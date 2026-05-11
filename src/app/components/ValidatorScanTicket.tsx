@@ -285,7 +285,7 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
   const resultView = getResultView();
 
   return (
-    <div className="min-h-screen bg-black p-8">
+    <div className="min-h-screen bg-black p-4 sm:p-6 lg:p-8">
       <style>{`
         #${scannerElementId} {
           width: 100%;
@@ -315,24 +315,24 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
       `}</style>
       <div className="mx-auto max-w-6xl space-y-8">
         <div>
-          <h1 className="mb-2 text-3xl font-bold text-white">{copy.title}</h1>
+          <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl">{copy.title}</h1>
           <p className="text-gray-400">{copy.subtitle}</p>
         </div>
 
         <div className="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
           <div className="space-y-6">
-            <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-6">
-              <div className="mb-5 flex items-center justify-between gap-4">
+            <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6">
+              <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="text-xl font-bold text-white">{copy.cameraScanner}</h2>
                   <p className="text-sm text-gray-400">{copy.cameraDesc}</p>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex w-full gap-3 sm:w-auto">
                   {isCameraOpen ? (
                     <button
                       type="button"
                       onClick={() => stopCamera()}
-                      className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 font-medium text-red-300 transition-colors hover:bg-red-500/20"
+                      className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 font-medium text-red-300 transition-colors hover:bg-red-500/20 sm:w-auto"
                     >
                       <CameraOff className="h-4 w-4" />
                       {copy.stop}
@@ -342,7 +342,7 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
                       type="button"
                       onClick={() => startCamera()}
                       disabled={isCameraStarting || !selectedEvent?.id}
-                      className="flex items-center gap-2 rounded-xl bg-purple-600 px-4 py-3 font-medium text-white transition-colors hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-purple-600 px-4 py-3 font-medium text-white transition-colors hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                     >
                       <Camera className="h-4 w-4" />
                       {isCameraStarting ? copy.starting : copy.startScanner}
@@ -352,7 +352,7 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
               </div>
 
               <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
-                <div className="relative aspect-video bg-gray-950">
+                <div className="relative aspect-square bg-gray-950 sm:aspect-video">
                   <div id={scannerElementId} className={`h-full w-full ${isCameraOpen ? 'block' : 'hidden'}`} />
                   {!isCameraOpen && (
                     <div className="flex h-full flex-col items-center justify-center px-6 text-center">
@@ -378,7 +378,7 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
               )}
             </div>
 
-            <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-6">
+            <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6">
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
                   <label className="mb-2 block text-sm font-medium text-gray-300">{copy.assignedEvent}</label>
@@ -410,7 +410,7 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
                 <button
                   type="submit"
                   disabled={!selectedEvent?.id || !qrValue.trim() || isSubmitting}
-                  className="flex items-center gap-2 rounded-xl bg-purple-600 px-5 py-3 font-semibold text-white transition-all hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-purple-600 px-5 py-3 font-semibold text-white transition-all hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                 >
                   <QrCode className="h-4 w-4" />
                   {isSubmitting ? copy.checking : copy.validate}
@@ -420,7 +420,7 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
           </div>
 
           <div className="space-y-6">
-            <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-6">
+            <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6">
               <h2 className="mb-4 text-xl font-bold text-white">{copy.validationResult}</h2>
               {resultView ? (
                 <div className={`rounded-2xl border p-5 ${resultView.className}`}>
@@ -438,14 +438,14 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
               )}
             </div>
 
-            <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-6">
+            <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6">
               <h2 className="mb-4 text-xl font-bold text-white">{copy.recentScans}</h2>
               <div className="space-y-3">
                 {recentScans.length === 0 ? (
                   <p className="text-gray-400">{copy.noRecent}</p>
                 ) : recentScans.map((log) => (
                   <div key={log.id} className="rounded-xl bg-gray-800/40 p-4 text-sm">
-                    <div className="flex items-start justify-between gap-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div>
                         <p className="font-semibold text-white">{log.ticketCode || copy.ticketScan}</p>
                         {log.eventTitle && <p className="mt-1 text-gray-400">{log.eventTitle}</p>}

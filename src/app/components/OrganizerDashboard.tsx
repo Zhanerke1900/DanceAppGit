@@ -48,17 +48,17 @@ export const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
   ];
 
   return (
-    <div className="min-h-screen bg-black p-8">
+    <div className="min-h-screen bg-black p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-8 flex items-center justify-between gap-4">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="mb-2 text-3xl font-bold text-white">{language === 'ru' ? 'Панель' : language === 'kk' ? 'Басқару панелі' : 'Dashboard'}</h1>
+            <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl">{language === 'ru' ? 'Панель' : language === 'kk' ? 'Басқару панелі' : 'Dashboard'}</h1>
             <p className="text-gray-400">{language === 'ru' ? 'Следите за активностью событий и быстро переходите к созданию новых.' : language === 'kk' ? 'Іс-шара белсенділігін бақылап, жаңасын жылдам жасаңыз.' : 'Track your event activity and jump into event creation from one place.'}</p>
           </div>
           <button
             onClick={onCreateEvent}
             disabled={!canCreateEvent}
-            className="flex items-center gap-2 rounded-xl bg-purple-600 px-6 py-3 font-semibold text-white transition-all duration-300 hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-400"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-purple-600 px-6 py-3 font-semibold text-white transition-all duration-300 hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-400 sm:w-auto"
           >
             <Plus className="h-5 w-5" />
             {language === 'ru' ? 'Создать событие' : language === 'kk' ? 'Іс-шара құру' : 'Create Event'}
@@ -84,9 +84,9 @@ export const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
           })}
         </div>
 
-        <div className="rounded-3xl border border-purple-500/20 bg-gradient-to-br from-gray-900 via-gray-900 to-gray-950 p-8">
+        <div className="rounded-3xl border border-purple-500/20 bg-gradient-to-br from-gray-900 via-gray-900 to-gray-950 p-5 sm:p-8">
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-purple-300">{language === 'ru' ? 'Быстрый старт' : language === 'kk' ? 'Жылдам бастау' : 'Quick Start'}</p>
-          <h2 className="mt-3 text-3xl font-bold text-white">{language === 'ru' ? 'Готовы опубликовать следующее событие?' : language === 'kk' ? 'Келесі іс-шараны жариялауға дайынсыз ба?' : 'Ready to publish your next event?'}</h2>
+          <h2 className="mt-3 text-2xl font-bold text-white sm:text-3xl">{language === 'ru' ? 'Готовы опубликовать следующее событие?' : language === 'kk' ? 'Келесі іс-шараны жариялауға дайынсыз ба?' : 'Ready to publish your next event?'}</h2>
           <p className="mt-3 max-w-2xl text-gray-400">
             {language === 'ru' ? 'Используйте создание события, чтобы подготовить новое событие, сохранить его как черновик или отправить на модерацию. Списки событий и управление валидаторами находятся в отдельных вкладках.' : language === 'kk' ? 'Жаңа іс-шараны дайындап, черновик ретінде сақтап немесе модерацияға жіберу үшін құру ағынын пайдаланыңыз. Іс-шаралар мен валидаторлар бөлек бөлімдерде орналасқан.' : 'Use the create event flow to prepare a new event, save it as a draft, or send it for moderation. Your event lists and validator management now live in their own dedicated tabs for cleaner navigation.'}
           </p>
@@ -98,7 +98,7 @@ export const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
           <button
             onClick={onCreateEvent}
             disabled={!canCreateEvent}
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-purple-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-purple-500 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-400"
+            className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-purple-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-purple-500 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-400 sm:w-auto"
           >
             <Plus className="h-5 w-5" />
             {language === 'ru' ? 'Создать событие' : language === 'kk' ? 'Іс-шара құру' : 'Create Event'}

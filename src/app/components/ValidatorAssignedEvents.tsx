@@ -30,10 +30,10 @@ export const ValidatorAssignedEvents: React.FC<ValidatorAssignedEventsProps> = (
     },
   }[language];
   return (
-    <div className="min-h-screen bg-black p-8">
+    <div className="min-h-screen bg-black p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-6xl space-y-8">
         <div>
-          <h1 className="mb-2 text-3xl font-bold text-white">{copy.title}</h1>
+          <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl">{copy.title}</h1>
           <p className="text-gray-400">{copy.subtitle}</p>
         </div>
 
@@ -44,7 +44,7 @@ export const ValidatorAssignedEvents: React.FC<ValidatorAssignedEventsProps> = (
         ) : (
           <div className="grid gap-5 md:grid-cols-2">
             {events.map((event) => (
-              <div key={event.id} className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-6">
+              <div key={event.id} className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6">
                 <p className="mb-2 text-sm font-semibold uppercase tracking-[0.25em] text-purple-300">{event.category}</p>
                 <h2 className="text-2xl font-bold text-white">{event.title}</h2>
                 <div className="mt-4 space-y-2 text-sm text-gray-300">
@@ -59,7 +59,7 @@ export const ValidatorAssignedEvents: React.FC<ValidatorAssignedEventsProps> = (
                 </div>
                 <button
                   onClick={() => onStartScan(event)}
-                  className="mt-6 flex items-center gap-2 rounded-xl bg-purple-600 px-5 py-3 font-semibold text-white transition-all hover:bg-purple-700"
+                  className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-purple-600 px-5 py-3 font-semibold text-white transition-all hover:bg-purple-700 sm:w-auto"
                 >
                   <QrCode className="h-4 w-4" />
                   {copy.scan}

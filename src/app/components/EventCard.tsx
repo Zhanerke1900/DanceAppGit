@@ -66,7 +66,7 @@ export const EventCard = ({
             }
         }
     >
-      <div className="relative h-20 overflow-hidden sm:h-48">
+      <div className="relative h-28 overflow-hidden sm:h-48">
         <ImageWithFallback
           src={image}
           alt={title}
@@ -113,8 +113,8 @@ export const EventCard = ({
           <Heart className={`h-3 w-3 sm:h-4 sm:w-4 ${isFavorite ? 'fill-current' : ''}`} />
         </button>
       </div>
-      <div className="p-2 sm:p-6">
-        <h3 className={`mb-2 min-h-[2.2rem] line-clamp-2 text-[11px] font-bold leading-tight text-foreground transition-colors sm:mb-4 sm:min-h-0 sm:text-xl sm:leading-normal ${isDark ? 'group-hover:text-purple-400' : 'group-hover:text-purple-600'}`}>
+      <div className="p-2.5 sm:p-6">
+        <h3 className={`mb-2 min-h-[2.5rem] line-clamp-2 text-xs font-bold leading-tight text-foreground transition-colors sm:mb-4 sm:min-h-0 sm:text-xl sm:leading-normal ${isDark ? 'group-hover:text-purple-400' : 'group-hover:text-purple-600'}`}>
           {title}
         </h3>
         <div className="mb-2 space-y-1 sm:mb-6 sm:space-y-2">
@@ -130,7 +130,7 @@ export const EventCard = ({
         <div className="flex flex-col items-stretch gap-1 border-t border-border/70 pt-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:pt-4">
           <div className="min-w-0">
             <span className="hidden text-sm text-muted-foreground sm:inline">{t('common.ticketsFrom')}</span>
-            <div className={`truncate text-[11px] font-bold leading-tight sm:text-xl sm:leading-normal ${isDark ? 'text-purple-400' : 'text-purple-700'}`}>{price}</div>
+            <div className={`truncate text-xs font-bold leading-tight sm:text-xl sm:leading-normal ${isDark ? 'text-purple-400' : 'text-purple-700'}`}>{price}</div>
             {soldOut ? (
               <div className="mt-0.5 truncate text-[9px] font-semibold text-red-400 sm:mt-1 sm:text-sm">{t('common.soldOut')}</div>
             ) : remainingTickets !== null && remainingTickets <= 15 ? (
