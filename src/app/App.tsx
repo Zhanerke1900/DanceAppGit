@@ -1091,6 +1091,7 @@ function AppContent() {
               dynamicEvents={publishedMarketplaceEvents.filter((event) => event.eventType !== 'special-program')}
               onExploreMore={handleExploreMoreEvents}
               searchQuery={marketplaceSearchQuery}
+              hideWhenEmptyDuringSearch
             />
             
             <SpecialPrograms

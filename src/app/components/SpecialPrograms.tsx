@@ -474,6 +474,7 @@ interface SpecialProgramsProps {
   onExploreMore?: () => void;
   showExploreMoreButton?: boolean;
   searchQuery?: string;
+  hideWhenEmptyDuringSearch?: boolean;
 }
 
 export const SpecialPrograms = ({
@@ -486,6 +487,7 @@ export const SpecialPrograms = ({
   onExploreMore,
   showExploreMoreButton = true,
   searchQuery = '',
+  hideWhenEmptyDuringSearch = false,
 }: SpecialProgramsProps) => {
   const [activeCategory, setActiveCategory] = useState('All');
   const { t } = useI18n();
@@ -544,10 +546,14 @@ export const SpecialPrograms = ({
     Camps: t('specialPrograms.camps'),
   };
 
+  if (isSearching && hideWhenEmptyDuringSearch && visiblePrograms.length === 0) {
+    return null;
+  }
+
   return (
-    <section className="relative overflow-hidden border-t border-border py-24 bg-[linear-gradient(180deg,rgba(228,220,243,0.72)_0%,rgba(221,211,239,0.94)_100%)] dark:border-white/5 dark:bg-black dark:[background-image:none]">
+    <section className={`relative overflow-hidden border-t border-border bg-[linear-gradient(180deg,rgba(228,220,243,0.72)_0%,rgba(221,211,239,0.94)_100%)] dark:border-white/5 dark:bg-black dark:[background-image:none] ${isSearching ? 'py-8 sm:py-10' : 'py-24'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-16 gap-8">
+        <div className={`flex flex-col lg:flex-row lg:items-end justify-between gap-8 ${isSearching ? 'mb-8' : 'mb-16'}`}>
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <div className="w-10 h-[1px] bg-purple-500" />

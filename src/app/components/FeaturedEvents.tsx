@@ -14,6 +14,7 @@ interface FeaturedEventsProps {
   onExploreMore?: () => void;
   showExploreMoreButton?: boolean;
   searchQuery?: string;
+  hideWhenEmptyDuringSearch?: boolean;
 }
 
 const categories = ['All', 'Hip Hop', 'Contemporary', 'Ballet', 'Latin', 'Ballroom'];
@@ -330,6 +331,7 @@ export const FeaturedEvents = ({
   onExploreMore,
   showExploreMoreButton = true,
   searchQuery = '',
+  hideWhenEmptyDuringSearch = false,
 }: FeaturedEventsProps) => {
   const [activeCategory, setActiveCategory] = useState('All');
 
@@ -378,8 +380,12 @@ export const FeaturedEvents = ({
     onCityChange(hub);
   };
 
+  if (isSearching && hideWhenEmptyDuringSearch && visibleEvents.length === 0) {
+    return null;
+  }
+
   return (
-    <section id="events" className="bg-background py-14 sm:py-20">
+    <section id="events" className={`bg-background ${isSearching ? 'py-8 sm:py-10' : 'py-14 sm:py-20'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8 grid gap-7 sm:mb-12 lg:grid-cols-[minmax(0,0.9fr)_minmax(360px,0.72fr)] lg:items-start lg:gap-12">
           <div>
