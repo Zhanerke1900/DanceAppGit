@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { EventCard } from './EventCard';
 import { motion, AnimatePresence } from 'motion/react';
-import { MapPinOff } from 'lucide-react';
+import { MapPinOff, Search, X } from 'lucide-react';
 
 
 interface FeaturedEventsProps {
@@ -273,21 +273,31 @@ export const FeaturedEvents = ({
   showExploreMoreButton = true,
 }: FeaturedEventsProps) => {
   const [activeCategory, setActiveCategory] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const mergedEvents = expandedMode
     ? [...dynamicEvents, ...events, ...extraEvents]
     : [...dynamicEvents, ...events];
   const displayEvents = mergedEvents.filter(hasDisplayImage);
+  const normalizedSearchQuery = searchQuery.trim().toLowerCase();
 
   const filteredEvents = displayEvents.filter(event => {
     const matchesCity = event.city === selectedCity;
     const matchesCategory = activeCategory === 'All' || event.category === activeCategory;
-    return matchesCity && matchesCategory;
+    const matchesSearch = !normalizedSearchQuery || [
+      event.title,
+      event.location,
+      event.city,
+      event.category,
+      event.date,
+      event.price,
+    ].some((value) => String(value || '').toLowerCase().includes(normalizedSearchQuery));
+    return matchesCity && matchesCategory && matchesSearch;
   });
   const visibleEvents = expandedMode ? filteredEvents : filteredEvents.slice(0, 8);
 
   const cityEventsCount = displayEvents.filter((event) => event.city === selectedCity).length;
-  const shouldShowExploreMoreButton = showExploreMoreButton && cityEventsCount >= 9;
+  const shouldShowExploreMoreButton = showExploreMoreButton && !normalizedSearchQuery && cityEventsCount >= 9;
 
   const handleExploreOtherCities = () => {
     // If the style exists in other cities, switch to a hub that has most events
@@ -298,7 +308,7 @@ export const FeaturedEvents = ({
   return (
     <section id="events" className="bg-background py-16 sm:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 flex flex-col justify-between gap-6 sm:mb-12 lg:flex-row lg:items-end lg:gap-8">
+        <div className="mb-8 flex flex-col justify-between gap-6 sm:mb-12 xl:flex-row xl:items-end xl:gap-8">
           <div>
             <h2 className="text-3xl font-bold text-foreground mb-4">
               Events in <span className="text-purple-600">{selectedCity}</span>
@@ -307,27 +317,48 @@ export const FeaturedEvents = ({
               Discover and book tickets for the hottest dance performances, workshops, and competitions in {selectedCity}.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setActiveCategory(category)}
-                className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all cursor-pointer relative overflow-hidden ${
-                  activeCategory === category 
-                    ? 'text-primary-foreground' 
-                    : 'bg-card text-muted-foreground border border-border shadow-[0_4px_12px_rgba(50,38,92,0.04)] hover:bg-accent hover:text-foreground'
-                }`}
-              >
-                {activeCategory === category && (
-                  <motion.div 
-                    layoutId="activePill"
-                    className="absolute inset-0 bg-gradient-to-r from-purple-600 to-fuchsia-600"
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                  />
-                )}
-                <span className="relative z-10">{category}</span>
-              </button>
-            ))}
+          <div className="w-full space-y-3 xl:max-w-2xl">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Search events, venue, style..."
+                className="h-12 w-full rounded-2xl border border-border bg-card pl-11 pr-11 text-sm text-foreground outline-none shadow-[0_8px_24px_rgba(50,38,92,0.06)] transition-colors placeholder:text-muted-foreground focus:border-purple-500"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  aria-label="Clear search"
+                  className="absolute right-3 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => setActiveCategory(category)}
+                  className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all cursor-pointer relative overflow-hidden ${
+                    activeCategory === category
+                      ? 'text-primary-foreground'
+                      : 'bg-card text-muted-foreground border border-border shadow-[0_4px_12px_rgba(50,38,92,0.04)] hover:bg-accent hover:text-foreground'
+                  }`}
+                >
+                  {activeCategory === category && (
+                    <motion.div
+                      layoutId="activePill"
+                      className="absolute inset-0 bg-gradient-to-r from-purple-600 to-fuchsia-600"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
+                  <span className="relative z-10">{category}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -387,10 +418,14 @@ export const FeaturedEvents = ({
                   <MapPinOff className="w-12 h-12 text-purple-500" />
                 </div>
                 <h3 className="text-2xl font-bold text-foreground mb-3">
-                  No {activeCategory !== 'All' ? activeCategory : ''} events found in your city
+                  {searchQuery.trim()
+                    ? 'No events match your search'
+                    : `No ${activeCategory !== 'All' ? activeCategory : ''} events found in your city`}
                 </h3>
                 <p className="text-muted-foreground max-w-sm mb-10 leading-relaxed">
-                  No events found in {selectedCity} for this style yet. Don't worry, there's plenty of dance elsewhere in Kazakhstan!
+                  {searchQuery.trim()
+                    ? 'Try another title, venue, date, or dance style.'
+                    : `No events found in ${selectedCity} for this style yet. Don't worry, there's plenty of dance elsewhere in Kazakhstan!`}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button 
