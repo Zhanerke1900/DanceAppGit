@@ -1,5 +1,9 @@
 import mongoose from "mongoose";
 
+function hasEventImage(value) {
+  return Boolean(String(value || "").trim());
+}
+
 const scheduleItemSchema = new mongoose.Schema(
   {
     time: { type: String, default: "" },
@@ -77,5 +81,13 @@ const eventSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+eventSchema.pre("validate", function requirePosterForPublicEvents(next) {
+  const publicStatuses = ["pending", "pending-update-review", "published"];
+  if (publicStatuses.includes(this.status) && !hasEventImage(this.image)) {
+    this.invalidate("image", "Event poster is required before publishing.");
+  }
+  next();
+});
 
 export default mongoose.model("Event", eventSchema);
