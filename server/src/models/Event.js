@@ -38,6 +38,7 @@ const eventSchema = new mongoose.Schema(
     organizer: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
     submittedByEmail: { type: String, required: true, lowercase: true, index: true },
     submittedByName: { type: String, required: true },
+    seedKey: { type: String, default: null, index: true },
 
     title: { type: String, required: true },
     eventType: { type: String, enum: ["usual-event", "special-program"], required: true },

@@ -12,6 +12,7 @@ import ordersRoutes from "./routes/orders.routes.js";
 import paymentRoutes from "./routes/payment.routes.js";
 import ticketRoutes from "./routes/ticket.routes.js";
 import validatorRoutes from "./routes/validator.routes.js";
+import { seedMarketplaceEvents } from "./utils/seedMarketplaceEvents.js";
 
 dotenv.config();
 
@@ -59,8 +60,13 @@ const PORT = process.env.PORT || 4000;
 
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => {
+  .then(async () => {
     console.log("MongoDB connected");
+    try {
+      await seedMarketplaceEvents();
+    } catch (err) {
+      console.error("Marketplace seed error:", err.message);
+    }
     console.log(
       `Deploy source commit: ${process.env.RAILWAY_GIT_COMMIT_SHA || process.env.GIT_COMMIT_SHA || "local"}`
     );

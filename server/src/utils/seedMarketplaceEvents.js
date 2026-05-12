@@ -1,0 +1,445 @@
+import bcrypt from "bcryptjs";
+
+import Event from "../models/Event.js";
+import User from "../models/User.js";
+
+const SEED_ORGANIZER_EMAIL = "marketplace@dancetime.local";
+
+const shouldSeedMarketplaceEvents = () => {
+  const value = String(process.env.SEED_MARKETPLACE_EVENTS || "true").trim().toLowerCase();
+  return !["0", "false", "no", "off"].includes(value);
+};
+
+const toSlug = (value) =>
+  String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+const activity = (id, name, type, time, price, ticketLimit, extra = {}) => ({
+  id,
+  name,
+  type,
+  time,
+  description: extra.description || `${name} session with guided practice and community feedback.`,
+  instructor: extra.instructor || "",
+  price,
+  ticketLimit,
+  organizer: extra.organizer || { name: "DanceTime Events", role: "Host" },
+  location: extra.location || "Main Hall",
+});
+
+const usualEvents = [
+  {
+    title: "Velvet Motion Night",
+    category: "Contemporary",
+    date: "June 18, 2026",
+    time: "19:00",
+    city: "Astana",
+    venue: "Qazaqstan Concert Hall",
+    address: "Tauelsizdik Ave 10",
+    price: "16,000 KZT",
+    ticketLimit: 6,
+    image: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&q=80&w=1080",
+  },
+  {
+    title: "Neon Floor Battle",
+    category: "Hip Hop",
+    date: "June 26, 2026",
+    time: "20:00",
+    city: "Astana",
+    venue: "Jastar Palace",
+    address: "Respublika Ave 34",
+    price: "7,500 KZT",
+    ticketLimit: 5,
+    image: "https://images.unsplash.com/photo-1502519144081-acca18599776?auto=format&fit=crop&q=80&w=1080",
+  },
+  {
+    title: "Midnight Bachata Club",
+    category: "Latin",
+    date: "July 10, 2026",
+    time: "21:00",
+    city: "Astana",
+    venue: "Skyline Club",
+    address: "Timiryazev St 42",
+    price: "6,000 KZT",
+    ticketLimit: 42,
+    image: "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?auto=format&fit=crop&q=80&w=1080",
+  },
+  {
+    title: "Silk Road Vogue Ball",
+    category: "Ballroom",
+    date: "July 24, 2026",
+    time: "18:30",
+    city: "Astana",
+    venue: "Congress Center",
+    address: "Kunaev St 4",
+    price: "18,500 KZT",
+    ticketLimit: 8,
+    image: "https://images.unsplash.com/photo-1524594152303-9fd13543fe6e?auto=format&fit=crop&q=80&w=1080",
+  },
+  {
+    title: "Prima Lights Gala",
+    category: "Ballet",
+    date: "August 06, 2026",
+    time: "19:30",
+    city: "Astana",
+    venue: "Astana Opera",
+    address: "Dinmukhamed Kunayev St 1",
+    price: "22,000 KZT",
+    ticketLimit: 120,
+    image: "https://images.unsplash.com/photo-1518834107812-67b0b7c58434?auto=format&fit=crop&q=80&w=1080",
+  },
+  {
+    title: "Pulse Weekend",
+    category: "Hip Hop",
+    date: "August 21-22, 2026",
+    time: "17:00",
+    city: "Astana",
+    venue: "EXPO Arena",
+    address: "Mangilik El Ave 53",
+    price: "14,000 KZT",
+    ticketLimit: 64,
+    image: "https://images.unsplash.com/photo-1514525253361-bee8718a7439?auto=format&fit=crop&q=80&w=1080",
+  },
+  {
+    title: "Golden Hour Social",
+    category: "Latin",
+    date: "September 05, 2026",
+    time: "18:00",
+    city: "Astana",
+    venue: "Downtown Hall",
+    address: "Lomonosov St 23",
+    price: "5,500 KZT",
+    ticketLimit: 6,
+    image: "https://images.unsplash.com/photo-1545959570-a94084071b5d?auto=format&fit=crop&q=80&w=1080",
+  },
+  {
+    title: "Rhythm Orbit",
+    category: "Hip Hop",
+    date: "September 18, 2026",
+    time: "19:00",
+    city: "Astana",
+    venue: "Urban Stage",
+    address: "Mangilik El Ave 55",
+    price: "8,000 KZT",
+    ticketLimit: 74,
+    image: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&q=80&w=1080",
+  },
+  {
+    title: "Waltz Invitationals",
+    category: "Ballroom",
+    date: "October 03, 2026",
+    time: "18:00",
+    city: "Astana",
+    venue: "Radisson Hotel",
+    address: "Yesenberlin Ave 14",
+    price: "15,000 KZT",
+    ticketLimit: 11,
+    image: "https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?auto=format&fit=crop&q=80&w=1080",
+  },
+  {
+    title: "Contemporary Showcase",
+    category: "Contemporary",
+    date: "October 16, 2026",
+    time: "20:00",
+    city: "Astana",
+    venue: "Kazakhstan National Opera",
+    address: "Abay Ave 78",
+    price: "7,500 KZT",
+    ticketLimit: 55,
+    image: "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?auto=format&fit=crop&q=80&w=1080",
+  },
+];
+
+const specialPrograms = [
+  {
+    title: "Astana Digital Dance Week",
+    category: "Festivals",
+    date: "July 05-12, 2026",
+    time: "Full week",
+    city: "Astana",
+    venue: "Expo City",
+    address: "Mangilik El Ave 53",
+    price: "From 20,000 KZT",
+    ticketLimit: 6,
+    fullPassPrice: 20000,
+    fullPassDiscount: 10,
+    image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=1080",
+    highlights: ["VR dance experiences", "Motion capture workshops", "Global livestreams", "Digital battles"],
+    activities: [
+      activity("adw-1", "VR Performance Lab", "Masterclass", "14:00 - 17:00", 8000, 12, { location: "VR Lab" }),
+      activity("adw-2", "Digital Battle 1v1", "Battle", "18:00 - 20:00", 5000, 16, { location: "Main Arena" }),
+    ],
+  },
+  {
+    title: "Step Up: Varsity Edition",
+    category: "Competitions",
+    date: "August 08, 2026",
+    time: "10:00",
+    city: "Astana",
+    venue: "Congress Center",
+    address: "Kunaev St 4",
+    price: "5,000 KZT",
+    ticketLimit: 58,
+    image: "https://images.unsplash.com/photo-1547153760-18fc86324498?auto=format&fit=crop&q=80&w=1080",
+    highlights: ["University crews", "Scholarship prizes", "Industry judges", "Final showcase"],
+    activities: [
+      activity("varsity-1", "Varsity Prelims", "Contest", "10:00 - 13:00", 3000, 40, { location: "Hall A" }),
+      activity("varsity-2", "Main Stage Finals", "Contest", "18:00 - 21:00", 4000, 40, { location: "Main Stage" }),
+    ],
+  },
+  {
+    title: "Wild West Dance Camp",
+    category: "Camps",
+    date: "August 10-17, 2026",
+    time: "All day",
+    city: "Astana",
+    venue: "Borovoe Resort",
+    address: "Akmola Region",
+    price: "120,000 KZT",
+    ticketLimit: 5,
+    fullPassPrice: 120000,
+    image: "https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&q=80&w=1080",
+    highlights: ["12 instructors", "Accommodation included", "Nature retreat", "Evening sessions"],
+    activities: [
+      activity("camp-1", "Sunrise Warm-up", "Camp", "07:00 - 08:30", 3000, 20, { location: "Lakeside Platform" }),
+      activity("camp-2", "Battle Training", "Battle", "14:00 - 16:00", 5000, 20, { location: "Main Hall" }),
+      activity("camp-3", "Midnight Freestyle", "Camp", "22:00 - 00:00", 3000, 20, { location: "Campfire Circle" }),
+    ],
+  },
+  {
+    title: "Astana Rhythm Weekend",
+    category: "Festivals",
+    date: "September 12-14, 2026",
+    time: "18:00",
+    city: "Astana",
+    venue: "Astana Arena Expo Hall",
+    address: "Turan Ave 48",
+    price: "From 18,000 KZT",
+    ticketLimit: 82,
+    fullPassPrice: 18000,
+    fullPassDiscount: 8,
+    image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&q=80&w=1080",
+    highlights: ["Showcases", "Social nights", "Open dance labs", "Guest instructors"],
+    activities: [
+      activity("rhythm-1", "Capital Opening Showcase", "Contest", "18:30 - 20:30", 5000, 50, { location: "Main Festival Stage" }),
+      activity("rhythm-2", "Night Social Session", "Camp", "21:00 - 00:30", 4000, 50, { location: "Sky Hall" }),
+    ],
+  },
+  {
+    title: "Astana Crew Clash",
+    category: "Competitions",
+    date: "October 04, 2026",
+    time: "11:00",
+    city: "Astana",
+    venue: "Congress Center",
+    address: "Kunaev St 4",
+    price: "7,000 KZT",
+    ticketLimit: 9,
+    image: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&q=80&w=1080",
+    highlights: ["Crew-vs-crew", "Live critique", "Prize support", "Battle night"],
+    activities: [
+      activity("crew-1", "Qualification Round", "Contest", "11:00 - 14:00", 3500, 30, { location: "Hall A" }),
+      activity("crew-2", "Final Battle Night", "Battle", "18:00 - 21:00", 4500, 30, { location: "Main Stage" }),
+    ],
+  },
+  {
+    title: "Stage Presence Intensive",
+    category: "Masterclasses",
+    date: "October 18, 2026",
+    time: "12:00",
+    city: "Astana",
+    venue: "Astana Performance Lab",
+    address: "Kabanbay Batyr Ave 18",
+    price: "14,000 KZT",
+    ticketLimit: 35,
+    image: "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&q=80&w=1080",
+    highlights: ["Performance coaching", "Storytelling", "Confidence drills", "Mentor feedback"],
+    activities: [
+      activity("presence-1", "Presence and Projection", "Masterclass", "12:00 - 14:00", 8000, 18, { instructor: "Dana S.", location: "Studio Black" }),
+      activity("presence-2", "Performance Composition", "Masterclass", "15:00 - 17:00", 8000, 18, { instructor: "Dana S.", location: "Studio Black" }),
+    ],
+  },
+  {
+    title: "Bachata Flow Lab",
+    category: "Masterclasses",
+    date: "November 02, 2026",
+    time: "16:00",
+    city: "Astana",
+    venue: "Skyline Studio",
+    address: "Timiryazev St 42",
+    price: "11,000 KZT",
+    ticketLimit: 6,
+    image: "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?auto=format&fit=crop&q=80&w=1080",
+    highlights: ["Partnerwork", "Musicality", "Body movement", "Social practice"],
+    activities: [
+      activity("bachata-1", "Body Movement", "Masterclass", "16:00 - 17:30", 6000, 14, { instructor: "Mara V.", location: "Studio 2" }),
+      activity("bachata-2", "Partner Flow", "Masterclass", "18:00 - 19:30", 6000, 14, { instructor: "Mara V.", location: "Studio 2" }),
+    ],
+  },
+  {
+    title: "Breaking Power Workshop",
+    category: "Masterclasses",
+    date: "November 16, 2026",
+    time: "15:00",
+    city: "Astana",
+    venue: "Urban Stage",
+    address: "Mangilik El Ave 55",
+    price: "9,500 KZT",
+    ticketLimit: 44,
+    image: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&q=80&w=1080",
+    highlights: ["Power moves", "Battle stamina", "Individual feedback", "Safe technique"],
+    activities: [
+      activity("breaking-1", "Power Foundations", "Masterclass", "15:00 - 17:00", 7000, 22, { instructor: "Beka One", location: "Hall 3" }),
+      activity("breaking-2", "Battle Rounds", "Battle", "17:30 - 19:00", 4000, 22, { instructor: "Beka One", location: "Hall 3" }),
+    ],
+  },
+  {
+    title: "Winter Intensive: Astana",
+    category: "Camps",
+    date: "January 04-08, 2027",
+    time: "10:00",
+    city: "Astana",
+    venue: "Duman Entertainment Center",
+    address: "Korgalzhyn Hwy 2",
+    price: "45,000 KZT",
+    ticketLimit: 5,
+    fullPassPrice: 45000,
+    image: "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&q=80&w=1080",
+    highlights: ["Five-day intensive", "Four dance styles", "Final showcase", "Certificate"],
+    activities: [
+      activity("winter-1", "Urban Foundations", "Masterclass", "10:00 - 13:00", 10000, 25, { location: "Hall 1" }),
+      activity("winter-2", "Showcase Preparation", "Contest", "14:00 - 17:00", 10000, 25, { location: "Hall 1" }),
+    ],
+  },
+  {
+    title: "Open Format Festival Lab",
+    category: "Festivals",
+    date: "February 20-22, 2027",
+    time: "17:00",
+    city: "Astana",
+    venue: "Freedom Hall",
+    address: "Baitursynov St 26",
+    price: "From 16,000 KZT",
+    ticketLimit: 70,
+    fullPassPrice: 16000,
+    fullPassDiscount: 12,
+    image: "https://images.unsplash.com/photo-1522158637959-30385a09e0da?auto=format&fit=crop&q=80&w=1080",
+    highlights: ["Open format battles", "DJ sessions", "Showcase labs", "Community circles"],
+    activities: [
+      activity("open-lab-1", "Showcase Lab", "Contest", "17:00 - 19:00", 5000, 40, { location: "Black Box" }),
+      activity("open-lab-2", "Open Format Battle", "Battle", "20:00 - 22:30", 6000, 40, { location: "Main Floor" }),
+    ],
+  },
+];
+
+const buildEventRecord = (item, eventType) => {
+  const location = `${item.venue}, ${item.address}, ${item.city}, Kazakhstan`;
+  const isSpecialProgram = eventType === "special-program";
+
+  return {
+    seedKey: `marketplace-${eventType}-${toSlug(item.title)}`,
+    title: item.title,
+    eventType,
+    category: item.category,
+    date: item.date,
+    time: item.time,
+    city: item.city,
+    venue: item.venue,
+    address: item.address,
+    location,
+    description: item.description || `${item.title} brings dancers together for a polished DanceTime marketplace experience.`,
+    longDescription:
+      item.longDescription ||
+      `${item.title} is part of the curated DanceTime marketplace lineup, with professional production, clear ticketing, and a welcoming atmosphere for dancers and guests.`,
+    targetAudience: item.targetAudience || "Dancers, dance fans, students, and guests looking for a high-quality live dance experience.",
+    highlights: item.highlights || ["Curated program", "Professional venue", "Community atmosphere", "Limited tickets"],
+    ageRestriction: item.ageRestriction || "",
+    dressCode: item.dressCode || "",
+    image: item.image,
+    price: item.price,
+    ticketLimit: item.ticketLimit,
+    ticketPricing: {
+      generalAdmission: isSpecialProgram ? "" : item.price,
+      fullEventPass: isSpecialProgram && item.fullPassPrice ? `${item.fullPassPrice} KZT` : "",
+      fullEventPassDiscount: isSpecialProgram && item.fullPassDiscount ? `${item.fullPassDiscount}%` : "",
+    },
+    fullPassPrice: item.fullPassPrice || 0,
+    fullPassDiscount: item.fullPassDiscount || 0,
+    schedule: item.schedule || [],
+    activities: item.activities || [],
+    status: "published",
+  };
+};
+
+async function ensureSeedOrganizer() {
+  const existing = await User.findOne({ email: SEED_ORGANIZER_EMAIL });
+  if (existing) {
+    existing.fullName = existing.fullName || "DanceTime Marketplace";
+    existing.emailVerified = true;
+    existing.role = "organizer";
+    existing.isOrganizer = true;
+    existing.organizerStatus = "approved";
+    existing.organizerAccessStatus = "active";
+    await existing.save();
+    return existing;
+  }
+
+  const passwordHash = process.env.MARKETPLACE_SEED_PASSWORD
+    ? await bcrypt.hash(process.env.MARKETPLACE_SEED_PASSWORD, 10)
+    : await bcrypt.hash(`seed-${Date.now()}-${Math.random()}`, 10);
+
+  return User.create({
+    fullName: "DanceTime Marketplace",
+    email: SEED_ORGANIZER_EMAIL,
+    passwordHash,
+    emailVerified: true,
+    role: "organizer",
+    isOrganizer: true,
+    organizerStatus: "approved",
+    organizerAccessStatus: "active",
+    organizerApplication: {
+      organizationName: "DanceTime Marketplace",
+      description: "Seed organizer for curated public marketplace cards.",
+      contactEmail: SEED_ORGANIZER_EMAIL,
+      submittedAt: new Date(),
+    },
+  });
+}
+
+export async function seedMarketplaceEvents() {
+  if (!shouldSeedMarketplaceEvents()) {
+    console.log("Marketplace seed skipped by SEED_MARKETPLACE_EVENTS");
+    return;
+  }
+
+  const organizer = await ensureSeedOrganizer();
+  const records = [
+    ...usualEvents.map((item) => buildEventRecord(item, "usual-event")),
+    ...specialPrograms.map((item) => buildEventRecord(item, "special-program")),
+  ];
+
+  const result = await Event.bulkWrite(
+    records.map((record) => ({
+      updateOne: {
+        filter: { seedKey: record.seedKey },
+        update: {
+          $set: {
+            ...record,
+            organizer: organizer._id,
+            submittedByEmail: organizer.email,
+            submittedByName: organizer.fullName,
+          },
+        },
+        upsert: true,
+      },
+    })),
+    { ordered: false }
+  );
+
+  console.log(
+    `Marketplace seed ready: ${records.length} events (${result.upsertedCount || 0} inserted, ${result.modifiedCount || 0} updated)`
+  );
+}
