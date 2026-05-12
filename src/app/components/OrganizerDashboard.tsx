@@ -29,76 +29,79 @@ export const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
       value: String(events.length),
       change: language === 'ru' ? 'Все созданные события' : language === 'kk' ? 'Жасалған барлық іс-шаралар' : 'All created events',
       icon: Calendar,
-      iconClass: 'bg-purple-600/20 text-purple-400',
+      iconBg: 'bg-blue-50',
+      iconColor: 'text-blue-600',
+      borderColor: 'border-blue-100',
     },
     {
       title: language === 'ru' ? 'На проверке' : language === 'kk' ? 'Қаралуда' : 'Pending Review',
       value: String(pendingCount),
       change: language === 'ru' ? 'Ожидают решения администратора' : language === 'kk' ? 'Әкімші шешімін күтуде' : 'Waiting for admin decision',
       icon: Clock3,
-      iconClass: 'bg-amber-600/20 text-amber-400',
+      iconBg: 'bg-amber-50',
+      iconColor: 'text-amber-600',
+      borderColor: 'border-amber-100',
     },
     {
       title: language === 'ru' ? 'Опубликованные события' : language === 'kk' ? 'Жарияланған іс-шаралар' : 'Published Events',
       value: String(publishedCount),
       change: language === 'ru' ? `Черновиков: ${draftCount}` : language === 'kk' ? `Черновик саны: ${draftCount}` : `${draftCount} drafts saved`,
       icon: Sparkles,
-      iconClass: 'bg-emerald-600/20 text-emerald-400',
+      iconBg: 'bg-emerald-50',
+      iconColor: 'text-emerald-600',
+      borderColor: 'border-emerald-100',
     },
   ];
 
   return (
-    <div className="min-h-screen bg-black p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl">{language === 'ru' ? 'Панель' : language === 'kk' ? 'Басқару панелі' : 'Dashboard'}</h1>
-            <p className="text-gray-400">{language === 'ru' ? 'Следите за активностью событий и быстро переходите к созданию новых.' : language === 'kk' ? 'Іс-шара белсенділігін бақылап, жаңасын жылдам жасаңыз.' : 'Track your event activity and jump into event creation from one place.'}</p>
-          </div>
-          <button
-            onClick={onCreateEvent}
-            disabled={!canCreateEvent}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-purple-600 px-6 py-3 font-semibold text-white transition-all duration-300 hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-400 sm:w-auto"
-          >
-            <Plus className="h-5 w-5" />
-            {language === 'ru' ? 'Создать событие' : language === 'kk' ? 'Іс-шара құру' : 'Create Event'}
-          </button>
+    <div className="min-h-screen p-6 md:p-8" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Calibri", sans-serif' }}>
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{language === 'ru' ? 'Панель' : language === 'kk' ? 'Басқару панелі' : 'Dashboard'}</h1>
+          <p className="text-gray-600">{language === 'ru' ? 'Следите за активностью событий и быстро переходите к созданию новых.' : language === 'kk' ? 'Іс-шара белсенділігін бақылап, жаңасын жылдам жасаңыз.' : 'Track your event activity and jump into event creation from one place.'}</p>
         </div>
 
-        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {stats.map((stat) => {
             const Icon = stat.icon;
             return (
               <div
                 key={stat.title}
-                className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-6 transition-all duration-300 hover:border-purple-500/40"
+                className={`bg-white p-6 rounded-lg border ${stat.borderColor} shadow-sm hover:shadow-md transition-shadow`}
               >
-                <div className={`mb-4 inline-flex rounded-xl p-3 ${stat.iconClass}`}>
-                  <Icon className="h-6 w-6" />
+                <div className="flex items-start justify-between mb-4">
+                  <div className={`${stat.iconBg} p-3 rounded-lg`}>
+                    <Icon className={`h-6 w-6 ${stat.iconColor}`} />
+                  </div>
                 </div>
-                <p className="mb-1 text-sm text-gray-400">{stat.title}</p>
-                <p className="mb-2 text-3xl font-bold text-white">{stat.value}</p>
+                <p className="text-sm text-gray-600 mb-1">{stat.title}</p>
+                <p className="text-3xl font-bold text-gray-900 mb-3">{stat.value}</p>
                 <p className="text-sm text-gray-500">{stat.change}</p>
               </div>
             );
           })}
         </div>
 
-        <div className="rounded-3xl border border-purple-500/20 bg-gradient-to-br from-gray-900 via-gray-900 to-gray-950 p-5 sm:p-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-purple-300">{language === 'ru' ? 'Быстрый старт' : language === 'kk' ? 'Жылдам бастау' : 'Quick Start'}</p>
-          <h2 className="mt-3 text-2xl font-bold text-white sm:text-3xl">{language === 'ru' ? 'Готовы опубликовать следующее событие?' : language === 'kk' ? 'Келесі іс-шараны жариялауға дайынсыз ба?' : 'Ready to publish your next event?'}</h2>
-          <p className="mt-3 max-w-2xl text-gray-400">
+        {/* Quick Start CTA */}
+        <div className="bg-white rounded-lg border border-purple-100 p-8 shadow-sm">
+          <div className="mb-4">
+            <p className="text-xs font-semibold text-purple-600 uppercase tracking-wider">{language === 'ru' ? 'Быстрый старт' : language === 'kk' ? 'Жылдам бастау' : 'Quick Start'}</p>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">{language === 'ru' ? 'Готовы опубликовать следующее событие?' : language === 'kk' ? 'Келесі іс-шараны жариялауға дайынсыз ба?' : 'Ready to publish your next event?'}</h2>
+          <p className="text-gray-600 mb-6 max-w-2xl">
             {language === 'ru' ? 'Используйте создание события, чтобы подготовить новое событие, сохранить его как черновик или отправить на модерацию. Списки событий и управление валидаторами находятся в отдельных вкладках.' : language === 'kk' ? 'Жаңа іс-шараны дайындап, черновик ретінде сақтап немесе модерацияға жіберу үшін құру ағынын пайдаланыңыз. Іс-шаралар мен валидаторлар бөлек бөлімдерде орналасқан.' : 'Use the create event flow to prepare a new event, save it as a draft, or send it for moderation. Your event lists and validator management now live in their own dedicated tabs for cleaner navigation.'}
           </p>
           {!canCreateEvent && (
-            <p className="mt-3 max-w-2xl text-sm text-amber-300">
+            <p className="mb-6 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded px-4 py-3">
               {language === 'ru' ? 'Доступ организатора деактивирован. Создание новых событий и отправка на модерацию отключены.' : language === 'kk' ? 'Ұйымдастырушы рұқсаты өшірілген. Жаңа іс-шара құру және модерацияға жіберу бұғатталған.' : 'Organizer access is deactivated. Creating new events and sending new requests for moderation are disabled.'}
             </p>
           )}
           <button
             onClick={onCreateEvent}
             disabled={!canCreateEvent}
-            className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-purple-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-purple-500 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-400 sm:w-auto"
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-purple-500 text-white font-medium rounded-lg hover:bg-purple-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             <Plus className="h-5 w-5" />
             {language === 'ru' ? 'Создать событие' : language === 'kk' ? 'Іс-шара құру' : 'Create Event'}

@@ -134,22 +134,22 @@ export const OrganizerValidators: React.FC<OrganizerValidatorsProps> = ({
   const publishedEvents = events.filter((event) => event.status === 'published');
 
   return (
-    <div className="min-h-screen bg-black p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Calibri", sans-serif' }}>
       <div className="mx-auto max-w-7xl">
         <div className="mb-8">
-          <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl">{copy.title}</h1>
-          <p className="text-gray-400">{copy.subtitle}</p>
+          <h1 className="mb-2 text-3xl font-bold text-gray-900">{copy.title}</h1>
+          <p className="text-gray-600">{copy.subtitle}</p>
         </div>
 
         <div className="grid gap-8 xl:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6">
+          <div className="rounded-lg border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
             <div className="mb-5 flex items-center gap-3">
-              <div className="rounded-xl bg-purple-600/15 p-3">
-                <UserPlus className="h-5 w-5 text-purple-300" />
+              <div className="rounded-lg bg-blue-50 p-3">
+                <UserPlus className="h-5 w-5 text-blue-600" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-white">{copy.accounts}</h2>
-                <p className="text-sm text-gray-400">{copy.accountsDesc}</p>
+                <h2 className="text-lg font-bold text-gray-900">{copy.accounts}</h2>
+                <p className="text-sm text-gray-600">{copy.accountsDesc}</p>
               </div>
             </div>
 
@@ -160,7 +160,7 @@ export const OrganizerValidators: React.FC<OrganizerValidatorsProps> = ({
                 value={validatorForm.fullName}
                 onChange={(e) => setValidatorForm((prev) => ({ ...prev, fullName: e.target.value }))}
                 placeholder={copy.fullName}
-                className="w-full rounded-xl border border-gray-700 bg-gray-950 px-4 py-3 text-white outline-none focus:border-purple-500"
+                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
               />
               <input
                 autoComplete="off"
@@ -168,7 +168,7 @@ export const OrganizerValidators: React.FC<OrganizerValidatorsProps> = ({
                 value={validatorForm.email}
                 onChange={(e) => setValidatorForm((prev) => ({ ...prev, email: e.target.value }))}
                 placeholder={copy.email}
-                className="w-full rounded-xl border border-gray-700 bg-gray-950 px-4 py-3 text-white outline-none focus:border-purple-500"
+                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
               />
               <input
                 type="password"
@@ -177,15 +177,15 @@ export const OrganizerValidators: React.FC<OrganizerValidatorsProps> = ({
                 value={validatorForm.password}
                 onChange={(e) => setValidatorForm((prev) => ({ ...prev, password: e.target.value }))}
                 placeholder={copy.password}
-                className="w-full rounded-xl border border-gray-700 bg-gray-950 px-4 py-3 text-white outline-none focus:border-purple-500"
+                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
               />
               {validatorFormError && (
-                <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                   {validatorFormError}
                 </div>
               )}
               {validatorFormSuccess && (
-                <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
+                <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
                   {validatorFormSuccess}
                 </div>
               )}
@@ -203,7 +203,7 @@ export const OrganizerValidators: React.FC<OrganizerValidatorsProps> = ({
                       setValidatorFormError(error?.message || copy.failed);
                     });
                 }}
-                className="w-full rounded-xl bg-purple-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-purple-500"
+                className="w-full rounded-lg bg-purple-500 px-4 py-3 font-semibold text-white transition-colors hover:bg-purple-600"
               >
                 {copy.create}
               </button>
@@ -211,13 +211,13 @@ export const OrganizerValidators: React.FC<OrganizerValidatorsProps> = ({
 
             <div className="mt-6 space-y-3">
               {validators.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-gray-700 bg-gray-900/40 p-5 text-sm text-gray-400">
+                <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-5 text-sm text-gray-600">
                   {copy.none}
                 </div>
               ) : validators.map((validator) => (
-                <div key={validator.id} className="rounded-xl border border-gray-800 bg-gray-900/50 p-4">
-                  <p className="font-semibold text-white">{validator.fullName}</p>
-                  <p className="mt-1 text-sm text-gray-400">{validator.email}</p>
+                <div key={validator.id} className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                  <p className="font-semibold text-gray-900">{validator.fullName}</p>
+                  <p className="mt-1 text-sm text-gray-600">{validator.email}</p>
                   <p className="mt-2 text-xs text-gray-500">
                     {copy.assignedTo(validator.assignedEventIds?.length || 0)}
                   </p>
@@ -226,19 +226,19 @@ export const OrganizerValidators: React.FC<OrganizerValidatorsProps> = ({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6">
+          <div className="rounded-lg border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
             <div className="mb-5 flex items-center gap-3">
-              <div className="rounded-xl bg-purple-600/15 p-3">
-                <ShieldCheck className="h-5 w-5 text-purple-300" />
+              <div className="rounded-lg bg-emerald-50 p-3">
+                <ShieldCheck className="h-5 w-5 text-emerald-600" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-white">{copy.assignments}</h2>
-                <p className="text-sm text-gray-400">{copy.assignmentsDesc}</p>
+                <h2 className="text-lg font-bold text-gray-900">{copy.assignments}</h2>
+                <p className="text-sm text-gray-600">{copy.assignmentsDesc}</p>
               </div>
             </div>
 
             {publishedEvents.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-gray-700 bg-gray-900/40 p-5 text-sm text-gray-400">
+              <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-5 text-sm text-gray-600">
                 {copy.publishFirst}
               </div>
             ) : (
@@ -246,13 +246,19 @@ export const OrganizerValidators: React.FC<OrganizerValidatorsProps> = ({
                 {publishedEvents.map((event) => {
                   const assignedValidators = validators.filter((validator) => (validator.assignedEventIds || []).includes(event.id));
                   return (
-                    <div key={event.id} className="rounded-xl border border-gray-800 bg-gray-900/50 p-4">
+                    <div key={event.id} className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
                       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                        <div>
-                          <p className="font-semibold text-white">{event.title}</p>
-                          <p className="mt-1 text-sm text-gray-400">{formatDate(event.date, locale)} {copy.at} {event.time}</p>
+                        <div className="flex-1">
+                          <p className="font-semibold text-gray-900">{event.title}</p>
+                          <p className="mt-1 text-sm text-gray-600">{formatDate(event.date, locale)} {copy.at} {event.time}</p>
                         </div>
-                        <span className={`rounded-full border px-3 py-1 text-xs font-medium ${getStatusColor(event.status)}`}>
+                        <span className={`rounded-lg border px-3 py-1 text-xs font-medium whitespace-nowrap ${
+                          event.status === 'published' ? 'border-green-200 bg-green-50 text-green-700' :
+                          event.status === 'draft' ? 'border-gray-200 bg-gray-50 text-gray-700' :
+                          event.status === 'archived' ? 'border-red-200 bg-red-50 text-red-700' :
+                          event.status === 'pending' ? 'border-amber-200 bg-amber-50 text-amber-700' :
+                          'border-purple-200 bg-purple-50 text-purple-700'
+                        }`}>
                           {copy.status[event.status] || event.status}
                         </span>
                       </div>
@@ -264,7 +270,7 @@ export const OrganizerValidators: React.FC<OrganizerValidatorsProps> = ({
                           <button
                             key={validator.id}
                             onClick={() => onUnassignValidator?.(event.id, validator.id).catch(() => {})}
-                            className="rounded-full bg-gray-800 px-3 py-1 text-sm text-gray-200 transition-colors hover:bg-red-600/20 hover:text-red-300"
+                            className="rounded-lg bg-gray-100 px-3 py-1 text-sm text-gray-700 transition-colors hover:bg-red-100 hover:text-red-700"
                           >
                             {validator.fullName} {copy.removeSuffix}
                           </button>
@@ -275,7 +281,7 @@ export const OrganizerValidators: React.FC<OrganizerValidatorsProps> = ({
                         <select
                           value={assignSelections[event.id] || ''}
                           onChange={(e) => setAssignSelections((prev) => ({ ...prev, [event.id]: e.target.value }))}
-                          className="flex-1 rounded-xl border border-gray-700 bg-gray-950 px-4 py-3 text-white outline-none focus:border-purple-500"
+                          className="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
                         >
                           <option value="">{copy.select}</option>
                           {validators.map((validator) => (
@@ -292,7 +298,7 @@ export const OrganizerValidators: React.FC<OrganizerValidatorsProps> = ({
                               .then(() => setAssignSelections((prev) => ({ ...prev, [event.id]: '' })))
                               .catch(() => {});
                           }}
-                          className="rounded-xl bg-purple-600 px-4 py-3 font-medium text-white transition-colors hover:bg-purple-500"
+                          className="rounded-lg bg-purple-500 px-4 py-3 font-medium text-white transition-colors hover:bg-purple-600"
                         >
                           {copy.assign}
                         </button>

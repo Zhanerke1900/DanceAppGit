@@ -128,77 +128,77 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
     (analytics?.specialPrograms.fullEventPassTickets || 0) + (analytics?.specialPrograms.activityTickets || 0);
 
   return (
-    <div className="min-h-screen bg-black p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Calibri", sans-serif' }}>
       <div className="mx-auto max-w-7xl space-y-8">
         <div>
-          <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl">{copy.title}</h1>
-          <p className="text-gray-400">{copy.subtitle}</p>
+          <h1 className="mb-2 text-3xl font-bold text-gray-900">{copy.title}</h1>
+          <p className="text-gray-600">{copy.subtitle}</p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
           {[
-            { label: copy.totalRevenue, value: formatCurrency(analytics?.totalRevenue || 0), icon: DollarSign },
-            { label: copy.ticketsSold, value: String(analytics?.ticketsSold || 0), icon: Ticket },
-            { label: copy.reservedTickets, value: String(analytics?.reservedTickets || 0), icon: Ticket },
-            { label: copy.outstandingBalance, value: formatCurrency(analytics?.outstandingBalance || 0), icon: DollarSign },
-            { label: copy.ordersCount, value: String(analytics?.ordersCount || 0), icon: ShoppingBag },
-            { label: copy.reservationsCount, value: String(analytics?.reservationsCount || 0), icon: ShoppingBag },
-            { label: copy.topEvents, value: String(analytics?.topEvents.length || 0), icon: BarChart3 },
+            { label: copy.totalRevenue, value: formatCurrency(analytics?.totalRevenue || 0), icon: DollarSign, color: 'bg-green-50', iconColor: 'text-green-600' },
+            { label: copy.ticketsSold, value: String(analytics?.ticketsSold || 0), icon: Ticket, color: 'bg-blue-50', iconColor: 'text-blue-600' },
+            { label: copy.reservedTickets, value: String(analytics?.reservedTickets || 0), icon: Ticket, color: 'bg-amber-50', iconColor: 'text-amber-600' },
+            { label: copy.outstandingBalance, value: formatCurrency(analytics?.outstandingBalance || 0), icon: DollarSign, color: 'bg-purple-50', iconColor: 'text-purple-600' },
+            { label: copy.ordersCount, value: String(analytics?.ordersCount || 0), icon: ShoppingBag, color: 'bg-pink-50', iconColor: 'text-pink-600' },
+            { label: copy.reservationsCount, value: String(analytics?.reservationsCount || 0), icon: ShoppingBag, color: 'bg-indigo-50', iconColor: 'text-indigo-600' },
+            { label: copy.topEvents, value: String(analytics?.topEvents.length || 0), icon: BarChart3, color: 'bg-cyan-50', iconColor: 'text-cyan-600' },
           ].map((card) => {
             const Icon = card.icon;
             return (
               <div
                 key={card.label}
-                className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6"
+                className={`rounded-lg border border-gray-200 ${card.color} p-5 sm:p-6 shadow-sm`}
               >
-                <div className="mb-4 inline-flex rounded-xl bg-purple-600/15 p-3">
-                  <Icon className="h-6 w-6 text-purple-400" />
+                <div className={`mb-4 inline-flex rounded-lg ${card.color} p-3`}>
+                  <Icon className={`h-6 w-6 ${card.iconColor}`} />
                 </div>
-                <p className="mb-2 text-sm text-gray-400">{card.label}</p>
-                <p className="text-3xl font-bold text-white">{card.value}</p>
+                <p className="mb-2 text-sm text-gray-600">{card.label}</p>
+                <p className="text-3xl font-bold text-gray-900">{card.value}</p>
               </div>
             );
           })}
         </div>
 
         <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-          <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6">
+          <div className="rounded-lg border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
             <div className="mb-5 flex items-center gap-3">
-              <div className="rounded-xl bg-purple-600/15 p-2">
-                <Calendar className="h-5 w-5 text-purple-400" />
+              <div className="rounded-lg bg-blue-50 p-2">
+                <Calendar className="h-5 w-5 text-blue-600" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-white">{copy.salesByDay}</h2>
-                <p className="text-sm text-gray-400">{copy.salesByDayDesc}</p>
+                <h2 className="text-lg font-bold text-gray-900">{copy.salesByDay}</h2>
+                <p className="text-sm text-gray-600">{copy.salesByDayDesc}</p>
               </div>
             </div>
 
             {analytics?.salesByDay.length ? (
               <div className="space-y-3">
                 {analytics.salesByDay.map((day) => (
-                  <div key={day.date} className="grid grid-cols-1 gap-2 rounded-xl bg-gray-800/40 p-4 text-sm sm:grid-cols-[1fr_auto_auto_auto_auto] sm:gap-4">
-                    <span className="font-medium text-white">{day.date}</span>
-                    <span className="text-gray-300">{formatCurrency(day.revenue)}</span>
-                    <span className="text-gray-400">{day.orders} {copy.orders}</span>
-                    <span className="text-gray-400">{day.ticketsSold} {copy.tickets}</span>
-                    {day.reservations ? <span className="text-amber-300">{day.reservations} {copy.reservationsCount}</span> : null}
+                  <div key={day.date} className="grid grid-cols-1 gap-2 rounded-lg bg-gray-50 border border-gray-200 p-4 text-sm sm:grid-cols-[1fr_auto_auto_auto_auto] sm:gap-4">
+                    <span className="font-medium text-gray-900">{day.date}</span>
+                    <span className="text-gray-700">{formatCurrency(day.revenue)}</span>
+                    <span className="text-gray-600">{day.orders} {copy.orders}</span>
+                    <span className="text-gray-600">{day.ticketsSold} {copy.tickets}</span>
+                    {day.reservations ? <span className="text-amber-600">{day.reservations} {copy.reservationsCount}</span> : null}
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-gray-400">{copy.noSales}</p>
+              <p className="text-gray-600">{copy.noSales}</p>
             )}
           </div>
 
           <div className="space-y-6">
-            <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6">
+            <div className="rounded-lg border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
               <div className="mb-5 flex items-center gap-3">
-                <div className="rounded-xl bg-purple-600/15 p-2">
-                  <PieChart className="h-5 w-5 text-purple-400" />
+                <div className="rounded-lg bg-emerald-50 p-2">
+                  <PieChart className="h-5 w-5 text-emerald-600" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-white">{copy.publishedVsPending}</h2>
-                  <p className="text-sm text-gray-400">{copy.statusSplit}</p>
+                  <h2 className="text-lg font-bold text-gray-900">{copy.publishedVsPending}</h2>
+                  <p className="text-sm text-gray-600">{copy.statusSplit}</p>
                 </div>
               </div>
 
@@ -209,10 +209,10 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
                 ].map((item) => (
                   <div key={item.label}>
                     <div className="mb-2 flex items-center justify-between text-sm">
-                      <span className="text-gray-300">{item.label}</span>
-                      <span className="font-semibold text-white">{item.value}</span>
+                      <span className="text-gray-700">{item.label}</span>
+                      <span className="font-semibold text-gray-900">{item.value}</span>
                     </div>
-                    <div className="h-2 rounded-full bg-gray-800">
+                    <div className="h-2 rounded-full bg-gray-200">
                       <div
                         className={`h-2 rounded-full ${item.color}`}
                         style={{ width: `${statusTotal ? (item.value / statusTotal) * 100 : 0}%` }}
@@ -223,14 +223,14 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
               </div>
             </div>
 
-            <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6">
+            <div className="rounded-lg border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
               <div className="mb-5 flex items-center gap-3">
-                <div className="rounded-xl bg-purple-600/15 p-2">
-                  <Ticket className="h-5 w-5 text-purple-400" />
+                <div className="rounded-lg bg-purple-50 p-2">
+                  <Ticket className="h-5 w-5 text-purple-600" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-white">{copy.specialProgramSales}</h2>
-                  <p className="text-sm text-gray-400">{copy.specialProgramDesc}</p>
+                  <h2 className="text-lg font-bold text-gray-900">{copy.specialProgramSales}</h2>
+                  <p className="text-sm text-gray-600">{copy.specialProgramDesc}</p>
                 </div>
               </div>
 
@@ -249,10 +249,10 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
                 ].map((item) => (
                   <div key={item.label}>
                     <div className="mb-2 flex items-center justify-between text-sm">
-                      <span className="text-gray-300">{item.label}</span>
-                      <span className="font-semibold text-white">{item.value}</span>
+                      <span className="text-gray-700">{item.label}</span>
+                      <span className="font-semibold text-gray-900">{item.value}</span>
                     </div>
-                    <div className="h-2 rounded-full bg-gray-800">
+                    <div className="h-2 rounded-full bg-gray-200">
                       <div
                         className={`h-2 rounded-full ${item.color}`}
                         style={{ width: `${fullPassTotal ? (item.value / fullPassTotal) * 100 : 0}%` }}
@@ -265,22 +265,22 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
           </div>
         </div>
 
-        <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6">
-          <h2 className="mb-5 text-xl font-bold text-white">{copy.topEvents}</h2>
+        <div className="rounded-lg border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+          <h2 className="mb-5 text-lg font-bold text-gray-900">{copy.topEvents}</h2>
           {analytics?.topEvents.length ? (
             <div className="space-y-3">
               {analytics.topEvents.map((event) => (
-                <div key={event.eventId} className="grid grid-cols-1 gap-2 rounded-xl bg-gray-800/40 p-4 text-sm sm:grid-cols-[1fr_auto_auto_auto_auto] sm:gap-4">
-                  <span className="font-medium text-white">{event.title}</span>
-                  <span className="text-gray-300">{formatCurrency(event.revenue)}</span>
-                  <span className="text-gray-400">{event.orders} {copy.orders}</span>
-                  <span className="text-gray-400">{event.ticketsSold} {copy.tickets}</span>
-                  {event.reservedTickets ? <span className="text-amber-300">{event.reservedTickets} {copy.reservedTickets}</span> : null}
+                <div key={event.eventId} className="grid grid-cols-1 gap-2 rounded-lg bg-gray-50 border border-gray-200 p-4 text-sm sm:grid-cols-[1fr_auto_auto_auto_auto] sm:gap-4">
+                  <span className="font-medium text-gray-900">{event.title}</span>
+                  <span className="text-gray-700">{formatCurrency(event.revenue)}</span>
+                  <span className="text-gray-600">{event.orders} {copy.orders}</span>
+                  <span className="text-gray-600">{event.ticketsSold} {copy.tickets}</span>
+                  {event.reservedTickets ? <span className="text-amber-600">{event.reservedTickets} {copy.reservedTickets}</span> : null}
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-gray-400">{copy.topEventsEmpty}</p>
+            <p className="text-gray-600">{copy.topEventsEmpty}</p>
           )}
         </div>
       </div>

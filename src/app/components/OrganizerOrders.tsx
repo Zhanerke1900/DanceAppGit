@@ -88,79 +88,79 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders }) => {
     },
   }[language];
   return (
-    <div className="min-h-screen bg-black p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Calibri", sans-serif' }}>
       <div className="mx-auto max-w-7xl space-y-8">
         <div>
-          <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl">{copy.title}</h1>
-          <p className="text-gray-400">{copy.subtitle}</p>
+          <h1 className="mb-2 text-3xl font-bold text-gray-900">{copy.title}</h1>
+          <p className="text-gray-600">{copy.subtitle}</p>
         </div>
 
         {orders.length === 0 ? (
-          <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-8 text-center">
-            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-purple-600/15">
-              <ShoppingCart className="h-8 w-8 text-purple-400" />
+          <div className="rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-blue-50">
+              <ShoppingCart className="h-8 w-8 text-blue-600" />
             </div>
-            <h2 className="mb-2 text-xl font-bold text-white">{copy.emptyTitle}</h2>
-            <p className="text-gray-400">{copy.emptyDesc}</p>
+            <h2 className="mb-2 text-lg font-bold text-gray-900">{copy.emptyTitle}</h2>
+            <p className="text-gray-600">{copy.emptyDesc}</p>
           </div>
         ) : (
           <div className="space-y-4">
             {orders.map((order) => (
               <div
                 key={order.id}
-                className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6"
+                className="rounded-lg border border-gray-200 bg-white p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-                  <div className="space-y-3">
+                  <div className="space-y-3 flex-1">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.25em] text-purple-300">{copy.order}</p>
-                      <h2 className="text-xl font-bold text-white">{order.eventTitle}</h2>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-purple-600">{copy.order}</p>
+                      <h2 className="text-lg font-bold text-gray-900">{order.eventTitle}</h2>
                     </div>
 
                     <div className="grid gap-3 md:grid-cols-2">
-                      <div className="flex items-center gap-2 text-sm text-gray-300">
-                        <User className="h-4 w-4 text-purple-400" />
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <User className="h-4 w-4 text-purple-500" />
                         <span>{order.buyerName}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-300">
-                        <Mail className="h-4 w-4 text-purple-400" />
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Mail className="h-4 w-4 text-purple-500" />
                         <span className="break-all">{order.buyerEmail}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-300">
-                        <Ticket className="h-4 w-4 text-purple-400" />
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Ticket className="h-4 w-4 text-purple-500" />
                         <span>{order.quantity}x {order.ticketType}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-300">
-                        <Calendar className="h-4 w-4 text-purple-400" />
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Calendar className="h-4 w-4 text-purple-500" />
                         <span>{formatDate(order.purchaseDate)}</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-3 lg:w-[260px] lg:grid-cols-1">
-                    <div className="rounded-xl bg-gray-800/40 p-4">
+                  <div className="grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-3 lg:w-[280px] lg:grid-cols-1">
+                    <div className="rounded-lg bg-gray-50 border border-gray-200 p-4">
                       <p className="mb-1 text-xs uppercase tracking-wider text-gray-500">{copy.amount}</p>
-                      <p className="text-lg font-bold text-white">{formatCurrency(order.total)}</p>
+                      <p className="text-lg font-bold text-gray-900">{formatCurrency(order.total)}</p>
                       {order.paymentStatus === 'reserved' && (
-                        <div className="mt-2 space-y-1 text-xs text-gray-300">
-                          <p>{copy.paid}: <span className="font-semibold text-emerald-300">{formatCurrency(order.amountPaid || 0)}</span></p>
-                          <p>{copy.balance}: <span className="font-semibold text-amber-300">{formatCurrency(order.balanceDue || 0)}</span></p>
+                        <div className="mt-2 space-y-1 text-xs text-gray-600">
+                          <p>{copy.paid}: <span className="font-semibold text-emerald-600">{formatCurrency(order.amountPaid || 0)}</span></p>
+                          <p>{copy.balance}: <span className="font-semibold text-amber-600">{formatCurrency(order.balanceDue || 0)}</span></p>
                           {order.balanceDueDeadlineAt && (
-                            <p>{copy.deadline}: <span className="font-semibold text-white">{formatDate(order.balanceDueDeadlineAt)}</span></p>
+                            <p>{copy.deadline}: <span className="font-semibold text-gray-900">{formatDate(order.balanceDueDeadlineAt)}</span></p>
                           )}
                         </div>
                       )}
                     </div>
-                    <div className="rounded-xl bg-gray-800/40 p-4">
+                    <div className="rounded-lg bg-gray-50 border border-gray-200 p-4">
                       <p className="mb-1 text-xs uppercase tracking-wider text-gray-500">{copy.payment}</p>
-                      <p className={`font-semibold capitalize ${order.paymentStatus === 'reserved' ? 'text-amber-300' : 'text-emerald-300'}`}>
+                      <p className={`font-semibold capitalize ${order.paymentStatus === 'reserved' ? 'text-amber-600' : 'text-emerald-600'}`}>
                         {copy.status[order.paymentStatus] || order.paymentStatus}
                       </p>
                     </div>
-                    <div className="rounded-xl bg-gray-800/40 p-4">
+                    <div className="rounded-lg bg-gray-50 border border-gray-200 p-4">
                       <p className="mb-1 text-xs uppercase tracking-wider text-gray-500">{copy.checkIn}</p>
-                      <p className="flex items-center gap-2 font-semibold text-white">
-                        <CheckCircle2 className="h-4 w-4 text-purple-400" />
+                      <p className="flex items-center gap-2 font-semibold text-gray-900">
+                        <CheckCircle2 className="h-4 w-4 text-purple-500" />
                         {copy.status[order.checkInStatus] || order.checkInStatus}
                       </p>
                     </div>
