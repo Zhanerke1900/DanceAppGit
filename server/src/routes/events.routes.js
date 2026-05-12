@@ -2,7 +2,7 @@ import express from "express";
 
 import Event from "../models/Event.js";
 import Order from "../models/Order.js";
-import { archivePastPublishedEvents, isEventPast } from "../utils/eventDates.js";
+import { archivePastPublishedEvents, getEventStartAt, isEventPast } from "../utils/eventDates.js";
 import { getLowestDisplayPrice } from "../utils/eventPricing.js";
 
 const router = express.Router();
@@ -16,6 +16,27 @@ export function invalidatePublishedEventsCache() {
 
 function hasDisplayImage(event) {
   return Boolean(String(event?.image || "").trim());
+}
+
+function isSeededMarketplaceEvent(event) {
+  return String(event?.seedKey || "").startsWith("marketplace-");
+}
+
+function getTimestamp(value) {
+  const date = value ? new Date(value) : null;
+  return date && !Number.isNaN(date.getTime()) ? date.getTime() : 0;
+}
+
+function sortPublishedEvents(a, b) {
+  const aIsSeed = isSeededMarketplaceEvent(a);
+  const bIsSeed = isSeededMarketplaceEvent(b);
+  if (aIsSeed !== bIsSeed) return aIsSeed ? 1 : -1;
+
+  const aStart = getEventStartAt(a)?.getTime() ?? Number.MAX_SAFE_INTEGER;
+  const bStart = getEventStartAt(b)?.getTime() ?? Number.MAX_SAFE_INTEGER;
+  if (aStart !== bStart) return aStart - bStart;
+
+  return getTimestamp(b.createdAt) - getTimestamp(a.createdAt);
 }
 
 function activeInventoryQuery(eventIds) {
@@ -114,7 +135,7 @@ async function buildPublishedEventsPayload() {
     .sort({ createdAt: -1 })
     .limit(400)
     .lean();
-  const events = allPublishedEvents.filter(hasDisplayImage).filter((event) => !isEventPast(event));
+  const events = allPublishedEvents.filter(hasDisplayImage).filter((event) => !isEventPast(event)).sort(sortPublishedEvents);
   const { soldMap, activityUsageByEvent } = await loadAvailability(events);
 
   return {
