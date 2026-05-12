@@ -8,6 +8,7 @@ const translations = {
   en: {
     common: {
       home: 'Home',
+      back: 'Back',
       events: 'Events',
       aboutUs: 'About us',
       forOrganizers: 'For Organizers',
@@ -91,6 +92,13 @@ const translations = {
       exploreOtherCities: 'Explore other cities',
       viewAllStyles: ({ city }: Record<string, string | number> = {}) => `View all styles in ${city}`,
       all: 'All',
+      hipHop: 'Hip Hop',
+      contemporary: 'Contemporary',
+      ballet: 'Ballet',
+      latin: 'Latin',
+      ballroom: 'Ballroom',
+      searchEmptyTitle: 'No events match your search',
+      searchEmptyDescription: 'Try another title, venue, date, or dance style.',
     },
     specialPrograms: {
       eyebrow: 'Curated Experience',
@@ -217,6 +225,7 @@ const translations = {
   ru: {
     common: {
       home: 'Главная',
+      back: 'Назад',
       events: 'События',
       aboutUs: 'О нас',
       forOrganizers: 'Организаторам',
@@ -300,6 +309,13 @@ const translations = {
       exploreOtherCities: 'Посмотреть другие города',
       viewAllStyles: ({ city }: Record<string, string | number> = {}) => `Все стили в ${city}`,
       all: 'Все',
+      hipHop: 'Хип-хоп',
+      contemporary: 'Контемпорари',
+      ballet: 'Балет',
+      latin: 'Латина',
+      ballroom: 'Бальные',
+      searchEmptyTitle: 'По вашему запросу ничего не найдено',
+      searchEmptyDescription: 'Попробуйте другое название, площадку, дату или стиль танца.',
     },
     specialPrograms: {
       eyebrow: 'Особый формат',
@@ -426,6 +442,7 @@ const translations = {
   kk: {
     common: {
       home: 'Басты бет',
+      back: 'Артқа',
       events: 'Іс-шаралар',
       aboutUs: 'Біз туралы',
       forOrganizers: 'Ұйымдастырушыларға',
@@ -509,6 +526,13 @@ const translations = {
       exploreOtherCities: 'Басқа қалаларды көру',
       viewAllStyles: ({ city }: Record<string, string | number> = {}) => `${city} қаласындағы барлық стильдер`,
       all: 'Барлығы',
+      hipHop: 'Хип-хоп',
+      contemporary: 'Контемпорари',
+      ballet: 'Балет',
+      latin: 'Латина',
+      ballroom: 'Балдық би',
+      searchEmptyTitle: 'Іздеу бойынша іс-шара табылмады',
+      searchEmptyDescription: 'Басқа атауды, алаңды, күнді немесе би стилін көріңіз.',
     },
     specialPrograms: {
       eyebrow: 'Арнайы формат',

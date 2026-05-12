@@ -36,7 +36,7 @@ import type { ReservationRecord, TicketRecord } from './api/tickets';
 import { VerifyEmailPage } from './components/VerifyEmailPage';
 import { ResetPasswordPage } from './components/ResetPasswordPage';
 import { I18nProvider, useI18n } from './i18n';
-import { Search, X } from 'lucide-react';
+import { ArrowLeft, Search, X } from 'lucide-react';
 
 type ViewState = 'home' | 'all-events' | 'all-special-programs' | 'ticket-selection' | 'purchase-success' | 'profile' | 'become-organizer' | 'organizer-dashboard' | 'validator-dashboard' | 'admin-panel' | 'verify-email'
   | 'reset-password';
@@ -92,6 +92,21 @@ const MarketplaceSearch = ({ value, onChange, elevated = false }: MarketplaceSea
           </button>
         )}
       </div>
+    </div>
+  </section>
+);
+
+const MarketplaceBackButton = ({ label, onBack }: { label: string; onBack: () => void }) => (
+  <section className="bg-background px-4 pt-24 pb-2 sm:px-6 lg:px-8">
+    <div className="mx-auto flex max-w-7xl justify-start">
+      <button
+        type="button"
+        onClick={onBack}
+        className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        <span>{label}</span>
+      </button>
     </div>
   </section>
 );
@@ -1141,10 +1156,13 @@ function AppContent() {
           </>
         ) : currentView === 'all-events' ? (
           <>
+            <MarketplaceBackButton
+              label={t('common.back')}
+              onBack={() => handleNavigateHomeSection('top')}
+            />
             <MarketplaceSearch
               value={marketplaceSearchQuery}
               onChange={setMarketplaceSearchQuery}
-              elevated
             />
             <FeaturedEvents
               selectedCity={selectedCity}
@@ -1160,16 +1178,10 @@ function AppContent() {
           </>
         ) : currentView === 'all-special-programs' ? (
           <>
-            <section className="bg-background px-4 pt-24 sm:px-6 lg:px-8">
-              <div className="mx-auto flex max-w-7xl justify-start">
-                <button
-                  onClick={() => handleNavigateHomeSection('top')}
-                  className="rounded-xl border border-border bg-card px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
-                >
-                  {t('common.home')}
-                </button>
-              </div>
-            </section>
+            <MarketplaceBackButton
+              label={t('common.back')}
+              onBack={() => handleNavigateHomeSection('top')}
+            />
             <MarketplaceSearch
               value={marketplaceSearchQuery}
               onChange={setMarketplaceSearchQuery}

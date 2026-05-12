@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { EventCard } from './EventCard';
 import { motion, AnimatePresence } from 'motion/react';
 import { MapPinOff } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 interface FeaturedEventsProps {
   selectedCity: string;
@@ -80,6 +81,15 @@ export const FeaturedEvents = ({
   hideWhenEmptyDuringSearch = false,
 }: FeaturedEventsProps) => {
   const [activeCategory, setActiveCategory] = useState('All');
+  const { t } = useI18n();
+  const categoryLabels: Record<string, string> = {
+    All: t('featuredEvents.all'),
+    'Hip Hop': t('featuredEvents.hipHop'),
+    Contemporary: t('featuredEvents.contemporary'),
+    Ballet: t('featuredEvents.ballet'),
+    Latin: t('featuredEvents.latin'),
+    Ballroom: t('featuredEvents.ballroom'),
+  };
 
   const displayEvents = useMemo(() => dedupeEvents(dynamicEvents.filter(hasDisplayImage)), [dynamicEvents]);
   const normalizedSearchQuery = searchQuery.trim().toLowerCase();
@@ -133,10 +143,10 @@ export const FeaturedEvents = ({
           <div>
             <div className="mb-3 h-px w-16 bg-purple-500" />
             <h2 className="font-display mb-4 text-4xl font-bold leading-[0.95] text-foreground sm:text-5xl">
-              Events in <span className="text-purple-600">{selectedCity}</span>
+              {t('featuredEvents.title', { city: selectedCity })}
             </h2>
             <p className="max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Discover and book tickets for the hottest dance performances, workshops, and competitions in {selectedCity}.
+              {t('featuredEvents.description', { city: selectedCity })}
             </p>
           </div>
           <div className="w-full space-y-4">
@@ -151,7 +161,7 @@ export const FeaturedEvents = ({
                       : 'border-transparent text-muted-foreground hover:border-purple-400/50 hover:text-foreground'
                   }`}
                 >
-                  {category}
+                  {categoryLabels[category] || category}
                 </button>
               ))}
             </div>
@@ -218,26 +228,28 @@ export const FeaturedEvents = ({
                 </div>
                 <h3 className="text-2xl font-bold text-foreground mb-3">
                   {searchQuery.trim()
-                    ? 'No events match your search'
-                    : `No ${activeCategory !== 'All' ? activeCategory : ''} events found in your city`}
+                    ? t('featuredEvents.searchEmptyTitle')
+                    : t('featuredEvents.emptyTitle', {
+                      category: activeCategory !== 'All' ? categoryLabels[activeCategory] || activeCategory : '',
+                    })}
                 </h3>
                 <p className="text-muted-foreground max-w-sm mb-10 leading-relaxed">
                   {searchQuery.trim()
-                    ? 'Try another title, venue, date, or dance style.'
-                    : `No events found in ${selectedCity} for this style yet. Don't worry, there's plenty of dance elsewhere in Kazakhstan!`}
+                    ? t('featuredEvents.searchEmptyDescription')
+                    : t('featuredEvents.emptyDescription', { city: selectedCity })}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button
                     onClick={handleExploreOtherCities}
                     className="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-purple-600/20 active:scale-95"
                   >
-                    Explore other cities
+                    {t('featuredEvents.exploreOtherCities')}
                   </button>
                   <button
                     onClick={() => setActiveCategory('All')}
                     className="px-8 py-3 bg-card hover:bg-accent text-foreground rounded-xl border border-border font-bold transition-all active:scale-95"
                   >
-                    View all styles in {selectedCity}
+                    {t('featuredEvents.viewAllStyles', { city: selectedCity })}
                   </button>
                 </div>
               </motion.div>
@@ -248,7 +260,7 @@ export const FeaturedEvents = ({
         {shouldShowExploreMoreButton && (
           <div className="mt-20 text-center">
             <button onClick={onExploreMore ?? handleExploreOtherCities} className="group inline-flex items-center gap-2 border-b-2 border-purple-500 px-1 py-3 font-bold text-foreground transition-colors hover:text-purple-700">
-              Explore All Events
+              {t('common.exploreAllEvents')}
               <span className="text-xl transition-transform group-hover:translate-x-1">-&gt;</span>
             </button>
           </div>

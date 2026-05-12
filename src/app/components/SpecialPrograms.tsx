@@ -223,10 +223,10 @@ export const SpecialPrograms = ({
           </AnimatePresence>
         </div>
         {shouldShowExploreMoreButton && (
-          <div className="mt-16 text-center">
+          <div className="mt-20 text-center">
             <button
               onClick={onExploreMore}
-              className="inline-flex items-center gap-2 rounded-2xl bg-white/5 px-8 py-4 font-bold text-white transition-all hover:bg-white/10 group"
+              className="group inline-flex items-center gap-2 border-b-2 border-purple-500 px-1 py-3 font-bold text-foreground transition-colors hover:text-purple-700"
             >
               {t('common.exploreAllEvents')}
               <span className="text-xl transition-transform group-hover:translate-x-1">→</span>
