@@ -55,6 +55,10 @@ const translations = {
       scanTicket: 'Scan Ticket',
       continue: 'Continue',
       checkInbox: 'Check your inbox',
+      searchMarketplace: 'Search dance events, styles, venues...',
+      clearSearch: 'Clear search',
+      loadingEvents: 'Loading dance events...',
+      loadingEventsDescription: 'Connecting to the event database. Cards will appear here in a moment.',
     },
     navbar: {
       organizerDashboard: 'Organizer Dashboard',
@@ -272,6 +276,10 @@ const translations = {
       scanTicket: 'Сканировать билет',
       continue: 'Продолжить',
       checkInbox: 'Проверьте почту',
+      searchMarketplace: 'Найти танцевальные события, стили, площадки...',
+      clearSearch: 'Очистить поиск',
+      loadingEvents: 'Загружаем танцевальные события...',
+      loadingEventsDescription: 'Подключаемся к базе событий. Карточки появятся здесь через момент.',
     },
     navbar: {
       organizerDashboard: 'Панель организатора',
@@ -489,6 +497,10 @@ const translations = {
       scanTicket: 'Билетті сканерлеу',
       continue: 'Жалғастыру',
       checkInbox: 'Поштаңызды тексеріңіз',
+      searchMarketplace: 'Би іс-шараларын, стильдерді, алаңдарды іздеу...',
+      clearSearch: 'Іздеуді тазарту',
+      loadingEvents: 'Би іс-шаралары жүктелуде...',
+      loadingEventsDescription: 'Іс-шаралар базасына қосылып жатырмыз. Карточкалар сәлден кейін шығады.',
     },
     navbar: {
       organizerDashboard: 'Ұйымдастырушы панелі',

@@ -54,7 +54,8 @@ const getSeedDisplayPrice = (item, eventType) => {
   return lowest ? formatKztPrice(lowest) : item.price;
 };
 
-const usual = ({ title, category, date, time, city, venue, address, price, ticketLimit, image, ...extra }) => ({
+const usual = ({ title, legacyTitle, category, date, time, city, venue, address, price, ticketLimit, image, ...extra }) => ({
+  seedKey: legacyTitle ? `marketplace-usual-event-${toSlug(legacyTitle)}` : undefined,
   title,
   category,
   date,
@@ -591,7 +592,8 @@ const specialPrograms = [
 
 const extraUsualEvents = [
   usual({
-    title: "Rooftop Vogue Session",
+    title: "Rooftop Vogue Dance Session",
+    legacyTitle: "Rooftop Vogue Session",
     category: "Ballroom",
     date: "November 28, 2026",
     time: "19:30",
@@ -603,7 +605,8 @@ const extraUsualEvents = [
     image: "1460723237483-7a6dc9d0b212",
   }),
   usual({
-    title: "Medeu Street Grooves",
+    title: "Medeu Street Dance Grooves",
+    legacyTitle: "Medeu Street Grooves",
     category: "Hip Hop",
     date: "December 12, 2026",
     time: "18:00",
@@ -615,7 +618,8 @@ const extraUsualEvents = [
     image: "1469571486292-0ba58a3f068b",
   }),
   usual({
-    title: "Apple Garden Bachata",
+    title: "Apple Garden Bachata Social Dance",
+    legacyTitle: "Apple Garden Bachata",
     category: "Latin",
     date: "January 09, 2027",
     time: "20:30",
@@ -627,7 +631,8 @@ const extraUsualEvents = [
     image: "1506157786151-b8491531f063",
   }),
   usual({
-    title: "Contemporary Lines Lab",
+    title: "Contemporary Dance Lines Lab",
+    legacyTitle: "Contemporary Lines Lab",
     category: "Contemporary",
     date: "January 23, 2027",
     time: "18:30",
@@ -639,7 +644,8 @@ const extraUsualEvents = [
     image: "1510674485131-dc88d96369b4",
   }),
   usual({
-    title: "Swan Variations Evening",
+    title: "Ballet Variations Evening",
+    legacyTitle: "Swan Variations Evening",
     category: "Ballet",
     date: "February 06, 2027",
     time: "19:00",
@@ -651,7 +657,8 @@ const extraUsualEvents = [
     image: "1513151233558-d860c5398176",
   }),
   usual({
-    title: "Dostyk Salsa Jam",
+    title: "Dostyk Salsa Dance Jam",
+    legacyTitle: "Dostyk Salsa Jam",
     category: "Latin",
     date: "February 20, 2027",
     time: "21:00",
@@ -663,7 +670,8 @@ const extraUsualEvents = [
     image: "1515165562835-cf774f7238e9",
   }),
   usual({
-    title: "Floorwork Cinema Night",
+    title: "Contemporary Floorwork Dance Night",
+    legacyTitle: "Floorwork Cinema Night",
     category: "Contemporary",
     date: "March 13, 2027",
     time: "19:30",
@@ -675,7 +683,8 @@ const extraUsualEvents = [
     image: "1521334884684-d80222895322",
   }),
   usual({
-    title: "Palace Waltz Matinee",
+    title: "Ballroom Waltz Matinee",
+    legacyTitle: "Palace Waltz Matinee",
     category: "Ballroom",
     date: "April 03, 2027",
     time: "17:00",
@@ -687,7 +696,8 @@ const extraUsualEvents = [
     image: "1523580846011-d3a5bc25702b",
   }),
   usual({
-    title: "Breakpoint Almaty",
+    title: "Breakdance Battle Almaty",
+    legacyTitle: "Breakpoint Almaty",
     category: "Hip Hop",
     date: "April 24, 2027",
     time: "20:00",
@@ -699,7 +709,8 @@ const extraUsualEvents = [
     image: "1530103862676-de8c9debad1d",
   }),
   usual({
-    title: "Snow Peak Ballet",
+    title: "Snow Peak Ballet Gala",
+    legacyTitle: "Snow Peak Ballet",
     category: "Ballet",
     date: "May 08, 2027",
     time: "19:30",
@@ -711,7 +722,8 @@ const extraUsualEvents = [
     image: "1531058020387-3be344556be6",
   }),
   usual({
-    title: "Street Cypher South",
+    title: "Street Dance Cypher South",
+    legacyTitle: "Street Cypher South",
     category: "Hip Hop",
     date: "December 12, 2026",
     time: "18:30",
@@ -723,7 +735,8 @@ const extraUsualEvents = [
     image: "1542628682-88321d2a4828",
   }),
   usual({
-    title: "Silk City Salsa",
+    title: "Silk City Salsa Dance Night",
+    legacyTitle: "Silk City Salsa",
     category: "Latin",
     date: "December 26, 2026",
     time: "20:00",
@@ -735,7 +748,8 @@ const extraUsualEvents = [
     image: "1543362906-acfc16c67564",
   }),
   usual({
-    title: "Nomad Contemporary Stage",
+    title: "Nomad Contemporary Dance Stage",
+    legacyTitle: "Nomad Contemporary Stage",
     category: "Contemporary",
     date: "January 16, 2027",
     time: "19:00",
@@ -771,7 +785,8 @@ const extraUsualEvents = [
     image: "1556125574-d7f27ec36a06",
   }),
   usual({
-    title: "Arbat Floor Battle",
+    title: "Arbat Street Dance Battle",
+    legacyTitle: "Arbat Floor Battle",
     category: "Hip Hop",
     date: "March 12, 2027",
     time: "20:00",
@@ -783,7 +798,8 @@ const extraUsualEvents = [
     image: "1558008258-3256797b43f3",
   }),
   usual({
-    title: "Latin Patio Night",
+    title: "Latin Dance Patio Night",
+    legacyTitle: "Latin Patio Night",
     category: "Latin",
     date: "April 02, 2027",
     time: "21:00",
@@ -795,7 +811,8 @@ const extraUsualEvents = [
     image: "1566737236500-c8ac43014a8e",
   }),
   usual({
-    title: "Green Bazaar Grooves",
+    title: "Green Bazaar Dance Grooves",
+    legacyTitle: "Green Bazaar Grooves",
     category: "Hip Hop",
     date: "April 18, 2027",
     time: "18:00",
@@ -807,7 +824,8 @@ const extraUsualEvents = [
     image: "1571266028243-d220c2c7e6fc",
   }),
   usual({
-    title: "Modern Forms Showcase",
+    title: "Modern Dance Forms Showcase",
+    legacyTitle: "Modern Forms Showcase",
     category: "Contemporary",
     date: "May 01, 2027",
     time: "19:00",
@@ -819,7 +837,8 @@ const extraUsualEvents = [
     image: "1587825140708-dfaf72ae4b04",
   }),
   usual({
-    title: "Swan Lake Fragments",
+    title: "Swan Lake Ballet Fragments",
+    legacyTitle: "Swan Lake Fragments",
     category: "Ballet",
     date: "May 22, 2027",
     time: "18:30",
@@ -834,7 +853,8 @@ const extraUsualEvents = [
 
 const regionalSpecialPrograms = [
   {
-    title: "Almaty Open Styles Festival",
+    seedKey: "marketplace-special-program-almaty-open-styles-festival",
+    title: "Almaty Open Styles Dance Festival",
     category: "Festivals",
     date: "July 18-19, 2026",
     time: "18:00",
@@ -853,7 +873,8 @@ const regionalSpecialPrograms = [
     ],
   },
   {
-    title: "Kok-Tobe Choreo Camp",
+    seedKey: "marketplace-special-program-kok-tobe-choreo-camp",
+    title: "Kok-Tobe Dance Choreo Camp",
     category: "Camps",
     date: "September 06-10, 2026",
     time: "All day",
@@ -871,7 +892,8 @@ const regionalSpecialPrograms = [
     ],
   },
   {
-    title: "Medeu Battle Summit",
+    seedKey: "marketplace-special-program-medeu-battle-summit",
+    title: "Medeu Dance Battle Summit",
     category: "Competitions",
     date: "October 24, 2026",
     time: "12:00",
@@ -906,7 +928,8 @@ const regionalSpecialPrograms = [
     ],
   },
   {
-    title: "Latin Weekend Almaty",
+    seedKey: "marketplace-special-program-latin-weekend-almaty",
+    title: "Latin Dance Weekend Almaty",
     category: "Festivals",
     date: "December 05-06, 2026",
     time: "17:00",
@@ -925,7 +948,8 @@ const regionalSpecialPrograms = [
     ],
   },
   {
-    title: "Contemporary Creation Lab",
+    seedKey: "marketplace-special-program-contemporary-creation-lab",
+    title: "Contemporary Dance Creation Lab",
     category: "Masterclasses",
     date: "January 23-24, 2027",
     time: "12:00",
@@ -943,7 +967,8 @@ const regionalSpecialPrograms = [
     ],
   },
   {
-    title: "Crew League Almaty",
+    seedKey: "marketplace-special-program-crew-league-almaty",
+    title: "Dance Crew League Almaty",
     category: "Competitions",
     date: "February 13, 2027",
     time: "13:00",
@@ -978,7 +1003,8 @@ const regionalSpecialPrograms = [
     ],
   },
   {
-    title: "Stage Tech Masterweek",
+    seedKey: "marketplace-special-program-stage-tech-masterweek",
+    title: "Dance Stage Tech Masterweek",
     category: "Masterclasses",
     date: "April 17-19, 2027",
     time: "10:00",
@@ -996,7 +1022,8 @@ const regionalSpecialPrograms = [
     ],
   },
   {
-    title: "Grand Spring Showcase",
+    seedKey: "marketplace-special-program-grand-spring-showcase",
+    title: "Grand Spring Dance Showcase",
     category: "Festivals",
     date: "May 15-17, 2027",
     time: "18:00",
@@ -1034,7 +1061,8 @@ const regionalSpecialPrograms = [
     ],
   },
   {
-    title: "Silk Road Latin Camp",
+    seedKey: "marketplace-special-program-silk-road-latin-camp",
+    title: "Silk Road Latin Dance Camp",
     category: "Camps",
     date: "August 20-23, 2026",
     time: "All day",
@@ -1052,7 +1080,8 @@ const regionalSpecialPrograms = [
     ],
   },
   {
-    title: "Steppe Crew Battle",
+    seedKey: "marketplace-special-program-steppe-crew-battle",
+    title: "Steppe Dance Crew Battle",
     category: "Competitions",
     date: "September 19, 2026",
     time: "13:00",
@@ -1069,7 +1098,8 @@ const regionalSpecialPrograms = [
     ],
   },
   {
-    title: "Theatre Movement Intensive",
+    seedKey: "marketplace-special-program-theatre-movement-intensive",
+    title: "Theatre Dance Movement Intensive",
     category: "Masterclasses",
     date: "October 10-11, 2026",
     time: "12:00",
@@ -1104,7 +1134,8 @@ const regionalSpecialPrograms = [
     ],
   },
   {
-    title: "Hip Hop Judges Lab",
+    seedKey: "marketplace-special-program-hip-hop-judges-lab",
+    title: "Hip Hop Dance Judges Lab",
     category: "Masterclasses",
     date: "December 12, 2026",
     time: "14:00",
@@ -1121,7 +1152,8 @@ const regionalSpecialPrograms = [
     ],
   },
   {
-    title: "Contemporary Weekend South",
+    seedKey: "marketplace-special-program-contemporary-weekend-south",
+    title: "Contemporary Dance Weekend South",
     category: "Masterclasses",
     date: "January 30-31, 2027",
     time: "12:00",
@@ -1157,7 +1189,8 @@ const regionalSpecialPrograms = [
     ],
   },
   {
-    title: "Summer Camp Shymkent",
+    seedKey: "marketplace-special-program-summer-camp-shymkent",
+    title: "Summer Dance Camp Shymkent",
     category: "Camps",
     date: "April 11-16, 2027",
     time: "All day",
@@ -1175,7 +1208,8 @@ const regionalSpecialPrograms = [
     ],
   },
   {
-    title: "Final Stage Challenge",
+    seedKey: "marketplace-special-program-final-stage-challenge",
+    title: "Final Dance Stage Challenge",
     category: "Competitions",
     date: "May 29, 2027",
     time: "15:00",
@@ -1199,7 +1233,7 @@ const buildEventRecord = (item, eventType) => {
   const displayPrice = getSeedDisplayPrice(item, eventType);
 
   return {
-    seedKey: `marketplace-${eventType}-${toSlug(item.title)}`,
+    seedKey: item.seedKey || `marketplace-${eventType}-${toSlug(item.title)}`,
     title: item.title,
     eventType,
     category: item.category,

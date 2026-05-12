@@ -36,7 +36,7 @@ import type { ReservationRecord, TicketRecord } from './api/tickets';
 import { VerifyEmailPage } from './components/VerifyEmailPage';
 import { ResetPasswordPage } from './components/ResetPasswordPage';
 import { I18nProvider, useI18n } from './i18n';
-import { ArrowLeft, Search, X } from 'lucide-react';
+import { ArrowLeft, Loader2, Search, X } from 'lucide-react';
 
 type ViewState = 'home' | 'all-events' | 'all-special-programs' | 'ticket-selection' | 'purchase-success' | 'profile' | 'become-organizer' | 'organizer-dashboard' | 'validator-dashboard' | 'admin-panel' | 'verify-email'
   | 'reset-password';
@@ -70,31 +70,49 @@ interface MarketplaceSearchProps {
   elevated?: boolean;
 }
 
-const MarketplaceSearch = ({ value, onChange, elevated = false }: MarketplaceSearchProps) => (
-  <section className={`${elevated ? 'pt-24' : 'pt-9'} bg-background px-4 pb-4 sm:px-6 lg:px-8`}>
-    <div className="mx-auto max-w-7xl">
-      <div className="relative mx-auto h-11 w-full max-w-[640px] rounded-full bg-[#f1f2f4] shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] dark:bg-white/10">
-        <Search className="pointer-events-none absolute left-6 top-1/2 h-5 w-5 -translate-y-1/2 text-[#6f7782] dark:text-white/60" />
-        <input
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          placeholder="Найти среди 1000 событий..."
-          className="h-full w-full rounded-full border-0 bg-transparent pl-14 pr-12 text-[16px] font-medium text-foreground outline-none placeholder:text-[#a1a8b3] dark:placeholder:text-white/45"
-        />
-        {value && (
-          <button
-            type="button"
-            onClick={() => onChange('')}
-            aria-label="Clear search"
-            className="absolute right-2 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-[#6f7782] transition-colors hover:bg-black/5 hover:text-foreground dark:text-white/60 dark:hover:bg-white/10 dark:hover:text-white"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
+const MarketplaceSearch = ({ value, onChange, elevated = false }: MarketplaceSearchProps) => {
+  const { t } = useI18n();
+
+  return (
+    <section className={`${elevated ? 'pt-24' : 'pt-9'} bg-background px-4 pb-4 sm:px-6 lg:px-8`}>
+      <div className="mx-auto max-w-7xl">
+        <div className="relative mx-auto h-11 w-full max-w-[640px] rounded-full bg-[#f1f2f4] shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] dark:bg-white/10">
+          <Search className="pointer-events-none absolute left-6 top-1/2 h-5 w-5 -translate-y-1/2 text-[#6f7782] dark:text-white/60" />
+          <input
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+            placeholder={t('common.searchMarketplace')}
+            className="h-full w-full rounded-full border-0 bg-transparent pl-14 pr-12 text-[16px] font-medium text-foreground outline-none placeholder:text-[#a1a8b3] dark:placeholder:text-white/45"
+          />
+          {value && (
+            <button
+              type="button"
+              onClick={() => onChange('')}
+              aria-label={t('common.clearSearch')}
+              className="absolute right-2 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-[#6f7782] transition-colors hover:bg-black/5 hover:text-foreground dark:text-white/60 dark:hover:bg-white/10 dark:hover:text-white"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
+
+const MarketplaceEventsLoading = () => {
+  const { t } = useI18n();
+
+  return (
+    <section className="bg-background px-4 py-20 sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-[420px] max-w-7xl flex-col items-center justify-center text-center">
+        <Loader2 className="mb-5 h-10 w-10 animate-spin text-purple-600" />
+        <h2 className="text-2xl font-bold text-foreground">{t('common.loadingEvents')}</h2>
+        <p className="mt-3 max-w-md text-muted-foreground">{t('common.loadingEventsDescription')}</p>
+      </div>
+    </section>
+  );
+};
 
 const MarketplaceBackButton = ({ label, onBack }: { label: string; onBack: () => void }) => (
   <section className="bg-background px-4 pt-24 pb-2 sm:px-6 lg:px-8">
@@ -154,6 +172,7 @@ function AppContent() {
   const [adminEvents, setAdminEvents] = useState<any[]>([]);
   const [adminArchivedEvents, setAdminArchivedEvents] = useState<any[]>([]);
   const [publishedMarketplaceEvents, setPublishedMarketplaceEvents] = useState<any[]>([]);
+  const [isMarketplaceEventsLoading, setIsMarketplaceEventsLoading] = useState(true);
   const isOrganizer = Boolean(user?.isOrganizer || user?.organizerStatus === 'approved');
   const isOrganizerActive = !isOrganizer || user?.organizerAccessStatus !== 'deactivated';
   const isAdmin = Boolean(user?.isAdmin);
@@ -205,9 +224,29 @@ function AppContent() {
   }, []);
 
   useEffect(() => {
-    authApi.publishedEvents()
-      .then((data) => setPublishedMarketplaceEvents(data.events || []))
-      .catch(() => setPublishedMarketplaceEvents([]));
+    let cancelled = false;
+    let retryTimer: number | undefined;
+
+    const loadPublishedEvents = () => {
+      setIsMarketplaceEventsLoading(true);
+      authApi.publishedEvents()
+        .then((data) => {
+          if (cancelled) return;
+          setPublishedMarketplaceEvents(data.events || []);
+          setIsMarketplaceEventsLoading(false);
+        })
+        .catch(() => {
+          if (cancelled) return;
+          retryTimer = window.setTimeout(loadPublishedEvents, 2500);
+        });
+    };
+
+    loadPublishedEvents();
+
+    return () => {
+      cancelled = true;
+      if (retryTimer) window.clearTimeout(retryTimer);
+    };
   }, []);
 
   useEffect(() => {
@@ -1097,32 +1136,38 @@ function AppContent() {
               onChange={setMarketplaceSearchQuery}
             />
 
-            <FeaturedEvents 
-              selectedCity={selectedCity} 
-              onCityChange={setSelectedCity}
-              onBookTicket={handleBookTicket}
-              favoriteIds={favorites.map(item => item.id)}
-              onToggleFavorite={handleToggleFavorite}
-              dynamicEvents={publishedMarketplaceEvents.filter((event) => event.eventType !== 'special-program')}
-              onExploreMore={handleExploreMoreEvents}
-              searchQuery={marketplaceSearchQuery}
-              hideWhenEmptyDuringSearch
-            />
-            
-            <SpecialPrograms
-              onBookTicket={handleBookTicket}
-              selectedCity={selectedCity}
-              favoriteIds={favorites.map(item => item.id)}
-              onToggleFavorite={handleToggleFavorite}
-              onExploreMore={handleExploreMoreSpecialPrograms}
-              searchQuery={marketplaceSearchQuery}
-              dynamicPrograms={publishedMarketplaceEvents
-                .filter((event) => event.eventType === 'special-program')
-                .map((event) => ({
-                  ...event,
-                  time: event.time ? `${event.date} - ${event.time}` : event.date,
-                }))}
-            />
+            {isMarketplaceEventsLoading ? (
+              <MarketplaceEventsLoading />
+            ) : (
+              <>
+                <FeaturedEvents
+                  selectedCity={selectedCity}
+                  onCityChange={setSelectedCity}
+                  onBookTicket={handleBookTicket}
+                  favoriteIds={favorites.map(item => item.id)}
+                  onToggleFavorite={handleToggleFavorite}
+                  dynamicEvents={publishedMarketplaceEvents.filter((event) => event.eventType !== 'special-program')}
+                  onExploreMore={handleExploreMoreEvents}
+                  searchQuery={marketplaceSearchQuery}
+                  hideWhenEmptyDuringSearch
+                />
+
+                <SpecialPrograms
+                  onBookTicket={handleBookTicket}
+                  selectedCity={selectedCity}
+                  favoriteIds={favorites.map(item => item.id)}
+                  onToggleFavorite={handleToggleFavorite}
+                  onExploreMore={handleExploreMoreSpecialPrograms}
+                  searchQuery={marketplaceSearchQuery}
+                  dynamicPrograms={publishedMarketplaceEvents
+                    .filter((event) => event.eventType === 'special-program')
+                    .map((event) => ({
+                      ...event,
+                      time: event.time ? `${event.date} - ${event.time}` : event.date,
+                    }))}
+                />
+              </>
+            )}
 
             <Features />
             
@@ -1164,17 +1209,21 @@ function AppContent() {
               value={marketplaceSearchQuery}
               onChange={setMarketplaceSearchQuery}
             />
-            <FeaturedEvents
-              selectedCity={selectedCity}
-              onCityChange={setSelectedCity}
-              onBookTicket={handleBookTicket}
-              favoriteIds={favorites.map(item => item.id)}
-              onToggleFavorite={handleToggleFavorite}
-              dynamicEvents={publishedMarketplaceEvents.filter((event) => event.eventType !== 'special-program')}
-              expandedMode
-              showExploreMoreButton={false}
-              searchQuery={marketplaceSearchQuery}
-            />
+            {isMarketplaceEventsLoading ? (
+              <MarketplaceEventsLoading />
+            ) : (
+              <FeaturedEvents
+                selectedCity={selectedCity}
+                onCityChange={setSelectedCity}
+                onBookTicket={handleBookTicket}
+                favoriteIds={favorites.map(item => item.id)}
+                onToggleFavorite={handleToggleFavorite}
+                dynamicEvents={publishedMarketplaceEvents.filter((event) => event.eventType !== 'special-program')}
+                expandedMode
+                showExploreMoreButton={false}
+                searchQuery={marketplaceSearchQuery}
+              />
+            )}
           </>
         ) : currentView === 'all-special-programs' ? (
           <>
@@ -1186,21 +1235,25 @@ function AppContent() {
               value={marketplaceSearchQuery}
               onChange={setMarketplaceSearchQuery}
             />
-            <SpecialPrograms
-              onBookTicket={handleBookTicket}
-              selectedCity={selectedCity}
-              favoriteIds={favorites.map(item => item.id)}
-              onToggleFavorite={handleToggleFavorite}
-              searchQuery={marketplaceSearchQuery}
-              dynamicPrograms={publishedMarketplaceEvents
-                .filter((event) => event.eventType === 'special-program')
-                .map((event) => ({
-                  ...event,
-                  time: event.time ? `${event.date} - ${event.time}` : event.date,
-                }))}
-              expandedMode
-              showExploreMoreButton={false}
-            />
+            {isMarketplaceEventsLoading ? (
+              <MarketplaceEventsLoading />
+            ) : (
+              <SpecialPrograms
+                onBookTicket={handleBookTicket}
+                selectedCity={selectedCity}
+                favoriteIds={favorites.map(item => item.id)}
+                onToggleFavorite={handleToggleFavorite}
+                searchQuery={marketplaceSearchQuery}
+                dynamicPrograms={publishedMarketplaceEvents
+                  .filter((event) => event.eventType === 'special-program')
+                  .map((event) => ({
+                    ...event,
+                    time: event.time ? `${event.date} - ${event.time}` : event.date,
+                  }))}
+                expandedMode
+                showExploreMoreButton={false}
+              />
+            )}
           </>
         ) : currentView === 'ticket-selection' ? (
           pendingEvent && (
