@@ -2,6 +2,8 @@ import express from "express";
 
 import Event from "../models/Event.js";
 import Order from "../models/Order.js";
+import { archivePastPublishedEvents, isEventPast } from "../utils/eventDates.js";
+import { getLowestDisplayPrice } from "../utils/eventPricing.js";
 
 const router = express.Router();
 const PUBLISHED_EVENTS_CACHE_MS = Number(process.env.PUBLISHED_EVENTS_CACHE_MS || 15000);
@@ -81,7 +83,7 @@ function publicPublishedEvent(event, availability = {}) {
     ageRestriction: event.ageRestriction,
     dressCode: event.dressCode,
     image: event.image,
-    price: event.price,
+    price: getLowestDisplayPrice(event),
     ticketLimit: Number(event.ticketLimit || 0),
     soldTickets: Number(availability.soldTickets || 0),
     remainingTickets: availability.remainingTickets ?? null,
@@ -105,11 +107,14 @@ function publicPublishedEvent(event, availability = {}) {
 }
 
 async function buildPublishedEventsPayload() {
+  const archiveResult = await archivePastPublishedEvents();
+  if (archiveResult.archivedCount > 0) invalidatePublishedEventsCache();
+
   const allPublishedEvents = await Event.find({ status: "published", image: { $exists: true, $nin: ["", null] } })
     .sort({ createdAt: -1 })
     .limit(400)
     .lean();
-  const events = allPublishedEvents.filter(hasDisplayImage);
+  const events = allPublishedEvents.filter(hasDisplayImage).filter((event) => !isEventPast(event));
   const { soldMap, activityUsageByEvent } = await loadAvailability(events);
 
   return {

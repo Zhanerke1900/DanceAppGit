@@ -9,6 +9,7 @@ import { generateTicketBarcodeDataUrl } from "../utils/ticketBarcode.js";
 import { sendTicketEmail } from "../utils/sendTicketEmail.js";
 import { sendRefundEmail } from "../utils/sendEmails.js";
 import { isAdminEmail } from "../utils/admin.js";
+import { getEventStartAt, isEventPast } from "../utils/eventDates.js";
 
 function queueTicketEmailDelivery({ email, fullName, event, tickets }) {
   setTimeout(() => {
@@ -86,26 +87,7 @@ function applyManagedEventPrices(items, event) {
 }
 
 function parseEventStartDate(eventSnapshot = {}) {
-  const rawDate = String(eventSnapshot?.date || "").trim();
-  const rawTime = String(eventSnapshot?.time || "").trim();
-
-  const direct = new Date(rawTime ? `${rawDate} ${rawTime}` : rawDate);
-  if (!Number.isNaN(direct.getTime())) return direct;
-
-  const monthRangeMatch = rawDate.match(/^([A-Za-z]+)\s+(\d{1,2})\s*-\s*\d{1,2},\s*(\d{4})$/);
-  if (monthRangeMatch) {
-    const normalized = `${monthRangeMatch[1]} ${monthRangeMatch[2]}, ${monthRangeMatch[3]}${rawTime ? ` ${rawTime}` : ""}`;
-    const parsed = new Date(normalized);
-    if (!Number.isNaN(parsed.getTime())) return parsed;
-  }
-
-  const splitRange = rawDate.split("-").map((part) => part.trim()).filter(Boolean);
-  if (splitRange.length > 1) {
-    const parsed = new Date(rawTime ? `${splitRange[0]} ${rawTime}` : splitRange[0]);
-    if (!Number.isNaN(parsed.getTime())) return parsed;
-  }
-
-  return null;
+  return getEventStartAt(eventSnapshot);
 }
 
 const DEFAULT_DEPOSIT_RATE = 0.4;
@@ -159,9 +141,7 @@ export function getOrderPaymentDueNow(order) {
 }
 
 function isPastEventSnapshot(eventSnapshot = {}) {
-  const eventStart = parseEventStartDate(eventSnapshot);
-  if (!eventStart || Number.isNaN(eventStart.getTime())) return false;
-  return eventStart.getTime() < Date.now();
+  return isEventPast(eventSnapshot);
 }
 
 async function getEventSoldTickets(eventId) {
@@ -230,7 +210,6 @@ export function publicTicket(ticket) {
 }
 
 export function publicReservation(order) {
-  const eventStart = parseEventStartDate(order.eventSnapshot);
   return {
     id: order._id,
     orderId: order._id,
@@ -250,7 +229,7 @@ export function publicReservation(order) {
     balanceDueDeadlineHours: Number(order.balanceDueDeadlineHours || DEFAULT_BALANCE_DEADLINE_HOURS),
     refundPolicyHours: Number(order.refundPolicyHours || DEFAULT_REFUND_POLICY_HOURS),
     canPayBalance: reservationCanBeCompleted(order),
-    isPast: eventStart ? eventStart.getTime() < Date.now() : false,
+    isPast: isEventPast(order.eventSnapshot),
     event: order.eventSnapshot,
   };
 }

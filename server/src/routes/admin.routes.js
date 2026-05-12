@@ -4,6 +4,7 @@ import Event from "../models/Event.js";
 import Order from "../models/Order.js";
 import { requireAuth } from "../middleware/auth.middleware.js";
 import { getUserRole, requireRole } from "../middleware/role.middleware.js";
+import { getLowestDisplayPrice } from "../utils/eventPricing.js";
 
 const router = express.Router();
 
@@ -27,7 +28,7 @@ function publicAdminEvent(event) {
     address: event.address,
     eventType: event.eventType,
     image: event.image,
-    price: event.price,
+    price: getLowestDisplayPrice(event),
   };
 }
 

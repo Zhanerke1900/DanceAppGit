@@ -6,6 +6,8 @@ import Order from "../models/Order.js";
 import Ticket from "../models/Ticket.js";
 import User from "../models/User.js";
 import { requireAuth } from "../middleware/auth.middleware.js";
+import { archivePastPublishedEvents } from "../utils/eventDates.js";
+import { getLowestDisplayPrice } from "../utils/eventPricing.js";
 import { makeCode, makeToken, hashToken } from "../utils/tokens.js";
 import { sendValidatorInviteEmail } from "../utils/sendEmails.js";
 
@@ -81,7 +83,7 @@ function normalizeActivities(value) {
 }
 
 function normalizeEventPayload(payload = {}) {
-  return {
+  const normalized = {
     status: normalizeText(payload.status),
     title: normalizeText(payload.title),
     eventType: normalizeText(payload.eventType),
@@ -111,6 +113,9 @@ function normalizeEventPayload(payload = {}) {
     schedule: normalizeSchedule(payload.schedule),
     activities: normalizeActivities(payload.activities),
   };
+
+  normalized.price = getLowestDisplayPrice(normalized);
+  return normalized;
 }
 
 function applyEventData(event, data) {
@@ -157,7 +162,7 @@ function snapshotEventData(event) {
     ageRestriction: event.ageRestriction,
     dressCode: event.dressCode,
     image: event.image,
-    price: event.price,
+    price: getLowestDisplayPrice(event),
     ticketLimit: Number(event.ticketLimit || 0),
     ticketPricing: {
       generalAdmission: event.ticketPricing?.generalAdmission || "",
@@ -257,6 +262,7 @@ async function loadOrganizerEventAvailability(events) {
 
 router.get("/events", async (req, res) => {
   try {
+    await archivePastPublishedEvents({ organizer: req.user._id });
     const events = await Event.find({ organizer: req.user._id }).sort({ createdAt: -1 }).limit(200).lean();
     const soldMap = await loadOrganizerEventAvailability(events);
     return res.json({
@@ -325,6 +331,7 @@ router.get("/orders", async (req, res) => {
 
 router.get("/analytics", async (req, res) => {
   try {
+    await archivePastPublishedEvents({ organizer: req.user._id });
     const [orders, events] = await Promise.all([
       Order.find({ organizer: req.user._id, paymentStatus: { $in: ["paid", "reserved"] } }).sort({ createdAt: -1 }).limit(1000).lean(),
       Event.find({ organizer: req.user._id }).limit(500).lean(),
