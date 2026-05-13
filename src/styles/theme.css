@@ -2068,3 +2068,612 @@ html.dark .role-view > div > aside + main {
     min-height: 9rem;
   }
 }
+
+.role-view.organizer-portal {
+  --organizer-page: #f6f4fb;
+  --organizer-surface: rgba(255, 255, 255, 0.86);
+  --organizer-surface-strong: #ffffff;
+  --organizer-surface-muted: rgba(82, 65, 132, 0.06);
+  --organizer-border: rgba(67, 56, 112, 0.16);
+  --organizer-border-strong: rgba(91, 78, 224, 0.28);
+  --organizer-text: #171427;
+  --organizer-muted: #68617d;
+  --organizer-accent: #7357ff;
+  --organizer-accent-2: #13a3b8;
+  --organizer-shadow: 0 18px 50px rgba(38, 28, 74, 0.1);
+  background:
+    radial-gradient(circle at top left, rgba(115, 87, 255, 0.12), transparent 32rem),
+    var(--organizer-page) !important;
+  color: var(--organizer-text) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Calibri", sans-serif;
+}
+
+html.dark .role-view.organizer-portal {
+  --organizer-page: #080910;
+  --organizer-surface: rgba(19, 21, 31, 0.78);
+  --organizer-surface-strong: #11131d;
+  --organizer-surface-muted: rgba(255, 255, 255, 0.045);
+  --organizer-border: rgba(255, 255, 255, 0.1);
+  --organizer-border-strong: rgba(162, 142, 255, 0.28);
+  --organizer-text: #f6f7fb;
+  --organizer-muted: #a6adbd;
+  --organizer-accent: #9d86ff;
+  --organizer-accent-2: #55d6e8;
+  --organizer-shadow: 0 22px 70px rgba(0, 0, 0, 0.36);
+  background:
+    radial-gradient(circle at 8% 0%, rgba(125, 92, 255, 0.18), transparent 28rem),
+    radial-gradient(circle at 90% 8%, rgba(30, 183, 209, 0.12), transparent 24rem),
+    var(--organizer-page) !important;
+}
+
+.role-view.organizer-portal .lucide {
+  display: block !important;
+}
+
+.role-view.organizer-portal .organizer-shell {
+  min-height: 100vh !important;
+  padding-top: 5rem !important;
+  background: transparent !important;
+}
+
+.role-view.organizer-portal .organizer-tabs-bar {
+  position: sticky !important;
+  top: 5rem !important;
+  z-index: 30 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 1rem !important;
+  padding: 0.75rem clamp(1rem, 3vw, 2rem) !important;
+  border-bottom: 1px solid var(--organizer-border) !important;
+  background: color-mix(in srgb, var(--organizer-surface-strong) 88%, transparent) !important;
+  backdrop-filter: blur(18px) !important;
+  box-shadow: 0 12px 34px rgba(16, 14, 28, 0.08) !important;
+}
+
+html.dark .role-view.organizer-portal .organizer-tabs-bar {
+  background: rgba(11, 12, 18, 0.82) !important;
+}
+
+.role-view.organizer-portal .organizer-tabs-heading {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.55rem !important;
+  min-width: max-content !important;
+  color: var(--organizer-text) !important;
+  font-size: 0.78rem !important;
+  font-weight: 750 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+.role-view.organizer-portal .organizer-status-dot {
+  width: 0.55rem !important;
+  height: 0.55rem !important;
+  border-radius: 999px !important;
+  background: #34d399 !important;
+  box-shadow: 0 0 0 5px rgba(52, 211, 153, 0.12) !important;
+}
+
+.role-view.organizer-portal .organizer-tabs {
+  display: flex !important;
+  flex: 1 1 auto !important;
+  flex-wrap: wrap !important;
+  gap: 0.45rem !important;
+  justify-content: flex-end !important;
+  padding: 0.25rem !important;
+  border: 1px solid var(--organizer-border) !important;
+  border-radius: 999px !important;
+  background: var(--organizer-surface-muted) !important;
+}
+
+.role-view.organizer-portal .organizer-tab {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.45rem !important;
+  min-height: 2.35rem !important;
+  padding: 0.55rem 0.8rem !important;
+  border: 1px solid transparent !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  color: var(--organizer-muted) !important;
+  font-size: 0.86rem !important;
+  font-weight: 650 !important;
+  line-height: 1 !important;
+  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, transform 180ms ease !important;
+}
+
+.role-view.organizer-portal .organizer-tab svg {
+  width: 1rem !important;
+  height: 1rem !important;
+}
+
+.role-view.organizer-portal .organizer-tab:hover {
+  transform: translateY(-1px) !important;
+  background: var(--organizer-surface) !important;
+  color: var(--organizer-text) !important;
+}
+
+.role-view.organizer-portal .organizer-tab:focus-visible,
+.role-view.organizer-portal .organizer-primary-button:focus-visible,
+.role-view.organizer-portal .organizer-secondary-button:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--organizer-accent) 70%, white) !important;
+  outline-offset: 2px !important;
+}
+
+.role-view.organizer-portal .organizer-tab.is-active {
+  border-color: var(--organizer-border-strong) !important;
+  background: var(--organizer-surface-strong) !important;
+  color: var(--organizer-text) !important;
+  box-shadow: 0 8px 22px rgba(66, 51, 130, 0.12) !important;
+}
+
+.role-view.organizer-portal .organizer-tab.is-disabled {
+  cursor: not-allowed !important;
+  opacity: 0.45 !important;
+}
+
+.role-view.organizer-portal .organizer-main {
+  min-width: 0 !important;
+  min-height: calc(100vh - 5rem) !important;
+  background: transparent !important;
+}
+
+.role-view.organizer-portal .organizer-dashboard {
+  width: min(100%, 1440px) !important;
+  margin: 0 auto !important;
+  padding: clamp(1rem, 3vw, 2rem) !important;
+  color: var(--organizer-text) !important;
+}
+
+.role-view.organizer-portal .organizer-hero,
+.role-view.organizer-portal .organizer-panel,
+.role-view.organizer-portal .organizer-metric-card {
+  border: 1px solid var(--organizer-border) !important;
+  border-radius: 1rem !important;
+  background: var(--organizer-surface) !important;
+  box-shadow: var(--organizer-shadow) !important;
+  backdrop-filter: blur(18px) !important;
+}
+
+.role-view.organizer-portal .organizer-hero {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 1rem !important;
+  padding: clamp(1rem, 2.5vw, 1.6rem) !important;
+}
+
+.role-view.organizer-portal .organizer-eyebrow,
+.role-view.organizer-portal .organizer-section-label {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.45rem !important;
+  color: var(--organizer-accent) !important;
+  font-size: 0.72rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+}
+
+.role-view.organizer-portal .organizer-eyebrow svg {
+  width: 0.95rem !important;
+  height: 0.95rem !important;
+}
+
+.role-view.organizer-portal .organizer-hero h1 {
+  margin: 0.4rem 0 0.35rem !important;
+  color: var(--organizer-text) !important;
+  font-size: clamp(1.8rem, 4vw, 3.2rem) !important;
+  font-weight: 780 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.02 !important;
+}
+
+.role-view.organizer-portal .organizer-hero p,
+.role-view.organizer-portal .organizer-panel p,
+.role-view.organizer-portal .organizer-metric-card p {
+  color: var(--organizer-muted) !important;
+}
+
+.role-view.organizer-portal .organizer-hero p {
+  max-width: 43rem !important;
+  margin: 0 !important;
+  font-size: 0.98rem !important;
+  line-height: 1.6 !important;
+}
+
+.role-view.organizer-portal .organizer-primary-button,
+.role-view.organizer-portal .organizer-secondary-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  min-height: 2.75rem !important;
+  border-radius: 0.75rem !important;
+  font-size: 0.92rem !important;
+  font-weight: 750 !important;
+  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease, border-color 180ms ease !important;
+}
+
+.role-view.organizer-portal .organizer-primary-button {
+  min-width: max-content !important;
+  padding: 0.78rem 1rem !important;
+  border: 1px solid color-mix(in srgb, var(--organizer-accent) 72%, white) !important;
+  background: linear-gradient(135deg, var(--organizer-accent), #5d7cff) !important;
+  color: #ffffff !important;
+  box-shadow: 0 14px 32px rgba(91, 78, 224, 0.28) !important;
+}
+
+.role-view.organizer-portal .organizer-primary-button:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 18px 40px rgba(91, 78, 224, 0.36) !important;
+}
+
+.role-view.organizer-portal .organizer-primary-button:disabled,
+.role-view.organizer-portal .organizer-secondary-button:disabled {
+  cursor: not-allowed !important;
+  opacity: 0.55 !important;
+  transform: none !important;
+}
+
+.role-view.organizer-portal .organizer-secondary-button {
+  padding: 0.7rem 0.95rem !important;
+  border: 1px solid var(--organizer-border-strong) !important;
+  background: var(--organizer-surface-strong) !important;
+  color: var(--organizer-text) !important;
+}
+
+.role-view.organizer-portal .organizer-secondary-button:hover {
+  transform: translateY(-1px) !important;
+  border-color: var(--organizer-accent) !important;
+}
+
+.role-view.organizer-portal .organizer-alert {
+  margin-top: 1rem !important;
+  padding: 0.85rem 1rem !important;
+  border: 1px solid rgba(245, 158, 11, 0.35) !important;
+  border-radius: 0.85rem !important;
+  background: rgba(245, 158, 11, 0.1) !important;
+  color: #d97706 !important;
+}
+
+.role-view.organizer-portal .organizer-metrics-grid {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 0.9rem !important;
+  margin-top: 1rem !important;
+}
+
+.role-view.organizer-portal .organizer-metric-card {
+  min-height: 9.4rem !important;
+  padding: 1rem !important;
+  transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease !important;
+}
+
+.role-view.organizer-portal .organizer-metric-card:hover,
+.role-view.organizer-portal .organizer-panel:hover {
+  transform: translateY(-2px) !important;
+  border-color: var(--organizer-border-strong) !important;
+}
+
+.role-view.organizer-portal .organizer-metric-top {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.75rem !important;
+  color: var(--organizer-muted) !important;
+  font-size: 0.78rem !important;
+  font-weight: 750 !important;
+}
+
+.role-view.organizer-portal .organizer-metric-top svg {
+  width: 1.1rem !important;
+  height: 1.1rem !important;
+  color: var(--organizer-accent) !important;
+}
+
+.role-view.organizer-portal .organizer-metric-card strong {
+  display: block !important;
+  margin-top: 1rem !important;
+  color: var(--organizer-text) !important;
+  font-size: clamp(2rem, 4vw, 2.65rem) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.role-view.organizer-portal .organizer-metric-card p {
+  margin: 0.65rem 0 0 !important;
+  font-size: 0.82rem !important;
+  line-height: 1.4 !important;
+}
+
+.role-view.organizer-portal .tone-green .organizer-metric-top svg { color: #34d399 !important; }
+.role-view.organizer-portal .tone-amber .organizer-metric-top svg { color: #f59e0b !important; }
+.role-view.organizer-portal .tone-cyan .organizer-metric-top svg { color: var(--organizer-accent-2) !important; }
+
+.role-view.organizer-portal .organizer-content-grid,
+.role-view.organizer-portal .organizer-lower-grid {
+  display: grid !important;
+  gap: 1rem !important;
+  margin-top: 1rem !important;
+}
+
+.role-view.organizer-portal .organizer-content-grid {
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr) !important;
+}
+
+.role-view.organizer-portal .organizer-lower-grid {
+  grid-template-columns: minmax(320px, 0.9fr) minmax(260px, 0.55fr) minmax(280px, 0.65fr) !important;
+}
+
+.role-view.organizer-portal .organizer-side-stack {
+  display: grid !important;
+  gap: 1rem !important;
+}
+
+.role-view.organizer-portal .organizer-panel {
+  min-width: 0 !important;
+  padding: 1rem !important;
+  transition: transform 180ms ease, border-color 180ms ease !important;
+}
+
+.role-view.organizer-portal .organizer-panel-header {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 0.8rem !important;
+  margin-bottom: 0.95rem !important;
+}
+
+.role-view.organizer-portal .organizer-panel h2,
+.role-view.organizer-portal .organizer-empty-state h3 {
+  margin: 0.25rem 0 0 !important;
+  color: var(--organizer-text) !important;
+  font-size: 1.05rem !important;
+  font-weight: 780 !important;
+  letter-spacing: 0 !important;
+}
+
+.role-view.organizer-portal .organizer-chip,
+.role-view.organizer-portal .organizer-status {
+  display: inline-flex !important;
+  align-items: center !important;
+  min-width: max-content !important;
+  border: 1px solid var(--organizer-border) !important;
+  border-radius: 999px !important;
+  background: var(--organizer-surface-muted) !important;
+  color: var(--organizer-muted) !important;
+  font-size: 0.72rem !important;
+  font-weight: 750 !important;
+  line-height: 1 !important;
+  text-transform: capitalize !important;
+}
+
+.role-view.organizer-portal .organizer-chip {
+  padding: 0.45rem 0.62rem !important;
+}
+
+.role-view.organizer-portal .organizer-status {
+  padding: 0.38rem 0.55rem !important;
+}
+
+.role-view.organizer-portal .status-published { color: #10b981 !important; border-color: rgba(16, 185, 129, 0.28) !important; }
+.role-view.organizer-portal .status-pending,
+.role-view.organizer-portal .status-pending-update-review { color: #f59e0b !important; border-color: rgba(245, 158, 11, 0.32) !important; }
+.role-view.organizer-portal .status-draft { color: var(--organizer-accent) !important; border-color: var(--organizer-border-strong) !important; }
+
+.role-view.organizer-portal .organizer-event-list,
+.role-view.organizer-portal .organizer-mini-list,
+.role-view.organizer-portal .organizer-activity-feed,
+.role-view.organizer-portal .organizer-checklist {
+  display: grid !important;
+  gap: 0.65rem !important;
+}
+
+.role-view.organizer-portal .organizer-event-row,
+.role-view.organizer-portal .organizer-mini-row,
+.role-view.organizer-portal .organizer-activity-row,
+.role-view.organizer-portal .organizer-check-row {
+  border: 1px solid var(--organizer-border) !important;
+  border-radius: 0.8rem !important;
+  background: var(--organizer-surface-muted) !important;
+}
+
+.role-view.organizer-portal .organizer-event-row {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 1rem !important;
+  align-items: center !important;
+  padding: 0.9rem !important;
+}
+
+.role-view.organizer-portal .organizer-event-row strong,
+.role-view.organizer-portal .organizer-mini-row strong,
+.role-view.organizer-portal .organizer-activity-row strong {
+  display: block !important;
+  overflow: hidden !important;
+  color: var(--organizer-text) !important;
+  font-size: 0.93rem !important;
+  font-weight: 740 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.role-view.organizer-portal .organizer-event-row span,
+.role-view.organizer-portal .organizer-mini-row span,
+.role-view.organizer-portal .organizer-activity-row span,
+.role-view.organizer-portal .organizer-row-meta {
+  color: var(--organizer-muted) !important;
+  font-size: 0.8rem !important;
+}
+
+.role-view.organizer-portal .organizer-row-meta {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  flex-wrap: wrap !important;
+  gap: 0.45rem !important;
+  text-align: right !important;
+}
+
+.role-view.organizer-portal .organizer-mini-row,
+.role-view.organizer-portal .organizer-activity-row {
+  display: grid !important;
+  grid-template-columns: 2rem minmax(0, 1fr) !important;
+  gap: 0.7rem !important;
+  align-items: center !important;
+  padding: 0.75rem !important;
+}
+
+.role-view.organizer-portal .organizer-mini-row svg,
+.role-view.organizer-portal .organizer-activity-row svg,
+.role-view.organizer-portal .organizer-empty-state svg {
+  color: var(--organizer-accent) !important;
+}
+
+.role-view.organizer-portal .organizer-quiet-empty,
+.role-view.organizer-portal .organizer-empty-state {
+  border: 1px dashed var(--organizer-border-strong) !important;
+  border-radius: 0.9rem !important;
+  background: var(--organizer-surface-muted) !important;
+  color: var(--organizer-muted) !important;
+}
+
+.role-view.organizer-portal .organizer-quiet-empty {
+  padding: 1rem !important;
+  font-size: 0.88rem !important;
+}
+
+.role-view.organizer-portal .organizer-empty-state {
+  display: grid !important;
+  place-items: center !important;
+  min-height: 18rem !important;
+  padding: 2rem !important;
+  text-align: center !important;
+}
+
+.role-view.organizer-portal .organizer-empty-state svg {
+  width: 2rem !important;
+  height: 2rem !important;
+}
+
+.role-view.organizer-portal .organizer-empty-state p {
+  max-width: 24rem !important;
+  margin: 0.45rem auto 0.9rem !important;
+  font-size: 0.9rem !important;
+  line-height: 1.5 !important;
+}
+
+.role-view.organizer-portal .organizer-onboarding {
+  background:
+    linear-gradient(135deg, rgba(115, 87, 255, 0.13), transparent 48%),
+    var(--organizer-surface) !important;
+}
+
+.role-view.organizer-portal .organizer-check-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  padding: 0.7rem !important;
+}
+
+.role-view.organizer-portal .organizer-check-row span {
+  display: inline-grid !important;
+  place-items: center !important;
+  width: 1.65rem !important;
+  height: 1.65rem !important;
+  border-radius: 999px !important;
+  background: var(--organizer-surface-strong) !important;
+  color: var(--organizer-accent) !important;
+  font-size: 0.78rem !important;
+  font-weight: 800 !important;
+}
+
+.role-view.organizer-portal .organizer-check-row p {
+  margin: 0 !important;
+  color: var(--organizer-text) !important;
+  font-size: 0.9rem !important;
+  font-weight: 650 !important;
+}
+
+.role-view.organizer-portal .organizer-wide-button {
+  width: 100% !important;
+  margin-top: 0.85rem !important;
+}
+
+@media (max-width: 1180px) {
+  .role-view.organizer-portal .organizer-metrics-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .role-view.organizer-portal .organizer-content-grid,
+  .role-view.organizer-portal .organizer-lower-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .role-view.organizer-portal .organizer-shell {
+    padding-top: 4.5rem !important;
+  }
+
+  .role-view.organizer-portal .organizer-tabs-bar {
+    top: 4.5rem !important;
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 0.65rem !important;
+  }
+
+  .role-view.organizer-portal .organizer-tabs {
+    width: 100% !important;
+    justify-content: flex-start !important;
+    border-radius: 0.9rem !important;
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .role-view.organizer-portal .organizer-tab {
+    min-width: max-content !important;
+  }
+
+  .role-view.organizer-portal .organizer-hero {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+
+  .role-view.organizer-portal .organizer-primary-button {
+    width: 100% !important;
+  }
+
+  .role-view.organizer-portal .organizer-metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .role-view.organizer-portal .organizer-event-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  .role-view.organizer-portal .organizer-row-meta {
+    justify-content: flex-start !important;
+    text-align: left !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .role-view.organizer-portal .organizer-dashboard {
+    padding: 0.85rem !important;
+  }
+
+  .role-view.organizer-portal .organizer-metrics-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .role-view.organizer-portal .organizer-panel,
+  .role-view.organizer-portal .organizer-hero,
+  .role-view.organizer-portal .organizer-metric-card {
+    border-radius: 0.85rem !important;
+  }
+}
