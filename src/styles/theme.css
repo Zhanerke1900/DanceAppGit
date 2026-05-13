@@ -1054,3 +1054,281 @@ html.dark .role-view > div > aside + main {
   padding-left: 0 !important;
   padding-top: 0 !important;
 }
+
+.developer-admin-panel {
+  --role-page: #090a12;
+  --role-surface: rgba(18, 19, 31, 0.86);
+  --role-surface-muted: rgba(26, 27, 43, 0.76);
+  --role-line: rgba(255, 255, 255, 0);
+  --role-line-strong: rgba(255, 255, 255, 0);
+  --role-text: #ebe8f7;
+  --role-muted: #a9a4ba;
+  --role-accent: #b9a7ff;
+  min-height: 100vh;
+  padding-top: 6.75rem !important;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(111, 72, 196, 0.22), transparent 30%),
+    radial-gradient(circle at 85% 12%, rgba(92, 72, 166, 0.14), transparent 28%),
+    linear-gradient(180deg, #090a12 0%, #0d0e18 48%, #090a12 100%) !important;
+  color: var(--role-text) !important;
+}
+
+.developer-admin-panel *,
+.developer-admin-panel *::before,
+.developer-admin-panel *::after {
+  outline-color: transparent !important;
+}
+
+.developer-admin-panel [class*="border"] {
+  border-color: transparent !important;
+}
+
+.developer-admin-panel .role-admin-nav {
+  top: 5.75rem !important;
+  margin-top: 0.875rem !important;
+  border: 0 !important;
+  border-radius: 1.35rem !important;
+  background:
+    linear-gradient(180deg, rgba(23, 24, 39, 0.92), rgba(14, 15, 25, 0.88)) !important;
+  box-shadow:
+    0 18px 50px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.045) !important;
+  backdrop-filter: blur(18px);
+}
+
+.developer-admin-panel .role-admin-nav > div {
+  min-height: 3.25rem;
+}
+
+.developer-admin-panel .role-admin-nav p {
+  color: #dcd5ff !important;
+  letter-spacing: 0.14em !important;
+}
+
+.developer-admin-panel .admin-tab {
+  border: 0 !important;
+  border-radius: 999px !important;
+  color: #a9a4ba !important;
+  background: transparent !important;
+}
+
+.developer-admin-panel .admin-tab:hover {
+  color: #eee9ff !important;
+  background: rgba(255, 255, 255, 0.055) !important;
+}
+
+.developer-admin-panel .admin-tab-active {
+  color: #f3efff !important;
+  background: linear-gradient(180deg, rgba(122, 92, 207, 0.34), rgba(86, 67, 154, 0.22)) !important;
+  box-shadow: 0 12px 26px rgba(71, 45, 149, 0.22) !important;
+}
+
+.developer-admin-panel .admin-main {
+  padding-top: 2rem !important;
+}
+
+.developer-admin-panel main h1,
+.developer-admin-panel main h2,
+.developer-admin-panel main h3,
+.developer-admin-panel main .text-white,
+.developer-admin-panel main .text-gray-900,
+.developer-admin-panel main .text-gray-800 {
+  color: #eeeaf9 !important;
+}
+
+.developer-admin-panel main .text-gray-300,
+.developer-admin-panel main .text-gray-400,
+.developer-admin-panel main .text-gray-500,
+.developer-admin-panel main .text-gray-600 {
+  color: #a9a4ba !important;
+}
+
+.developer-admin-panel main [class*="text-purple"] {
+  color: #b9a7ff !important;
+}
+
+.developer-admin-panel .admin-stat-card,
+.developer-admin-panel .admin-surface,
+.developer-admin-panel .admin-list-row,
+.developer-admin-panel .admin-side-panel,
+.developer-admin-panel .admin-empty-state,
+.developer-admin-panel .admin-modal,
+.developer-admin-panel .admin-segmented {
+  border: 0 !important;
+  border-radius: 1.45rem !important;
+  background:
+    linear-gradient(180deg, rgba(24, 25, 40, 0.88), rgba(15, 16, 27, 0.84)) !important;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+}
+
+.developer-admin-panel .admin-stat-card {
+  min-height: 8.75rem;
+  padding: 1.35rem !important;
+}
+
+.developer-admin-panel .admin-stat-card p:first-child,
+.developer-admin-panel .admin-metric-row p:first-child {
+  color: #9f98b2 !important;
+  font-size: 0.78rem !important;
+  letter-spacing: 0.015em;
+}
+
+.developer-admin-panel .admin-stat-card p:nth-child(2),
+.developer-admin-panel .admin-metric-row p:nth-child(2) {
+  color: #f0ecfb !important;
+  font-weight: 650 !important;
+}
+
+.developer-admin-panel .admin-chart-panel,
+.developer-admin-panel .admin-summary-panel {
+  padding: 1.45rem !important;
+}
+
+.developer-admin-panel .admin-metric-row {
+  border: 0 !important;
+  border-radius: 1rem !important;
+  background: rgba(255, 255, 255, 0.035) !important;
+  box-shadow: none !important;
+}
+
+.developer-admin-panel .admin-chart {
+  border: 0 !important;
+  border-radius: 1.15rem !important;
+  background:
+    linear-gradient(180deg, rgba(5, 6, 12, 0.34), rgba(255, 255, 255, 0.025)) !important;
+  box-shadow: inset 0 1px 28px rgba(255, 255, 255, 0.025) !important;
+}
+
+.developer-admin-panel .role-chart-grid {
+  stroke: rgba(255, 255, 255, 0.07) !important;
+  stroke-width: 0.65 !important;
+}
+
+.developer-admin-panel .role-chart-primary,
+.developer-admin-panel .role-chart-secondary,
+.developer-admin-panel .role-chart-tertiary {
+  stroke-width: 1.15 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
+.developer-admin-panel .role-chart-primary {
+  stroke: #c9bcff !important;
+  filter: drop-shadow(0 0 6px rgba(185, 167, 255, 0.16));
+}
+
+.developer-admin-panel .role-chart-secondary {
+  stroke: rgba(210, 203, 232, 0.78) !important;
+}
+
+.developer-admin-panel .role-chart-tertiary {
+  stroke: rgba(154, 147, 174, 0.7) !important;
+}
+
+.developer-admin-panel .admin-segmented {
+  display: inline-flex !important;
+  gap: 0.25rem !important;
+  width: auto !important;
+  padding: 0.35rem !important;
+  background: rgba(255, 255, 255, 0.045) !important;
+  box-shadow: none !important;
+}
+
+.developer-admin-panel .admin-segmented button {
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+}
+
+.developer-admin-panel .admin-segmented .admin-segment-active {
+  color: #f5f1ff !important;
+  background: rgba(122, 92, 207, 0.42) !important;
+}
+
+.developer-admin-panel .admin-list-row {
+  background:
+    linear-gradient(180deg, rgba(22, 23, 36, 0.82), rgba(15, 16, 25, 0.74)) !important;
+}
+
+.developer-admin-panel .role-moderation-item {
+  border-left: 0 !important;
+  padding-left: 1.25rem !important;
+  background:
+    linear-gradient(90deg, rgba(122, 92, 207, 0.18), transparent 32%),
+    linear-gradient(180deg, rgba(22, 23, 36, 0.84), rgba(15, 16, 25, 0.75)) !important;
+}
+
+.developer-admin-panel .admin-side-panel {
+  top: 7.5rem !important;
+}
+
+.developer-admin-panel .admin-input,
+.developer-admin-panel input,
+.developer-admin-panel select,
+.developer-admin-panel textarea {
+  border: 0 !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #eeeaf9 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+}
+
+.developer-admin-panel .admin-input:focus,
+.developer-admin-panel input:focus,
+.developer-admin-panel select:focus,
+.developer-admin-panel textarea:focus {
+  background: rgba(255, 255, 255, 0.085) !important;
+  box-shadow: 0 0 28px rgba(122, 92, 207, 0.14) !important;
+}
+
+.developer-admin-panel .role-action-neutral,
+.developer-admin-panel .role-action-success,
+.developer-admin-panel .role-action-warning,
+.developer-admin-panel .role-action-danger {
+  border: 0 !important;
+  border-radius: 999px !important;
+  color: #f6f2ff !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.16) !important;
+}
+
+.developer-admin-panel .role-action-neutral {
+  background: rgba(255, 255, 255, 0.07) !important;
+}
+
+.developer-admin-panel .role-action-success {
+  background: linear-gradient(180deg, #23894b, #1d6f3e) !important;
+}
+
+.developer-admin-panel .role-action-warning {
+  background: linear-gradient(180deg, #b87512, #935a0b) !important;
+}
+
+.developer-admin-panel .role-action-danger {
+  background: linear-gradient(180deg, #c83a31, #a52820) !important;
+}
+
+@media (max-width: 767px) {
+  .developer-admin-panel {
+    padding-top: 5.75rem !important;
+  }
+
+  .developer-admin-panel .role-admin-nav {
+    top: 4.9rem !important;
+    width: calc(100% - 1rem) !important;
+    margin-top: 0.5rem !important;
+    padding: 0.75rem !important;
+  }
+
+  .developer-admin-panel .admin-main {
+    padding: 1rem !important;
+    padding-bottom: 4rem !important;
+  }
+
+  .developer-admin-panel .admin-stat-card,
+  .developer-admin-panel .admin-surface,
+  .developer-admin-panel .admin-list-row,
+  .developer-admin-panel .admin-side-panel {
+    border-radius: 1.1rem !important;
+  }
+}
