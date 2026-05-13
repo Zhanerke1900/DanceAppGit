@@ -195,7 +195,7 @@ function getRefundableFreedomPayTransactions(order) {
   return [];
 }
 
-async function refundOrderPayment(order, amount) {
+async function refundOrderPayment(order, amount, refundScopeId = "") {
   const refundAmount = money(amount);
   if (refundAmount <= 0) return [];
   if (order.paymentProvider !== "freedompay") return [];
@@ -229,6 +229,7 @@ async function refundOrderPayment(order, amount) {
       paymentId: item.transaction.paymentId,
       amount: amountForTransaction,
       orderId: order._id,
+      idempotencyKey: `${order._id}-${refundScopeId || "refund"}-${item.transaction.paymentId}-${amountForTransaction}`,
     });
     refunds.push(refund);
     remaining = money(remaining - amountForTransaction);
@@ -708,9 +709,10 @@ export async function cancelReservationForUser({ orderId, user }) {
   const msUntilEvent = eventStart.getTime() - Date.now();
   const refundPolicyMs = Number(order.refundPolicyHours || DEFAULT_REFUND_POLICY_HOURS) * 60 * 60 * 1000;
   const refundEligible = msUntilEvent > refundPolicyMs;
+  let refunds = [];
 
   if (refundEligible) {
-    await refundOrderPayment(order, order.amountPaid || order.depositAmount || 0);
+    refunds = await refundOrderPayment(order, order.amountPaid || order.depositAmount || 0, `reservation-${order._id}`);
   }
 
   order.paymentStatus = refundEligible ? "refunded" : "failed";
@@ -722,8 +724,11 @@ export async function cancelReservationForUser({ orderId, user }) {
   return {
     orderId: order._id,
     refundEligible,
+    paymentRefunds: refunds,
     message: refundEligible
-      ? "Reservation cancellation requested successfully"
+      ? refunds.some((refund) => refund.simulated)
+        ? "Reservation cancelled. Test refund was simulated because Freedom Pay test mode rejected the refund operation"
+        : "Reservation cancellation requested successfully"
       : "Reservation cancelled. Prepayment is non-refundable less than 48 hours before the event",
   };
 }
@@ -766,7 +771,7 @@ export async function refundTicketForUser({ ticketId, user }) {
   }
 
   const refundAmount = money(ticket.amountPaid || ticket.price || 0);
-  const refunds = await refundOrderPayment(order, refundAmount);
+  const refunds = await refundOrderPayment(order, refundAmount, `ticket-${ticket._id}`);
 
   ticket.status = "cancelled";
   await ticket.save();

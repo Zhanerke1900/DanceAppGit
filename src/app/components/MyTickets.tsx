@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { motion } from 'motion/react';
 import { Calendar, MapPin, Ticket, ChevronRight, QrCode, Barcode, X, CreditCard, Clock } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import type { ReservationRecord, TicketRecord } from '../api/tickets';
+import type { PaymentRefundRecord, ReservationRecord, TicketRecord } from '../api/tickets';
 import { useI18n } from '../i18n';
 
 interface MyTicketsProps {
@@ -10,7 +10,7 @@ interface MyTicketsProps {
   tickets?: TicketRecord[];
   reservations?: ReservationRecord[];
   onOpenTicket?: (ticket: TicketRecord) => void;
-  onRefundTicket?: (ticket: TicketRecord) => Promise<{ refundedAmount?: number; emailSent?: boolean } | void>;
+  onRefundTicket?: (ticket: TicketRecord) => Promise<{ refundedAmount?: number; paymentRefunds?: PaymentRefundRecord[]; emailSent?: boolean } | void>;
   onPayReservation?: (reservation: ReservationRecord) => Promise<void>;
   onCancelReservation?: (reservation: ReservationRecord) => Promise<void>;
 }
@@ -485,9 +485,12 @@ export const MyTickets = ({
                   setRefundingTicketId(refundCandidate.id);
                   try {
                     const result = await onRefundTicket(refundCandidate);
+                    const testRefund = result?.paymentRefunds?.some((refund) => refund.simulated);
                     setRefundCandidate(null);
                     setRefundSuccessMessage(
-                      result?.emailSent === false
+                      testRefund
+                        ? "Test refund completed. Freedom Pay test mode rejected the real refund operation, so no real money was moved."
+                        : result?.emailSent === false
                         ? "Refund accepted by Freedom Pay. The ticket was removed, but the email could not be sent. Please restart the backend and check SMTP."
                         : "Refund accepted by Freedom Pay. The money should arrive within 3 business days."
                     );

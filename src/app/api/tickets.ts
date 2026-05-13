@@ -60,6 +60,12 @@ export type ReservationRecord = {
   event: TicketRecord["event"];
 };
 
+export type PaymentRefundRecord = {
+  paymentId: string;
+  amount: number;
+  simulated?: boolean;
+};
+
 export async function purchaseTickets(payload: { eventId?: string; eventData: any; ticketDetails: any }) {
   const { res, data } = await request<any>("/api/tickets/purchase", {
     method: "POST",
@@ -101,7 +107,7 @@ export async function cancelReservation(orderId: string) {
     method: "POST",
   });
   if (!res.ok) throw new Error((data as any)?.message || "Failed to cancel reservation");
-  return data as { orderId: string; message: string; refundEligible?: boolean };
+  return data as { orderId: string; message: string; refundEligible?: boolean; paymentRefunds?: PaymentRefundRecord[] };
 }
 
 export async function validateTicket(qrToken: string) {
@@ -118,5 +124,12 @@ export async function refundTicket(ticketId: string) {
     method: "POST",
   });
   if (!res.ok) throw new Error((data as any)?.message || "Failed to refund ticket");
-  return data as { ticketId: string; ticketCode: string; message: string; refundedAmount?: number; emailSent?: boolean };
+  return data as {
+    ticketId: string;
+    ticketCode: string;
+    message: string;
+    refundedAmount?: number;
+    paymentRefunds?: PaymentRefundRecord[];
+    emailSent?: boolean;
+  };
 }

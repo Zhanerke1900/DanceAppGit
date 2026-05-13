@@ -136,6 +136,11 @@ export function getFreedomPayConfig() {
   };
 }
 
+function isFreedomPayTestingModeEnabled(value) {
+  const normalized = String(value || "").trim().toLowerCase();
+  return Boolean(normalized) && !["0", "false", "off", "no"].includes(normalized);
+}
+
 export function buildFrontendPaymentReturnUrl(status, payload = {}) {
   const url = new URL(firstValidUrl(process.env.FRONTEND_URL, process.env.FRONTEND_URLS));
   url.searchParams.set("payment", status);
@@ -201,7 +206,7 @@ export async function createFreedomPayPayment(order) {
     pg_salt: randomSalt(),
   };
 
-  if (config.testingMode) {
+  if (isFreedomPayTestingModeEnabled(config.testingMode)) {
     request.pg_testing_mode = config.testingMode;
   }
 
@@ -253,11 +258,26 @@ export async function createFreedomPayPayment(order) {
   };
 }
 
-export async function refundFreedomPayPayment({ paymentId, amount, orderId }) {
+function logFreedomPayRefundRejection({ parsed, responseText, orderId, paymentId, amount, status, simulated }) {
+  const { pg_sig, ...safeParsed } = parsed || {};
+  console.error(simulated ? "Freedom Pay test refund simulated after provider rejection" : "Freedom Pay refund rejected", {
+    orderId: String(orderId || ""),
+    paymentId: String(paymentId),
+    amount,
+    status: status || "",
+    errorCode: parsed?.pg_error_code || parsed?.pg_failure_code || "",
+    description: parsed?.pg_error_description || parsed?.pg_description || parsed?.pg_failure_description || "",
+    response: compactFreedomPayResponse(responseText),
+    parsed: safeParsed,
+  });
+}
+
+export async function refundFreedomPayPayment({ paymentId, amount, orderId, idempotencyKey }) {
   const config = getFreedomPayConfig();
   const revokeUrl = getFreedomPayRevokeUrl(config);
   const scriptName = getFreedomPayScriptName(revokeUrl);
   const refundAmount = Number(Number(amount || 0).toFixed(2));
+  const testingMode = isFreedomPayTestingModeEnabled(config.testingMode);
 
   if (!String(paymentId || "").trim()) {
     throw new Error("Freedom Pay payment ID is missing");
@@ -272,6 +292,9 @@ export async function refundFreedomPayPayment({ paymentId, amount, orderId }) {
     pg_refund_amount: refundAmount,
     pg_salt: randomSalt(),
   };
+  if (idempotencyKey) {
+    request.pg_idempotency_key = String(idempotencyKey).slice(0, 120);
+  }
   request.pg_sig = makeFreedomPaySignature(scriptName, request, config.secretKey);
 
   const response = await fetch(revokeUrl, {
@@ -308,9 +331,43 @@ export async function refundFreedomPayPayment({ paymentId, amount, orderId }) {
   const status = String(parsed.pg_status || parsed.pg_payment_status || "").trim().toLowerCase();
   const errorDescription = parsed.pg_error_description || parsed.pg_description || parsed.pg_failure_description;
   if (["error", "failed", "failure", "rejected"].includes(status) || parsed.pg_error_code) {
+    logFreedomPayRefundRejection({
+      parsed,
+      responseText,
+      orderId,
+      paymentId,
+      amount: refundAmount,
+      status,
+      simulated: testingMode,
+    });
+    if (testingMode) {
+      return {
+        paymentId: String(paymentId),
+        amount: refundAmount,
+        simulated: true,
+        raw: parsed,
+      };
+    }
     throw new Error(errorDescription || "Freedom Pay rejected the refund");
   }
   if (status && !["ok", "success", "accepted"].includes(status)) {
+    logFreedomPayRefundRejection({
+      parsed,
+      responseText,
+      orderId,
+      paymentId,
+      amount: refundAmount,
+      status,
+      simulated: testingMode,
+    });
+    if (testingMode) {
+      return {
+        paymentId: String(paymentId),
+        amount: refundAmount,
+        simulated: true,
+        raw: parsed,
+      };
+    }
     throw new Error(errorDescription || `Freedom Pay returned refund status: ${status}`);
   }
 
