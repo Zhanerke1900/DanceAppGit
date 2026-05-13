@@ -1,4 +1,5 @@
 import React from 'react';
+import { BarChart3, CalendarDays, CircleDollarSign, Clock3, ReceiptText, Ticket, TrendingUp, WalletCards } from 'lucide-react';
 import { useI18n } from '../i18n';
 
 interface AnalyticsData {
@@ -41,7 +42,7 @@ const formatCurrency = (value: number) =>
   new Intl.NumberFormat('ru-KZ', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(value) + ' ₸';
+  }).format(value) + ' KZT';
 
 export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytics }) => {
   const { language } = useI18n();
@@ -122,146 +123,180 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
       tickets: 'билет',
     },
   }[language];
-  const statusTotal = (analytics?.eventStatuses.published || 0) + (analytics?.eventStatuses.pending || 0);
+  const statusTotal = (analytics?.eventStatuses?.published || 0) + (analytics?.eventStatuses?.pending || 0);
   const fullPassTotal =
-    (analytics?.specialPrograms.fullEventPassTickets || 0) + (analytics?.specialPrograms.activityTickets || 0);
+    (analytics?.specialPrograms?.fullEventPassTickets || 0) + (analytics?.specialPrograms?.activityTickets || 0);
+  const maxDayRevenue = Math.max(...(analytics?.salesByDay || []).map((day) => day.revenue), 1);
+  const maxTopEventRevenue = Math.max(...(analytics?.topEvents || []).map((event) => event.revenue), 1);
+
+  const metrics = [
+    { label: copy.totalRevenue, value: formatCurrency(analytics?.totalRevenue || 0), icon: CircleDollarSign, tone: 'green' },
+    { label: copy.ticketsSold, value: String(analytics?.ticketsSold || 0), icon: Ticket, tone: 'violet' },
+    { label: copy.reservedTickets, value: String(analytics?.reservedTickets || 0), icon: Clock3, tone: 'amber' },
+    { label: copy.outstandingBalance, value: formatCurrency(analytics?.outstandingBalance || 0), icon: WalletCards, tone: 'cyan' },
+    { label: copy.ordersCount, value: String(analytics?.ordersCount || 0), icon: ReceiptText, tone: 'blue' },
+    { label: copy.reservationsCount, value: String(analytics?.reservationsCount || 0), icon: CalendarDays, tone: 'pink' },
+    { label: copy.topEvents, value: String(analytics?.topEvents?.length || 0), icon: TrendingUp, tone: 'violet' },
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Calibri", sans-serif' }}>
-      <div className="mx-auto max-w-7xl space-y-8">
+    <div className="organizer-data-page organizer-analytics-page">
+      <section className="organizer-hero organizer-data-hero">
         <div>
-          <h1 className="mb-2 text-3xl font-bold text-gray-900">{copy.title}</h1>
-          <p className="text-gray-600">{copy.subtitle}</p>
+          <div className="organizer-eyebrow">
+            <BarChart3 aria-hidden="true" />
+            <span>{copy.title}</span>
+          </div>
+          <h1>{copy.title}</h1>
+          <p>{copy.subtitle}</p>
         </div>
-
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {[
-            { label: copy.totalRevenue, value: formatCurrency(analytics?.totalRevenue || 0) },
-            { label: copy.ticketsSold, value: String(analytics?.ticketsSold || 0) },
-            { label: copy.reservedTickets, value: String(analytics?.reservedTickets || 0) },
-            { label: copy.outstandingBalance, value: formatCurrency(analytics?.outstandingBalance || 0) },
-            { label: copy.ordersCount, value: String(analytics?.ordersCount || 0) },
-            { label: copy.reservationsCount, value: String(analytics?.reservationsCount || 0) },
-            { label: copy.topEvents, value: String(analytics?.topEvents.length || 0) },
-          ].map((card) => (
-            <div
-              key={card.label}
-              className="rounded-lg border border-gray-200 bg-white p-5 sm:p-6 shadow-sm"
-            >
-              <p className="mb-2 text-sm text-gray-600">{card.label}</p>
-              <p className="text-3xl font-bold text-gray-900">{card.value}</p>
-            </div>
-          ))}
+        <div className="organizer-hero-stats" aria-label={copy.totalRevenue}>
+          <span>{formatCurrency(analytics?.totalRevenue || 0)}</span>
+          <small>{copy.totalRevenue}</small>
         </div>
+      </section>
 
-        <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-          <div className="rounded-lg border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
-            <div className="mb-5">
-              <h2 className="text-lg font-bold text-gray-900">{copy.salesByDay}</h2>
-              <p className="text-sm text-gray-600">{copy.salesByDayDesc}</p>
-            </div>
-
-            {analytics?.salesByDay.length ? (
-              <div className="space-y-3">
-                {analytics.salesByDay.map((day) => (
-                  <div key={day.date} className="grid grid-cols-1 gap-2 rounded-lg bg-gray-50 border border-gray-200 p-4 text-sm sm:grid-cols-[1fr_auto_auto_auto_auto] sm:gap-4">
-                    <span className="font-medium text-gray-900">{day.date}</span>
-                    <span className="text-gray-700">{formatCurrency(day.revenue)}</span>
-                    <span className="text-gray-600">{day.orders} {copy.orders}</span>
-                    <span className="text-gray-600">{day.ticketsSold} {copy.tickets}</span>
-                    {day.reservations ? <span className="text-amber-600">{day.reservations} {copy.reservationsCount}</span> : null}
-                  </div>
-                ))}
+      <section className="organizer-data-metrics organizer-analytics-metrics" aria-label={copy.title}>
+        {metrics.map((metric) => {
+          const Icon = metric.icon;
+          return (
+            <article key={metric.label} className={`organizer-data-metric tone-${metric.tone}`}>
+              <div>
+                <span>{metric.label}</span>
+                <strong>{metric.value}</strong>
               </div>
-            ) : (
-              <p className="text-gray-600">{copy.noSales}</p>
-            )}
+              <Icon aria-hidden="true" />
+            </article>
+          );
+        })}
+      </section>
+
+      <section className="organizer-analytics-grid">
+        <article className="organizer-panel organizer-data-panel organizer-sales-panel">
+          <div className="organizer-panel-header">
+            <div>
+              <span className="organizer-section-label">{copy.salesByDay}</span>
+              <h2>{copy.salesByDay}</h2>
+              <p>{copy.salesByDayDesc}</p>
+            </div>
           </div>
 
-          <div className="space-y-6">
-            <div className="rounded-lg border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
-              <div className="mb-5">
-                <h2 className="text-lg font-bold text-gray-900">{copy.publishedVsPending}</h2>
-                <p className="text-sm text-gray-600">{copy.statusSplit}</p>
-              </div>
-
-              <div className="space-y-4">
-                {[
-                  { label: copy.published, value: analytics?.eventStatuses.published || 0, color: 'role-bar-primary' },
-                  { label: copy.pending, value: analytics?.eventStatuses.pending || 0, color: 'role-bar-secondary' },
-                ].map((item) => (
-                  <div key={item.label}>
-                    <div className="mb-2 flex items-center justify-between text-sm">
-                      <span className="text-gray-700">{item.label}</span>
-                      <span className="font-semibold text-gray-900">{item.value}</span>
-                    </div>
-                    <div className="h-2 rounded-full bg-gray-200">
-                      <div
-                        className={`h-2 rounded-full ${item.color}`}
-                        style={{ width: `${statusTotal ? (item.value / statusTotal) * 100 : 0}%` }}
-                      />
-                    </div>
+          {analytics?.salesByDay?.length ? (
+            <div className="organizer-analytics-list">
+              {analytics.salesByDay.map((day) => (
+                <div key={day.date} className="organizer-analytics-row">
+                  <div>
+                    <strong>{day.date}</strong>
+                    <span>{day.orders} {copy.orders} · {day.ticketsSold} {copy.tickets}</span>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-lg border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
-              <div className="mb-5">
-                <h2 className="text-lg font-bold text-gray-900">{copy.specialProgramSales}</h2>
-                <p className="text-sm text-gray-600">{copy.specialProgramDesc}</p>
-              </div>
-
-              <div className="space-y-4">
-                {[
-                  {
-                    label: copy.fullEventPass,
-                    value: analytics?.specialPrograms.fullEventPassTickets || 0,
-                    color: 'role-bar-primary',
-                  },
-                  {
-                    label: copy.activityTickets,
-                    value: analytics?.specialPrograms.activityTickets || 0,
-                    color: 'role-bar-secondary',
-                  },
-                ].map((item) => (
-                  <div key={item.label}>
-                    <div className="mb-2 flex items-center justify-between text-sm">
-                      <span className="text-gray-700">{item.label}</span>
-                      <span className="font-semibold text-gray-900">{item.value}</span>
-                    </div>
-                    <div className="h-2 rounded-full bg-gray-200">
-                      <div
-                        className={`h-2 rounded-full ${item.color}`}
-                        style={{ width: `${fullPassTotal ? (item.value / fullPassTotal) * 100 : 0}%` }}
-                      />
-                    </div>
+                  <div className="organizer-row-value">
+                    <strong>{formatCurrency(day.revenue)}</strong>
+                    {day.reservations ? <span>{day.reservations} {copy.reservationsCount}</span> : null}
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-lg border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
-          <h2 className="mb-5 text-lg font-bold text-gray-900">{copy.topEvents}</h2>
-          {analytics?.topEvents.length ? (
-            <div className="space-y-3">
-              {analytics.topEvents.map((event) => (
-                <div key={event.eventId} className="grid grid-cols-1 gap-2 rounded-lg bg-gray-50 border border-gray-200 p-4 text-sm sm:grid-cols-[1fr_auto_auto_auto_auto] sm:gap-4">
-                  <span className="font-medium text-gray-900">{event.title}</span>
-                  <span className="text-gray-700">{formatCurrency(event.revenue)}</span>
-                  <span className="text-gray-600">{event.orders} {copy.orders}</span>
-                  <span className="text-gray-600">{event.ticketsSold} {copy.tickets}</span>
-                  {event.reservedTickets ? <span className="text-amber-600">{event.reservedTickets} {copy.reservedTickets}</span> : null}
+                  <div className="organizer-progress-track" aria-hidden="true">
+                    <span style={{ width: `${(day.revenue / maxDayRevenue) * 100}%` }} />
+                  </div>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-gray-600">{copy.topEventsEmpty}</p>
+            <div className="organizer-empty-state organizer-data-empty">
+              <BarChart3 aria-hidden="true" />
+              <h3>{copy.noSales}</h3>
+            </div>
           )}
+        </article>
+
+        <aside className="organizer-analytics-side">
+          <article className="organizer-panel organizer-data-panel">
+            <div className="organizer-panel-header">
+              <div>
+                <span className="organizer-section-label">{copy.statusSplit}</span>
+                <h2>{copy.publishedVsPending}</h2>
+                <p>{copy.statusSplit}</p>
+              </div>
+            </div>
+
+            <div className="organizer-breakdown-list">
+              {[
+                { label: copy.published, value: analytics?.eventStatuses?.published || 0, tone: 'success' },
+                { label: copy.pending, value: analytics?.eventStatuses?.pending || 0, tone: 'warning' },
+              ].map((item) => (
+                <div key={item.label} className="organizer-breakdown-row">
+                  <div>
+                    <span>{item.label}</span>
+                    <strong>{item.value}</strong>
+                  </div>
+                  <div className="organizer-progress-track" aria-hidden="true">
+                    <span className={`tone-${item.tone}`} style={{ width: `${statusTotal ? (item.value / statusTotal) * 100 : 0}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </article>
+
+          <article className="organizer-panel organizer-data-panel">
+            <div className="organizer-panel-header">
+              <div>
+                <span className="organizer-section-label">{copy.specialProgramSales}</span>
+                <h2>{copy.specialProgramSales}</h2>
+                <p>{copy.specialProgramDesc}</p>
+              </div>
+            </div>
+
+            <div className="organizer-breakdown-list">
+              {[
+                { label: copy.fullEventPass, value: analytics?.specialPrograms?.fullEventPassTickets || 0, tone: 'success' },
+                { label: copy.activityTickets, value: analytics?.specialPrograms?.activityTickets || 0, tone: 'violet' },
+              ].map((item) => (
+                <div key={item.label} className="organizer-breakdown-row">
+                  <div>
+                    <span>{item.label}</span>
+                    <strong>{item.value}</strong>
+                  </div>
+                  <div className="organizer-progress-track" aria-hidden="true">
+                    <span className={`tone-${item.tone}`} style={{ width: `${fullPassTotal ? (item.value / fullPassTotal) * 100 : 0}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </article>
+        </aside>
+      </section>
+
+      <section className="organizer-panel organizer-data-panel">
+        <div className="organizer-panel-header">
+          <div>
+            <span className="organizer-section-label">{copy.topEvents}</span>
+            <h2>{copy.topEvents}</h2>
+          </div>
         </div>
-      </div>
+
+        {analytics?.topEvents?.length ? (
+          <div className="organizer-analytics-list">
+            {analytics.topEvents.map((event) => (
+              <div key={event.eventId} className="organizer-analytics-row">
+                <div>
+                  <strong>{event.title}</strong>
+                  <span>{event.orders} {copy.orders} · {event.ticketsSold} {copy.tickets}</span>
+                </div>
+                <div className="organizer-row-value">
+                  <strong>{formatCurrency(event.revenue)}</strong>
+                  {event.reservedTickets ? <span>{event.reservedTickets} {copy.reservedTickets}</span> : null}
+                </div>
+                <div className="organizer-progress-track" aria-hidden="true">
+                  <span style={{ width: `${(event.revenue / maxTopEventRevenue) * 100}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="organizer-empty-state organizer-data-empty">
+            <TrendingUp aria-hidden="true" />
+            <h3>{copy.topEventsEmpty}</h3>
+          </div>
+        )}
+      </section>
     </div>
   );
 };

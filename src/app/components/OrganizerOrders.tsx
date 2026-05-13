@@ -1,4 +1,5 @@
 import React from 'react';
+import { CheckCircle2, Clock3, CreditCard, ReceiptText, Ticket, WalletCards } from 'lucide-react';
 import { useI18n } from '../i18n';
 
 interface OrganizerOrder {
@@ -26,7 +27,7 @@ const formatCurrency = (value: number) =>
   new Intl.NumberFormat('ru-KZ', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(value) + ' ₸';
+  }).format(value) + ' KZT';
 
 const formatDate = (value: string) => {
   const date = new Date(value);
@@ -86,80 +87,125 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders }) => {
       status: { paid: 'төленді', reserved: 'бронь', pending: 'күтуде', checked: 'тексерілді', 'not-checked': 'тексерілмеді', 'checked-in': 'кірді', 'not-checked-in': 'тексерілмеді', 'no-ticket-yet': 'билет әлі жоқ' } as Record<string, string>,
     },
   }[language];
+
+  const totalAmount = orders.reduce((sum, order) => sum + (Number(order.total) || 0), 0);
+  const totalPaid = orders.reduce((sum, order) => sum + (Number(order.amountPaid ?? order.total) || 0), 0);
+  const totalBalance = orders.reduce((sum, order) => sum + (Number(order.balanceDue) || 0), 0);
+  const reservedCount = orders.filter((order) => order.paymentStatus === 'reserved').length;
+  const checkedInCount = orders.filter((order) => ['checked', 'checked-in'].includes(order.checkInStatus)).length;
+  const paymentTone = (status: string) => (status === 'reserved' ? 'warning' : status === 'paid' ? 'success' : 'neutral');
+  const checkInTone = (status: string) => (['checked', 'checked-in'].includes(status) ? 'success' : 'neutral');
+
+  const metrics = [
+    { label: copy.title, value: orders.length, helper: copy.subtitle, icon: ReceiptText, tone: 'violet' },
+    { label: copy.amount, value: formatCurrency(totalAmount), helper: copy.order, icon: WalletCards, tone: 'cyan' },
+    { label: copy.paid, value: formatCurrency(totalPaid), helper: copy.payment, icon: CreditCard, tone: 'green' },
+    { label: copy.balance, value: formatCurrency(totalBalance), helper: `${reservedCount} ${copy.status.reserved}`, icon: Clock3, tone: 'amber' },
+    { label: copy.checkIn, value: `${checkedInCount}/${orders.length}`, helper: copy.checkIn, icon: CheckCircle2, tone: 'blue' },
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Calibri", sans-serif' }}>
-      <div className="mx-auto max-w-7xl space-y-8">
+    <div className="organizer-data-page organizer-orders-page">
+      <section className="organizer-hero organizer-data-hero">
         <div>
-          <h1 className="mb-2 text-3xl font-bold text-gray-900">{copy.title}</h1>
-          <p className="text-gray-600">{copy.subtitle}</p>
+          <div className="organizer-eyebrow">
+            <ReceiptText aria-hidden="true" />
+            <span>{copy.order}</span>
+          </div>
+          <h1>{copy.title}</h1>
+          <p>{copy.subtitle}</p>
+        </div>
+        <div className="organizer-hero-stats" aria-label={copy.title}>
+          <span>{orders.length}</span>
+          <small>{copy.title}</small>
+        </div>
+      </section>
+
+      <section className="organizer-data-metrics" aria-label={copy.title}>
+        {metrics.map((metric) => {
+          const Icon = metric.icon;
+          return (
+            <article key={metric.label} className={`organizer-data-metric tone-${metric.tone}`}>
+              <div>
+                <span>{metric.label}</span>
+                <strong>{metric.value}</strong>
+                <p>{metric.helper}</p>
+              </div>
+              <Icon aria-hidden="true" />
+            </article>
+          );
+        })}
+      </section>
+
+      <section className="organizer-panel organizer-data-panel">
+        <div className="organizer-panel-header">
+          <div>
+            <span className="organizer-section-label">{copy.payment}</span>
+            <h2>{copy.title}</h2>
+          </div>
+          <span className="organizer-chip">{orders.length}</span>
         </div>
 
         {orders.length === 0 ? (
-          <div className="rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm">
-            <h2 className="mb-2 text-lg font-bold text-gray-900">{copy.emptyTitle}</h2>
-            <p className="text-gray-600">{copy.emptyDesc}</p>
+          <div className="organizer-empty-state organizer-data-empty">
+            <Ticket aria-hidden="true" />
+            <h3>{copy.emptyTitle}</h3>
+            <p>{copy.emptyDesc}</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="organizer-orders-list">
             {orders.map((order) => (
-              <div
-                key={order.id}
-                className="rounded-lg border border-gray-200 bg-white p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow"
-              >
-                <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-                  <div className="space-y-3 flex-1">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-purple-600">{copy.order}</p>
-                      <h2 className="text-lg font-bold text-gray-900">{order.eventTitle}</h2>
-                    </div>
-
-                    <div className="grid gap-3 md:grid-cols-2">
-                      <div className="text-sm text-gray-600">
-                        <span>{order.buyerName}</span>
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        <span className="break-all">{order.buyerEmail}</span>
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        <span>{order.quantity}x {order.ticketType}</span>
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        <span>{formatDate(order.purchaseDate)}</span>
-                      </div>
-                    </div>
+              <article key={order.id} className="organizer-order-row">
+                <div className="organizer-order-main">
+                  <div className="organizer-order-title-line">
+                    <span className="organizer-section-label">{copy.order}</span>
+                    <span className={`organizer-status-pill tone-${paymentTone(order.paymentStatus)}`}>
+                      {copy.status[order.paymentStatus] || order.paymentStatus}
+                    </span>
                   </div>
+                  <h3>{order.eventTitle}</h3>
 
-                  <div className="grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-3 lg:w-[280px] lg:grid-cols-1">
-                    <div className="rounded-lg bg-gray-50 border border-gray-200 p-4">
-                      <p className="mb-1 text-xs uppercase tracking-wider text-gray-500">{copy.amount}</p>
-                      <p className="text-lg font-bold text-gray-900">{formatCurrency(order.total)}</p>
-                      {order.paymentStatus === 'reserved' && (
-                        <div className="mt-2 space-y-1 text-xs text-gray-600">
-                          <p>{copy.paid}: <span className="font-semibold text-emerald-600">{formatCurrency(order.amountPaid || 0)}</span></p>
-                          <p>{copy.balance}: <span className="font-semibold text-amber-600">{formatCurrency(order.balanceDue || 0)}</span></p>
-                          {order.balanceDueDeadlineAt && (
-                            <p>{copy.deadline}: <span className="font-semibold text-gray-900">{formatDate(order.balanceDueDeadlineAt)}</span></p>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    <div className="rounded-lg bg-gray-50 border border-gray-200 p-4">
-                      <p className="mb-1 text-xs uppercase tracking-wider text-gray-500">{copy.payment}</p>
-                      <p className={`font-semibold capitalize ${order.paymentStatus === 'reserved' ? 'text-amber-600' : 'text-emerald-600'}`}>
-                        {copy.status[order.paymentStatus] || order.paymentStatus}
-                      </p>
-                    </div>
-                    <div className="rounded-lg bg-gray-50 border border-gray-200 p-4">
-                      <p className="mb-1 text-xs uppercase tracking-wider text-gray-500">{copy.checkIn}</p>
-                      <p className="font-semibold text-gray-900">{copy.status[order.checkInStatus] || order.checkInStatus}</p>
-                    </div>
+                  <div className="organizer-order-meta">
+                    <span>{order.buyerName}</span>
+                    <span>{order.buyerEmail}</span>
+                    <span>{order.quantity}x {order.ticketType}</span>
+                    <span>{formatDate(order.purchaseDate)}</span>
                   </div>
                 </div>
-              </div>
+
+                <div className="organizer-order-finance-grid">
+                  <div>
+                    <span>{copy.amount}</span>
+                    <strong>{formatCurrency(order.total)}</strong>
+                    {order.paymentStatus === 'reserved' && (
+                      <small>
+                        {copy.paid}: {formatCurrency(order.amountPaid || 0)}
+                        {' · '}
+                        {copy.balance}: {formatCurrency(order.balanceDue || 0)}
+                      </small>
+                    )}
+                    {order.balanceDueDeadlineAt && (
+                      <small>{copy.deadline}: {formatDate(order.balanceDueDeadlineAt)}</small>
+                    )}
+                  </div>
+                  <div>
+                    <span>{copy.payment}</span>
+                    <strong className={`organizer-value tone-${paymentTone(order.paymentStatus)}`}>
+                      {copy.status[order.paymentStatus] || order.paymentStatus}
+                    </strong>
+                  </div>
+                  <div>
+                    <span>{copy.checkIn}</span>
+                    <strong className={`organizer-value tone-${checkInTone(order.checkInStatus)}`}>
+                      {copy.status[order.checkInStatus] || order.checkInStatus}
+                    </strong>
+                  </div>
+                </div>
+              </article>
             ))}
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 };
