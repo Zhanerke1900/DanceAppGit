@@ -1,12 +1,4 @@
 import React from 'react';
-import {
-  BarChart3,
-  CalendarDays,
-  ClipboardList,
-  LayoutDashboard,
-  Plus,
-  ShieldCheck,
-} from 'lucide-react';
 import { useI18n } from '../i18n';
 
 interface OrganizerLayoutProps {
@@ -53,12 +45,12 @@ export const OrganizerLayout: React.FC<OrganizerLayoutProps> = ({
     },
   }[language];
   const menuItems = [
-    { id: 'dashboard', label: copy.dashboard, icon: LayoutDashboard },
-    { id: 'events', label: copy.events, icon: CalendarDays },
-    { id: 'create-event', label: copy.createEvent, icon: Plus },
-    { id: 'validators', label: copy.validators, icon: ShieldCheck },
-    { id: 'orders', label: copy.orders, icon: ClipboardList },
-    { id: 'analytics', label: copy.analytics, icon: BarChart3 },
+    { id: 'dashboard', label: copy.dashboard },
+    { id: 'events', label: copy.events },
+    { id: 'create-event', label: copy.createEvent },
+    { id: 'validators', label: copy.validators },
+    { id: 'orders', label: copy.orders },
+    { id: 'analytics', label: copy.analytics },
   ] as const;
 
   return (
@@ -66,7 +58,6 @@ export const OrganizerLayout: React.FC<OrganizerLayoutProps> = ({
       <div className="organizer-shell">
         <aside className="organizer-tabs-bar">
           <div className="organizer-tabs-heading">
-            <span className="organizer-status-dot" />
             <span>{copy.portal}</span>
           </div>
 
@@ -74,7 +65,6 @@ export const OrganizerLayout: React.FC<OrganizerLayoutProps> = ({
             {menuItems.map((item) => {
               const isActive = activeTab === item.id;
               const isDisabled = item.id === 'create-event' && !canCreateEvent;
-              const Icon = item.icon;
 
               return (
                 <button
@@ -86,7 +76,6 @@ export const OrganizerLayout: React.FC<OrganizerLayoutProps> = ({
                   disabled={isDisabled}
                   className={`organizer-tab ${isActive ? 'is-active' : ''} ${isDisabled ? 'is-disabled' : ''}`}
                 >
-                  <Icon aria-hidden="true" />
                   <span>{item.label}</span>
                 </button>
               );

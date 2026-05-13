@@ -49,6 +49,11 @@ const parseEventTime = (event: OrganizerEvent) => {
 
 const getEventTitle = (event: OrganizerEvent, fallback: string) => event.title || event.name || fallback;
 
+const formatStatus = (status: string) =>
+  status
+    .replaceAll('-', ' ')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+
 export const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
   onCreateEvent,
   events = [],
@@ -249,7 +254,7 @@ export const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
   const activityRows = recentEvents.length
     ? recentEvents.map((event) => ({
         title: getEventTitle(event, copy.untitledEvent),
-        meta: `${event.status.replaceAll('-', ' ')} · ${formatEventDate(event.date, locale, copy.dateNotSet)}`,
+        meta: `${formatStatus(event.status)} · ${formatEventDate(event.date, locale, copy.dateNotSet)}`,
       }))
     : [
         { title: copy.noActivity, meta: copy.noActivityDesc },
@@ -318,7 +323,7 @@ export const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
                     <span>{[event.city, event.venue].filter(Boolean).join(' · ') || copy.locationNotSet}</span>
                   </div>
                   <div className="organizer-row-meta">
-                    <span className={`organizer-status status-${event.status}`}>{event.status.replaceAll('-', ' ')}</span>
+                    <span className={`organizer-status status-${event.status}`}>{formatStatus(event.status)}</span>
                     <span>{formatEventDate(event.date, locale, copy.dateNotSet)}</span>
                   </div>
                 </div>
@@ -352,7 +357,7 @@ export const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
                     <Clock3 aria-hidden="true" />
                     <div>
                       <strong>{getEventTitle(event, copy.untitledEvent)}</strong>
-                      <span>{event.status.replaceAll('-', ' ')}</span>
+                      <span>{formatStatus(event.status)}</span>
                     </div>
                   </div>
                 ))
