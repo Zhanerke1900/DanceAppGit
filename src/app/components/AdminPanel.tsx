@@ -358,37 +358,32 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
   return (
     <div className="role-view min-h-screen bg-[#f6f4fb] pt-20 dark:bg-[#090a10]">
-      <div className="2xl:flex">
-        <aside className="sticky top-20 z-30 border-b border-[#d9d2e8] bg-white/92 shadow-[0_10px_24px_rgba(63,54,92,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-[#11121a]/95 md:flex md:items-center md:gap-4 md:px-5 md:py-2 2xl:fixed 2xl:left-0 2xl:top-20 2xl:block 2xl:h-[calc(100vh-5rem)] 2xl:w-56 2xl:overflow-y-auto 2xl:border-b-0 2xl:border-r 2xl:px-0 2xl:pt-0 2xl:pb-6">
-          <div className="flex items-center border-b border-[#d9d2e8] px-4 py-3 dark:border-white/10 md:border-b-0 md:px-0 md:py-0 2xl:hidden">
-            <p className="min-w-0 whitespace-nowrap text-sm font-semibold uppercase tracking-[0.16em] text-[#332b4e] dark:text-purple-100">{copy.developerPanel}</p>
-          </div>
-
-          <div className="hidden border-b border-[#d9d2e8] p-4 dark:border-white/10 2xl:block">
-            <p className="text-sm font-bold uppercase tracking-[0.2em] text-purple-100">{copy.developerPanel}</p>
-          </div>
-
-          <nav className="flex gap-2 overflow-x-auto p-2.5 md:flex-1 md:p-0 2xl:block 2xl:space-y-1.5 2xl:overflow-visible 2xl:p-3">
+      <div>
+        <header className="role-admin-nav sticky top-20 z-30 border-b border-[#d9d2e8] bg-white/92 px-4 py-3 dark:border-white/10 dark:bg-[#11121a]/95">
+          <div className="mx-auto flex max-w-7xl flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <p className="whitespace-nowrap text-sm font-semibold uppercase tracking-[0.16em] text-[#332b4e] dark:text-purple-100">{copy.developerPanel}</p>
+            <nav className="flex gap-1 overflow-x-auto">
             {menuItems.map((item) => {
               const isActive = activeTab === item.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => onNavigate(item.id)}
-                  className={`flex min-w-max items-center gap-2 border-b-2 px-1.5 py-2.5 text-sm transition-colors duration-200 2xl:w-full 2xl:border-b-0 2xl:border-l-2 2xl:gap-2.5 2xl:px-3.5 2xl:py-2.5 2xl:text-sm ${
+                  className={`min-w-max border-b-2 px-4 py-2 text-sm transition-colors duration-200 ${
                     isActive
-                      ? 'border-purple-500 bg-purple-600/10 text-purple-700 dark:border-purple-400 dark:bg-white/5 dark:text-white'
-                      : 'border-transparent text-[#5b526d] hover:border-purple-400/50 hover:bg-purple-600/5 hover:text-[#201a35] dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white'
+                      ? 'border-[#171b22] text-[#171b22] dark:border-white dark:text-white'
+                      : 'border-transparent text-[#5b526d] hover:border-[#5d6675] hover:text-[#201a35] dark:text-gray-400 dark:hover:border-gray-300 dark:hover:text-white'
                   }`}
                 >
                   <span className="whitespace-nowrap font-medium">{item.label}</span>
                 </button>
               );
             })}
-          </nav>
-        </aside>
+            </nav>
+          </div>
+        </header>
 
-        <main className="min-w-0 flex-1 p-3 pb-16 sm:p-4 lg:p-5 2xl:ml-56">
+        <main className="mx-auto min-w-0 max-w-7xl p-4 pb-16 sm:p-5 lg:p-6">
           {activeTab === 'dashboard' && (
             <div className="space-y-8">
               <div>
@@ -425,11 +420,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     <div className="h-72">
                       <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full w-full">
                         {[20, 40, 60, 80].map((line) => (
-                          <line key={line} className="role-chart-grid" x1="0" y1={line} x2="100" y2={line} strokeDasharray="2 3" />
+                          <line key={line} className="role-chart-grid" x1="0" y1={line} x2="100" y2={line} vectorEffect="non-scaling-stroke" />
                         ))}
-                        <polyline className="role-chart-primary" fill="none" strokeWidth="2.4" points={buildLine(monthlyGrowth.map((item) => item.users))} />
-                        <polyline className="role-chart-secondary" fill="none" strokeWidth="2.4" points={buildLine(monthlyGrowth.map((item) => item.organizers))} />
-                        <polyline className="role-chart-tertiary" fill="none" strokeWidth="2.4" points={buildLine(monthlyGrowth.map((item) => item.events))} />
+                        <polyline className="role-chart-primary" fill="none" strokeWidth="1" vectorEffect="non-scaling-stroke" points={buildLine(monthlyGrowth.map((item) => item.users))} />
+                        <polyline className="role-chart-secondary" fill="none" strokeWidth="1" vectorEffect="non-scaling-stroke" points={buildLine(monthlyGrowth.map((item) => item.organizers))} />
+                        <polyline className="role-chart-tertiary" fill="none" strokeWidth="1" vectorEffect="non-scaling-stroke" points={buildLine(monthlyGrowth.map((item) => item.events))} />
                       </svg>
                     </div>
                     <div className="mt-4 grid grid-cols-6 gap-2 text-center text-xs text-gray-500">
@@ -498,9 +493,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     )}
 
                     <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                      <button onClick={() => onApproveRequest(request.id)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25 sm:w-auto">{copy.approve}</button>
+                      <button onClick={() => onApproveRequest(request.id)} className="role-action-success flex w-full items-center justify-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25 sm:w-auto">{copy.approve}</button>
                       {request.organizerStatus !== 'rejected' && (
-                        <button onClick={() => onRejectRequest(request.id)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600/15 px-4 py-2 text-red-300 transition-colors hover:bg-red-600/25 sm:w-auto">{copy.reject}</button>
+                        <button onClick={() => onRejectRequest(request.id)} className="role-action-danger flex w-full items-center justify-center gap-2 rounded-xl bg-red-600/15 px-4 py-2 text-red-300 transition-colors hover:bg-red-600/25 sm:w-auto">{copy.reject}</button>
                       )}
                     </div>
                   </div>
@@ -550,14 +545,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                         <button
                           onClick={() => setSelectedUser(item)}
-                          className="flex w-full items-center justify-center gap-2 rounded-xl bg-white/5 px-4 py-2 text-white transition-colors hover:bg-white/10 sm:w-auto"
+                          className="role-action-neutral flex w-full items-center justify-center gap-2 rounded-xl bg-white/5 px-4 py-2 text-white transition-colors hover:bg-white/10 sm:w-auto"
                         >
                           {copy.view}
                         </button>
                         {(item.role === 'organizer' || item.organizerStatus === 'approved') && item.organizerAccessStatus !== 'deactivated' && (
                           <button
                             onClick={() => onDeactivateOrganizer(item.id).then((data) => syncSelectedUser(data.user)).catch(() => {})}
-                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-600/15 px-4 py-2 text-amber-300 transition-colors hover:bg-amber-600/25 sm:w-auto"
+                            className="role-action-warning flex w-full items-center justify-center gap-2 rounded-xl bg-amber-600/15 px-4 py-2 text-amber-300 transition-colors hover:bg-amber-600/25 sm:w-auto"
                           >
                             {copy.deactivate}
                           </button>
@@ -565,7 +560,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         {(item.role === 'organizer' || item.organizerStatus === 'approved') && item.organizerAccessStatus === 'deactivated' && (
                           <button
                             onClick={() => onActivateOrganizer(item.id).then((data) => syncSelectedUser(data.user)).catch(() => {})}
-                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25 sm:w-auto"
+                            className="role-action-success flex w-full items-center justify-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25 sm:w-auto"
                           >
                             {copy.activate}
                           </button>
@@ -573,7 +568,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         {item.accountStatus === 'blocked' ? (
                           <button
                             onClick={() => onUnblockUser(item.id).then((data) => syncSelectedUser(data.user)).catch(() => {})}
-                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25 sm:w-auto"
+                            className="role-action-success flex w-full items-center justify-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25 sm:w-auto"
                           >
                             {copy.unblock}
                           </button>
@@ -583,7 +578,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                               setBlockTarget(item);
                               setBlockReason('Fraud');
                             }}
-                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600/15 px-4 py-2 text-red-300 transition-colors hover:bg-red-600/25 sm:w-auto"
+                            className="role-action-danger flex w-full items-center justify-center gap-2 rounded-xl bg-red-600/15 px-4 py-2 text-red-300 transition-colors hover:bg-red-600/25 sm:w-auto"
                           >
                             {copy.block}
                           </button>
@@ -635,7 +630,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       {moderationView === 'pending' ? copy.noPendingEvents : copy.archiveEmpty}
                     </div>
                   ) : displayedEvents.map((event) => (
-                    <div key={event.id} className="rounded-2xl border border-purple-500/20 bg-gray-900 p-5">
+                    <div key={event.id} className="role-moderation-item rounded-2xl border border-purple-500/20 bg-gray-900 p-5">
                       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                         <div>
                           <p className="text-lg font-semibold text-white">{event.title}</p>
@@ -646,10 +641,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       </div>
 
                       <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                        <button onClick={() => onViewEvent(event)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-white/5 px-4 py-2 text-white transition-colors hover:bg-white/10 sm:w-auto">{copy.viewDetails}</button>
-                        <button onClick={() => onApproveEvent(event.id)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25 sm:w-auto">{copy.approve}</button>
+                        <button onClick={() => onViewEvent(event)} className="role-action-neutral flex w-full items-center justify-center gap-2 rounded-xl bg-white/5 px-4 py-2 text-white transition-colors hover:bg-white/10 sm:w-auto">{copy.viewDetails}</button>
+                        <button onClick={() => onApproveEvent(event.id)} className="role-action-success flex w-full items-center justify-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25 sm:w-auto">{copy.approve}</button>
                         {moderationView !== 'archive' && (
-                          <button onClick={() => onRejectEvent(event.id)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600/15 px-4 py-2 text-red-300 transition-colors hover:bg-red-600/25 sm:w-auto">{copy.reject}</button>
+                          <button onClick={() => onRejectEvent(event.id)} className="role-action-danger flex w-full items-center justify-center gap-2 rounded-xl bg-red-600/15 px-4 py-2 text-red-300 transition-colors hover:bg-red-600/25 sm:w-auto">{copy.reject}</button>
                         )}
                       </div>
                     </div>
@@ -695,7 +690,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   syncSelectedUser(data.user);
                   setBlockTarget(null);
                 }).catch(() => {})}
-                className="flex-1 rounded-xl bg-red-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-red-500"
+                className="role-action-danger flex-1 rounded-xl bg-red-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-red-500"
               >
                 {copy.block}
               </button>

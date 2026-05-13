@@ -401,9 +401,9 @@ html.light :is(.from-purple-600.to-purple-700, .from-purple-600.to-purple-800, .
   }
 
   .role-view {
-    --role-page: #f4f5f7;
+    --role-page: #eceff2;
     --role-surface: #ffffff;
-    --role-surface-muted: #f8f9fb;
+    --role-surface-muted: #eef1f4;
     --role-line: #d8dde6;
     --role-line-strong: #aeb7c4;
     --role-text: #171b22;
@@ -439,6 +439,12 @@ html.light :is(.from-purple-600.to-purple-700, .from-purple-600.to-purple-800, .
 
   .role-view aside {
     background: var(--role-surface) !important;
+    border-color: var(--role-line) !important;
+    box-shadow: none !important;
+  }
+
+  .role-view .role-admin-nav {
+    background: var(--role-page) !important;
     border-color: var(--role-line) !important;
     box-shadow: none !important;
   }
@@ -497,6 +503,14 @@ html.light :is(.from-purple-600.to-purple-700, .from-purple-600.to-purple-800, .
 
   .role-view [class*="rounded"] {
     border-radius: 0 !important;
+  }
+
+  .role-view main :is(div, section, article, label)[class*="rounded"],
+  .role-view main :is(div, section, article, label)[class*="border"] {
+    background-image: none !important;
+    background-color: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
   }
 
   .role-view .lucide {
@@ -577,28 +591,63 @@ html.light :is(.from-purple-600.to-purple-700, .from-purple-600.to-purple-800, .
     color: var(--role-page) !important;
   }
 
+  .role-view .role-action-neutral {
+    background-color: transparent !important;
+    border: 1px solid var(--role-line-strong) !important;
+    color: var(--role-text) !important;
+  }
+
+  .role-view .role-action-success {
+    background-color: #1f7a3f !important;
+    border: 1px solid #1f7a3f !important;
+    color: #ffffff !important;
+  }
+
+  .role-view .role-action-warning {
+    background-color: #a56200 !important;
+    border: 1px solid #a56200 !important;
+    color: #ffffff !important;
+  }
+
+  .role-view .role-action-danger {
+    background-color: #b42318 !important;
+    border: 1px solid #b42318 !important;
+    color: #ffffff !important;
+  }
+
+  .role-view .role-moderation-item {
+    border-left: 3px solid #64748b !important;
+    padding-left: 1rem !important;
+  }
+
   .role-view .fixed.inset-0[class*="bg-black"] {
     background-color: rgba(0, 0, 0, 0.55) !important;
   }
 
   .role-view .role-chart {
     color: var(--role-text);
+    background-color: transparent !important;
+    border-color: transparent !important;
   }
 
   .role-view .role-chart-grid {
     stroke: var(--role-line) !important;
+    stroke-width: 1 !important;
   }
 
   .role-view .role-chart-primary {
     stroke: var(--role-text) !important;
+    stroke-width: 1 !important;
   }
 
   .role-view .role-chart-secondary {
     stroke: var(--role-muted) !important;
+    stroke-width: 1 !important;
   }
 
   .role-view .role-chart-tertiary {
     stroke: var(--role-line-strong) !important;
+    stroke-width: 1 !important;
   }
 
   .role-view .role-bar-primary {
@@ -875,4 +924,133 @@ html.light :is(.from-purple-600.to-purple-700, .from-purple-600.to-purple-800, .
   .surface-panel {
     box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12) !important;
   }
+}
+
+html.light .role-view,
+html.dark .role-view {
+  background: var(--role-page) !important;
+}
+
+html.light .role-view [class*="rounded"],
+html.dark .role-view [class*="rounded"],
+html.light .role-dialog,
+html.dark .role-dialog,
+html.light .role-dialog [class*="rounded"],
+html.dark .role-dialog [class*="rounded"] {
+  border-radius: 0 !important;
+}
+
+html.light .role-view main :is(div, section, article, label)[class*="rounded"],
+html.dark .role-view main :is(div, section, article, label)[class*="rounded"],
+html.light .role-view main :is(div, section, article, label)[class*="border"],
+html.dark .role-view main :is(div, section, article, label)[class*="border"] {
+  background-image: none !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+html.light .role-view .role-admin-nav,
+html.dark .role-view .role-admin-nav {
+  background: var(--role-page) !important;
+  border-bottom: 1px solid var(--role-line) !important;
+}
+
+html.light .role-view .role-action-neutral,
+html.dark .role-view .role-action-neutral {
+  background-color: transparent !important;
+  border: 1px solid var(--role-line-strong) !important;
+  color: var(--role-text) !important;
+}
+
+html.light .role-view .role-action-success,
+html.dark .role-view .role-action-success {
+  background-color: #1f7a3f !important;
+  border: 1px solid #1f7a3f !important;
+  color: #ffffff !important;
+}
+
+html.light .role-view .role-action-warning,
+html.dark .role-view .role-action-warning {
+  background-color: #a56200 !important;
+  border: 1px solid #a56200 !important;
+  color: #ffffff !important;
+}
+
+html.light .role-view .role-action-danger,
+html.dark .role-view .role-action-danger {
+  background-color: #b42318 !important;
+  border: 1px solid #b42318 !important;
+  color: #ffffff !important;
+}
+
+html.light .role-view .role-moderation-item,
+html.dark .role-view .role-moderation-item {
+  border-left: 3px solid #64748b !important;
+}
+
+html.light .role-view.flex,
+html.dark .role-view.flex,
+html.light .role-view > div[class*="2xl:flex"],
+html.dark .role-view > div[class*="2xl:flex"] {
+  display: block !important;
+}
+
+html.light .role-view > aside.fixed,
+html.dark .role-view > aside.fixed,
+html.light .role-view > div > aside,
+html.dark .role-view > div > aside {
+  position: sticky !important;
+  top: 5rem !important;
+  left: auto !important;
+  width: auto !important;
+  height: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 1rem !important;
+  overflow-x: auto !important;
+  border-right: 0 !important;
+  border-bottom: 1px solid var(--role-line) !important;
+  background: var(--role-page) !important;
+  padding: 0.75rem 1rem !important;
+}
+
+html.light .role-view > aside.fixed > div,
+html.dark .role-view > aside.fixed > div,
+html.light .role-view > div > aside > div,
+html.dark .role-view > div > aside > div {
+  display: block !important;
+  border-bottom: 0 !important;
+  padding: 0 !important;
+}
+
+html.light .role-view > aside.fixed nav,
+html.dark .role-view > aside.fixed nav,
+html.light .role-view > div > aside nav,
+html.dark .role-view > div > aside nav {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 0.25rem !important;
+  padding: 0 !important;
+  overflow-x: auto !important;
+}
+
+html.light .role-view > aside.fixed nav button,
+html.dark .role-view > aside.fixed nav button,
+html.light .role-view > div > aside nav button,
+html.dark .role-view > div > aside nav button {
+  width: auto !important;
+  min-width: max-content !important;
+  border-left: 0 !important;
+  border-bottom: 2px solid transparent !important;
+  background: transparent !important;
+}
+
+html.light .role-view > aside.fixed + main,
+html.dark .role-view > aside.fixed + main,
+html.light .role-view > div > aside + main,
+html.dark .role-view > div > aside + main {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  padding-top: 0 !important;
 }
