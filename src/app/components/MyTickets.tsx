@@ -84,6 +84,7 @@ export const MyTickets = ({
     deadlinePassed: language === 'ru' ? 'Срок полной оплаты истёк' : language === 'kk' ? 'Толық төлем мерзімі өтті' : 'Payment deadline passed',
     showTicket: language === 'ru' ? 'Показать билет' : language === 'kk' ? 'Билетті көрсету' : 'Show Ticket',
     viewEvent: language === 'ru' ? 'Открыть событие' : language === 'kk' ? 'Іс-шараны ашу' : 'View Event',
+    viewDetails: language === 'ru' ? 'Подробнее' : language === 'kk' ? 'Толығырақ' : 'View Details',
     processingRefund: language === 'ru' ? 'Возврат...' : language === 'kk' ? 'Қайтарылуда...' : 'Processing refund...',
     refundTicket: language === 'ru' ? 'Вернуть билет' : language === 'kk' ? 'Билетті қайтару' : 'Refund Ticket',
     refundUnavailable: language === 'ru' ? 'Возврат недоступен' : language === 'kk' ? 'Қайтару қолжетімсіз' : 'Refund unavailable',
@@ -347,6 +348,15 @@ export const MyTickets = ({
                       {copy.viewEvent}
                       <ChevronRight className="h-4 w-4" />
                     </button>
+                    {ticket.paymentType === 'deposit' && Number(ticket.balanceDue || 0) > 0 && (
+                      <button
+                        onClick={() => setSelectedTicket(ticket)}
+                        className="flex items-center gap-2 rounded-lg bg-[rgba(94,72,166,0.12)] px-5 py-2 text-sm font-semibold text-foreground transition-all hover:bg-[rgba(94,72,166,0.18)] dark:bg-white/5 dark:text-gray-300 dark:hover:bg-white/10"
+                      >
+                        {copy.viewDetails}
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                    )}
                     {activeTab === 'upcoming' && ticket.status === 'active' && !ticket.isPast && (() => {
                       const refundDeadlineMs = getRefundDeadlineMs(ticket);
                       const refundPolicyHours = ticket.paymentType === 'deposit' ? (ticket.refundPolicyHours || 48) : 24;
@@ -481,7 +491,7 @@ export const MyTickets = ({
               </button>
               <button
                 onClick={async () => {
-                  if (!onRefundTicket || !refundCandidate) return;
+                  if (!onRefundTicket || !refundCandidate || refundingTicketId === refundCandidate.id) return;
                   setRefundingTicketId(refundCandidate.id);
                   try {
                     const result = await onRefundTicket(refundCandidate);

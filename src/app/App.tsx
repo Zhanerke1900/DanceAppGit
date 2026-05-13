@@ -135,6 +135,7 @@ function AppContent() {
   const [pendingHomeSection, setPendingHomeSection] = useState<'top' | 'events' | 'about' | 'organizers' | null>(null);
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [myTickets, setMyTickets] = useState<TicketRecord[]>([]);
+  const [purchaseHistory, setPurchaseHistory] = useState<TicketRecord[]>([]);
   const [myReservations, setMyReservations] = useState<ReservationRecord[]>([]);
   
   // Auth State
@@ -273,10 +274,14 @@ function AppContent() {
     if (paymentStatus === 'success') {
       setCurrentView('profile');
       setProfileTab('my-tickets');
-      ticketsApi.myTickets()
-        .then((data) => {
-          setMyTickets(data.tickets || []);
-          setMyReservations(data.reservations || []);
+      Promise.all([
+        ticketsApi.myTickets(),
+        ticketsApi.purchaseHistory(),
+      ])
+        .then(([ticketsData, historyData]) => {
+          setMyTickets(ticketsData.tickets || []);
+          setMyReservations(ticketsData.reservations || []);
+          setPurchaseHistory(historyData.tickets || []);
         })
         .catch(() => {});
       window.alert('Payment accepted. Your profile has been updated.');
@@ -404,17 +409,23 @@ function AppContent() {
   useEffect(() => {
     if (!user?._id && !user?.id) {
       setMyTickets([]);
+      setPurchaseHistory([]);
       setMyReservations([]);
       return;
     }
 
-    ticketsApi.myTickets()
-      .then((data) => {
-        setMyTickets(data.tickets || []);
-        setMyReservations(data.reservations || []);
+    Promise.all([
+      ticketsApi.myTickets(),
+      ticketsApi.purchaseHistory(),
+    ])
+      .then(([ticketsData, historyData]) => {
+        setMyTickets(ticketsData.tickets || []);
+        setPurchaseHistory(historyData.tickets || []);
+        setMyReservations(ticketsData.reservations || []);
       })
       .catch(() => {
         setMyTickets([]);
+        setPurchaseHistory([]);
         setMyReservations([]);
       });
   }, [user?._id, user?.id, user?.email]);
@@ -1302,7 +1313,7 @@ function AppContent() {
             )}
             {!isAdmin && !isOrganizer && !isValidator && profileTab === 'purchase-history' && (
               <PurchaseHistory
-                purchases={myTickets.map((ticket) => ({
+                purchases={purchaseHistory.map((ticket) => ({
                   id: ticket.ticketCode,
                   event: ticket.event.title,
                   date: ticket.event.date,

@@ -681,6 +681,11 @@ export async function getMyTickets(userId) {
   return tickets.map(publicTicket);
 }
 
+export async function getPurchaseHistory(userId) {
+  const tickets = await Ticket.find({ user: userId }).sort({ createdAt: -1 }).limit(500).lean();
+  return tickets.map(publicTicket);
+}
+
 export async function getMyReservations(userId) {
   const reservations = await Order.find({
     buyer: userId,
@@ -734,7 +739,7 @@ export async function cancelReservationForUser({ orderId, user }) {
 }
 
 export async function refundTicketForUser({ ticketId, user }) {
-  const ticket = await Ticket.findOne({
+  let ticket = await Ticket.findOne({
     _id: ticketId,
     user: user._id,
   });
@@ -750,6 +755,19 @@ export async function refundTicketForUser({ ticketId, user }) {
   if (ticket.status === "cancelled") {
     throw new Error("This ticket has already been refunded");
   }
+
+  // Atomically mark ticket as cancelled to prevent double refunds
+  const updatedTicket = await Ticket.findByIdAndUpdate(
+    ticketId,
+    { status: "cancelled" },
+    { new: true, runValidators: false }
+  );
+
+  if (!updatedTicket || updatedTicket.status !== "cancelled") {
+    throw new Error("Failed to process refund - ticket state changed");
+  }
+
+  ticket = updatedTicket;
 
   const eventStart = parseEventStartDate(ticket.eventSnapshot);
   if (!eventStart) {
@@ -772,9 +790,6 @@ export async function refundTicketForUser({ ticketId, user }) {
 
   const refundAmount = money(ticket.amountPaid || ticket.price || 0);
   const refunds = await refundOrderPayment(order, refundAmount, `ticket-${ticket._id}`);
-
-  ticket.status = "cancelled";
-  await ticket.save();
 
   const targetKind = ticketKindFromName(ticket.ticketType);
   const itemIndex = (order.items || []).findIndex((item) => item.name === ticket.ticketType && item.kind === targetKind && Number(item.quantity || 0) > 0);

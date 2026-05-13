@@ -7,6 +7,7 @@ import {
   createPendingTicketOrderForUser,
   getMyReservations,
   getMyTickets,
+  getPurchaseHistory,
   markOrderPaidAndIssueTickets,
   markOrderReserved,
   refundTicketForUser,
@@ -98,6 +99,16 @@ export async function myTickets(req, res) {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Failed to load tickets" });
+  }
+}
+
+export async function purchaseHistory(req, res) {
+  try {
+    const tickets = await getPurchaseHistory(req.user._id);
+    return res.json({ tickets });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Failed to load purchase history" });
   }
 }
 

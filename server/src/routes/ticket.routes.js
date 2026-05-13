@@ -5,6 +5,7 @@ import {
   cancelReservation,
   myTickets,
   payReservationBalance,
+  purchaseHistory,
   purchaseTickets,
   refundTicket,
   validateTicket,
@@ -14,6 +15,7 @@ const router = express.Router();
 
 router.post("/purchase", requireAuth, purchaseTickets);
 router.get("/my", requireAuth, myTickets);
+router.get("/history", requireAuth, purchaseHistory);
 router.post("/reservations/:orderId/pay-balance", requireAuth, payReservationBalance);
 router.post("/reservations/:orderId/cancel", requireAuth, cancelReservation);
 router.post("/:ticketId/refund", requireAuth, refundTicket);

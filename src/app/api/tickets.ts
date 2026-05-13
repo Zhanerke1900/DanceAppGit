@@ -88,6 +88,12 @@ export async function myTickets() {
   return data as { tickets: TicketRecord[]; reservations?: ReservationRecord[] };
 }
 
+export async function purchaseHistory() {
+  const { res, data } = await request<any>("/api/tickets/history", { method: "GET" });
+  if (!res.ok) throw new Error((data as any)?.message || "Failed to load purchase history");
+  return data as { tickets: TicketRecord[] };
+}
+
 export async function payReservationBalance(orderId: string) {
   const { res, data } = await request<any>(`/api/tickets/reservations/${encodeURIComponent(orderId)}/pay-balance`, {
     method: "POST",
