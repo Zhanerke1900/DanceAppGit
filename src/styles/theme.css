@@ -1164,18 +1164,39 @@ html.dark .role-view > div > aside + main {
 }
 
 .developer-admin-panel .admin-stat-card {
-  min-height: 8.75rem;
-  padding: 1.35rem !important;
+  min-height: 5.25rem;
+  padding: 1.15rem 1.25rem !important;
+  display: flex;
+  align-items: center;
 }
 
-.developer-admin-panel .admin-stat-card p:first-child,
+.developer-admin-panel .admin-stat-inline {
+  width: 100%;
+  flex-wrap: nowrap !important;
+  overflow: hidden;
+}
+
+.developer-admin-panel .admin-stat-main {
+  color: #b9b2c8 !important;
+  letter-spacing: 0.01em;
+}
+
+.developer-admin-panel .admin-stat-value {
+  color: #f0ecfb !important;
+  font-size: 1.05rem !important;
+  font-weight: 680 !important;
+}
+
+.developer-admin-panel .admin-stat-change {
+  color: #8f89a1 !important;
+}
+
 .developer-admin-panel .admin-metric-row p:first-child {
   color: #9f98b2 !important;
   font-size: 0.78rem !important;
   letter-spacing: 0.015em;
 }
 
-.developer-admin-panel .admin-stat-card p:nth-child(2),
 .developer-admin-panel .admin-metric-row p:nth-child(2) {
   color: #f0ecfb !important;
   font-weight: 650 !important;
@@ -1215,16 +1236,39 @@ html.dark .role-view > div > aside + main {
 }
 
 .developer-admin-panel .role-chart-primary {
-  stroke: #c9bcff !important;
-  filter: drop-shadow(0 0 6px rgba(185, 167, 255, 0.16));
+  stroke: url(#adminChartUsersGradient) !important;
+  filter: drop-shadow(0 0 7px rgba(167, 139, 250, 0.22));
 }
 
 .developer-admin-panel .role-chart-secondary {
-  stroke: rgba(210, 203, 232, 0.78) !important;
+  stroke: #38bdf8 !important;
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.14));
 }
 
 .developer-admin-panel .role-chart-tertiary {
-  stroke: rgba(154, 147, 174, 0.7) !important;
+  stroke: #f2b84b !important;
+  filter: drop-shadow(0 0 6px rgba(242, 184, 75, 0.12));
+}
+
+.developer-admin-panel .admin-legend-users {
+  color: #c4b5fd !important;
+}
+
+.developer-admin-panel .admin-legend-organizers {
+  color: #38bdf8 !important;
+}
+
+.developer-admin-panel .admin-legend-events {
+  color: #f2b84b !important;
+}
+
+.developer-admin-panel .admin-legend {
+  font-weight: 520;
+}
+
+.developer-admin-panel .admin-legend span {
+  height: 2px !important;
+  border-radius: 999px !important;
 }
 
 .developer-admin-panel .admin-segmented {

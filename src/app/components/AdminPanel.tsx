@@ -375,7 +375,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       <div>
         <header className="role-admin-nav sticky top-24 z-30 mx-auto w-[calc(100%-2rem)] max-w-7xl border-b border-[#d9d2e8] bg-white/92 px-4 py-3 dark:border-white/10 dark:bg-[#11121a]/95 sm:w-[calc(100%-2.5rem)] lg:px-5">
           <div className="mx-auto flex max-w-7xl flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <p className="whitespace-nowrap text-sm font-semibold uppercase tracking-[0.16em] text-[#332b4e] dark:text-purple-100">{copy.developerPanel}</p>
+            <p className="whitespace-nowrap text-sm font-semibold tracking-[0.08em] text-[#332b4e] dark:text-purple-100">Developer Admin Panel</p>
             <nav className="flex gap-1 overflow-x-auto">
             {menuItems.map((item) => {
               const isActive = activeTab === item.id;
@@ -408,9 +408,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
                 {statCards.map((card) => (
                   <div key={card.label} className="admin-stat-card rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6">
-                    <p className="mb-2 text-sm text-gray-400">{card.label}</p>
-                    <p className="text-3xl font-bold text-white">{card.value}</p>
-                    <p className="mt-2 text-sm text-gray-500">{card.change}</p>
+                    <div className="admin-stat-inline flex min-w-0 items-baseline gap-3 whitespace-nowrap">
+                      <span className="admin-stat-main min-w-0 truncate text-sm text-gray-400">
+                        {card.label}: <span className="admin-stat-value text-white">{card.value}</span>
+                      </span>
+                      <span className="admin-stat-change shrink-0 text-sm text-gray-500">{card.change}</span>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -427,12 +430,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
                   <div className="role-chart admin-chart rounded-2xl border border-white/5 bg-black/30 p-4">
                     <div className="mb-4 flex flex-wrap gap-4 text-sm">
-                      <div className="flex items-center gap-2 text-gray-300"><span className="h-px w-8 bg-current" />{copy.users}</div>
-                      <div className="flex items-center gap-2 text-gray-300"><span className="h-px w-8 bg-current opacity-70" />{copy.organizers}</div>
-                      <div className="flex items-center gap-2 text-gray-300"><span className="h-px w-8 bg-current opacity-40" />{copy.events}</div>
+                      <div className="admin-legend admin-legend-users flex items-center gap-2 text-gray-300"><span className="h-px w-8 bg-current" />{copy.users}</div>
+                      <div className="admin-legend admin-legend-organizers flex items-center gap-2 text-gray-300"><span className="h-px w-8 bg-current" />{copy.organizers}</div>
+                      <div className="admin-legend admin-legend-events flex items-center gap-2 text-gray-300"><span className="h-px w-8 bg-current" />{copy.events}</div>
                     </div>
                     <div className="h-72">
                       <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full w-full">
+                        <defs>
+                          <linearGradient id="adminChartUsersGradient" x1="0" y1="0" x2="100" y2="0" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.7" />
+                            <stop offset="100%" stopColor="#D8B4FE" stopOpacity="1" />
+                          </linearGradient>
+                        </defs>
                         {[20, 40, 60, 80].map((line) => (
                           <line key={line} className="role-chart-grid" x1="0" y1={line} x2="100" y2={line} vectorEffect="non-scaling-stroke" />
                         ))}
