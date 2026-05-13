@@ -1,8 +1,39 @@
 import React, { useMemo, useState } from 'react';
+import {
+  Activity,
+  CalendarCheck,
+  CircleDollarSign,
+  Clock,
+  Search,
+  ShieldCheck,
+  UserCog,
+  Users,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useI18n } from '../i18n';
 
 type AdminTab = 'dashboard' | 'requests' | 'users' | 'moderation';
 type BlockReason = 'Fraud' | 'Spam' | 'Fake event' | 'Abuse';
+
+type DashboardStat = {
+  label: string;
+  value: string | number;
+  change: string;
+  Icon: LucideIcon;
+  tone: 'violet' | 'cyan' | 'amber' | 'emerald' | 'rose' | 'slate';
+};
+
+const chartFrame = {
+  width: 640,
+  height: 300,
+  top: 30,
+  right: 28,
+  bottom: 48,
+  left: 58,
+};
+
+const chartPlotWidth = chartFrame.width - chartFrame.left - chartFrame.right;
+const chartPlotHeight = chartFrame.height - chartFrame.top - chartFrame.bottom;
 
 interface AdminPanelProps {
   activeTab: AdminTab;
@@ -289,51 +320,56 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       maximumFractionDigits: 0,
     }).format(value) + ' ₸';
 
-  const statCards = useMemo(() => [
+  const statCards = useMemo<DashboardStat[]>(() => [
     {
       label: copy.totalUsers,
       value: overview?.totalUsers ?? 0,
       change: copy.thisMonth(overview?.usersAddedThisMonth ?? 0),
+      Icon: Users,
+      tone: 'violet',
     },
     {
       label: copy.totalOrganizers,
       value: overview?.totalOrganizers ?? 0,
       change: copy.thisMonth(overview?.organizersAddedThisMonth ?? 0),
+      Icon: UserCog,
+      tone: 'cyan',
     },
     {
       label: copy.pendingOrganizerApplications,
       value: overview?.pendingOrganizerApplications ?? 0,
       change: copy.waitingForReview,
+      Icon: Clock,
+      tone: 'amber',
     },
     {
       label: copy.publishedPendingEvents,
       value: `${overview?.publishedEvents ?? 0} / ${overview?.pendingEvents ?? 0}`,
       change: copy.newThisMonth(overview?.eventsAddedThisMonth ?? 0),
-    },
-    {
-      label: copy.activeReservations,
-      value: overview?.activeReservations ?? 0,
-      change: copy.outstandingBalance,
+      Icon: CalendarCheck,
+      tone: 'emerald',
     },
     {
       label: copy.collectedRevenue,
       value: formatCurrency(overview?.collectedRevenue ?? 0),
       change: `${copy.outstandingBalance}: ${formatCurrency(overview?.outstandingBalance ?? 0)}`,
+      Icon: CircleDollarSign,
+      tone: 'rose',
     },
   ], [copy, overview]);
 
   const monthlyGrowth = overview?.monthlyGrowth || [];
-  const maxChartValue = Math.max(1, ...monthlyGrowth.flatMap((item) => [item.users, item.organizers, item.events]));
+  const rawMaxChartValue = Math.max(1, ...monthlyGrowth.flatMap((item) => [item.users, item.organizers, item.events]));
+  const chartMaxValue = Math.max(4, Math.ceil(rawMaxChartValue / 4) * 4);
+  const chartTicks = [0, 0.25, 0.5, 0.75, 1].map((ratio) => Math.round(chartMaxValue * ratio));
 
   const getChartPoints = (values: number[]) => {
-    const topPadding = 8;
-    const bottomPadding = 12;
-    const drawableHeight = 100 - topPadding - bottomPadding;
-
     return values.map((value, index) => {
-      const x = values.length === 1 ? 50 : (index / (values.length - 1)) * 100;
-      const normalizedValue = Math.max(0, value) / maxChartValue;
-      const y = topPadding + (1 - normalizedValue) * drawableHeight;
+      const x = values.length === 1
+        ? chartFrame.left + chartPlotWidth / 2
+        : chartFrame.left + (index / (values.length - 1)) * chartPlotWidth;
+      const normalizedValue = Math.max(0, value) / chartMaxValue;
+      const y = chartFrame.top + (1 - normalizedValue) * chartPlotHeight;
       return { x, y };
     });
   };
@@ -346,9 +382,42 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     return points.slice(1).reduce((path, point, index) => {
       const previous = points[index];
       const midpointX = (previous.x + point.x) / 2;
-      return `${path} C ${midpointX},${previous.y} ${midpointX},${point.y} ${point.x},${point.y}`;
+      return `${path} C ${midpointX} ${previous.y}, ${midpointX} ${point.y}, ${point.x} ${point.y}`;
     }, `M ${points[0].x} ${points[0].y}`);
   };
+
+  const chartSeries = [
+    {
+      key: 'users',
+      label: copy.users,
+      values: monthlyGrowth.map((item) => item.users),
+      lineClass: 'role-chart-primary',
+      dotClass: 'admin-chart-dot-users',
+    },
+    {
+      key: 'organizers',
+      label: copy.organizers,
+      values: monthlyGrowth.map((item) => item.organizers),
+      lineClass: 'role-chart-secondary',
+      dotClass: 'admin-chart-dot-organizers',
+    },
+    {
+      key: 'events',
+      label: copy.events,
+      values: monthlyGrowth.map((item) => item.events),
+      lineClass: 'role-chart-tertiary',
+      dotClass: 'admin-chart-dot-events',
+    },
+  ];
+
+  const [activeChartIndex, setActiveChartIndex] = useState<number | null>(null);
+  const activeChartItem = activeChartIndex !== null ? monthlyGrowth[activeChartIndex] : null;
+  const activeChartPoint = activeChartIndex !== null
+    ? getChartPoints(monthlyGrowth.map((item) => item.users))[activeChartIndex]
+    : null;
+  const activeTooltipLeft = activeChartPoint
+    ? Math.min(88, Math.max(12, (activeChartPoint.x / chartFrame.width) * 100))
+    : 50;
 
   const displayedRequests = requestView === 'pending' ? requests : archivedRequests;
   const displayedEvents = moderationView === 'pending' ? events : archivedEvents;
@@ -371,173 +440,300 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   };
 
   return (
-    <div className="developer-admin-panel role-view min-h-screen bg-[#090a10] pt-24">
-      <div>
-        <header className="role-admin-nav sticky top-24 z-30 mx-auto w-[calc(100%-2rem)] max-w-7xl border-b border-[#d9d2e8] bg-white/92 px-4 py-3 dark:border-white/10 dark:bg-[#11121a]/95 sm:w-[calc(100%-2.5rem)] lg:px-5">
-          <div className="mx-auto flex max-w-7xl flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <p className="whitespace-nowrap text-sm font-semibold tracking-[0.08em] text-[#332b4e] dark:text-purple-100">Developer Admin Panel</p>
-            <nav className="flex gap-1 overflow-x-auto">
+    <div className="developer-admin-panel role-view min-h-screen bg-[#090a10]">
+      <div className="admin-dashboard-wrap">
+        <header className="role-admin-nav admin-panel-header mx-auto max-w-7xl">
+          <div className="admin-header-grid">
+            <div className="admin-header-copy">
+              <div className="admin-breadcrumb-row">
+                <span>Admin Console</span>
+                <span>Developer Admin</span>
+              </div>
+              <h1>Developer Admin Panel</h1>
+              <p>{copy.overview}</p>
+            </div>
+            <div className="admin-header-actions">
+              <span className="admin-status-pill admin-status-pill-primary">
+                <ShieldCheck aria-hidden="true" />
+                Developer Admin
+              </span>
+              <span className="admin-status-pill">
+                <Clock aria-hidden="true" />
+                {overview?.pendingOrganizerApplications ?? 0} {copy.pending}
+              </span>
+            </div>
+          </div>
+
+          <nav className="admin-tabs" aria-label="Admin panel sections">
             {menuItems.map((item) => {
               const isActive = activeTab === item.id;
               return (
                 <button
                   key={item.id}
+                  type="button"
                   onClick={() => onNavigate(item.id)}
-                  className={`admin-tab min-w-max border-b-2 px-4 py-2 text-sm transition-colors duration-200 ${
-                    isActive
-                      ? 'admin-tab-active border-[#171b22] text-[#171b22] dark:border-white dark:text-white'
-                      : 'admin-tab-muted border-transparent text-[#5b526d] hover:border-[#5d6675] hover:text-[#201a35] dark:text-gray-400 dark:hover:border-gray-300 dark:hover:text-white'
-                  }`}
+                  className={`admin-tab ${isActive ? 'admin-tab-active' : 'admin-tab-muted'}`}
+                  aria-current={isActive ? 'page' : undefined}
                 >
-                  <span className="whitespace-nowrap font-medium">{item.label}</span>
+                  <span>{item.label}</span>
                 </button>
               );
             })}
-            </nav>
-          </div>
+          </nav>
         </header>
 
-        <main className="admin-main mx-auto min-w-0 max-w-7xl p-4 pb-16 sm:p-5 lg:p-6">
+        <main className="admin-main mx-auto min-w-0 max-w-7xl">
           {activeTab === 'dashboard' && (
-            <div className="space-y-8">
-              <div>
-                <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl">{copy.adminPanel}</h1>
-                <p className="text-gray-400">{copy.overview}</p>
-              </div>
+            <div className="admin-dashboard-stack">
+              <section className="admin-kpi-grid" aria-label="Admin key metrics">
+                {statCards.map((card) => {
+                  const Icon = card.Icon;
+                  return (
+                    <article key={card.label} className={`admin-stat-card admin-stat-${card.tone}`}>
+                      <div className="admin-card-topline">
+                        <span className="admin-stat-title">{card.label}</span>
+                        <span className="admin-stat-icon" aria-hidden="true">
+                          <Icon />
+                        </span>
+                      </div>
+                      <div className="admin-stat-value">{card.value}</div>
+                      <div className="admin-stat-change">{card.change}</div>
+                    </article>
+                  );
+                })}
+              </section>
 
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
-                {statCards.map((card) => (
-                  <div key={card.label} className="admin-stat-card rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6">
-                    <div className="admin-stat-inline flex min-w-0 items-baseline gap-3 whitespace-nowrap">
-                      <span className="admin-stat-main min-w-0 truncate text-sm text-gray-400">
-                        {card.label}: <span className="admin-stat-value text-white">{card.value}</span>
-                      </span>
-                      <span className="admin-stat-change shrink-0 text-sm text-gray-500">{card.change}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
-                <div className="admin-surface admin-chart-panel overflow-hidden rounded-3xl border border-purple-500/20 bg-gradient-to-br from-gray-900 via-gray-950 to-black p-5 sm:p-6">
-                  <div className="mb-6">
+              <section className="admin-dashboard-grid">
+                <article className="admin-surface admin-chart-panel">
+                  <div className="admin-section-heading">
                     <div>
-                      <p className="text-sm uppercase tracking-[0.3em] text-purple-300">{copy.growth}</p>
-                      <h2 className="mt-2 text-2xl font-bold text-white">{copy.growthTitle}</h2>
-                      <p className="mt-2 text-sm text-gray-400">{copy.growthDesc}</p>
+                      <span className="admin-section-kicker">{copy.growth}</span>
+                      <h2>{copy.growthTitle}</h2>
+                      <p>{copy.growthDesc}</p>
                     </div>
-                  </div>
-
-                  <div className="role-chart admin-chart rounded-2xl border border-white/5 bg-black/30 p-4">
-                    <div className="mb-4 flex flex-wrap gap-4 text-sm">
-                      <div className="admin-legend admin-legend-users flex items-center gap-2 text-gray-300"><span className="h-px w-8 bg-current" />{copy.users}</div>
-                      <div className="admin-legend admin-legend-organizers flex items-center gap-2 text-gray-300"><span className="h-px w-8 bg-current" />{copy.organizers}</div>
-                      <div className="admin-legend admin-legend-events flex items-center gap-2 text-gray-300"><span className="h-px w-8 bg-current" />{copy.events}</div>
-                    </div>
-                    <div className="h-72">
-                      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full w-full">
-                        <defs>
-                          <linearGradient id="adminChartUsersGradient" x1="0" y1="0" x2="100" y2="0" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.7" />
-                            <stop offset="100%" stopColor="#D8B4FE" stopOpacity="1" />
-                          </linearGradient>
-                        </defs>
-                        {[20, 40, 60, 80].map((line) => (
-                          <line key={line} className="role-chart-grid" x1="0" y1={line} x2="100" y2={line} vectorEffect="non-scaling-stroke" />
-                        ))}
-                        <path className="role-chart-primary" d={buildSmoothPath(monthlyGrowth.map((item) => item.users))} fill="none" vectorEffect="non-scaling-stroke" />
-                        <path className="role-chart-secondary" d={buildSmoothPath(monthlyGrowth.map((item) => item.organizers))} fill="none" vectorEffect="non-scaling-stroke" />
-                        <path className="role-chart-tertiary" d={buildSmoothPath(monthlyGrowth.map((item) => item.events))} fill="none" vectorEffect="non-scaling-stroke" />
-                      </svg>
-                    </div>
-                    <div
-                      className="mt-4 grid gap-2 text-center text-xs text-gray-500"
-                      style={{ gridTemplateColumns: `repeat(${Math.max(monthlyGrowth.length, 1)}, minmax(0, 1fr))` }}
-                    >
-                      {monthlyGrowth.map((item) => (
-                        <div key={item.label}>{item.label}</div>
+                    <div className="admin-chart-legend">
+                      {chartSeries.map((series) => (
+                        <span key={series.key} className={`admin-legend admin-legend-${series.key}`}>
+                          <span aria-hidden="true" />
+                          {series.label}
+                        </span>
                       ))}
                     </div>
                   </div>
-                </div>
 
-                <div className="space-y-6">
-                  <div className="admin-surface admin-summary-panel rounded-3xl border border-purple-500/20 bg-gradient-to-br from-purple-900/30 via-gray-950 to-black p-5 sm:p-6">
-                    <p className="text-sm uppercase tracking-[0.25em] text-purple-300">{copy.thisMonthTitle}</p>
-                    <h3 className="mt-3 text-2xl font-bold text-white">{copy.freshActivity}</h3>
-                    <div className="mt-6 space-y-4">
-                      <div className="admin-metric-row rounded-2xl bg-white/5 p-4"><p className="text-sm text-gray-400">{copy.newUsers}</p><p className="mt-1 text-3xl font-bold text-white">+{overview?.usersAddedThisMonth ?? 0}</p></div>
-                      <div className="admin-metric-row rounded-2xl bg-white/5 p-4"><p className="text-sm text-gray-400">{copy.newOrganizers}</p><p className="mt-1 text-3xl font-bold text-white">+{overview?.organizersAddedThisMonth ?? 0}</p></div>
-                      <div className="admin-metric-row rounded-2xl bg-white/5 p-4"><p className="text-sm text-gray-400">{copy.newEvents}</p><p className="mt-1 text-3xl font-bold text-white">+{overview?.eventsAddedThisMonth ?? 0}</p></div>
+                  <div className="role-chart admin-chart">
+                    <div className="admin-chart-canvas">
+                      <svg
+                        viewBox={`0 0 ${chartFrame.width} ${chartFrame.height}`}
+                        className="admin-chart-svg"
+                        role="img"
+                        aria-label={copy.growthTitle}
+                        onMouseLeave={() => setActiveChartIndex(null)}
+                      >
+                        <defs>
+                          <linearGradient id="adminChartUsersGradient" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stopColor="#7C5CFF" stopOpacity="0.75" />
+                            <stop offset="100%" stopColor="#D8B4FE" stopOpacity="1" />
+                          </linearGradient>
+                          <linearGradient id="adminChartOrganizersGradient" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.68" />
+                            <stop offset="100%" stopColor="#67E8F9" stopOpacity="0.95" />
+                          </linearGradient>
+                          <linearGradient id="adminChartEventsGradient" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.68" />
+                            <stop offset="100%" stopColor="#FDE68A" stopOpacity="0.95" />
+                          </linearGradient>
+                        </defs>
+
+                        {chartTicks.map((tick) => {
+                          const y = chartFrame.top + (1 - tick / chartMaxValue) * chartPlotHeight;
+                          return (
+                            <g key={tick}>
+                              <line className="role-chart-grid" x1={chartFrame.left} y1={y} x2={chartFrame.width - chartFrame.right} y2={y} />
+                              <text className="admin-chart-axis-label" x={chartFrame.left - 16} y={y + 4} textAnchor="end">
+                                {tick}
+                              </text>
+                            </g>
+                          );
+                        })}
+
+                        <line className="admin-chart-axis" x1={chartFrame.left} y1={chartFrame.top} x2={chartFrame.left} y2={chartFrame.height - chartFrame.bottom} />
+                        <line className="admin-chart-axis" x1={chartFrame.left} y1={chartFrame.height - chartFrame.bottom} x2={chartFrame.width - chartFrame.right} y2={chartFrame.height - chartFrame.bottom} />
+
+                        {chartSeries.map((series) => (
+                          <path
+                            key={series.key}
+                            className={series.lineClass}
+                            d={buildSmoothPath(series.values)}
+                            fill="none"
+                            vectorEffect="non-scaling-stroke"
+                          />
+                        ))}
+
+                        {chartSeries.map((series) => (
+                          <g key={`${series.key}-points`}>
+                            {getChartPoints(series.values).map((point, index) => (
+                              <circle
+                                key={`${series.key}-${monthlyGrowth[index]?.label || index}`}
+                                className={`admin-chart-dot ${series.dotClass} ${activeChartIndex === index ? 'admin-chart-dot-active' : ''}`}
+                                cx={point.x}
+                                cy={point.y}
+                                r={activeChartIndex === index ? 4 : 2.75}
+                              />
+                            ))}
+                          </g>
+                        ))}
+
+                        {monthlyGrowth.map((item, index) => {
+                          const point = getChartPoints(monthlyGrowth.map((entry) => entry.users))[index];
+                          const band = monthlyGrowth.length <= 1 ? chartPlotWidth : chartPlotWidth / (monthlyGrowth.length - 1);
+                          const x = Math.max(chartFrame.left, (point?.x ?? chartFrame.left) - band / 2);
+                          const width = monthlyGrowth.length <= 1 ? chartPlotWidth : Math.min(band, chartFrame.width - chartFrame.right - x);
+                          return (
+                            <rect
+                              key={`hover-${item.label}`}
+                              className="admin-chart-hover-zone"
+                              x={x}
+                              y={chartFrame.top}
+                              width={width}
+                              height={chartPlotHeight}
+                              onMouseEnter={() => setActiveChartIndex(index)}
+                              onFocus={() => setActiveChartIndex(index)}
+                              tabIndex={0}
+                            />
+                          );
+                        })}
+
+                        {monthlyGrowth.map((item, index) => {
+                          const point = getChartPoints(monthlyGrowth.map((entry) => entry.users))[index];
+                          return (
+                            <text key={`label-${item.label}`} className="admin-chart-x-label" x={point?.x ?? chartFrame.left} y={chartFrame.height - 15} textAnchor="middle">
+                              {item.label}
+                            </text>
+                          );
+                        })}
+                      </svg>
+
+                      {activeChartItem && (
+                        <div className="admin-chart-tooltip" style={{ left: `${activeTooltipLeft}%` }}>
+                          <strong>{activeChartItem.label}</strong>
+                          <span>{copy.users}: {activeChartItem.users}</span>
+                          <span>{copy.organizers}: {activeChartItem.organizers}</span>
+                          <span>{copy.events}: {activeChartItem.events}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
-              </div>
+                </article>
+
+                <aside className="admin-surface admin-insights-panel">
+                  <div className="admin-section-heading admin-section-heading-compact">
+                    <div>
+                      <span className="admin-section-kicker">{copy.thisMonthTitle}</span>
+                      <h2>{copy.freshActivity}</h2>
+                    </div>
+                    <Activity aria-hidden="true" />
+                  </div>
+
+                  <div className="admin-insight-list">
+                    <div className="admin-metric-row">
+                      <span>{copy.newUsers}</span>
+                      <strong>+{overview?.usersAddedThisMonth ?? 0}</strong>
+                    </div>
+                    <div className="admin-metric-row">
+                      <span>{copy.newOrganizers}</span>
+                      <strong>+{overview?.organizersAddedThisMonth ?? 0}</strong>
+                    </div>
+                    <div className="admin-metric-row">
+                      <span>{copy.newEvents}</span>
+                      <strong>+{overview?.eventsAddedThisMonth ?? 0}</strong>
+                    </div>
+                    <div className="admin-metric-row">
+                      <span>{copy.activeReservations}</span>
+                      <strong>{overview?.activeReservations ?? 0}</strong>
+                    </div>
+                  </div>
+
+                  <div className="admin-review-summary">
+                    <div>
+                      <span>{copy.pending}</span>
+                      <strong>{(overview?.pendingOrganizerApplications ?? 0) + (overview?.pendingEvents ?? 0)}</strong>
+                    </div>
+                    <p>{copy.waitingForReview}</p>
+                  </div>
+                </aside>
+              </section>
             </div>
           )}
 
           {activeTab === 'requests' && (
-            <div className="space-y-6">
-              <div>
-                <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl">{copy.requests}</h1>
-                <p className="text-gray-400">{copy.requestsDesc}</p>
+            <div className="admin-section-shell">
+              <div className="admin-section-heading">
+                <div>
+                  <span className="admin-section-kicker">{copy.adminPanel}</span>
+                  <h2>{copy.requests}</h2>
+                  <p>{copy.requestsDesc}</p>
+                </div>
+                <div className="admin-segmented">
+                  <button type="button" onClick={() => setRequestView('pending')} className={requestView === 'pending' ? 'admin-segment-active' : ''}>{copy.pending}</button>
+                  <button type="button" onClick={() => setRequestView('archive')} className={requestView === 'archive' ? 'admin-segment-active' : ''}>{copy.archive}</button>
+                </div>
               </div>
 
-              <div className="admin-segmented grid grid-cols-2 rounded-2xl border border-purple-500/20 bg-gray-900/70 p-1 sm:inline-flex">
-                <button onClick={() => setRequestView('pending')} className={`rounded-xl px-5 py-2 text-sm font-medium transition-colors ${requestView === 'pending' ? 'admin-segment-active bg-purple-600 text-white' : 'text-gray-400 hover:text-white'}`}>{copy.pending}</button>
-                <button onClick={() => setRequestView('archive')} className={`rounded-xl px-5 py-2 text-sm font-medium transition-colors ${requestView === 'archive' ? 'admin-segment-active bg-purple-600 text-white' : 'text-gray-400 hover:text-white'}`}>{copy.archive}</button>
-              </div>
-
-              <div className="space-y-4">
+              <div className="admin-list-stack">
                 {displayedRequests.length === 0 ? (
-                  <div className="admin-empty-state rounded-2xl border border-purple-500/20 bg-gray-900 p-8 text-gray-400">
+                  <div className="admin-empty-state">
                     {requestView === 'pending' ? copy.noPendingRequests : copy.archiveEmpty}
                   </div>
                 ) : displayedRequests.map((request) => (
-                  <div key={request.id} className="admin-list-row rounded-2xl border border-purple-500/20 bg-gray-900 p-5 sm:p-6">
-                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                      <div>
-                        <p className="text-lg font-semibold text-white">{request.fullName}</p>
-                        <p className="text-gray-400">{request.email}</p>
-                        {request.organizationName && <p className="mt-2 text-purple-300">{request.organizationName}</p>}
+                  <article key={request.id} className="admin-list-row">
+                    <div className="admin-row-header">
+                      <div className="admin-row-title">
+                        <h3>{request.fullName}</h3>
+                        <p>{request.email}</p>
+                        {request.organizationName && <span>{request.organizationName}</span>}
                       </div>
-                      <span className={`rounded-full border px-3 py-1 text-sm font-medium ${request.organizerStatus === 'rejected' ? 'border-gray-700 bg-gray-800 text-gray-300' : 'border-yellow-500/20 bg-yellow-500/15 text-yellow-300'}`}>
+                      <span className={`admin-state-badge ${request.organizerStatus === 'rejected' ? 'admin-state-muted' : 'admin-state-warning'}`}>
                         {displayStatus(request.organizerStatus)}
                       </span>
                     </div>
 
-                    <div className="mt-5 grid gap-4 text-sm md:grid-cols-2">
-                      <div className="rounded-xl bg-gray-800/40 p-4"><p className="mb-1 text-gray-500">{copy.contactEmail}</p><p className="break-all text-white">{request.contactEmail || request.email}</p></div>
-                      <div className="rounded-xl bg-gray-800/40 p-4"><p className="mb-1 text-gray-500">{copy.phone}</p><p className="text-white">{request.phone || copy.notProvided}</p></div>
+                    <div className="admin-info-grid">
+                      <div><span>{copy.contactEmail}</span><strong>{request.contactEmail || request.email}</strong></div>
+                      <div><span>{copy.phone}</span><strong>{request.phone || copy.notProvided}</strong></div>
                     </div>
 
                     {request.description && (
-                      <div className="mt-4 rounded-xl bg-gray-800/30 p-4">
-                        <p className="mb-2 text-sm text-gray-500">{copy.description}</p>
-                        <p className="leading-relaxed text-gray-300">{request.description}</p>
+                      <div className="admin-description-box">
+                        <span>{copy.description}</span>
+                        <p>{request.description}</p>
                       </div>
                     )}
 
-                    <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                      <button onClick={() => onApproveRequest(request.id)} className="role-action-success flex w-full items-center justify-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25 sm:w-auto">{copy.approve}</button>
+                    <div className="admin-row-actions">
+                      <button onClick={() => onApproveRequest(request.id)} className="role-action-success">{copy.approve}</button>
                       {request.organizerStatus !== 'rejected' && (
-                        <button onClick={() => onRejectRequest(request.id)} className="role-action-danger flex w-full items-center justify-center gap-2 rounded-xl bg-red-600/15 px-4 py-2 text-red-300 transition-colors hover:bg-red-600/25 sm:w-auto">{copy.reject}</button>
+                        <button onClick={() => onRejectRequest(request.id)} className="role-action-danger">{copy.reject}</button>
                       )}
                     </div>
-                  </div>
+                  </article>
                 ))}
               </div>
             </div>
           )}
 
           {activeTab === 'users' && (
-            <div className="space-y-6">
-              <div>
-                <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl">{copy.userManagement}</h1>
-                <p className="text-gray-400">{copy.usersDesc}</p>
+            <div className="admin-section-shell">
+              <div className="admin-section-heading">
+                <div>
+                  <span className="admin-section-kicker">{copy.adminPanel}</span>
+                  <h2>{copy.userManagement}</h2>
+                  <p>{copy.usersDesc}</p>
+                </div>
               </div>
 
-              <div className="relative max-w-xl">
+              <div className="admin-search-wrap">
+                <Search aria-hidden="true" />
                 <input
                   value={search}
                   onChange={(e) => {
@@ -546,39 +742,39 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     onSearchUsers(value);
                   }}
                   placeholder={copy.searchPlaceholder}
-                  className="admin-input w-full rounded-xl border border-gray-700 bg-gray-900 px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-purple-500"
+                  className="admin-input"
                 />
               </div>
 
-              <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-                <div className="space-y-4">
+              <div className="admin-users-grid">
+                <div className="admin-list-stack">
                   {users.map((item) => (
-                    <div key={item.id} className="admin-list-row rounded-2xl border border-purple-500/20 bg-gray-900 p-5">
-                      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                        <div>
-                          <p className="font-semibold text-white">{item.fullName}</p>
-                          <p className="mt-1 text-gray-400"><span className="min-w-0 break-all">{item.email}</span></p>
-                          <p className="mt-2 text-sm text-gray-500">{copy.createdAt}: {formatDateTime(item.createdAt)}</p>
+                    <article key={item.id} className="admin-list-row">
+                      <div className="admin-row-header">
+                        <div className="admin-row-title">
+                          <h3>{item.fullName}</h3>
+                          <p>{item.email}</p>
+                          <span>{copy.createdAt}: {formatDateTime(item.createdAt)}</span>
                         </div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="rounded-full border border-purple-500/20 bg-purple-600/15 px-3 py-1 text-sm text-purple-300">{displayRole(item.role)}</span>
-                          <span className={`rounded-full border px-3 py-1 text-sm ${item.accountStatus === 'blocked' ? 'border-red-500/20 bg-red-500/15 text-red-300' : 'border-emerald-500/20 bg-emerald-500/15 text-emerald-300'}`}>
+                        <div className="admin-badge-row">
+                          <span className="admin-state-badge admin-state-purple">{displayRole(item.role)}</span>
+                          <span className={`admin-state-badge ${item.accountStatus === 'blocked' ? 'admin-state-danger' : 'admin-state-success'}`}>
                             {displayStatus(item.accountStatus)}
                           </span>
                         </div>
                       </div>
 
-                      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                      <div className="admin-row-actions">
                         <button
                           onClick={() => setSelectedUser(item)}
-                          className="role-action-neutral flex w-full items-center justify-center gap-2 rounded-xl bg-white/5 px-4 py-2 text-white transition-colors hover:bg-white/10 sm:w-auto"
+                          className="role-action-neutral"
                         >
                           {copy.view}
                         </button>
                         {(item.role === 'organizer' || item.organizerStatus === 'approved') && item.organizerAccessStatus !== 'deactivated' && (
                           <button
                             onClick={() => onDeactivateOrganizer(item.id).then((data) => syncSelectedUser(data.user)).catch(() => {})}
-                            className="role-action-warning flex w-full items-center justify-center gap-2 rounded-xl bg-amber-600/15 px-4 py-2 text-amber-300 transition-colors hover:bg-amber-600/25 sm:w-auto"
+                            className="role-action-warning"
                           >
                             {copy.deactivate}
                           </button>
@@ -586,7 +782,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         {(item.role === 'organizer' || item.organizerStatus === 'approved') && item.organizerAccessStatus === 'deactivated' && (
                           <button
                             onClick={() => onActivateOrganizer(item.id).then((data) => syncSelectedUser(data.user)).catch(() => {})}
-                            className="role-action-success flex w-full items-center justify-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25 sm:w-auto"
+                            className="role-action-success"
                           >
                             {copy.activate}
                           </button>
@@ -594,7 +790,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         {item.accountStatus === 'blocked' ? (
                           <button
                             onClick={() => onUnblockUser(item.id).then((data) => syncSelectedUser(data.user)).catch(() => {})}
-                            className="role-action-success flex w-full items-center justify-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25 sm:w-auto"
+                            className="role-action-success"
                           >
                             {copy.unblock}
                           </button>
@@ -604,78 +800,78 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                               setBlockTarget(item);
                               setBlockReason('Fraud');
                             }}
-                            className="role-action-danger flex w-full items-center justify-center gap-2 rounded-xl bg-red-600/15 px-4 py-2 text-red-300 transition-colors hover:bg-red-600/25 sm:w-auto"
+                            className="role-action-danger"
                           >
                             {copy.block}
                           </button>
                         )}
                       </div>
-                    </div>
+                    </article>
                   ))}
                 </div>
 
-                <div className="admin-side-panel h-fit rounded-2xl border border-purple-500/20 bg-gray-900 p-5 lg:sticky lg:top-8 lg:p-6">
-                  <h2 className="mb-4 text-xl font-bold text-white">{copy.userDetails}</h2>
+                <aside className="admin-side-panel">
+                  <h2>{copy.userDetails}</h2>
                   {selectedUser ? (
-                    <div className="space-y-4">
-                      <div><p className="text-sm text-gray-400">{copy.fullName}</p><p className="font-semibold text-white">{selectedUser.fullName}</p></div>
-                      <div><p className="text-sm text-gray-400">{copy.email}</p><p className="text-white">{selectedUser.email}</p></div>
-                      <div><p className="text-sm text-gray-400">{copy.role}</p><p className="text-white">{displayRole(selectedUser.role)}</p></div>
-                      <div><p className="text-sm text-gray-400">{copy.organizerStatus}</p><p className="text-white">{displayStatus(selectedUser.organizerStatus)}</p></div>
-                      <div><p className="text-sm text-gray-400">{copy.organizerAccess}</p><p className="text-white">{displayStatus(selectedUser.organizerAccessStatus || 'active')}</p></div>
-                      <div><p className="text-sm text-gray-400">{copy.accountStatus}</p><p className="text-white">{displayStatus(selectedUser.accountStatus)}</p></div>
-                      <div><p className="text-sm text-gray-400">{copy.createdAt}</p><p className="text-white">{formatDateTime(selectedUser.createdAt)}</p></div>
+                    <div className="admin-detail-list">
+                      <div><span>{copy.fullName}</span><strong>{selectedUser.fullName}</strong></div>
+                      <div><span>{copy.email}</span><strong>{selectedUser.email}</strong></div>
+                      <div><span>{copy.role}</span><strong>{displayRole(selectedUser.role)}</strong></div>
+                      <div><span>{copy.organizerStatus}</span><strong>{displayStatus(selectedUser.organizerStatus)}</strong></div>
+                      <div><span>{copy.organizerAccess}</span><strong>{displayStatus(selectedUser.organizerAccessStatus || 'active')}</strong></div>
+                      <div><span>{copy.accountStatus}</span><strong>{displayStatus(selectedUser.accountStatus)}</strong></div>
+                      <div><span>{copy.createdAt}</span><strong>{formatDateTime(selectedUser.createdAt)}</strong></div>
                       {selectedUser.blockedReason && (
-                        <div><p className="text-sm text-gray-400">{copy.blockedReason}</p><p className="text-white">{selectedUser.blockedReason}</p></div>
+                        <div><span>{copy.blockedReason}</span><strong>{selectedUser.blockedReason}</strong></div>
                       )}
                     </div>
                   ) : (
-                    <p className="text-gray-400">{copy.chooseUser}</p>
+                    <p>{copy.chooseUser}</p>
                   )}
-                </div>
+                </aside>
               </div>
             </div>
           )}
 
           {activeTab === 'moderation' && (
-            <div className="space-y-6">
-              <div>
-                <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl">{copy.eventModeration}</h1>
-                <p className="text-gray-400">{copy.moderationDesc}</p>
+            <div className="admin-section-shell">
+              <div className="admin-section-heading">
+                <div>
+                  <span className="admin-section-kicker">{copy.adminPanel}</span>
+                  <h2>{copy.eventModeration}</h2>
+                  <p>{copy.moderationDesc}</p>
+                </div>
+                <div className="admin-segmented">
+                  <button type="button" onClick={() => setModerationView('pending')} className={moderationView === 'pending' ? 'admin-segment-active' : ''}>{copy.pending}</button>
+                  <button type="button" onClick={() => setModerationView('archive')} className={moderationView === 'archive' ? 'admin-segment-active' : ''}>{copy.archive}</button>
+                </div>
               </div>
 
-              <div className="admin-segmented grid grid-cols-2 rounded-2xl border border-purple-500/20 bg-gray-900/70 p-1 sm:inline-flex">
-                <button onClick={() => setModerationView('pending')} className={`rounded-xl px-5 py-2 text-sm font-medium transition-colors ${moderationView === 'pending' ? 'admin-segment-active bg-purple-600 text-white' : 'text-gray-400 hover:text-white'}`}>{copy.pending}</button>
-                <button onClick={() => setModerationView('archive')} className={`rounded-xl px-5 py-2 text-sm font-medium transition-colors ${moderationView === 'archive' ? 'admin-segment-active bg-purple-600 text-white' : 'text-gray-400 hover:text-white'}`}>{copy.archive}</button>
-              </div>
-
-              <div className="grid gap-6">
-                <div className="space-y-4">
+              <div className="admin-list-stack">
                   {displayedEvents.length === 0 ? (
-                    <div className="admin-empty-state rounded-2xl border border-purple-500/20 bg-gray-900 p-8 text-gray-400">
+                    <div className="admin-empty-state">
                       {moderationView === 'pending' ? copy.noPendingEvents : copy.archiveEmpty}
                     </div>
                   ) : displayedEvents.map((event) => (
-                    <div key={event.id} className="admin-list-row role-moderation-item rounded-2xl border border-purple-500/20 bg-gray-900 p-5">
-                      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                        <div>
-                          <p className="text-lg font-semibold text-white">{event.title}</p>
-                          <p className="text-gray-400">{event.city} • {event.category} • {event.date}</p>
-                          <p className="mt-2 text-sm text-gray-500">{copy.submittedBy}: {event.submittedBy}</p>
+                    <article key={event.id} className="admin-list-row role-moderation-item">
+                      <div className="admin-row-header">
+                        <div className="admin-row-title">
+                          <h3>{event.title}</h3>
+                          <p>{event.city} | {event.category} | {event.date}</p>
+                          <span>{copy.submittedBy}: {event.submittedBy}</span>
                         </div>
-                        <span className="rounded-full border border-gray-700 bg-gray-800 px-3 py-1 text-sm text-gray-300">{displayStatus(event.status)}</span>
+                        <span className="admin-state-badge admin-state-muted">{displayStatus(event.status)}</span>
                       </div>
 
-                      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                        <button onClick={() => onViewEvent(event)} className="role-action-neutral flex w-full items-center justify-center gap-2 rounded-xl bg-white/5 px-4 py-2 text-white transition-colors hover:bg-white/10 sm:w-auto">{copy.viewDetails}</button>
-                        <button onClick={() => onApproveEvent(event.id)} className="role-action-success flex w-full items-center justify-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25 sm:w-auto">{copy.approve}</button>
+                      <div className="admin-row-actions">
+                        <button onClick={() => onViewEvent(event)} className="role-action-neutral">{copy.viewDetails}</button>
+                        <button onClick={() => onApproveEvent(event.id)} className="role-action-success">{copy.approve}</button>
                         {moderationView !== 'archive' && (
-                          <button onClick={() => onRejectEvent(event.id)} className="role-action-danger flex w-full items-center justify-center gap-2 rounded-xl bg-red-600/15 px-4 py-2 text-red-300 transition-colors hover:bg-red-600/25 sm:w-auto">{copy.reject}</button>
+                          <button onClick={() => onRejectEvent(event.id)} className="role-action-danger">{copy.reject}</button>
                         )}
                       </div>
-                    </div>
+                    </article>
                   ))}
-                </div>
               </div>
             </div>
           )}
@@ -683,20 +879,20 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       </div>
 
       {blockTarget && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 px-4">
-          <div className="admin-modal w-full max-w-md rounded-3xl border border-red-500/20 bg-gradient-to-br from-gray-900 to-black p-5 shadow-2xl shadow-red-900/20 sm:p-6">
-            <h3 className="text-2xl font-bold text-white">{copy.blockUser}</h3>
-            <p className="mt-2 text-gray-400">{copy.blockReasonPrompt} <span className="text-white">{blockTarget.fullName}</span>.</p>
+        <div className="admin-modal-backdrop fixed inset-0 z-[70] flex items-center justify-center px-4">
+          <div className="admin-modal">
+            <h3>{copy.blockUser}</h3>
+            <p>{copy.blockReasonPrompt} <span>{blockTarget.fullName}</span>.</p>
 
-            <div className="mt-5 space-y-3">
+            <div className="admin-reason-list">
               {(['Fraud', 'Spam', 'Fake event', 'Abuse'] as BlockReason[]).map((reason) => (
                 <button
                   key={reason}
                   onClick={() => setBlockReason(reason)}
-                  className={`w-full rounded-2xl border px-4 py-3 text-left transition-colors ${
+                  className={`admin-reason-option ${
                     blockReason === reason
-                      ? 'border-red-500/30 bg-red-500/15 text-white'
-                      : 'border-gray-700 bg-gray-900/70 text-gray-300 hover:border-gray-500'
+                      ? 'admin-reason-option-active'
+                      : ''
                   }`}
                 >
                   {copy.reasons[reason]}
@@ -704,10 +900,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               ))}
             </div>
 
-            <div className="mt-6 flex gap-3">
+            <div className="admin-modal-actions">
               <button
                 onClick={() => setBlockTarget(null)}
-                className="flex-1 rounded-xl bg-white/5 px-4 py-3 text-white transition-colors hover:bg-white/10"
+                className="role-action-neutral"
               >
                 {copy.cancel}
               </button>
@@ -716,7 +912,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   syncSelectedUser(data.user);
                   setBlockTarget(null);
                 }).catch(() => {})}
-                className="role-action-danger flex-1 rounded-xl bg-red-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-red-500"
+                className="role-action-danger"
               >
                 {copy.block}
               </button>
