@@ -216,6 +216,7 @@ router.all("/result", async (req, res) => {
     const paymentFields = {
       paymentProvider: "freedompay",
       freedomPayPaymentId: String(payload.pg_payment_id || order.freedomPayPaymentId || ""),
+      paymentAmount: getOrderPaymentDueNow(order),
       paidAt: order.paidAt || new Date(),
       paymentFailureReason: "",
     };

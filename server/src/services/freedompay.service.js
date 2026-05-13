@@ -1,8 +1,7 @@
 import crypto from "crypto";
 
-import { getOrderPaymentDueNow } from "./ticket.service.js";
-
 const DEFAULT_INIT_URL = "https://api.freedompay.kz/init_payment";
+const DEFAULT_API_ORIGIN = "https://api.freedompay.kz";
 
 function getRequiredEnv(name) {
   const value = String(process.env[name] || "").trim();
@@ -146,7 +145,10 @@ export function buildFrontendPaymentReturnUrl(status, payload = {}) {
 }
 
 function orderAmount(order) {
-  return Number(Number(getOrderPaymentDueNow(order)).toFixed(2));
+  const amount = order.paymentStatus === "reserved"
+    ? Number(order.balanceDue || 0)
+    : Number(order.amountPaid || order.depositAmount || order.total || 0);
+  return Number(Number(amount || 0).toFixed(2));
 }
 
 function compactFreedomPayResponse(text) {
@@ -154,6 +156,17 @@ function compactFreedomPayResponse(text) {
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, 800);
+}
+
+function getFreedomPayRevokeUrl(config) {
+  const configured = String(process.env.FREEDOMPAY_REVOKE_URL || "").trim();
+  if (configured) return configured;
+
+  try {
+    return new URL("/revoke.php", config.initUrl || DEFAULT_API_ORIGIN).toString();
+  } catch {
+    return `${DEFAULT_API_ORIGIN}/revoke.php`;
+  }
 }
 
 export async function createFreedomPayPayment(order) {
@@ -236,6 +249,74 @@ export async function createFreedomPayPayment(order) {
   return {
     paymentUrl: parsed.pg_redirect_url,
     paymentId: parsed.pg_payment_id || "",
+    raw: parsed,
+  };
+}
+
+export async function refundFreedomPayPayment({ paymentId, amount, orderId }) {
+  const config = getFreedomPayConfig();
+  const revokeUrl = getFreedomPayRevokeUrl(config);
+  const scriptName = getFreedomPayScriptName(revokeUrl);
+  const refundAmount = Number(Number(amount || 0).toFixed(2));
+
+  if (!String(paymentId || "").trim()) {
+    throw new Error("Freedom Pay payment ID is missing");
+  }
+  if (!Number.isFinite(refundAmount) || refundAmount <= 0) {
+    throw new Error("Refund amount is invalid");
+  }
+
+  const request = {
+    pg_merchant_id: config.merchantId,
+    pg_payment_id: String(paymentId),
+    pg_refund_amount: refundAmount,
+    pg_salt: randomSalt(),
+  };
+  request.pg_sig = makeFreedomPaySignature(scriptName, request, config.secretKey);
+
+  const response = await fetch(revokeUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Accept: "application/xml, text/xml, */*",
+    },
+    body: new URLSearchParams(Object.entries(request).map(([key, value]) => [key, String(value)])).toString(),
+  });
+
+  const responseText = await response.text();
+  const parsed = parseFreedomPayXml(responseText);
+  if (!response.ok) {
+    console.error("Freedom Pay refund HTTP error", {
+      status: response.status,
+      statusText: response.statusText,
+      response: compactFreedomPayResponse(responseText),
+      orderId: String(orderId || ""),
+      paymentId: String(paymentId),
+      amount: refundAmount,
+    });
+    throw new Error(
+      parsed.pg_error_description ||
+        parsed.pg_description ||
+        `Freedom Pay refund failed with HTTP ${response.status}`
+    );
+  }
+
+  if (parsed.pg_sig && !verifyFreedomPaySignature(scriptName, parsed, config.secretKey)) {
+    throw new Error("Freedom Pay refund response signature is invalid");
+  }
+
+  const status = String(parsed.pg_status || parsed.pg_payment_status || "").trim().toLowerCase();
+  const errorDescription = parsed.pg_error_description || parsed.pg_description || parsed.pg_failure_description;
+  if (["error", "failed", "failure", "rejected"].includes(status) || parsed.pg_error_code) {
+    throw new Error(errorDescription || "Freedom Pay rejected the refund");
+  }
+  if (status && !["ok", "success", "accepted"].includes(status)) {
+    throw new Error(errorDescription || `Freedom Pay returned refund status: ${status}`);
+  }
+
+  return {
+    paymentId: String(paymentId),
+    amount: refundAmount,
     raw: parsed,
   };
 }

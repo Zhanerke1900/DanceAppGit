@@ -11,6 +11,20 @@ const orderItemSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const paymentTransactionSchema = new mongoose.Schema(
+  {
+    provider: { type: String, enum: ["manual", "freedompay"], required: true },
+    paymentId: { type: String, default: "" },
+    amount: { type: Number, required: true, min: 0 },
+    refundedAmount: { type: Number, default: 0, min: 0 },
+    currency: { type: String, default: "KZT" },
+    type: { type: String, enum: ["payment", "refund"], default: "payment" },
+    status: { type: String, enum: ["success", "failed"], default: "success" },
+    paidAt: { type: Date, default: null },
+  },
+  { _id: false }
+);
+
 const orderSchema = new mongoose.Schema(
   {
     buyer: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
@@ -49,6 +63,7 @@ const orderSchema = new mongoose.Schema(
     paymentStatus: { type: String, enum: ["paid", "pending", "reserved", "failed", "refunded"], default: "paid" },
     paymentProvider: { type: String, enum: ["manual", "freedompay"], default: "manual", index: true },
     freedomPayPaymentId: { type: String, default: "", index: true },
+    paymentTransactions: { type: [paymentTransactionSchema], default: [] },
     paymentFailureReason: { type: String, default: "" },
     paidAt: { type: Date, default: null },
     ticketsIssuedAt: { type: Date, default: null },

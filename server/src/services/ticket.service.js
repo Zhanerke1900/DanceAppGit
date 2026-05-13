@@ -10,6 +10,7 @@ import { sendTicketEmail } from "../utils/sendTicketEmail.js";
 import { sendRefundEmail } from "../utils/sendEmails.js";
 import { isAdminEmail } from "../utils/admin.js";
 import { getEventStartAt, isEventPast } from "../utils/eventDates.js";
+import { refundFreedomPayPayment } from "./freedompay.service.js";
 
 function queueTicketEmailDelivery({ email, fullName, event, tickets }) {
   setTimeout(() => {
@@ -138,6 +139,112 @@ export function getOrderPaymentDueNow(order) {
     return money(order.balanceDue || 0);
   }
   return money(order.amountPaid || order.depositAmount || order.total || 0);
+}
+
+function recordSuccessfulPayment(order, paymentFields = {}) {
+  const provider = String(paymentFields.paymentProvider || order.paymentProvider || "").trim();
+  const paymentId = String(paymentFields.freedomPayPaymentId || "").trim();
+  const amount = money(paymentFields.paymentAmount);
+
+  if (provider !== "freedompay" || !paymentId || amount <= 0) return;
+
+  const alreadyRecorded = (order.paymentTransactions || []).some((transaction) =>
+    transaction.provider === "freedompay" &&
+    transaction.type === "payment" &&
+    String(transaction.paymentId || "") === paymentId
+  );
+  if (alreadyRecorded) return;
+
+  order.paymentTransactions.push({
+    provider: "freedompay",
+    paymentId,
+    amount,
+    refundedAmount: 0,
+    currency: String(process.env.FREEDOMPAY_CURRENCY || "KZT").trim() || "KZT",
+    type: "payment",
+    status: "success",
+    paidAt: paymentFields.paidAt || new Date(),
+  });
+}
+
+function getRefundableFreedomPayTransactions(order) {
+  const transactions = (order.paymentTransactions || [])
+    .filter((transaction) => transaction.provider === "freedompay" && transaction.type === "payment" && transaction.status === "success" && transaction.paymentId)
+    .map((transaction, index) => ({
+      transaction,
+      index,
+      remaining: money(Number(transaction.amount || 0) - Number(transaction.refundedAmount || 0)),
+    }))
+    .filter((item) => item.remaining > 0);
+
+  if (transactions.length > 0) return transactions;
+
+  if (order.paymentProvider === "freedompay" && order.freedomPayPaymentId) {
+    return [{
+      transaction: {
+        provider: "freedompay",
+        paymentId: order.freedomPayPaymentId,
+        amount: Number(order.amountPaid || order.total || 0),
+        refundedAmount: 0,
+      },
+      index: -1,
+      remaining: money(Number(order.amountPaid || order.total || 0)),
+    }];
+  }
+
+  return [];
+}
+
+async function refundOrderPayment(order, amount) {
+  const refundAmount = money(amount);
+  if (refundAmount <= 0) return [];
+  if (order.paymentProvider !== "freedompay") return [];
+
+  if ((order.paymentTransactions || []).length === 0 && order.freedomPayPaymentId) {
+    order.paymentTransactions.push({
+      provider: "freedompay",
+      paymentId: order.freedomPayPaymentId,
+      amount: money(order.amountPaid || order.total || refundAmount),
+      refundedAmount: 0,
+      currency: String(process.env.FREEDOMPAY_CURRENCY || "KZT").trim() || "KZT",
+      type: "payment",
+      status: "success",
+      paidAt: order.paidAt || order.updatedAt || new Date(),
+    });
+  }
+
+  const transactions = getRefundableFreedomPayTransactions(order);
+  if (transactions.length === 0) {
+    throw new Error("Freedom Pay refund is unavailable: payment transaction was not found");
+  }
+
+  let remaining = refundAmount;
+  const refunds = [];
+  for (const item of transactions) {
+    if (remaining <= 0) break;
+    const amountForTransaction = money(Math.min(item.remaining, remaining));
+    if (amountForTransaction <= 0) continue;
+
+    const refund = await refundFreedomPayPayment({
+      paymentId: item.transaction.paymentId,
+      amount: amountForTransaction,
+      orderId: order._id,
+    });
+    refunds.push(refund);
+    remaining = money(remaining - amountForTransaction);
+
+    if (item.index >= 0 && order.paymentTransactions[item.index]) {
+      order.paymentTransactions[item.index].refundedAmount = money(
+        Number(order.paymentTransactions[item.index].refundedAmount || 0) + amountForTransaction
+      );
+    }
+  }
+
+  if (remaining > 0) {
+    throw new Error("Freedom Pay refund is unavailable: refundable payment amount is not enough");
+  }
+
+  return refunds;
 }
 
 function isPastEventSnapshot(eventSnapshot = {}) {
@@ -510,6 +617,7 @@ export async function markOrderPaidAndIssueTickets(orderOrId, paymentFields = {}
   order.amountPaid = Number(order.total || order.amountPaid || 0);
   order.balanceDue = 0;
   order.depositAmount = Number(order.depositAmount || order.amountPaid || 0);
+  recordSuccessfulPayment(order, paymentFields);
   Object.assign(order, paymentFields);
   await order.save();
 
@@ -534,6 +642,7 @@ export async function markOrderReserved(orderOrId, paymentFields = {}) {
   order.paidAt = order.paidAt || new Date();
   order.amountPaid = Number(order.depositAmount || order.amountPaid || 0);
   order.balanceDue = money(Math.max(Number(order.total || 0) - Number(order.amountPaid || 0), 0));
+  recordSuccessfulPayment(order, paymentFields);
   Object.assign(order, paymentFields);
   await order.save();
 
@@ -600,6 +709,10 @@ export async function cancelReservationForUser({ orderId, user }) {
   const refundPolicyMs = Number(order.refundPolicyHours || DEFAULT_REFUND_POLICY_HOURS) * 60 * 60 * 1000;
   const refundEligible = msUntilEvent > refundPolicyMs;
 
+  if (refundEligible) {
+    await refundOrderPayment(order, order.amountPaid || order.depositAmount || 0);
+  }
+
   order.paymentStatus = refundEligible ? "refunded" : "failed";
   order.paymentFailureReason = refundEligible
     ? "Reservation cancelled by user; prepayment refund requested"
@@ -652,6 +765,9 @@ export async function refundTicketForUser({ ticketId, user }) {
     throw new Error("Refund is available only more than 1 day before the event");
   }
 
+  const refundAmount = money(ticket.amountPaid || ticket.price || 0);
+  const refunds = await refundOrderPayment(order, refundAmount);
+
   ticket.status = "cancelled";
   await ticket.save();
 
@@ -694,6 +810,8 @@ export async function refundTicketForUser({ ticketId, user }) {
     ticketId: ticket._id,
     ticketCode: ticket.ticketCode,
     message: "Refund requested successfully",
+    refundedAmount: refundAmount,
+    paymentRefunds: refunds,
     emailSent,
   };
 }

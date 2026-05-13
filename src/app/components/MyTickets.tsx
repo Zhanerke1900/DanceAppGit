@@ -10,7 +10,7 @@ interface MyTicketsProps {
   tickets?: TicketRecord[];
   reservations?: ReservationRecord[];
   onOpenTicket?: (ticket: TicketRecord) => void;
-  onRefundTicket?: (ticket: TicketRecord) => Promise<{ emailSent?: boolean } | void>;
+  onRefundTicket?: (ticket: TicketRecord) => Promise<{ refundedAmount?: number; emailSent?: boolean } | void>;
   onPayReservation?: (reservation: ReservationRecord) => Promise<void>;
   onCancelReservation?: (reservation: ReservationRecord) => Promise<void>;
 }
@@ -469,7 +469,7 @@ export const MyTickets = ({
               <span className="font-semibold text-white">{refundCandidate.event.title}</span>.
             </p>
             <p className="mt-3 text-sm leading-relaxed text-gray-400">
-              The ticket will be removed from your upcoming tickets, and the money should arrive within
+              The ticket will be removed from your upcoming tickets after Freedom Pay accepts the refund. The money should arrive within
               <span className="font-semibold text-white"> 3 business days</span>.
             </p>
             <div className="mt-6 flex items-center justify-end gap-3">
@@ -488,8 +488,8 @@ export const MyTickets = ({
                     setRefundCandidate(null);
                     setRefundSuccessMessage(
                       result?.emailSent === false
-                        ? "Refund requested successfully. The ticket was removed, but the email could not be sent. Please restart the backend and check SMTP."
-                        : "Refund requested successfully. The money should arrive within 3 business days."
+                        ? "Refund accepted by Freedom Pay. The ticket was removed, but the email could not be sent. Please restart the backend and check SMTP."
+                        : "Refund accepted by Freedom Pay. The money should arrive within 3 business days."
                     );
                   } catch (error: any) {
                     setRefundErrorMessage(error?.message || "Refund failed. Please try again.");

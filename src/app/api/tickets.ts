@@ -118,5 +118,5 @@ export async function refundTicket(ticketId: string) {
     method: "POST",
   });
   if (!res.ok) throw new Error((data as any)?.message || "Failed to refund ticket");
-  return data as { ticketId: string; ticketCode: string; message: string; emailSent?: boolean };
+  return data as { ticketId: string; ticketCode: string; message: string; refundedAmount?: number; emailSent?: boolean };
 }
