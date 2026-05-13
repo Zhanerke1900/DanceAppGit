@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Upload, X, Calendar, MapPin, Type, FileText, Image as ImageIcon, Clock, Save, Send, Plus, Trash2, Ticket } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import { useI18n } from '../i18n';
 
@@ -508,7 +507,6 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
             onClick={onBack}
             className="flex items-center gap-2 text-gray-400 hover:text-white mb-3 transition-colors"
           >
-            <ArrowLeft className="w-5 h-5" />
             <span>{tr('Back to Events', 'Назад к событиям', 'Іс-шараларға оралу')}</span>
           </button>
           <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl">{isEditMode ? tr('Edit Event', 'Редактировать событие', 'Іс-шараны өңдеу') : tr('Create New Event', 'Создать новое событие', 'Жаңа іс-шара құру')}</h1>
@@ -525,7 +523,6 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
           <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-purple-600/20 rounded-lg">
-                <Type className="w-5 h-5 text-purple-400" />
               </div>
               <h2 className="text-xl font-bold text-white">{tr('Basic Information', 'Основная информация', 'Негізгі ақпарат')}</h2>
             </div>
@@ -608,7 +605,6 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
           <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-purple-600/20 rounded-lg">
-                <Calendar className="w-5 h-5 text-purple-400" />
               </div>
               <h2 className="text-xl font-bold text-white">{tr('Date & Location', 'Дата и место', 'Күні және орны')}</h2>
             </div>
@@ -622,7 +618,6 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
                   className={`w-full flex items-center justify-between gap-3 bg-gray-800/50 border ${errors.date ? 'border-red-500' : 'border-gray-700'} text-white px-4 py-3 rounded-xl hover:border-purple-500/60 transition-all`}
                 >
                   <div className="flex items-center gap-3">
-                    <Calendar className="w-5 h-5 text-purple-400 shrink-0" />
                     <span className={formData.date ? 'text-white' : 'text-gray-500'}>
                       {formatDateLabel(formData.date)}
                     </span>
@@ -641,7 +636,6 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
                   className={`w-full flex items-center justify-between gap-3 bg-gray-800/50 border ${errors.time ? 'border-red-500' : 'border-gray-700'} text-white px-4 py-3 rounded-xl hover:border-purple-500/60 transition-all`}
                 >
                   <div className="flex items-center gap-3">
-                    <Clock className="w-5 h-5 text-purple-400 shrink-0" />
                     <span className={formData.time ? 'text-white' : 'text-gray-500'}>
                       {formatTimeLabel(formData.time)}
                     </span>
@@ -668,7 +662,6 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-purple-400" />
                       <span className="font-medium">{city}</span>
                     </div>
                   </button>
@@ -707,7 +700,6 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
           <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-purple-600/20 rounded-lg">
-                <FileText className="w-5 h-5 text-purple-400" />
               </div>
               <h2 className="text-xl font-bold text-white">{tr('Event Details', 'Детали события', 'Іс-шара мәліметтері')}</h2>
             </div>
@@ -801,7 +793,6 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
           <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-purple-600/20 rounded-lg">
-                <Clock className="w-5 h-5 text-purple-400" />
               </div>
               <h2 className="text-xl font-bold text-white">
                 {formData.eventType === 'special-program' ? tr('Program Activities', 'Активности программы', 'Бағдарлама белсенділіктері') : tr('Schedule', 'Расписание', 'Кесте')}
@@ -821,7 +812,7 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
                         onClick={() => removeScheduleItem(item.id)}
                         className="text-gray-500 hover:text-red-400 transition-colors"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        {tr('Remove', 'Удалить', 'Жою')}
                       </button>
                     )}
                   </div>
@@ -836,7 +827,6 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
                       className="w-full flex items-center justify-between gap-3 bg-gray-800/60 border border-gray-700 text-white px-4 py-3 rounded-xl hover:border-purple-500/60 transition-all"
                     >
                       <div className="flex items-center gap-3">
-                        <Clock className="w-4 h-4 text-purple-400 shrink-0" />
                         <span className={item.time ? 'text-white' : 'text-gray-500'}>
                           {formatTimeLabel(item.time)}
                         </span>
@@ -938,7 +928,6 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
               onClick={addScheduleItem}
               className="mt-4 inline-flex items-center gap-2 rounded-xl border border-purple-500/30 bg-purple-600/10 px-4 py-2.5 text-purple-300 transition-colors hover:bg-purple-600/20"
             >
-              <Plus className="w-4 h-4" />
               {formData.eventType === 'special-program' ? tr('Add Activity', 'Добавить активность', 'Белсенділік қосу') : tr('Add Schedule Item', 'Добавить пункт расписания', 'Кесте тармағын қосу')}
             </button>
           </div>
@@ -946,7 +935,6 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
           <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-purple-600/20 rounded-lg">
-                <Ticket className="w-5 h-5 text-purple-400" />
               </div>
               <h2 className="text-xl font-bold text-white">{tr('Ticket Pricing', 'Стоимость билетов', 'Билет бағасы')}</h2>
             </div>
@@ -1042,7 +1030,6 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
           <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-purple-600/20 rounded-lg">
-                <ImageIcon className="w-5 h-5 text-purple-400" />
               </div>
               <h2 className="text-xl font-bold text-white">{tr('Event Poster', 'Постер события', 'Іс-шара постері')}</h2>
             </div>
@@ -1056,7 +1043,6 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
                 >
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     <div className="p-4 bg-purple-600/20 rounded-full mb-4 group-hover:bg-purple-600/30 transition-colors">
-                      <Upload className="w-8 h-8 text-purple-400" />
                     </div>
                     <p className="mb-2 text-sm text-gray-400">
                       <span className="font-semibold text-white">{tr('Click to upload', 'Нажмите для загрузки', 'Жүктеу үшін басыңыз')}</span> {tr('or drag and drop', 'или перетащите файл', 'немесе сүйреп апарыңыз')}
@@ -1075,7 +1061,7 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
                       onClick={removePoster}
                       className="p-3 bg-red-600 hover:bg-red-700 rounded-full text-white transition-colors"
                     >
-                      <X className="w-6 h-6" />
+                      {tr('Remove', 'Удалить', 'Жою')}
                     </button>
                   </div>
                   <div className="absolute top-4 left-4 bg-black/80 px-3 py-1 rounded-full text-sm text-white">
@@ -1097,7 +1083,6 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
                   disabled={isSubmittingDraft || isSubmittingReview}
                   className="flex-1 flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 border border-gray-700"
                 >
-                  <Save className="w-5 h-5" />
                   {isSubmittingDraft ? tr('Saving...', 'Сохранение...', 'Сақталуда...') : tr('Save as Draft', 'Сохранить как черновик', 'Черновик ретінде сақтау')}
                 </button>
                 <button
@@ -1106,7 +1091,6 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
                   disabled={isSubmittingDraft || isSubmittingReview}
                   className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg shadow-purple-600/20 hover:shadow-purple-600/40"
                 >
-                  <Send className="w-5 h-5" />
                   {isSubmittingReview ? tr('Sending...', 'Отправка...', 'Жіберілуде...') : tr('Send for Approval', 'Отправить на проверку', 'Тексеруге жіберу')}
                 </button>
               </>
@@ -1117,7 +1101,6 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
                 disabled={isSubmittingReview}
                 className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg shadow-purple-600/20 hover:shadow-purple-600/40"
               >
-                <Save className="w-5 h-5" />
                 {isSubmittingReview ? tr('Saving...', 'Сохранение...', 'Сақталуда...') : tr('Save Changes', 'Сохранить изменения', 'Өзгерістерді сақтау')}
               </button>
             ) : (
@@ -1128,7 +1111,6 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
                   disabled={isSubmittingDraft || isSubmittingReview}
                   className="flex-1 flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 border border-gray-700"
                 >
-                  <Save className="w-5 h-5" />
                   {isSubmittingDraft ? tr('Saving...', 'Сохранение...', 'Сақталуда...') : tr('Save as Draft', 'Сохранить как черновик', 'Черновик ретінде сақтау')}
                 </button>
                 <button
@@ -1137,7 +1119,6 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
                   disabled={isSubmittingDraft || isSubmittingReview}
                   className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg shadow-purple-600/20 hover:shadow-purple-600/40"
                 >
-                  <Send className="w-5 h-5" />
                   {isSubmittingReview ? tr('Sending...', 'Отправка...', 'Жіберілуде...') : tr('Send for Approval', 'Отправить на проверку', 'Тексеруге жіберу')}
                 </button>
               </>
@@ -1165,7 +1146,7 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
       </div>
 
       <Dialog open={isDateDialogOpen} onOpenChange={setIsDateDialogOpen}>
-        <DialogContent className="bg-gray-950 border border-purple-500/20 text-gray-100 max-w-md rounded-3xl p-0 overflow-hidden">
+        <DialogContent className="role-dialog bg-gray-950 border border-purple-500/20 text-gray-100 max-w-md rounded-3xl p-0 overflow-hidden">
           <DialogHeader className="px-6 pt-6 pb-3">
             <DialogTitle className="text-2xl text-white">{tr('Choose Event Date', 'Выберите дату события', 'Іс-шара күнін таңдаңыз')}</DialogTitle>
             <DialogDescription className="text-gray-400">
@@ -1252,7 +1233,7 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
       </Dialog>
 
       <Dialog open={isTimeDialogOpen} onOpenChange={setIsTimeDialogOpen}>
-        <DialogContent className="bg-gray-950 border border-purple-500/20 text-gray-100 max-w-md rounded-3xl p-0 overflow-hidden">
+        <DialogContent className="role-dialog bg-gray-950 border border-purple-500/20 text-gray-100 max-w-md rounded-3xl p-0 overflow-hidden">
           <DialogHeader className="px-6 pt-6 pb-3">
             <DialogTitle className="text-2xl text-white">{tr('Choose Start Time', 'Выберите время начала', 'Басталу уақытын таңдаңыз')}</DialogTitle>
             <DialogDescription className="text-gray-400">

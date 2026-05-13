@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import { Shield, Users, UserCheck, ClipboardList, Search, Mail, Calendar, Eye, CheckCircle2, XCircle, FileText, TrendingUp, Ban, RotateCcw } from 'lucide-react';
 import { useI18n } from '../i18n';
 
 type AdminTab = 'dashboard' | 'requests' | 'users' | 'moderation';
@@ -278,10 +277,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const [blockReason, setBlockReason] = useState<BlockReason>('Fraud');
 
   const menuItems = [
-    { id: 'dashboard', label: copy.adminPanel, icon: Shield },
-    { id: 'requests', label: copy.requests, icon: ClipboardList },
-    { id: 'users', label: copy.userManagement, icon: Users },
-    { id: 'moderation', label: copy.eventModeration, icon: FileText },
+    { id: 'dashboard', label: copy.adminPanel },
+    { id: 'requests', label: copy.requests },
+    { id: 'users', label: copy.userManagement },
+    { id: 'moderation', label: copy.eventModeration },
   ] as const;
 
   const formatCurrency = (value: number) =>
@@ -295,37 +294,31 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       label: copy.totalUsers,
       value: overview?.totalUsers ?? 0,
       change: copy.thisMonth(overview?.usersAddedThisMonth ?? 0),
-      icon: Users,
     },
     {
       label: copy.totalOrganizers,
       value: overview?.totalOrganizers ?? 0,
       change: copy.thisMonth(overview?.organizersAddedThisMonth ?? 0),
-      icon: UserCheck,
     },
     {
       label: copy.pendingOrganizerApplications,
       value: overview?.pendingOrganizerApplications ?? 0,
       change: copy.waitingForReview,
-      icon: ClipboardList,
     },
     {
       label: copy.publishedPendingEvents,
       value: `${overview?.publishedEvents ?? 0} / ${overview?.pendingEvents ?? 0}`,
       change: copy.newThisMonth(overview?.eventsAddedThisMonth ?? 0),
-      icon: Calendar,
     },
     {
       label: copy.activeReservations,
       value: overview?.activeReservations ?? 0,
       change: copy.outstandingBalance,
-      icon: ClipboardList,
     },
     {
       label: copy.collectedRevenue,
       value: formatCurrency(overview?.collectedRevenue ?? 0),
       change: `${copy.outstandingBalance}: ${formatCurrency(overview?.outstandingBalance ?? 0)}`,
-      icon: TrendingUp,
     },
   ], [copy, overview]);
 
@@ -367,27 +360,16 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     <div className="role-view min-h-screen bg-[#f6f4fb] pt-20 dark:bg-[#090a10]">
       <div className="2xl:flex">
         <aside className="sticky top-20 z-30 border-b border-[#d9d2e8] bg-white/92 shadow-[0_10px_24px_rgba(63,54,92,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-[#11121a]/95 md:flex md:items-center md:gap-4 md:px-5 md:py-2 2xl:fixed 2xl:left-0 2xl:top-20 2xl:block 2xl:h-[calc(100vh-5rem)] 2xl:w-56 2xl:overflow-y-auto 2xl:border-b-0 2xl:border-r 2xl:px-0 2xl:pt-0 2xl:pb-6">
-          <div className="flex items-center gap-3 border-b border-[#d9d2e8] px-4 py-2.5 dark:border-white/10 md:border-b-0 md:px-0 md:py-0 2xl:hidden">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-purple-600 to-fuchsia-600 shadow-md shadow-purple-600/20">
-              <Shield className="h-5 w-5 text-white" />
-            </div>
-            <p className="min-w-0 truncate text-sm font-semibold uppercase tracking-[0.16em] text-[#332b4e] dark:text-purple-100">{copy.developerPanel}</p>
+          <div className="flex items-center border-b border-[#d9d2e8] px-4 py-3 dark:border-white/10 md:border-b-0 md:px-0 md:py-0 2xl:hidden">
+            <p className="min-w-0 whitespace-nowrap text-sm font-semibold uppercase tracking-[0.16em] text-[#332b4e] dark:text-purple-100">{copy.developerPanel}</p>
           </div>
 
           <div className="hidden border-b border-[#d9d2e8] p-4 dark:border-white/10 2xl:block">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-fuchsia-600 shadow-lg shadow-purple-600/30">
-                <Shield className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <p className="text-sm font-bold uppercase tracking-[0.24em] text-purple-100">{copy.developerPanel}</p>
-              </div>
-            </div>
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-purple-100">{copy.developerPanel}</p>
           </div>
 
           <nav className="flex gap-2 overflow-x-auto p-2.5 md:flex-1 md:p-0 2xl:block 2xl:space-y-1.5 2xl:overflow-visible 2xl:p-3">
             {menuItems.map((item) => {
-              const Icon = item.icon;
               const isActive = activeTab === item.id;
               return (
                 <button
@@ -399,7 +381,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       : 'border-transparent text-[#5b526d] hover:border-purple-400/50 hover:bg-purple-600/5 hover:text-[#201a35] dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white'
                   }`}
                 >
-                  <Icon className="h-5 w-5" />
                   <span className="whitespace-nowrap font-medium">{item.label}</span>
                 </button>
               );
@@ -416,50 +397,39 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               </div>
 
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
-                {statCards.map((card) => {
-                  const Icon = card.icon;
-                  return (
-                    <div key={card.label} className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6">
-                      <div className="mb-4 flex items-start justify-between">
-                        <div className="rounded-xl bg-purple-600/15 p-3">
-                          <Icon className="h-6 w-6 text-purple-400" />
-                        </div>
-                      </div>
-                      <p className="mb-2 text-sm text-gray-400">{card.label}</p>
-                      <p className="text-3xl font-bold text-white">{card.value}</p>
-                      <p className="mt-2 text-sm text-gray-500">{card.change}</p>
-                    </div>
-                  );
-                })}
+                {statCards.map((card) => (
+                  <div key={card.label} className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6">
+                    <p className="mb-2 text-sm text-gray-400">{card.label}</p>
+                    <p className="text-3xl font-bold text-white">{card.value}</p>
+                    <p className="mt-2 text-sm text-gray-500">{card.change}</p>
+                  </div>
+                ))}
               </div>
 
               <div className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
                 <div className="overflow-hidden rounded-3xl border border-purple-500/20 bg-gradient-to-br from-gray-900 via-gray-950 to-black p-5 sm:p-6">
-                  <div className="mb-6 flex items-center justify-between">
+                  <div className="mb-6">
                     <div>
                       <p className="text-sm uppercase tracking-[0.3em] text-purple-300">{copy.growth}</p>
                       <h2 className="mt-2 text-2xl font-bold text-white">{copy.growthTitle}</h2>
                       <p className="mt-2 text-sm text-gray-400">{copy.growthDesc}</p>
                     </div>
-                    <div className="rounded-2xl border border-purple-500/20 bg-purple-600/10 p-3">
-                      <TrendingUp className="h-6 w-6 text-purple-300" />
-                    </div>
                   </div>
 
-                  <div className="rounded-2xl border border-white/5 bg-black/30 p-4">
+                  <div className="role-chart rounded-2xl border border-white/5 bg-black/30 p-4">
                     <div className="mb-4 flex flex-wrap gap-4 text-sm">
-                      <div className="flex items-center gap-2 text-gray-300"><span className="h-2.5 w-2.5 rounded-full bg-fuchsia-400" />{copy.users}</div>
-                      <div className="flex items-center gap-2 text-gray-300"><span className="h-2.5 w-2.5 rounded-full bg-cyan-400" />{copy.organizers}</div>
-                      <div className="flex items-center gap-2 text-gray-300"><span className="h-2.5 w-2.5 rounded-full bg-amber-400" />{copy.events}</div>
+                      <div className="flex items-center gap-2 text-gray-300"><span className="h-px w-8 bg-current" />{copy.users}</div>
+                      <div className="flex items-center gap-2 text-gray-300"><span className="h-px w-8 bg-current opacity-70" />{copy.organizers}</div>
+                      <div className="flex items-center gap-2 text-gray-300"><span className="h-px w-8 bg-current opacity-40" />{copy.events}</div>
                     </div>
                     <div className="h-72">
                       <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full w-full">
                         {[20, 40, 60, 80].map((line) => (
-                          <line key={line} x1="0" y1={line} x2="100" y2={line} stroke="rgba(255,255,255,0.08)" strokeDasharray="2 3" />
+                          <line key={line} className="role-chart-grid" x1="0" y1={line} x2="100" y2={line} strokeDasharray="2 3" />
                         ))}
-                        <polyline fill="none" stroke="#E879F9" strokeWidth="2.4" points={buildLine(monthlyGrowth.map((item) => item.users))} />
-                        <polyline fill="none" stroke="#22D3EE" strokeWidth="2.4" points={buildLine(monthlyGrowth.map((item) => item.organizers))} />
-                        <polyline fill="none" stroke="#FBBF24" strokeWidth="2.4" points={buildLine(monthlyGrowth.map((item) => item.events))} />
+                        <polyline className="role-chart-primary" fill="none" strokeWidth="2.4" points={buildLine(monthlyGrowth.map((item) => item.users))} />
+                        <polyline className="role-chart-secondary" fill="none" strokeWidth="2.4" points={buildLine(monthlyGrowth.map((item) => item.organizers))} />
+                        <polyline className="role-chart-tertiary" fill="none" strokeWidth="2.4" points={buildLine(monthlyGrowth.map((item) => item.events))} />
                       </svg>
                     </div>
                     <div className="mt-4 grid grid-cols-6 gap-2 text-center text-xs text-gray-500">
@@ -528,9 +498,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     )}
 
                     <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                      <button onClick={() => onApproveRequest(request.id)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25 sm:w-auto"><CheckCircle2 className="h-4 w-4" />{copy.approve}</button>
+                      <button onClick={() => onApproveRequest(request.id)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25 sm:w-auto">{copy.approve}</button>
                       {request.organizerStatus !== 'rejected' && (
-                        <button onClick={() => onRejectRequest(request.id)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600/15 px-4 py-2 text-red-300 transition-colors hover:bg-red-600/25 sm:w-auto"><XCircle className="h-4 w-4" />{copy.reject}</button>
+                        <button onClick={() => onRejectRequest(request.id)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600/15 px-4 py-2 text-red-300 transition-colors hover:bg-red-600/25 sm:w-auto">{copy.reject}</button>
                       )}
                     </div>
                   </div>
@@ -547,7 +517,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               </div>
 
               <div className="relative max-w-xl">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
                 <input
                   value={search}
                   onChange={(e) => {
@@ -556,7 +525,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     onSearchUsers(value);
                   }}
                   placeholder={copy.searchPlaceholder}
-                  className="w-full rounded-xl border border-gray-700 bg-gray-900 py-3 pl-10 pr-4 text-white outline-none placeholder:text-gray-500 focus:border-purple-500"
+                  className="w-full rounded-xl border border-gray-700 bg-gray-900 px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-purple-500"
                 />
               </div>
 
@@ -567,7 +536,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                         <div>
                           <p className="font-semibold text-white">{item.fullName}</p>
-                          <p className="mt-1 flex items-center gap-2 text-gray-400"><Mail className="h-4 w-4 shrink-0" /><span className="min-w-0 break-all">{item.email}</span></p>
+                          <p className="mt-1 text-gray-400"><span className="min-w-0 break-all">{item.email}</span></p>
                           <p className="mt-2 text-sm text-gray-500">{copy.createdAt}: {formatDateTime(item.createdAt)}</p>
                         </div>
                         <div className="flex flex-wrap items-center gap-2">
@@ -583,7 +552,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                           onClick={() => setSelectedUser(item)}
                           className="flex w-full items-center justify-center gap-2 rounded-xl bg-white/5 px-4 py-2 text-white transition-colors hover:bg-white/10 sm:w-auto"
                         >
-                          <Eye className="h-4 w-4" />
                           {copy.view}
                         </button>
                         {(item.role === 'organizer' || item.organizerStatus === 'approved') && item.organizerAccessStatus !== 'deactivated' && (
@@ -591,7 +559,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                             onClick={() => onDeactivateOrganizer(item.id).then((data) => syncSelectedUser(data.user)).catch(() => {})}
                             className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-600/15 px-4 py-2 text-amber-300 transition-colors hover:bg-amber-600/25 sm:w-auto"
                           >
-                            <RotateCcw className="h-4 w-4" />
                             {copy.deactivate}
                           </button>
                         )}
@@ -600,7 +567,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                             onClick={() => onActivateOrganizer(item.id).then((data) => syncSelectedUser(data.user)).catch(() => {})}
                             className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25 sm:w-auto"
                           >
-                            <RotateCcw className="h-4 w-4" />
                             {copy.activate}
                           </button>
                         )}
@@ -609,7 +575,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                             onClick={() => onUnblockUser(item.id).then((data) => syncSelectedUser(data.user)).catch(() => {})}
                             className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25 sm:w-auto"
                           >
-                            <CheckCircle2 className="h-4 w-4" />
                             {copy.unblock}
                           </button>
                         ) : (
@@ -620,7 +585,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                             }}
                             className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600/15 px-4 py-2 text-red-300 transition-colors hover:bg-red-600/25 sm:w-auto"
                           >
-                            <Ban className="h-4 w-4" />
                             {copy.block}
                           </button>
                         )}
@@ -682,10 +646,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       </div>
 
                       <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                        <button onClick={() => onViewEvent(event)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-white/5 px-4 py-2 text-white transition-colors hover:bg-white/10 sm:w-auto"><Eye className="h-4 w-4" />{copy.viewDetails}</button>
-                        <button onClick={() => onApproveEvent(event.id)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25 sm:w-auto"><CheckCircle2 className="h-4 w-4" />{copy.approve}</button>
+                        <button onClick={() => onViewEvent(event)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-white/5 px-4 py-2 text-white transition-colors hover:bg-white/10 sm:w-auto">{copy.viewDetails}</button>
+                        <button onClick={() => onApproveEvent(event.id)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600/15 px-4 py-2 text-green-300 transition-colors hover:bg-green-600/25 sm:w-auto">{copy.approve}</button>
                         {moderationView !== 'archive' && (
-                          <button onClick={() => onRejectEvent(event.id)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600/15 px-4 py-2 text-red-300 transition-colors hover:bg-red-600/25 sm:w-auto"><XCircle className="h-4 w-4" />{copy.reject}</button>
+                          <button onClick={() => onRejectEvent(event.id)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600/15 px-4 py-2 text-red-300 transition-colors hover:bg-red-600/25 sm:w-auto">{copy.reject}</button>
                         )}
                       </div>
                     </div>

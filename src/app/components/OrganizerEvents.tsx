@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import { Calendar, Eye, MapPin, Pencil, Plus, Trash2, Undo2 } from 'lucide-react';
 import { useI18n } from '../i18n';
 
 interface OrganizerEvent {
@@ -224,7 +223,6 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
             disabled={!canCreateEvent}
             className="flex w-full items-center justify-center gap-2 rounded-lg bg-purple-500 px-6 py-2.5 font-semibold text-white transition-all duration-300 hover:bg-purple-600 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500 sm:w-auto"
           >
-            <Plus className="h-5 w-5" />
             {copy.createEvent}
           </button>
         </div>
@@ -253,32 +251,6 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
                 className="group rounded-lg border border-gray-200 bg-white p-4 transition-all duration-300 hover:shadow-md shadow-sm"
               >
                 <div className="flex flex-col gap-4 xl:flex-row">
-                  <div className="relative h-36 w-full flex-shrink-0 overflow-hidden rounded-lg sm:h-40 xl:h-32 xl:w-32">
-                    {event.image ? (
-                      <img
-                        src={event.image}
-                        alt={event.title}
-                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-400">
-                        <Calendar className="h-8 w-8" />
-                      </div>
-                    )}
-                    <div className="absolute right-2 top-2">
-                      <span className={`rounded-full border px-3 py-1 text-xs font-medium ${
-                        event.status === 'published' ? 'border-green-200 bg-green-50 text-green-700' :
-                        event.status === 'draft' ? 'border-gray-200 bg-gray-50 text-gray-700' :
-                        event.status === 'archived' ? 'border-red-200 bg-red-50 text-red-700' :
-                        event.status === 'pending' ? 'border-amber-200 bg-amber-50 text-amber-700' :
-                        event.status === 'pending-update-review' ? 'border-orange-200 bg-orange-50 text-orange-700' :
-                        'border-purple-200 bg-purple-50 text-purple-700'
-                      }`}>
-                        {getStatusLabel(event.status)}
-                      </span>
-                    </div>
-                  </div>
-
                   <div className="flex-1">
                     <div className="flex flex-col gap-4 lg:flex-row lg:justify-between">
                       <div className="grid flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_220px]">
@@ -288,11 +260,9 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
                           </h3>
                           <div className="space-y-1">
                             <div className="flex items-center gap-2 text-sm text-gray-600">
-                              <Calendar className="h-4 w-4 text-purple-500" />
                               <span>{formatDate(event.date, locale)} {copy.at} {event.time}</span>
                             </div>
                             <div className="flex items-center gap-2 text-sm text-gray-600">
-                              <MapPin className="h-4 w-4 text-purple-500" />
                               <span>{event.venue}, {event.city}</span>
                             </div>
                             {event.price && (
@@ -332,7 +302,6 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
                           onClick={() => onViewEvent(event)}
                           className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 sm:w-auto"
                         >
-                          <Eye className="h-4 w-4" />
                           {copy.view}
                         </button>
                         {((event.status === 'published' && !isPastEvent(event.date)) || event.status === 'draft' || event.status === 'pending' || event.status === 'pending-update-review') && (
@@ -341,7 +310,6 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
                             onClick={() => onEditEvent(event)}
                             className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-purple-200 bg-purple-50 px-4 py-2.5 text-sm font-semibold text-purple-700 transition-colors hover:bg-purple-100 sm:w-auto"
                           >
-                            <Pencil className="h-4 w-4" />
                             {copy.edit}
                           </button>
                         )}
@@ -351,7 +319,6 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
                             onClick={() => onMoveToDraft(event)}
                             className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm font-semibold text-amber-700 transition-colors hover:bg-amber-100 sm:w-auto"
                           >
-                            <Undo2 className="h-4 w-4" />
                             {copy.changeToDraft}
                           </button>
                         )}
@@ -361,7 +328,6 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
                             onClick={() => onDeleteEvent(event)}
                             className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100 sm:w-auto"
                           >
-                            <Trash2 className="h-4 w-4" />
                             {copy.delete}
                           </button>
                         )}
@@ -374,9 +340,6 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
           </div>
         ) : (
           <div className="rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-blue-50">
-              <Calendar className="h-8 w-8 text-blue-600" />
-            </div>
             <h2 className="mb-2 text-lg font-bold text-gray-900">{copy.noEvents(copy.tabs[activeTab])}</h2>
             <p className="text-gray-600">{copy.empty}</p>
           </div>

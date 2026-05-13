@@ -1,5 +1,4 @@
 import React from 'react';
-import { Calendar, MapPin, QrCode } from 'lucide-react';
 import { useI18n } from '../i18n';
 
 interface ValidatorAssignedEventsProps {
@@ -48,12 +47,10 @@ export const ValidatorAssignedEvents: React.FC<ValidatorAssignedEventsProps> = (
                 <p className="mb-2 text-sm font-semibold uppercase tracking-[0.25em] text-purple-300">{event.category}</p>
                 <h2 className="text-2xl font-bold text-white">{event.title}</h2>
                 <div className="mt-4 space-y-2 text-sm text-gray-300">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-purple-400" />
+                  <div>
                     <span>{event.date}{event.time ? ` - ${event.time}` : ''}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-purple-400" />
+                  <div>
                     <span>{event.location}</span>
                   </div>
                 </div>
@@ -61,7 +58,6 @@ export const ValidatorAssignedEvents: React.FC<ValidatorAssignedEventsProps> = (
                   onClick={() => onStartScan(event)}
                   className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-purple-600 px-5 py-3 font-semibold text-white transition-all hover:bg-purple-700 sm:w-auto"
                 >
-                  <QrCode className="h-4 w-4" />
                   {copy.scan}
                 </button>
               </div>

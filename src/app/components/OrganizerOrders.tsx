@@ -1,5 +1,4 @@
 import React from 'react';
-import { Calendar, CheckCircle2, Mail, ShoppingCart, Ticket, User } from 'lucide-react';
 import { useI18n } from '../i18n';
 
 interface OrganizerOrder {
@@ -97,9 +96,6 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders }) => {
 
         {orders.length === 0 ? (
           <div className="rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-blue-50">
-              <ShoppingCart className="h-8 w-8 text-blue-600" />
-            </div>
             <h2 className="mb-2 text-lg font-bold text-gray-900">{copy.emptyTitle}</h2>
             <p className="text-gray-600">{copy.emptyDesc}</p>
           </div>
@@ -118,20 +114,16 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders }) => {
                     </div>
 
                     <div className="grid gap-3 md:grid-cols-2">
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <User className="h-4 w-4 text-purple-500" />
+                      <div className="text-sm text-gray-600">
                         <span>{order.buyerName}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Mail className="h-4 w-4 text-purple-500" />
+                      <div className="text-sm text-gray-600">
                         <span className="break-all">{order.buyerEmail}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Ticket className="h-4 w-4 text-purple-500" />
+                      <div className="text-sm text-gray-600">
                         <span>{order.quantity}x {order.ticketType}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Calendar className="h-4 w-4 text-purple-500" />
+                      <div className="text-sm text-gray-600">
                         <span>{formatDate(order.purchaseDate)}</span>
                       </div>
                     </div>
@@ -159,10 +151,7 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders }) => {
                     </div>
                     <div className="rounded-lg bg-gray-50 border border-gray-200 p-4">
                       <p className="mb-1 text-xs uppercase tracking-wider text-gray-500">{copy.checkIn}</p>
-                      <p className="flex items-center gap-2 font-semibold text-gray-900">
-                        <CheckCircle2 className="h-4 w-4 text-purple-500" />
-                        {copy.status[order.checkInStatus] || order.checkInStatus}
-                      </p>
+                      <p className="font-semibold text-gray-900">{copy.status[order.checkInStatus] || order.checkInStatus}</p>
                     </div>
                   </div>
                 </div>

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { ShieldCheck, UserPlus } from 'lucide-react';
 import { useI18n } from '../i18n';
 
 interface OrganizerEvent {
@@ -143,14 +142,9 @@ export const OrganizerValidators: React.FC<OrganizerValidatorsProps> = ({
 
         <div className="grid gap-8 xl:grid-cols-[0.9fr_1.1fr]">
           <div className="rounded-lg border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
-            <div className="mb-5 flex items-center gap-3">
-              <div className="rounded-lg bg-blue-50 p-3">
-                <UserPlus className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-gray-900">{copy.accounts}</h2>
-                <p className="text-sm text-gray-600">{copy.accountsDesc}</p>
-              </div>
+            <div className="mb-5">
+              <h2 className="text-lg font-bold text-gray-900">{copy.accounts}</h2>
+              <p className="text-sm text-gray-600">{copy.accountsDesc}</p>
             </div>
 
             <div className="space-y-3">
@@ -227,14 +221,9 @@ export const OrganizerValidators: React.FC<OrganizerValidatorsProps> = ({
           </div>
 
           <div className="rounded-lg border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
-            <div className="mb-5 flex items-center gap-3">
-              <div className="rounded-lg bg-emerald-50 p-3">
-                <ShieldCheck className="h-5 w-5 text-emerald-600" />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-gray-900">{copy.assignments}</h2>
-                <p className="text-sm text-gray-600">{copy.assignmentsDesc}</p>
-              </div>
+            <div className="mb-5">
+              <h2 className="text-lg font-bold text-gray-900">{copy.assignments}</h2>
+              <p className="text-sm text-gray-600">{copy.assignmentsDesc}</p>
             </div>
 
             {publishedEvents.length === 0 ? (

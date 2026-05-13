@@ -1,5 +1,4 @@
 import React from 'react';
-import { Calendar, Clock3, Plus, Sparkles } from 'lucide-react';
 import { useI18n } from '../i18n';
 
 interface OrganizerEvent {
@@ -28,27 +27,18 @@ export const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
       title: language === 'ru' ? 'Всего событий' : language === 'kk' ? 'Барлық іс-шара' : 'Total Events',
       value: String(events.length),
       change: language === 'ru' ? 'Все созданные события' : language === 'kk' ? 'Жасалған барлық іс-шаралар' : 'All created events',
-      icon: Calendar,
-      iconBg: 'bg-blue-50',
-      iconColor: 'text-blue-600',
       borderColor: 'border-blue-100',
     },
     {
       title: language === 'ru' ? 'На проверке' : language === 'kk' ? 'Қаралуда' : 'Pending Review',
       value: String(pendingCount),
       change: language === 'ru' ? 'Ожидают решения администратора' : language === 'kk' ? 'Әкімші шешімін күтуде' : 'Waiting for admin decision',
-      icon: Clock3,
-      iconBg: 'bg-amber-50',
-      iconColor: 'text-amber-600',
       borderColor: 'border-amber-100',
     },
     {
       title: language === 'ru' ? 'Опубликованные события' : language === 'kk' ? 'Жарияланған іс-шаралар' : 'Published Events',
       value: String(publishedCount),
       change: language === 'ru' ? `Черновиков: ${draftCount}` : language === 'kk' ? `Черновик саны: ${draftCount}` : `${draftCount} drafts saved`,
-      icon: Sparkles,
-      iconBg: 'bg-emerald-50',
-      iconColor: 'text-emerald-600',
       borderColor: 'border-emerald-100',
     },
   ];
@@ -64,24 +54,16 @@ export const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {stats.map((stat) => {
-            const Icon = stat.icon;
-            return (
-              <div
-                key={stat.title}
-                className={`bg-white p-6 rounded-lg border ${stat.borderColor} shadow-sm hover:shadow-md transition-shadow`}
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className={`${stat.iconBg} p-3 rounded-lg`}>
-                    <Icon className={`h-6 w-6 ${stat.iconColor}`} />
-                  </div>
-                </div>
-                <p className="text-sm text-gray-600 mb-1">{stat.title}</p>
-                <p className="text-3xl font-bold text-gray-900 mb-3">{stat.value}</p>
-                <p className="text-sm text-gray-500">{stat.change}</p>
-              </div>
-            );
-          })}
+          {stats.map((stat) => (
+            <div
+              key={stat.title}
+              className={`bg-white p-6 rounded-lg border ${stat.borderColor} shadow-sm hover:shadow-md transition-shadow`}
+            >
+              <p className="text-sm text-gray-600 mb-1">{stat.title}</p>
+              <p className="text-3xl font-bold text-gray-900 mb-3">{stat.value}</p>
+              <p className="text-sm text-gray-500">{stat.change}</p>
+            </div>
+          ))}
         </div>
 
         {/* Quick Start CTA */}
@@ -103,7 +85,6 @@ export const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
             disabled={!canCreateEvent}
             className="inline-flex items-center gap-2 px-6 py-2.5 bg-purple-500 text-white font-medium rounded-lg hover:bg-purple-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            <Plus className="h-5 w-5" />
             {language === 'ru' ? 'Создать событие' : language === 'kk' ? 'Іс-шара құру' : 'Create Event'}
           </button>
         </div>

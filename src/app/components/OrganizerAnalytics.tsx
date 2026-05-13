@@ -1,5 +1,4 @@
 import React from 'react';
-import { BarChart3, Calendar, DollarSign, PieChart, ShoppingBag, Ticket } from 'lucide-react';
 import { useI18n } from '../i18n';
 
 interface AnalyticsData {
@@ -137,40 +136,29 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
 
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
           {[
-            { label: copy.totalRevenue, value: formatCurrency(analytics?.totalRevenue || 0), icon: DollarSign, color: 'bg-green-50', iconColor: 'text-green-600' },
-            { label: copy.ticketsSold, value: String(analytics?.ticketsSold || 0), icon: Ticket, color: 'bg-blue-50', iconColor: 'text-blue-600' },
-            { label: copy.reservedTickets, value: String(analytics?.reservedTickets || 0), icon: Ticket, color: 'bg-amber-50', iconColor: 'text-amber-600' },
-            { label: copy.outstandingBalance, value: formatCurrency(analytics?.outstandingBalance || 0), icon: DollarSign, color: 'bg-purple-50', iconColor: 'text-purple-600' },
-            { label: copy.ordersCount, value: String(analytics?.ordersCount || 0), icon: ShoppingBag, color: 'bg-pink-50', iconColor: 'text-pink-600' },
-            { label: copy.reservationsCount, value: String(analytics?.reservationsCount || 0), icon: ShoppingBag, color: 'bg-indigo-50', iconColor: 'text-indigo-600' },
-            { label: copy.topEvents, value: String(analytics?.topEvents.length || 0), icon: BarChart3, color: 'bg-cyan-50', iconColor: 'text-cyan-600' },
-          ].map((card) => {
-            const Icon = card.icon;
-            return (
-              <div
-                key={card.label}
-                className={`rounded-lg border border-gray-200 ${card.color} p-5 sm:p-6 shadow-sm`}
-              >
-                <div className={`mb-4 inline-flex rounded-lg ${card.color} p-3`}>
-                  <Icon className={`h-6 w-6 ${card.iconColor}`} />
-                </div>
-                <p className="mb-2 text-sm text-gray-600">{card.label}</p>
-                <p className="text-3xl font-bold text-gray-900">{card.value}</p>
-              </div>
-            );
-          })}
+            { label: copy.totalRevenue, value: formatCurrency(analytics?.totalRevenue || 0) },
+            { label: copy.ticketsSold, value: String(analytics?.ticketsSold || 0) },
+            { label: copy.reservedTickets, value: String(analytics?.reservedTickets || 0) },
+            { label: copy.outstandingBalance, value: formatCurrency(analytics?.outstandingBalance || 0) },
+            { label: copy.ordersCount, value: String(analytics?.ordersCount || 0) },
+            { label: copy.reservationsCount, value: String(analytics?.reservationsCount || 0) },
+            { label: copy.topEvents, value: String(analytics?.topEvents.length || 0) },
+          ].map((card) => (
+            <div
+              key={card.label}
+              className="rounded-lg border border-gray-200 bg-white p-5 sm:p-6 shadow-sm"
+            >
+              <p className="mb-2 text-sm text-gray-600">{card.label}</p>
+              <p className="text-3xl font-bold text-gray-900">{card.value}</p>
+            </div>
+          ))}
         </div>
 
         <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
           <div className="rounded-lg border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
-            <div className="mb-5 flex items-center gap-3">
-              <div className="rounded-lg bg-blue-50 p-2">
-                <Calendar className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-gray-900">{copy.salesByDay}</h2>
-                <p className="text-sm text-gray-600">{copy.salesByDayDesc}</p>
-              </div>
+            <div className="mb-5">
+              <h2 className="text-lg font-bold text-gray-900">{copy.salesByDay}</h2>
+              <p className="text-sm text-gray-600">{copy.salesByDayDesc}</p>
             </div>
 
             {analytics?.salesByDay.length ? (
@@ -192,20 +180,15 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
 
           <div className="space-y-6">
             <div className="rounded-lg border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
-              <div className="mb-5 flex items-center gap-3">
-                <div className="rounded-lg bg-emerald-50 p-2">
-                  <PieChart className="h-5 w-5 text-emerald-600" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-bold text-gray-900">{copy.publishedVsPending}</h2>
-                  <p className="text-sm text-gray-600">{copy.statusSplit}</p>
-                </div>
+              <div className="mb-5">
+                <h2 className="text-lg font-bold text-gray-900">{copy.publishedVsPending}</h2>
+                <p className="text-sm text-gray-600">{copy.statusSplit}</p>
               </div>
 
               <div className="space-y-4">
                 {[
-                  { label: copy.published, value: analytics?.eventStatuses.published || 0, color: 'bg-emerald-500' },
-                  { label: copy.pending, value: analytics?.eventStatuses.pending || 0, color: 'bg-amber-500' },
+                  { label: copy.published, value: analytics?.eventStatuses.published || 0, color: 'role-bar-primary' },
+                  { label: copy.pending, value: analytics?.eventStatuses.pending || 0, color: 'role-bar-secondary' },
                 ].map((item) => (
                   <div key={item.label}>
                     <div className="mb-2 flex items-center justify-between text-sm">
@@ -224,14 +207,9 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
             </div>
 
             <div className="rounded-lg border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
-              <div className="mb-5 flex items-center gap-3">
-                <div className="rounded-lg bg-purple-50 p-2">
-                  <Ticket className="h-5 w-5 text-purple-600" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-bold text-gray-900">{copy.specialProgramSales}</h2>
-                  <p className="text-sm text-gray-600">{copy.specialProgramDesc}</p>
-                </div>
+              <div className="mb-5">
+                <h2 className="text-lg font-bold text-gray-900">{copy.specialProgramSales}</h2>
+                <p className="text-sm text-gray-600">{copy.specialProgramDesc}</p>
               </div>
 
               <div className="space-y-4">
@@ -239,12 +217,12 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
                   {
                     label: copy.fullEventPass,
                     value: analytics?.specialPrograms.fullEventPassTickets || 0,
-                    color: 'bg-fuchsia-500',
+                    color: 'role-bar-primary',
                   },
                   {
                     label: copy.activityTickets,
                     value: analytics?.specialPrograms.activityTickets || 0,
-                    color: 'bg-sky-500',
+                    color: 'role-bar-secondary',
                   },
                 ].map((item) => (
                   <div key={item.label}>

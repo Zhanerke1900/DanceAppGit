@@ -401,101 +401,273 @@ html.light :is(.from-purple-600.to-purple-700, .from-purple-600.to-purple-800, .
   }
 
   .role-view {
-    background:
-      radial-gradient(circle at 8% 0%, rgba(124, 92, 190, 0.12), transparent 28%),
-      linear-gradient(180deg, #f7f4fb 0%, #eee9f7 100%);
-    color: #181421;
+    --role-page: #f4f5f7;
+    --role-surface: #ffffff;
+    --role-surface-muted: #f8f9fb;
+    --role-line: #d8dde6;
+    --role-line-strong: #aeb7c4;
+    --role-text: #171b22;
+    --role-muted: #5d6675;
+    --role-accent: #2f3a4a;
+    background: var(--role-page) !important;
+    color: var(--role-text);
   }
 
   html.dark .role-view {
-    background: #090a10;
-    color: #f5f3ff;
+    --role-page: #0f1217;
+    --role-surface: #171b22;
+    --role-surface-muted: #11151b;
+    --role-line: #303743;
+    --role-line-strong: #4a5361;
+    --role-text: #edf1f7;
+    --role-muted: #a7b0bf;
+    --role-accent: #c7ced8;
+    background: var(--role-page) !important;
+    color: var(--role-text);
   }
 
-  .role-view .min-h-screen.bg-black {
-    background: transparent !important;
-  }
-
-  .role-view [class*="from-gray-900"],
-  .role-view [class*="via-gray-900"],
-  .role-view [class*="via-gray-950"],
-  .role-view [class*="to-gray-950"],
-  .role-view [class*="to-black"],
-  .role-view [class*="bg-gray-900"],
-  .role-view [class*="bg-gray-800"] {
+  .role-view,
+  .role-view .min-h-screen,
+  .role-view main {
     background-image: none !important;
-    background-color: rgba(255, 255, 255, 0.88) !important;
-    border-color: rgba(79, 70, 115, 0.16) !important;
-    box-shadow: 0 12px 28px rgba(50, 43, 76, 0.08) !important;
   }
 
-  html.dark .role-view [class*="from-gray-900"],
-  html.dark .role-view [class*="via-gray-900"],
-  html.dark .role-view [class*="via-gray-950"],
-  html.dark .role-view [class*="to-gray-950"],
-  html.dark .role-view [class*="to-black"],
-  html.dark .role-view [class*="bg-gray-900"],
-  html.dark .role-view [class*="bg-gray-800"] {
-    background-color: rgba(18, 20, 30, 0.92) !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2) !important;
+  .role-view .min-h-screen,
+  .role-view main > div {
+    background-color: transparent !important;
+  }
+
+  .role-view aside {
+    background: var(--role-surface) !important;
+    border-color: var(--role-line) !important;
+    box-shadow: none !important;
+  }
+
+  .role-view [class*="bg-white"],
+  .role-view [class*="bg-gray-50"],
+  .role-view [class*="bg-gray-100"],
+  .role-view [class*="bg-gray-800"],
+  .role-view [class*="bg-gray-900"],
+  .role-view [class*="bg-gray-950"],
+  .role-view [class*="bg-black"],
+  .role-view [class*="from-"],
+  .role-view [class*="via-"],
+  .role-view [class*="to-"] {
+    background-image: none !important;
+    background-color: var(--role-surface) !important;
+    border-color: var(--role-line) !important;
+    box-shadow: none !important;
+  }
+
+  .role-view [class*="bg-purple"],
+  .role-view [class*="bg-fuchsia"],
+  .role-view [class*="bg-pink"],
+  .role-view [class*="bg-cyan"],
+  .role-view [class*="bg-sky"],
+  .role-view [class*="bg-blue"],
+  .role-view [class*="bg-indigo"],
+  .role-view [class*="bg-emerald"],
+  .role-view [class*="bg-green"],
+  .role-view [class*="bg-amber"],
+  .role-view [class*="bg-yellow"],
+  .role-view [class*="bg-orange"],
+  .role-view [class*="bg-red"] {
+    background-image: none !important;
+    background-color: var(--role-surface-muted) !important;
+    border-color: var(--role-line) !important;
+    box-shadow: none !important;
+  }
+
+  .role-view [class*="border-purple"],
+  .role-view [class*="border-fuchsia"],
+  .role-view [class*="border-pink"],
+  .role-view [class*="border-cyan"],
+  .role-view [class*="border-sky"],
+  .role-view [class*="border-blue"],
+  .role-view [class*="border-indigo"],
+  .role-view [class*="border-emerald"],
+  .role-view [class*="border-green"],
+  .role-view [class*="border-amber"],
+  .role-view [class*="border-yellow"],
+  .role-view [class*="border-orange"],
+  .role-view [class*="border-red"],
+  .role-view [class*="border-gray"] {
+    border-color: var(--role-line) !important;
+  }
+
+  .role-view [class*="rounded"] {
+    border-radius: 0 !important;
+  }
+
+  .role-view .lucide {
+    display: none !important;
+  }
+
+  .role-view .p-2:empty,
+  .role-view .p-4:empty {
+    display: none !important;
   }
 
   .role-view main .text-white,
-  .role-view main .text-gray-300 {
-    color: #1f1a2f !important;
+  .role-view main .text-gray-900,
+  .role-view main .text-gray-800,
+  .role-view main .text-gray-700,
+  .role-view aside .text-white,
+  .role-view aside .text-gray-900,
+  .role-view aside .text-purple-100 {
+    color: var(--role-text) !important;
   }
 
+  .role-view main .text-gray-300,
   .role-view main .text-gray-400,
-  .role-view main .text-gray-500 {
-    color: #665d78 !important;
+  .role-view main .text-gray-500,
+  .role-view main .text-gray-600,
+  .role-view aside .text-gray-300,
+  .role-view aside .text-gray-400,
+  .role-view aside .text-gray-500,
+  .role-view aside .text-gray-600 {
+    color: var(--role-muted) !important;
   }
 
-  .role-view main .text-purple-100,
-  .role-view main .text-purple-200,
-  .role-view main .text-purple-300,
-  .role-view main .text-purple-400 {
-    color: #6d43cc !important;
+  .role-view main [class*="text-purple"],
+  .role-view main [class*="text-fuchsia"],
+  .role-view main [class*="text-pink"],
+  .role-view main [class*="text-cyan"],
+  .role-view main [class*="text-sky"],
+  .role-view main [class*="text-blue"],
+  .role-view main [class*="text-indigo"],
+  .role-view main [class*="text-emerald"],
+  .role-view main [class*="text-green"],
+  .role-view main [class*="text-amber"],
+  .role-view main [class*="text-yellow"],
+  .role-view main [class*="text-orange"],
+  .role-view main [class*="text-red"],
+  .role-view aside [class*="text-purple"] {
+    color: var(--role-accent) !important;
   }
 
-  html.dark .role-view main .text-white {
-    color: #f8f7ff !important;
+  .role-view button,
+  .role-view input,
+  .role-view select,
+  .role-view textarea {
+    border-radius: 0 !important;
+    box-shadow: none !important;
   }
 
-  html.dark .role-view main .text-gray-300 {
-    color: #d6d3df !important;
+  .role-view input,
+  .role-view select,
+  .role-view textarea {
+    background: var(--role-surface) !important;
+    border-color: var(--role-line-strong) !important;
+    color: var(--role-text) !important;
   }
 
-  html.dark .role-view main .text-gray-400,
-  html.dark .role-view main .text-gray-500 {
-    color: #a9a3b8 !important;
+  .role-view main button,
+  .role-view aside button {
+    background-image: none !important;
+    border-color: var(--role-line) !important;
   }
 
-  .role-view aside .text-purple-100,
-  .role-view aside .text-purple-200,
-  .role-view aside .text-purple-300 {
-    color: #332b4e !important;
+  .role-view main button[class*="bg-purple"],
+  .role-view main button[class*="bg-green"],
+  .role-view main button[class*="bg-red"],
+  .role-view main button[class*="bg-amber"],
+  .role-view main button[class*="bg-gray-800"] {
+    background-color: var(--role-accent) !important;
+    color: var(--role-page) !important;
   }
 
-  html.dark .role-view aside .text-purple-100,
-  html.dark .role-view aside .text-purple-200,
-  html.dark .role-view aside .text-purple-300 {
-    color: #ddd6fe !important;
+  .role-view .fixed.inset-0[class*="bg-black"] {
+    background-color: rgba(0, 0, 0, 0.55) !important;
   }
 
-  .role-view main button[class~="bg-purple-600"],
-  .role-view main button[class~="bg-green-600"],
-  .role-view main button[class~="bg-red-600"],
-  .role-view main button[class~="bg-amber-600"] {
-    color: #fff !important;
+  .role-view .role-chart {
+    color: var(--role-text);
   }
 
-  .role-view .rounded-3xl {
-    border-radius: 1rem !important;
+  .role-view .role-chart-grid {
+    stroke: var(--role-line) !important;
   }
 
-  .role-view .rounded-2xl {
-    border-radius: 0.75rem !important;
+  .role-view .role-chart-primary {
+    stroke: var(--role-text) !important;
+  }
+
+  .role-view .role-chart-secondary {
+    stroke: var(--role-muted) !important;
+  }
+
+  .role-view .role-chart-tertiary {
+    stroke: var(--role-line-strong) !important;
+  }
+
+  .role-view .role-bar-primary {
+    background-color: var(--role-text) !important;
+  }
+
+  .role-view .role-bar-secondary {
+    background-color: var(--role-muted) !important;
+  }
+
+  .role-dialog {
+    --role-page: #f4f5f7;
+    --role-surface: #ffffff;
+    --role-surface-muted: #f8f9fb;
+    --role-line: #d8dde6;
+    --role-line-strong: #aeb7c4;
+    --role-text: #171b22;
+    --role-muted: #5d6675;
+    --role-accent: #2f3a4a;
+    background: var(--role-surface) !important;
+    border-color: var(--role-line) !important;
+    color: var(--role-text) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  html.dark .role-dialog {
+    --role-page: #0f1217;
+    --role-surface: #171b22;
+    --role-surface-muted: #11151b;
+    --role-line: #303743;
+    --role-line-strong: #4a5361;
+    --role-text: #edf1f7;
+    --role-muted: #a7b0bf;
+    --role-accent: #c7ced8;
+  }
+
+  .role-dialog [class*="rounded"] {
+    border-radius: 0 !important;
+  }
+
+  .role-dialog [class*="bg-gray"],
+  .role-dialog [class*="bg-black"],
+  .role-dialog [class*="bg-purple"],
+  .role-dialog [class*="from-"],
+  .role-dialog [class*="to-"] {
+    background-image: none !important;
+    background-color: var(--role-surface-muted) !important;
+    border-color: var(--role-line) !important;
+    box-shadow: none !important;
+  }
+
+  .role-dialog [class*="text-white"],
+  .role-dialog [class*="text-gray-100"],
+  .role-dialog [class*="text-gray-200"],
+  .role-dialog [class*="text-gray-300"] {
+    color: var(--role-text) !important;
+  }
+
+  .role-dialog [class*="text-gray-400"],
+  .role-dialog [class*="text-gray-500"],
+  .role-dialog [class*="text-purple"] {
+    color: var(--role-muted) !important;
+  }
+
+  .role-dialog button,
+  .role-dialog select {
+    border-radius: 0 !important;
+    box-shadow: none !important;
   }
 
   .role-view .p-8 {

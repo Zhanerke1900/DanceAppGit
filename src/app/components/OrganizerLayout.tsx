@@ -1,5 +1,4 @@
 import React from 'react';
-import { LayoutDashboard, Calendar, ShoppingCart, BarChart3, PlusSquare, ShieldCheck } from 'lucide-react';
 import { useI18n } from '../i18n';
 
 interface OrganizerLayoutProps {
@@ -17,12 +16,12 @@ export const OrganizerLayout: React.FC<OrganizerLayoutProps> = ({
 }) => {
   const { language } = useI18n();
   const menuItems = [
-    { id: 'dashboard', label: language === 'ru' ? 'Панель' : language === 'kk' ? 'Басқару панелі' : 'Dashboard', icon: LayoutDashboard },
-    { id: 'events', label: language === 'ru' ? 'События' : language === 'kk' ? 'Іс-шаралар' : 'Events', icon: Calendar },
-    { id: 'create-event', label: language === 'ru' ? 'Создать событие' : language === 'kk' ? 'Іс-шара құру' : 'Create Event', icon: PlusSquare },
-    { id: 'validators', label: language === 'ru' ? 'Валидаторы' : language === 'kk' ? 'Валидаторлар' : 'Validators', icon: ShieldCheck },
-    { id: 'orders', label: language === 'ru' ? 'Заказы' : language === 'kk' ? 'Тапсырыстар' : 'Orders', icon: ShoppingCart },
-    { id: 'analytics', label: language === 'ru' ? 'Аналитика' : language === 'kk' ? 'Аналитика' : 'Analytics', icon: BarChart3 },
+    { id: 'dashboard', label: language === 'ru' ? 'Панель' : language === 'kk' ? 'Басқару панелі' : 'Dashboard' },
+    { id: 'events', label: language === 'ru' ? 'События' : language === 'kk' ? 'Іс-шаралар' : 'Events' },
+    { id: 'create-event', label: language === 'ru' ? 'Создать событие' : language === 'kk' ? 'Іс-шара құру' : 'Create Event' },
+    { id: 'validators', label: language === 'ru' ? 'Валидаторы' : language === 'kk' ? 'Валидаторлар' : 'Validators' },
+    { id: 'orders', label: language === 'ru' ? 'Заказы' : language === 'kk' ? 'Тапсырыстар' : 'Orders' },
+    { id: 'analytics', label: language === 'ru' ? 'Аналитика' : language === 'kk' ? 'Аналитика' : 'Analytics' },
   ] as const;
 
   return (
@@ -32,9 +31,6 @@ export const OrganizerLayout: React.FC<OrganizerLayoutProps> = ({
         {/* Logo/Brand */}
         <div className="border-b border-gray-200 px-5 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-purple-500 text-white">
-              <LayoutDashboard className="h-5 w-5" />
-            </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold text-gray-900">{language === 'ru' ? 'Портал организатора' : language === 'kk' ? 'Ұйымдастырушы порталы' : 'Organizer Portal'}</p>
             </div>
@@ -44,7 +40,6 @@ export const OrganizerLayout: React.FC<OrganizerLayoutProps> = ({
         {/* Navigation Menu */}
         <nav className="space-y-1 px-2 py-4">
           {menuItems.map((item) => {
-            const Icon = item.icon;
             const isActive = activeTab === item.id;
             const isDisabled = item.id === 'create-event' && !canCreateEvent;
             
@@ -56,7 +51,7 @@ export const OrganizerLayout: React.FC<OrganizerLayoutProps> = ({
                   onNavigate(item.id);
                 }}
                 disabled={isDisabled}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                className={`w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
                   isActive
                     ? 'bg-purple-50 text-purple-700 border border-purple-200'
                     : isDisabled
@@ -64,7 +59,6 @@ export const OrganizerLayout: React.FC<OrganizerLayoutProps> = ({
                     : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
-                <Icon className="h-5 w-5 flex-shrink-0" />
                 <span className="truncate">{item.label}</span>
               </button>
             );

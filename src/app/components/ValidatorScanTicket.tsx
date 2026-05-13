@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { AlertCircle, Camera, CameraOff, CheckCircle2, QrCode, RefreshCcw, XCircle } from 'lucide-react';
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import { useI18n } from '../i18n';
 
@@ -12,7 +11,6 @@ interface ValidatorScanTicketProps {
 }
 
 type ScanResultView = {
-  icon: React.ComponentType<{ className?: string }>;
   className: string;
   title: string;
 };
@@ -271,15 +269,15 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
   const getResultView = (): ScanResultView | null => {
     if (!result) return null;
     if (result.status === 'validated') {
-      return { icon: CheckCircle2, className: 'text-emerald-300 border-emerald-500/20 bg-emerald-500/10', title: copy.valid };
+      return { className: 'text-emerald-300 border-emerald-500/20 bg-emerald-500/10', title: copy.valid };
     }
     if (result.status === 'already-used') {
-      return { icon: RefreshCcw, className: 'text-amber-300 border-amber-500/20 bg-amber-500/10', title: copy.used };
+      return { className: 'text-amber-300 border-amber-500/20 bg-amber-500/10', title: copy.used };
     }
     if (result.status === 'another-event') {
-      return { icon: AlertCircle, className: 'text-orange-300 border-orange-500/20 bg-orange-500/10', title: copy.anotherEvent };
+      return { className: 'text-orange-300 border-orange-500/20 bg-orange-500/10', title: copy.anotherEvent };
     }
-    return { icon: XCircle, className: 'text-red-300 border-red-500/20 bg-red-500/10', title: copy.invalid };
+    return { className: 'text-red-300 border-red-500/20 bg-red-500/10', title: copy.invalid };
   };
 
   const resultView = getResultView();
@@ -334,7 +332,6 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
                       onClick={() => stopCamera()}
                       className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 font-medium text-red-300 transition-colors hover:bg-red-500/20 sm:w-auto"
                     >
-                      <CameraOff className="h-4 w-4" />
                       {copy.stop}
                     </button>
                   ) : (
@@ -344,7 +341,6 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
                       disabled={isCameraStarting || !selectedEvent?.id}
                       className="flex w-full items-center justify-center gap-2 rounded-xl bg-purple-600 px-4 py-3 font-medium text-white transition-colors hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                     >
-                      <Camera className="h-4 w-4" />
                       {isCameraStarting ? copy.starting : copy.startScanner}
                     </button>
                   )}
@@ -356,7 +352,6 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
                   <div id={scannerElementId} className={`h-full w-full ${isCameraOpen ? 'block' : 'hidden'}`} />
                   {!isCameraOpen && (
                     <div className="flex h-full flex-col items-center justify-center px-6 text-center">
-                      <QrCode className="mb-3 h-10 w-10 text-purple-400" />
                       <p className="font-medium text-white">{copy.ready}</p>
                       <p className="mt-2 max-w-md text-sm text-gray-400">
                         {copy.readyDesc}
@@ -412,7 +407,6 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
                   disabled={!selectedEvent?.id || !qrValue.trim() || isSubmitting}
                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-purple-600 px-5 py-3 font-semibold text-white transition-all hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                 >
-                  <QrCode className="h-4 w-4" />
                   {isSubmitting ? copy.checking : copy.validate}
                 </button>
               </form>
@@ -424,8 +418,7 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
               <h2 className="mb-4 text-xl font-bold text-white">{copy.validationResult}</h2>
               {resultView ? (
                 <div className={`rounded-2xl border p-5 ${resultView.className}`}>
-                  <div className="mb-3 flex items-center gap-2">
-                    <resultView.icon className="h-5 w-5" />
+                  <div className="mb-3">
                     <span className="text-lg font-semibold">{resultView.title}</span>
                   </div>
                   <p className="text-sm">{result?.message}</p>
