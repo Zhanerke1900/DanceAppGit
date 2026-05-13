@@ -500,7 +500,7 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
   };
 
   return (
-    <div className="min-h-screen bg-black p-4 sm:p-6">
+    <div className="organizer-create-event min-h-screen bg-black p-4 sm:p-6">
       <div className="max-w-5xl mx-auto">
         <div className="mb-6">
           <button

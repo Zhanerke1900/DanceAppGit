@@ -2,12 +2,10 @@ import React from 'react';
 import {
   Activity,
   ArrowRight,
-  CalendarClock,
   CalendarDays,
   CheckCircle2,
   Clock3,
   FileText,
-  ListChecks,
   Plus,
   Sparkles,
 } from 'lucide-react';
@@ -23,7 +21,6 @@ interface OrganizerEvent {
   city?: string;
   status: string;
   soldTickets?: number;
-  ticketLimit?: number;
 }
 
 interface OrganizerDashboardProps {
@@ -61,204 +58,127 @@ export const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
 }) => {
   const { language } = useI18n();
   const locale = language === 'ru' ? 'ru-RU' : language === 'kk' ? 'kk-KZ' : 'en-US';
+  const tr = (en: string, ru: string, kk: string) => (language === 'ru' ? ru : language === 'kk' ? kk : en);
+
   const copy = {
-    en: {
-      title: 'Organizer Dashboard',
-      eyebrow: 'Control center',
-      subtitle: 'Monitor event status, continue drafts, and move your next launch through review without hunting through tabs.',
-      createEvent: 'Create Event',
-      accessDisabled: 'Organizer access is deactivated. Creating new events and sending new requests for moderation are disabled.',
-      dateNotSet: 'Date not set',
-      untitledEvent: 'Untitled event',
-      locationNotSet: 'Location not set',
-      totalEvents: 'Total Events',
-      totalEventsDesc: 'Created across all statuses',
-      pendingReview: 'Pending Review',
-      pendingDesc: 'Awaiting admin decision',
-      noBlockedLaunches: 'No blocked launches',
-      published: 'Published',
-      publishedDesc: 'Visible to attendees',
-      drafts: 'Drafts',
-      draftsDesc: 'Saved but not submitted',
-      ticketsSold: 'Tickets Sold',
-      ticketsSoldDesc: 'Across organizer events',
-      pipeline: 'Pipeline',
-      recentEvents: 'Recent events',
-      total: 'total',
-      noEventsYet: 'No events yet',
-      noEventsDesc: 'Your created events, review state, and publishing progress will appear here.',
-      createFirstEvent: 'Create first event',
-      moderation: 'Moderation',
-      reviewStatus: 'Review status',
-      pending: 'pending',
-      noModeration: 'No events waiting for moderation.',
-      nextUp: 'Next up',
-      upcomingEvents: 'Upcoming events',
-      noUpcoming: 'Published upcoming events will appear here.',
-      quickStart: 'Quick start',
-      launchChecklist: 'Launch checklist',
-      checklist: ['Create an event draft', 'Add venue, date, and ticket settings', 'Submit for moderation', 'Publish and track orders'],
-      startNewEvent: 'Start a new event',
-      workInProgress: 'Work in progress',
-      draftEvents: 'Draft events',
-      draftsLower: 'drafts',
-      noDrafts: 'Drafts you save will stay ready here.',
-      activity: 'Activity',
-      feed: 'Feed',
-      noActivity: 'No activity yet',
-      noActivityDesc: 'Create your first event to start the timeline.',
-    },
-    ru: {
-      title: 'Панель организатора',
-      eyebrow: 'Центр управления',
-      subtitle: 'Отслеживайте статусы событий, продолжайте черновики и проводите следующий запуск через модерацию без лишних переходов.',
-      createEvent: 'Создать событие',
-      accessDisabled: 'Доступ организатора деактивирован. Создание новых событий и отправка на модерацию отключены.',
-      dateNotSet: 'Дата не указана',
-      untitledEvent: 'Событие без названия',
-      locationNotSet: 'Локация не указана',
-      totalEvents: 'Всего событий',
-      totalEventsDesc: 'Созданы во всех статусах',
-      pendingReview: 'На проверке',
-      pendingDesc: 'Ожидают решения администратора',
-      noBlockedLaunches: 'Нет заблокированных запусков',
-      published: 'Опубликовано',
-      publishedDesc: 'Видно участникам',
-      drafts: 'Черновики',
-      draftsDesc: 'Сохранены без отправки',
-      ticketsSold: 'Билетов продано',
-      ticketsSoldDesc: 'По событиям организатора',
-      pipeline: 'Воронка',
-      recentEvents: 'Недавние события',
-      total: 'всего',
-      noEventsYet: 'Событий пока нет',
-      noEventsDesc: 'Здесь появятся созданные события, статусы проверки и прогресс публикации.',
-      createFirstEvent: 'Создать первое событие',
-      moderation: 'Модерация',
-      reviewStatus: 'Статус проверки',
-      pending: 'ожидают',
-      noModeration: 'Нет событий, ожидающих модерации.',
-      nextUp: 'Ближайшее',
-      upcomingEvents: 'Предстоящие события',
-      noUpcoming: 'Опубликованные предстоящие события появятся здесь.',
-      quickStart: 'Быстрый старт',
-      launchChecklist: 'Чеклист запуска',
-      checklist: ['Создайте черновик события', 'Добавьте место, дату и билеты', 'Отправьте на модерацию', 'Опубликуйте и отслеживайте заказы'],
-      startNewEvent: 'Начать новое событие',
-      workInProgress: 'В работе',
-      draftEvents: 'Черновики событий',
-      draftsLower: 'черновиков',
-      noDrafts: 'Сохраненные черновики будут готовы здесь.',
-      activity: 'Активность',
-      feed: 'Лента',
-      noActivity: 'Активности пока нет',
-      noActivityDesc: 'Создайте первое событие, чтобы запустить ленту.',
-    },
-    kk: {
-      title: 'Ұйымдастырушы панелі',
-      eyebrow: 'Басқару орталығы',
-      subtitle: 'Іс-шара күйлерін бақылаңыз, черновиктерді жалғастырыңыз және келесі іске қосуды модерациядан өткізіңіз.',
-      createEvent: 'Іс-шара құру',
-      accessDisabled: 'Ұйымдастырушы рұқсаты өшірілген. Жаңа іс-шара құру және модерацияға жіберу бұғатталған.',
-      dateNotSet: 'Күні көрсетілмеген',
-      untitledEvent: 'Атаусыз іс-шара',
-      locationNotSet: 'Орын көрсетілмеген',
-      totalEvents: 'Барлық іс-шара',
-      totalEventsDesc: 'Барлық статустарда құрылған',
-      pendingReview: 'Қаралуда',
-      pendingDesc: 'Әкімші шешімін күтуде',
-      noBlockedLaunches: 'Бұғатталған іске қосулар жоқ',
-      published: 'Жарияланған',
-      publishedDesc: 'Қатысушыларға көрінеді',
-      drafts: 'Черновиктер',
-      draftsDesc: 'Жіберілмей сақталған',
-      ticketsSold: 'Сатылған билеттер',
-      ticketsSoldDesc: 'Ұйымдастырушы іс-шаралары бойынша',
-      pipeline: 'Ағын',
-      recentEvents: 'Соңғы іс-шаралар',
-      total: 'барлығы',
-      noEventsYet: 'Әзірге іс-шара жоқ',
-      noEventsDesc: 'Құрылған іс-шаралар, тексеру статусы және жариялау барысы осы жерде пайда болады.',
-      createFirstEvent: 'Алғашқы іс-шараны құру',
-      moderation: 'Модерация',
-      reviewStatus: 'Тексеру статусы',
-      pending: 'күтуде',
-      noModeration: 'Модерация күтіп тұрған іс-шара жоқ.',
-      nextUp: 'Келесі',
-      upcomingEvents: 'Алдағы іс-шаралар',
-      noUpcoming: 'Жарияланған алдағы іс-шаралар осы жерде пайда болады.',
-      quickStart: 'Жылдам бастау',
-      launchChecklist: 'Іске қосу чеклисті',
-      checklist: ['Іс-шара черновигін жасаңыз', 'Орын, күн және билеттерді қосыңыз', 'Модерацияға жіберіңіз', 'Жариялап, тапсырыстарды бақылаңыз'],
-      startNewEvent: 'Жаңа іс-шара бастау',
-      workInProgress: 'Жұмыста',
-      draftEvents: 'Іс-шара черновиктері',
-      draftsLower: 'черновик',
-      noDrafts: 'Сақталған черновиктер осы жерде дайын тұрады.',
-      activity: 'Белсенділік',
-      feed: 'Лента',
-      noActivity: 'Әзірге белсенділік жоқ',
-      noActivityDesc: 'Лентаны бастау үшін алғашқы іс-шараны құрыңыз.',
-    },
-  }[language];
+    title: tr('Organizer Dashboard', 'Панель организатора', 'Ұйымдастырушы панелі'),
+    eyebrow: tr('Control center', 'Центр управления', 'Басқару орталығы'),
+    subtitle: tr(
+      'A clear overview of what is live, what needs review, and where to continue work.',
+      'Короткий обзор: что опубликовано, что ждёт проверки и где продолжить работу.',
+      'Не жарияланғанын, не тексеруде екенін және қай жерде жалғастыру керегін көрсетеді.'
+    ),
+    createEvent: tr('Create Event', 'Создать событие', 'Іс-шара құру'),
+    accessDisabled: tr(
+      'Organizer access is deactivated. Creating new events and sending new requests for moderation are disabled.',
+      'Доступ организатора деактивирован. Создание новых событий и отправка на модерацию отключены.',
+      'Ұйымдастырушы рұқсаты өшірілген. Жаңа іс-шара құру және модерацияға жіберу бұғатталған.'
+    ),
+    dateNotSet: tr('Date not set', 'Дата не указана', 'Күні көрсетілмеген'),
+    untitledEvent: tr('Untitled event', 'Событие без названия', 'Атаусыз іс-шара'),
+    locationNotSet: tr('Location not set', 'Локация не указана', 'Орын көрсетілмеген'),
+    totalEvents: tr('Total Events', 'Всего событий', 'Барлық іс-шара'),
+    pendingReview: tr('Pending Review', 'На проверке', 'Қаралуда'),
+    published: tr('Published', 'Опубликовано', 'Жарияланған'),
+    drafts: tr('Drafts', 'Черновики', 'Черновиктер'),
+    ticketsSold: tr('Tickets Sold', 'Билетов продано', 'Сатылған билеттер'),
+    eventsList: tr('Events list', 'Список событий', 'Іс-шаралар тізімі'),
+    noEventsYet: tr('No events yet', 'Событий пока нет', 'Әзірге іс-шара жоқ'),
+    noEventsDesc: tr(
+      'Create your first event to see it here with its current status.',
+      'Создайте первое событие, и оно появится здесь со своим статусом.',
+      'Алғашқы іс-шараны құрсаңыз, оның статусы осы жерде көрінеді.'
+    ),
+    createFirstEvent: tr('Create first event', 'Создать первое событие', 'Алғашқы іс-шараны құру'),
+    focusTitle: tr('What needs attention', 'Что требует внимания', 'Неге назар аудару керек'),
+    reviewStatus: tr('Review status', 'Статус проверки', 'Тексеру статусы'),
+    noModeration: tr('Nothing is waiting for moderation.', 'Ничего не ждёт модерации.', 'Модерация күтіп тұрған ештеңе жоқ.'),
+    upcomingEvents: tr('Upcoming events', 'Предстоящие события', 'Алдағы іс-шаралар'),
+    noUpcoming: tr('No published upcoming events yet.', 'Пока нет опубликованных предстоящих событий.', 'Әзірге жарияланған алдағы іс-шара жоқ.'),
+    draftEvents: tr('Draft events', 'Черновики событий', 'Іс-шара черновиктері'),
+    noDrafts: tr('No drafts saved right now.', 'Сейчас нет сохранённых черновиков.', 'Қазір сақталған черновик жоқ.'),
+    quickStart: tr('Quick start', 'Быстрый старт', 'Жылдам бастау'),
+    launchChecklist: tr('Launch checklist', 'Чеклист запуска', 'Іске қосу чеклисті'),
+    checklist: [
+      tr('Create an event draft', 'Создайте черновик события', 'Іс-шара черновигін жасаңыз'),
+      tr('Add date, venue, poster, and tickets', 'Добавьте дату, место, постер и билеты', 'Күнін, орнын, постерін және билеттерін қосыңыз'),
+      tr('Send it to moderation', 'Отправьте на модерацию', 'Модерацияға жіберіңіз'),
+      tr('Track sales in Orders and Analytics', 'Следите за продажами в заказах и аналитике', 'Сатылымды тапсырыстар мен аналитикадан бақылаңыз'),
+    ],
+    startNewEvent: tr('Start a new event', 'Начать новое событие', 'Жаңа іс-шара бастау'),
+    navigation: tr('Navigation', 'Навигация', 'Навигация'),
+    whereToWork: tr('Where to work', 'Где что делать', 'Қай жерде жұмыс істеу керек'),
+    eventsTab: tr('Events', 'События', 'Іс-шаралар'),
+    eventsTabDesc: tr(
+      'Open the full event list to view, edit, delete, or move events back to draft.',
+      'Откройте полный список, чтобы смотреть, редактировать, удалять или возвращать события в черновик.',
+      'Толық тізімнен көру, өңдеу, жою немесе черновикке қайтару мүмкін.'
+    ),
+    createTabDesc: tr(
+      'Use this tab when you are ready to create a new event or submit it for review.',
+      'Используйте эту вкладку, когда готовы создать событие или отправить его на проверку.',
+      'Жаңа іс-шара құру немесе тексеруге жіберу үшін осы вкладканы пайдаланыңыз.'
+    ),
+    ordersAnalytics: tr('Orders & Analytics', 'Заказы и аналитика', 'Тапсырыстар және аналитика'),
+    ordersAnalyticsDesc: tr(
+      'Check sales, reservations, ticket counts, and performance after publishing.',
+      'Проверяйте продажи, брони, билеты и результаты после публикации.',
+      'Жарияланғаннан кейін сатылым, бронь, билет саны және нәтижелерді тексеріңіз.'
+    ),
+  };
+
   const publishedCount = events.filter((event) => event.status === 'published').length;
   const pendingCount = events.filter((event) => event.status === 'pending' || event.status === 'pending-update-review').length;
   const draftCount = events.filter((event) => event.status === 'draft').length;
   const totalSold = events.reduce((sum, event) => sum + (Number(event.soldTickets) || 0), 0);
   const upcomingEvents = events
     .filter((event) => event.status === 'published' && parseEventTime(event) >= Date.now())
-    .sort((a, b) => parseEventTime(a) - parseEventTime(b))
-    .slice(0, 4);
-  const draftEvents = events.filter((event) => event.status === 'draft').slice(0, 3);
-  const reviewEvents = events.filter((event) => event.status === 'pending' || event.status === 'pending-update-review').slice(0, 3);
-  const recentEvents = [...events].reverse().slice(0, 4);
+    .sort((a, b) => parseEventTime(a) - parseEventTime(b));
+  const draftEvents = events.filter((event) => event.status === 'draft');
+  const reviewEvents = events.filter((event) => event.status === 'pending' || event.status === 'pending-update-review');
+  const recentEvents = [...events].reverse().slice(0, 5);
+  const nextUpcomingEvent = upcomingEvents[0];
+  const nextDraftEvent = draftEvents[0];
 
   const metrics = [
     {
       title: copy.totalEvents,
       value: events.length,
-      description: copy.totalEventsDesc,
+      description: tr('All created events', 'Все созданные события', 'Барлық құрылған іс-шаралар'),
       icon: CalendarDays,
       tone: 'blue',
     },
     {
       title: copy.pendingReview,
       value: pendingCount,
-      description: pendingCount ? copy.pendingDesc : copy.noBlockedLaunches,
+      description: pendingCount
+        ? tr('Admin review required', 'Требуется проверка администратора', 'Әкімші тексеруі қажет')
+        : tr('No blocked launches', 'Нет заблокированных запусков', 'Бұғатталған іске қосулар жоқ'),
       icon: Clock3,
       tone: 'amber',
     },
     {
       title: copy.published,
       value: publishedCount,
-      description: copy.publishedDesc,
+      description: tr('Visible to attendees', 'Видно участникам', 'Қатысушыларға көрінеді'),
       icon: CheckCircle2,
       tone: 'green',
     },
     {
       title: copy.drafts,
       value: draftCount,
-      description: copy.draftsDesc,
+      description: tr('Saved but not submitted', 'Сохранены без отправки', 'Жіберілмей сақталған'),
       icon: FileText,
       tone: 'violet',
     },
     {
       title: copy.ticketsSold,
       value: totalSold,
-      description: copy.ticketsSoldDesc,
+      description: tr('Across organizer events', 'По событиям организатора', 'Ұйымдастырушы іс-шаралары бойынша'),
       icon: Activity,
       tone: 'cyan',
     },
   ];
-
-  const activityRows = recentEvents.length
-    ? recentEvents.map((event) => ({
-        title: getEventTitle(event, copy.untitledEvent),
-        meta: `${formatStatus(event.status)} · ${formatEventDate(event.date, locale, copy.dateNotSet)}`,
-      }))
-    : [
-        { title: copy.noActivity, meta: copy.noActivityDesc },
-      ];
 
   return (
     <div className="organizer-dashboard">
@@ -282,11 +202,7 @@ export const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
         </button>
       </section>
 
-      {!canCreateEvent && (
-        <div className="organizer-alert">
-          {copy.accessDisabled}
-        </div>
-      )}
+      {!canCreateEvent && <div className="organizer-alert">{copy.accessDisabled}</div>}
 
       <section className="organizer-metrics-grid" aria-label="Organizer metrics">
         {metrics.map((metric) => {
@@ -308,24 +224,22 @@ export const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
         <article className="organizer-panel organizer-panel-large">
           <div className="organizer-panel-header">
             <div>
-              <span className="organizer-section-label">{copy.pipeline}</span>
-              <h2>{copy.recentEvents}</h2>
+              <span className="organizer-section-label">Status</span>
+              <h2>{copy.eventsList}</h2>
             </div>
-            <span className="organizer-chip">{events.length} {copy.total}</span>
+            <span className="organizer-chip">{events.length} {copy.totalEvents.toLowerCase()}</span>
           </div>
 
           {recentEvents.length ? (
-            <div className="organizer-event-list">
+            <div className="organizer-event-table">
               {recentEvents.map((event) => (
-                <div key={event.id} className="organizer-event-row">
+                <div key={event.id} className="organizer-event-table-row">
                   <div>
                     <strong>{getEventTitle(event, copy.untitledEvent)}</strong>
                     <span>{[event.city, event.venue].filter(Boolean).join(' · ') || copy.locationNotSet}</span>
                   </div>
-                  <div className="organizer-row-meta">
-                    <span className={`organizer-status status-${event.status}`}>{formatStatus(event.status)}</span>
-                    <span>{formatEventDate(event.date, locale, copy.dateNotSet)}</span>
-                  </div>
+                  <span className={`organizer-status status-${event.status}`}>{formatStatus(event.status)}</span>
+                  <span>{formatEventDate(event.date, locale, copy.dateNotSet)}</span>
                 </div>
               ))}
             </div>
@@ -342,52 +256,35 @@ export const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
         </article>
 
         <aside className="organizer-side-stack">
-          <article className="organizer-panel">
+          <article className="organizer-panel organizer-operations-panel">
             <div className="organizer-panel-header">
               <div>
-                <span className="organizer-section-label">{copy.moderation}</span>
-                <h2>{copy.reviewStatus}</h2>
-              </div>
-              <span className="organizer-chip">{pendingCount} {copy.pending}</span>
-            </div>
-            <div className="organizer-mini-list">
-              {reviewEvents.length ? (
-                reviewEvents.map((event) => (
-                  <div key={event.id} className="organizer-mini-row">
-                    <Clock3 aria-hidden="true" />
-                    <div>
-                      <strong>{getEventTitle(event, copy.untitledEvent)}</strong>
-                      <span>{formatStatus(event.status)}</span>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="organizer-quiet-empty">{copy.noModeration}</div>
-              )}
-            </div>
-          </article>
-
-          <article className="organizer-panel">
-            <div className="organizer-panel-header">
-              <div>
-                <span className="organizer-section-label">{copy.nextUp}</span>
-                <h2>{copy.upcomingEvents}</h2>
+                <span className="organizer-section-label">Focus</span>
+                <h2>{copy.focusTitle}</h2>
               </div>
             </div>
-            <div className="organizer-mini-list">
-              {upcomingEvents.length ? (
-                upcomingEvents.map((event) => (
-                  <div key={event.id} className="organizer-mini-row">
-                    <CalendarClock aria-hidden="true" />
-                    <div>
-                      <strong>{getEventTitle(event, copy.untitledEvent)}</strong>
-                      <span>{formatEventDate(event.date, locale, copy.dateNotSet)}</span>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="organizer-quiet-empty">{copy.noUpcoming}</div>
-              )}
+            <div className="organizer-task-list">
+              <div className="organizer-task-row">
+                <div>
+                  <strong>{copy.reviewStatus}</strong>
+                  <span>{reviewEvents.length ? tr('Open Events to review pending items.', 'Откройте события, чтобы проверить ожидающие элементы.', 'Күтудегі элементтерді көру үшін Іс-шараларды ашыңыз.') : copy.noModeration}</span>
+                </div>
+                <span>{pendingCount}</span>
+              </div>
+              <div className="organizer-task-row">
+                <div>
+                  <strong>{copy.upcomingEvents}</strong>
+                  <span>{nextUpcomingEvent ? `${getEventTitle(nextUpcomingEvent, copy.untitledEvent)} · ${formatEventDate(nextUpcomingEvent.date, locale, copy.dateNotSet)}` : copy.noUpcoming}</span>
+                </div>
+                <span>{upcomingEvents.length}</span>
+              </div>
+              <div className="organizer-task-row">
+                <div>
+                  <strong>{copy.draftEvents}</strong>
+                  <span>{nextDraftEvent ? `${getEventTitle(nextDraftEvent, copy.untitledEvent)} · ${formatEventDate(nextDraftEvent.date, locale, copy.dateNotSet)}` : copy.noDrafts}</span>
+                </div>
+                <span>{draftCount}</span>
+              </div>
             </div>
           </article>
         </aside>
@@ -415,48 +312,26 @@ export const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
           </button>
         </article>
 
-        <article className="organizer-panel">
+        <article className="organizer-panel organizer-guide-panel">
           <div className="organizer-panel-header">
             <div>
-              <span className="organizer-section-label">{copy.workInProgress}</span>
-              <h2>{copy.draftEvents}</h2>
+              <span className="organizer-section-label">{copy.navigation}</span>
+              <h2>{copy.whereToWork}</h2>
             </div>
-            <span className="organizer-chip">{draftCount} {copy.draftsLower}</span>
           </div>
-          <div className="organizer-mini-list">
-            {draftEvents.length ? (
-              draftEvents.map((event) => (
-                <div key={event.id} className="organizer-mini-row">
-                  <FileText aria-hidden="true" />
-                  <div>
-                    <strong>{getEventTitle(event, copy.untitledEvent)}</strong>
-                    <span>{formatEventDate(event.date, locale, copy.dateNotSet)}</span>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="organizer-quiet-empty">{copy.noDrafts}</div>
-            )}
-          </div>
-        </article>
-
-        <article className="organizer-panel">
-          <div className="organizer-panel-header">
+          <div className="organizer-guide-list">
             <div>
-              <span className="organizer-section-label">{copy.activity}</span>
-              <h2>{copy.feed}</h2>
+              <strong>{copy.eventsTab}</strong>
+              <span>{copy.eventsTabDesc}</span>
             </div>
-          </div>
-          <div className="organizer-activity-feed">
-            {activityRows.map((row) => (
-              <div key={`${row.title}-${row.meta}`} className="organizer-activity-row">
-                <ListChecks aria-hidden="true" />
-                <div>
-                  <strong>{row.title}</strong>
-                  <span>{row.meta}</span>
-                </div>
-              </div>
-            ))}
+            <div>
+              <strong>{copy.createEvent}</strong>
+              <span>{copy.createTabDesc}</span>
+            </div>
+            <div>
+              <strong>{copy.ordersAnalytics}</strong>
+              <span>{copy.ordersAnalyticsDesc}</span>
+            </div>
           </div>
         </article>
       </section>
