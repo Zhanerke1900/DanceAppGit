@@ -1,15 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import {
   Activity,
-  CalendarCheck,
-  CircleDollarSign,
-  Clock,
   Search,
   ShieldCheck,
-  UserCog,
-  Users,
 } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 import { useI18n } from '../i18n';
 
 type AdminTab = 'dashboard' | 'requests' | 'users' | 'moderation';
@@ -19,7 +13,6 @@ type DashboardStat = {
   label: string;
   value: string | number;
   change: string;
-  Icon: LucideIcon;
   tone: 'violet' | 'cyan' | 'amber' | 'emerald' | 'rose' | 'slate';
 };
 
@@ -362,35 +355,30 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       label: copy.totalUsers,
       value: overview?.totalUsers ?? 0,
       change: copy.thisMonth(overview?.usersAddedThisMonth ?? 0),
-      Icon: Users,
       tone: 'violet',
     },
     {
       label: copy.totalOrganizers,
       value: overview?.totalOrganizers ?? 0,
       change: copy.thisMonth(overview?.organizersAddedThisMonth ?? 0),
-      Icon: UserCog,
       tone: 'cyan',
     },
     {
       label: copy.pendingOrganizerApplications,
       value: overview?.pendingOrganizerApplications ?? 0,
       change: copy.waitingForReview,
-      Icon: Clock,
       tone: 'amber',
     },
     {
       label: copy.publishedPendingEvents,
       value: `${overview?.publishedEvents ?? 0} / ${overview?.pendingEvents ?? 0}`,
       change: copy.newThisMonth(overview?.eventsAddedThisMonth ?? 0),
-      Icon: CalendarCheck,
       tone: 'emerald',
     },
     {
       label: copy.collectedRevenue,
       value: formatCurrency(overview?.collectedRevenue ?? 0),
       change: `${copy.outstandingBalance}: ${formatCurrency(overview?.outstandingBalance ?? 0)}`,
-      Icon: CircleDollarSign,
       tone: 'rose',
     },
   ], [copy, overview]);
@@ -525,21 +513,15 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           {activeTab === 'dashboard' && (
             <div className="admin-dashboard-stack">
               <section className="admin-kpi-grid" aria-label="Admin key metrics">
-                {statCards.map((card) => {
-                  const Icon = card.Icon;
-                  return (
-                    <article key={card.label} className={`admin-stat-card admin-stat-${card.tone}`}>
-                      <div className="admin-card-topline">
-                        <span className="admin-stat-title">{card.label}</span>
-                        <span className="admin-stat-icon" aria-hidden="true">
-                          <Icon />
-                        </span>
-                      </div>
-                      <div className="admin-stat-value">{card.value}</div>
-                      <div className="admin-stat-change">{card.change}</div>
-                    </article>
-                  );
-                })}
+                {statCards.map((card) => (
+                  <article key={card.label} className={`admin-stat-card admin-stat-${card.tone}`}>
+                    <div className="admin-card-topline">
+                      <span className="admin-stat-title">{card.label}</span>
+                    </div>
+                    <div className="admin-stat-value">{card.value}</div>
+                    <div className="admin-stat-change">{card.change}</div>
+                  </article>
+                ))}
               </section>
 
               <section className="admin-dashboard-grid">
