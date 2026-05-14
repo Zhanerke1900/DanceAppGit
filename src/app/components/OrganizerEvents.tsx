@@ -127,6 +127,7 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
       edit: 'Edit',
       changeToDraft: 'Change to Draft',
       delete: 'Delete',
+      cancelEvent: 'Cancel event',
       noEvents: (tab: string) => `No ${tab} events`,
       empty: 'Events in this status will appear here.',
     },
@@ -154,6 +155,7 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
       edit: 'Редактировать',
       changeToDraft: 'Вернуть в черновик',
       delete: 'Удалить',
+      cancelEvent: 'Отменить событие',
       noEvents: (tab: string) => `Нет событий: ${tab.toLowerCase()}`,
       empty: 'События с этим статусом появятся здесь.',
     },
@@ -181,6 +183,7 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
       edit: 'Өңдеу',
       changeToDraft: 'Черновикке қайтару',
       delete: 'Жою',
+      cancelEvent: 'Іс-шараны тоқтату',
       noEvents: (tab: string) => `${tab} іс-шаралары жоқ`,
       empty: 'Бұл статустағы іс-шаралар осында пайда болады.',
     },
@@ -322,13 +325,13 @@ export const OrganizerEvents: React.FC<OrganizerEventsProps> = ({
                             {copy.changeToDraft}
                           </button>
                         )}
-                        {(event.status === 'pending' || event.status === 'draft') && (
+                        {(event.status === 'pending' || event.status === 'draft' || (event.status === 'published' && !isPastEvent(event.date))) && (
                           <button
                             type="button"
                             onClick={() => onDeleteEvent(event)}
                             className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100 sm:w-auto"
                           >
-                            {copy.delete}
+                            {event.status === 'published' ? copy.cancelEvent : copy.delete}
                           </button>
                         )}
                       </div>

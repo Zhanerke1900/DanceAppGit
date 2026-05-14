@@ -26,6 +26,23 @@ function logMailFailure(label, err, extra = {}) {
   }
 }
 
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function formatMoney(amount, currency = "KZT") {
+  const value = Number(amount || 0);
+  return `${new Intl.NumberFormat("ru-KZ", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(value)} ${currency}`;
+}
+
 export async function sendVerifyEmail({ email, fullName, token, code }) {
   const { FRONTEND_URL } = appUrls();
   const from = getMailFrom();
@@ -263,6 +280,77 @@ export async function sendRefundEmail({ email, fullName, ticketCode, ticketType,
     return true;
   } catch (err) {
     logMailFailure("REFUND EMAIL", err, { PROVIDER: provider, FROM: from, EMAIL: email, TICKET: ticketCode });
+    return false;
+  }
+}
+
+export async function sendEventCancelledEmail({
+  email,
+  fullName,
+  event,
+  ticketCodes = [],
+  refundedAmount = 0,
+  currency = "KZT",
+  orderId,
+}) {
+  const from = getMailFrom();
+  const transporter = getMailer();
+  const provider = transporter?.provider || getMailerProvider();
+  const safeEventTitle = escapeHtml(event?.title || "DanceTime Event");
+  const safeCodes = ticketCodes.length
+    ? ticketCodes.map((code) => `<li>${escapeHtml(code)}</li>`).join("")
+    : "<li>Reservation / booking</li>";
+
+  if (!transporter) {
+    console.log("EVENT CANCELLATION EMAIL SMTP NOT CONFIGURED");
+    console.log("   PROVIDER:", provider);
+    console.log("   FROM:", from);
+    console.log("   EMAIL:", email);
+    console.log("   EVENT:", event?.title || "");
+    console.log("   ORDER:", orderId || "");
+    return false;
+  }
+
+  const html = `
+  <div style="font-family:Arial,sans-serif;line-height:1.5">
+    <h2>Event cancelled</h2>
+    <p>Hi${fullName ? `, ${escapeHtml(fullName)}` : ""}. Unfortunately, <b>${safeEventTitle}</b> has been cancelled by the organizer.</p>
+    <div style="margin:16px 0;padding:16px;border:1px solid #fecaca;border-radius:12px;background:#fff7f7">
+      <p style="margin:0 0 8px"><b>Event:</b> ${safeEventTitle}</p>
+      <p style="margin:0 0 8px"><b>Date:</b> ${escapeHtml(event?.date || "-")}</p>
+      <p style="margin:0 0 8px"><b>Time:</b> ${escapeHtml(event?.time || "-")}</p>
+      <p style="margin:0"><b>Location:</b> ${escapeHtml(event?.location || "-")}</p>
+    </div>
+    <p>Your ticket${ticketCodes.length === 1 ? "" : "s"} / booking:</p>
+    <ul>${safeCodes}</ul>
+    <p>A refund of <b>${formatMoney(refundedAmount, currency)}</b> has been requested through the payment provider.</p>
+    <p>The money should arrive within <b>3 business days</b>, depending on your bank.</p>
+    <hr />
+    <p style="color:#666;font-size:12px">This is an automatic notification from DanceTime.</p>
+  </div>`;
+
+  try {
+    const info = await transporter.sendMail({
+      from,
+      to: email,
+      subject: `DanceTime event cancelled: ${event?.title || "Event"}`,
+      html,
+    });
+    logMailSuccess("EVENT CANCELLATION EMAIL", email, info, {
+      PROVIDER: info?.provider || provider,
+      FROM: from,
+      EVENT: event?.title || "",
+      ORDER: orderId || "",
+    });
+    return true;
+  } catch (err) {
+    logMailFailure("EVENT CANCELLATION EMAIL", err, {
+      PROVIDER: provider,
+      FROM: from,
+      EMAIL: email,
+      EVENT: event?.title || "",
+      ORDER: orderId || "",
+    });
     return false;
   }
 }

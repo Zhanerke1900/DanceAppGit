@@ -172,7 +172,11 @@ export async function deleteOrganizerEvent(eventId: string) {
   const { res, data } = await request<any>(`/api/organizer/events/${eventId}`, {
     method: "DELETE",
   });
-  if (!res.ok) throw new Error((data as any)?.message || "Failed to delete event");
+  if (!res.ok) {
+    const err: any = new Error((data as any)?.message || "Failed to delete event");
+    err.refundSummary = (data as any)?.refundSummary;
+    throw err;
+  }
   return data;
 }
 

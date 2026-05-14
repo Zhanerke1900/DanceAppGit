@@ -79,6 +79,9 @@ const eventSchema = new mongoose.Schema(
       index: true,
     },
     pendingUpdateSnapshot: { type: mongoose.Schema.Types.Mixed, default: null },
+    cancelledAt: { type: Date, default: null },
+    cancelledBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+    cancellationRefundSummary: { type: mongoose.Schema.Types.Mixed, default: null },
   },
   { timestamps: true }
 );

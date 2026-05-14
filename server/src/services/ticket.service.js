@@ -7,7 +7,7 @@ import { createSignedTicketToken, verifySignedTicketToken } from "../utils/ticke
 import { generateTicketQrDataUrl } from "../utils/ticketQr.js";
 import { generateTicketBarcodeDataUrl } from "../utils/ticketBarcode.js";
 import { sendTicketEmail } from "../utils/sendTicketEmail.js";
-import { sendRefundEmail } from "../utils/sendEmails.js";
+import { sendEventCancelledEmail, sendRefundEmail } from "../utils/sendEmails.js";
 import { isAdminEmail } from "../utils/admin.js";
 import { getEventStartAt, isEventPast } from "../utils/eventDates.js";
 import { refundFreedomPayPayment } from "./freedompay.service.js";
@@ -142,6 +142,7 @@ export function getOrderPaymentDueNow(order) {
 }
 
 function recordSuccessfulPayment(order, paymentFields = {}) {
+  order.paymentTransactions = order.paymentTransactions || [];
   const provider = String(paymentFields.paymentProvider || order.paymentProvider || "").trim();
   const paymentId = String(paymentFields.freedomPayPaymentId || "").trim();
   const amount = money(paymentFields.paymentAmount);
@@ -199,6 +200,7 @@ async function refundOrderPayment(order, amount, refundScopeId = "") {
   const refundAmount = money(amount);
   if (refundAmount <= 0) return [];
   if (order.paymentProvider !== "freedompay") return [];
+  order.paymentTransactions = order.paymentTransactions || [];
 
   if ((order.paymentTransactions || []).length === 0 && order.freedomPayPaymentId) {
     order.paymentTransactions.push({
@@ -239,6 +241,16 @@ async function refundOrderPayment(order, amount, refundScopeId = "") {
         Number(order.paymentTransactions[item.index].refundedAmount || 0) + amountForTransaction
       );
     }
+    order.paymentTransactions.push({
+      provider: "freedompay",
+      paymentId: item.transaction.paymentId,
+      amount: amountForTransaction,
+      refundedAmount: 0,
+      currency: String(process.env.FREEDOMPAY_CURRENCY || "KZT").trim() || "KZT",
+      type: "refund",
+      status: "success",
+      paidAt: new Date(),
+    });
   }
 
   if (remaining > 0) {
@@ -693,6 +705,82 @@ export async function getMyReservations(userId) {
   }).sort({ createdAt: -1 }).limit(300).lean();
 
   return reservations.map(publicReservation);
+}
+
+export async function cancelEventOrdersForOrganizer({ event, cancelledBy }) {
+  const orders = await Order.find({
+    event: event._id,
+    paymentStatus: { $in: ["paid", "reserved"] },
+  }).sort({ createdAt: 1 });
+
+  const summary = {
+    orders: orders.length,
+    processedOrders: 0,
+    ticketsCancelled: 0,
+    emailsSent: 0,
+    emailsFailed: 0,
+    refundedAmount: 0,
+    freedomRefunds: 0,
+    simulatedRefunds: 0,
+    failedOrders: [],
+  };
+
+  for (const order of orders) {
+    const tickets = await Ticket.find({
+      order: order._id,
+      status: { $ne: "cancelled" },
+    }).select("ticketCode").lean();
+    const ticketCodes = tickets.map((ticket) => ticket.ticketCode).filter(Boolean);
+    const refundAmount = money(order.amountPaid || order.depositAmount || order.total || 0);
+
+    try {
+      const refunds = refundAmount > 0
+        ? await refundOrderPayment(order, refundAmount, `event-cancel-${event._id}-${order._id}`)
+        : [];
+
+      const ticketUpdate = await Ticket.updateMany(
+        { order: order._id, status: { $ne: "cancelled" } },
+        { $set: { status: "cancelled" } }
+      );
+
+      order.paymentStatus = "refunded";
+      order.balanceDue = 0;
+      order.paymentFailureReason = `Event cancelled by organizer${cancelledBy?.email ? ` (${cancelledBy.email})` : ""}; refund requested`;
+      await order.save();
+
+      const emailSent = await sendEventCancelledEmail({
+        email: order.buyerEmail,
+        fullName: order.buyerName,
+        event: order.eventSnapshot,
+        ticketCodes,
+        refundedAmount: refundAmount,
+        currency: String(process.env.FREEDOMPAY_CURRENCY || "KZT").trim() || "KZT",
+        orderId: order._id,
+      }).catch((error) => {
+        console.error("Event cancellation email error:", error?.message || error);
+        return false;
+      });
+
+      summary.ticketsCancelled += Number(ticketUpdate.modifiedCount || 0);
+      summary.processedOrders += 1;
+      summary.refundedAmount = money(summary.refundedAmount + refundAmount);
+      summary.freedomRefunds += refunds.length;
+      summary.simulatedRefunds += refunds.filter((refund) => refund.simulated).length;
+      if (emailSent) summary.emailsSent += 1;
+      else summary.emailsFailed += 1;
+    } catch (error) {
+      summary.failedOrders.push({
+        orderId: String(order._id),
+        buyerEmail: order.buyerEmail,
+        message: error?.message || "Refund failed",
+      });
+      const failure = new Error(error?.message || "Failed to refund event order");
+      failure.refundSummary = summary;
+      throw failure;
+    }
+  }
+
+  return summary;
 }
 
 export async function cancelReservationForUser({ orderId, user }) {

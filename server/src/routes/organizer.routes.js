@@ -6,11 +6,13 @@ import Order from "../models/Order.js";
 import Ticket from "../models/Ticket.js";
 import User from "../models/User.js";
 import { requireAuth } from "../middleware/auth.middleware.js";
-import { archivePastPublishedEvents } from "../utils/eventDates.js";
+import { archivePastPublishedEvents, isEventPast } from "../utils/eventDates.js";
 import { getLowestDisplayPrice } from "../utils/eventPricing.js";
 import { makeCode, makeToken, hashToken } from "../utils/tokens.js";
 import { sendValidatorInviteEmail } from "../utils/sendEmails.js";
 import { queueEventUpdateNotifications } from "../services/notification.service.js";
+import { cancelEventOrdersForOrganizer } from "../services/ticket.service.js";
+import { invalidatePublishedEventsCache } from "./events.routes.js";
 
 const router = express.Router();
 
@@ -704,19 +706,48 @@ router.delete("/events/:id", async (req, res) => {
   try {
     const event = await Event.findOne({ _id: req.params.id, organizer: req.user._id });
     if (!event) return res.status(404).json({ message: "Event not found" });
-    if (!["draft", "pending"].includes(event.status)) {
-      return res.status(400).json({ message: "Only draft or pending events can be deleted" });
+
+    if (["draft", "pending"].includes(event.status)) {
+      await Event.deleteOne({ _id: event._id });
+
+      return res.json({
+        message: "Event deleted",
+        id: String(event._id),
+      });
     }
 
-    await Event.deleteOne({ _id: event._id });
+    if (event.status === "published") {
+      if (isEventPast(event)) {
+        return res.status(400).json({ message: "Past published events cannot be cancelled from this action" });
+      }
 
-    return res.json({
-      message: "Event deleted",
-      id: String(event._id),
-    });
+      const refundSummary = await cancelEventOrdersForOrganizer({
+        event,
+        cancelledBy: req.user,
+      });
+
+      event.status = "archived";
+      event.cancelledAt = new Date();
+      event.cancelledBy = req.user._id;
+      event.cancellationRefundSummary = refundSummary;
+      await event.save({ validateBeforeSave: false });
+      invalidatePublishedEventsCache();
+
+      return res.json({
+        message: "Event cancelled and ticket refunds requested",
+        id: String(event._id),
+        event: publicOrganizerEvent(event),
+        refundSummary,
+      });
+    }
+
+    return res.status(400).json({ message: "Only draft, pending, or active published events can be deleted" });
   } catch (e) {
     console.error(e);
-    return res.status(500).json({ message: "Server error" });
+    return res.status(500).json({
+      message: e?.message || "Server error",
+      refundSummary: e?.refundSummary,
+    });
   }
 });
 

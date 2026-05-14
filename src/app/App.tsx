@@ -1098,16 +1098,39 @@ function AppContent() {
   };
 
   const handleDeleteOrganizerEvent = (event: any) => {
-    const confirmed = window.confirm(`Delete "${event.title}"? This action cannot be undone.`);
+    const isActivePublishedEvent = event.status === 'published';
+    const confirmed = window.confirm(
+      isActivePublishedEvent
+        ? `Cancel "${event.title}"? The event will be removed from public sale, all paid tickets and reservations will be refunded through Freedom Pay, and buyers will receive cancellation emails.`
+        : `Delete "${event.title}"? This action cannot be undone.`
+    );
     if (!confirmed) return Promise.resolve();
 
     return authApi.deleteOrganizerEvent(event.id)
-      .then(() => {
-        refreshOrganizerEvents();
+      .then((data) => {
+        if (isActivePublishedEvent) {
+          refreshOrganizerCommerce();
+        } else {
+          refreshOrganizerEvents();
+        }
+        refreshPublishedMarketplaceEvents();
         authApi.adminEvents("pending").then((data) => setAdminEvents(data.events || [])).catch(() => {});
+        if (isActivePublishedEvent) {
+          const summary = data?.refundSummary;
+          window.alert(
+            summary
+              ? `Event cancelled. Refunded orders: ${summary.orders}. Cancelled tickets: ${summary.ticketsCancelled}. Emails sent: ${summary.emailsSent}.`
+              : 'Event cancelled and refunds requested.'
+          );
+        }
       })
       .catch((error) => {
-        window.alert(error?.message || 'Failed to delete event');
+        const summary = error?.refundSummary;
+        window.alert(
+          summary
+            ? `${error?.message || 'Failed to cancel event'}\nRefunded before error: ${summary.processedOrders || 0}/${summary.orders}. Failed order: ${summary.failedOrders?.[0]?.buyerEmail || 'unknown'}`
+            : error?.message || 'Failed to delete event'
+        );
       });
   };
 
