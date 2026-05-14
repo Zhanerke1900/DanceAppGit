@@ -514,6 +514,7 @@ function AppContent() {
     return authApi.adminDeactivateOrganizer(id).then((data) => {
       setAdminUsers((prev) => prev.map((item) => item.id === id ? data.user : item));
       authApi.adminOverview().then(setAdminOverview).catch(() => {});
+      return data;
     });
   };
 
@@ -521,18 +522,21 @@ function AppContent() {
     return authApi.adminActivateOrganizer(id).then((data) => {
       setAdminUsers((prev) => prev.map((item) => item.id === id ? data.user : item));
       authApi.adminOverview().then(setAdminOverview).catch(() => {});
+      return data;
     });
   };
 
   const handleAdminBlockUser = (id: string, reason: 'Fraud' | 'Spam' | 'Fake event' | 'Abuse') => {
     return authApi.blockUser(id, reason).then((data) => {
       setAdminUsers((prev) => prev.map((item) => item.id === id ? data.user : item));
+      return data;
     });
   };
 
   const handleAdminUnblockUser = (id: string) => {
     return authApi.unblockUser(id).then((data) => {
       setAdminUsers((prev) => prev.map((item) => item.id === id ? data.user : item));
+      return data;
     });
   };
 

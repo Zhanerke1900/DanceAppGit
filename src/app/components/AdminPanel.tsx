@@ -473,6 +473,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   };
 
   const syncSelectedUser = (nextUser: any) => {
+    if (!nextUser) return;
     setSelectedUser((current: any) => current?.id === nextUser.id ? nextUser : current);
   };
 
@@ -947,9 +948,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               </button>
               <button
                 onClick={() => onBlockUser(blockTarget.id, blockReason).then((data) => {
-                  syncSelectedUser(data.user);
+                  syncSelectedUser(data?.user);
                   setBlockTarget(null);
-                }).catch(() => {})}
+                }).catch((error) => {
+                  console.error('Failed to block user', error);
+                })}
                 className="role-action-danger"
               >
                 {copy.block}
