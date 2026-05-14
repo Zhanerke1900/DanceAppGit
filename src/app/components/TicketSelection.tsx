@@ -1077,25 +1077,25 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                 
                 <div className="flex items-center justify-center gap-2 mt-4">
                   <ShieldCheck className="w-4 h-4 text-green-500/80" />
-                  <span className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">{copy.securePayment}</span>
+                  <span className="text-xs text-gray-400 uppercase tracking-[0.14em] font-bold">{copy.securePayment}</span>
                 </div>
               </div>
 
               {/* Security Badges */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-gray-900/40 rounded-xl p-3 border border-white/5">
-                  <div className="text-white font-bold text-[10px] mb-1 flex items-center gap-1.5">
-                    <div className="w-1 h-1 rounded-full bg-purple-500" />
+                  <div className="text-white font-bold text-sm mb-1.5 flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
                     {copy.instantDelivery}
                   </div>
-                  <p className="text-[9px] text-gray-500">{copy.ticketsSentEmail}</p>
+                  <p className="text-xs leading-relaxed text-gray-400">{copy.ticketsSentEmail}</p>
                 </div>
                 <div className="bg-gray-900/40 rounded-xl p-3 border border-white/5">
-                  <div className="text-white font-bold text-[10px] mb-1 flex items-center gap-1.5">
-                    <div className="w-1 h-1 rounded-full bg-purple-500" />
+                  <div className="text-white font-bold text-sm mb-1.5 flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
                     {copy.verifiedTickets}
                   </div>
-                  <p className="text-[9px] text-gray-500">{copy.authenticGuarantee}</p>
+                  <p className="text-xs leading-relaxed text-gray-400">{copy.authenticGuarantee}</p>
                 </div>
               </div>
             </div>
