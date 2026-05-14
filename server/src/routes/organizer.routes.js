@@ -10,6 +10,7 @@ import { archivePastPublishedEvents } from "../utils/eventDates.js";
 import { getLowestDisplayPrice } from "../utils/eventPricing.js";
 import { makeCode, makeToken, hashToken } from "../utils/tokens.js";
 import { sendValidatorInviteEmail } from "../utils/sendEmails.js";
+import { queueEventUpdateNotifications } from "../services/notification.service.js";
 
 const router = express.Router();
 
@@ -205,6 +206,11 @@ function hasCriticalPublishedChanges(currentEvent, nextData) {
   }
 
   return false;
+}
+
+function hasPublishedSnapshotChanges(currentEvent, previousSnapshot) {
+  if (!previousSnapshot) return false;
+  return JSON.stringify(snapshotEventData(currentEvent)) !== JSON.stringify(previousSnapshot);
 }
 
 function publicOrganizerEvent(event) {
@@ -614,6 +620,7 @@ router.put("/events/:id", async (req, res) => {
     const event = await Event.findOne({ _id: req.params.id, organizer: req.user._id });
     if (!event) return res.status(404).json({ message: "Event not found" });
 
+    const previousPublishedSnapshot = event.status === "published" ? snapshotEventData(event) : null;
     const payload = normalizeEventPayload(req.body || {});
     const requestedStatus = String(req.body?.status || "").trim();
     const isPublishedEvent = event.status === "published";
@@ -654,6 +661,9 @@ router.put("/events/:id", async (req, res) => {
     }
 
     await event.save({ validateBeforeSave: event.status === "draft" ? false : true });
+    if (isPublishedEvent && event.status === "published" && hasPublishedSnapshotChanges(event, previousPublishedSnapshot)) {
+      queueEventUpdateNotifications(event, previousPublishedSnapshot);
+    }
 
     return res.json({
       message: isPublishedEvent ? "Changes saved" : "Event changes saved",

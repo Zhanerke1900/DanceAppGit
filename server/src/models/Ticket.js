@@ -6,6 +6,7 @@ const ticketSchema = new mongoose.Schema(
     status: { type: String, enum: ["active", "used", "cancelled"], default: "active", index: true },
     purchasedAt: { type: Date, default: Date.now, index: true },
     usedAt: { type: Date, default: null },
+    eventReminderSentAt: { type: Date, default: null, index: true },
 
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
     userEmail: { type: String, required: true, lowercase: true, index: true },

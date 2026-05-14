@@ -5,6 +5,7 @@ import Order from "../models/Order.js";
 import { requireAuth } from "../middleware/auth.middleware.js";
 import { getUserRole, requireRole } from "../middleware/role.middleware.js";
 import { getLowestDisplayPrice } from "../utils/eventPricing.js";
+import { queueEventUpdateNotifications } from "../services/notification.service.js";
 
 const router = express.Router();
 
@@ -456,9 +457,13 @@ router.post("/events/:id/approve", async (req, res) => {
     if (!hasEventImage(event)) {
       return res.status(400).json({ message: "Event poster is required before publishing." });
     }
+    const previousSnapshot = event.status === "pending-update-review" ? event.pendingUpdateSnapshot : null;
     event.status = "published";
     event.pendingUpdateSnapshot = null;
     await event.save();
+    if (previousSnapshot) {
+      queueEventUpdateNotifications(event, previousSnapshot);
+    }
     return res.json({ event: publicAdminEvent(event), message: "Event approved" });
   } catch (e) {
     console.error(e);

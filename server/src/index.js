@@ -14,6 +14,7 @@ import ticketRoutes from "./routes/ticket.routes.js";
 import validatorRoutes from "./routes/validator.routes.js";
 import { archivePastPublishedEvents } from "./utils/eventDates.js";
 import { seedMarketplaceEvents } from "./utils/seedMarketplaceEvents.js";
+import { startEventReminderScheduler } from "./services/notification.service.js";
 
 dotenv.config();
 
@@ -85,6 +86,7 @@ mongoose
       sweepPastEvents().catch((err) => console.error("Past event archive sweep error:", err.message));
     }, ARCHIVE_SWEEP_INTERVAL_MS);
     archiveSweep.unref?.();
+    startEventReminderScheduler();
     console.log(
       `Deploy source commit: ${process.env.RAILWAY_GIT_COMMIT_SHA || process.env.GIT_COMMIT_SHA || "local"}`
     );
