@@ -188,6 +188,17 @@ export const Navbar = ({
               </>
             )}
             <LanguageSwitcher />
+            {!user && !organizerCompactMode && !isValidator && (
+              <button
+                type="button"
+                onClick={toggleTheme}
+                aria-label={isDark ? t('common.switchToLight') : t('common.switchToDark')}
+                title={isDark ? t('common.switchToLight') : t('common.switchToDark')}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border/80 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              >
+                {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </button>
+            )}
             {user ? (
               <ProfileDropdown 
                 user={user}
@@ -220,15 +231,6 @@ export const Navbar = ({
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {t('common.signIn')}
-                </button>
-                <button
-                  type="button"
-                  onClick={toggleTheme}
-                  aria-label={isDark ? t('common.switchToLight') : t('common.switchToDark')}
-                  title={isDark ? t('common.switchToLight') : t('common.switchToDark')}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border/80 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                >
-                  {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                 </button>
                 <button 
                   onClick={() => onOpenAuth('register')}
