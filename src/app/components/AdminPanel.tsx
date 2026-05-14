@@ -35,6 +35,43 @@ const chartFrame = {
 const chartPlotWidth = chartFrame.width - chartFrame.left - chartFrame.right;
 const chartPlotHeight = chartFrame.height - chartFrame.top - chartFrame.bottom;
 
+const compactUserDetailsCss = `
+  .developer-admin-panel .admin-side-panel.admin-side-panel-compact {
+    max-height: min(34rem, calc(100vh - 8rem)) !important;
+    padding: 0.85rem !important;
+  }
+
+  .developer-admin-panel .admin-side-panel.admin-side-panel-compact h2 {
+    font-size: clamp(1.05rem, 1.6vw, 1.3rem) !important;
+  }
+
+  .developer-admin-panel .admin-detail-list.admin-detail-list-compact {
+    gap: 0.42rem !important;
+    margin-top: 0.7rem !important;
+  }
+
+  .developer-admin-panel .admin-detail-list.admin-detail-list-compact > div {
+    display: grid !important;
+    grid-template-columns: minmax(7.5rem, 0.48fr) minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 0.7rem !important;
+    min-height: 0 !important;
+    padding: 0.5rem 0.65rem !important;
+    border-radius: 0.72rem !important;
+  }
+
+  .developer-admin-panel .admin-detail-list.admin-detail-list-compact span {
+    font-size: 0.7rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .developer-admin-panel .admin-detail-list.admin-detail-list-compact strong {
+    font-size: 0.86rem !important;
+    line-height: 1.25 !important;
+    text-align: right !important;
+  }
+`;
+
 interface AdminPanelProps {
   activeTab: AdminTab;
   onNavigate: (tab: AdminTab) => void;
@@ -441,6 +478,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
   return (
     <div className="developer-admin-panel role-view min-h-screen bg-[#090a10]">
+      <style>{compactUserDetailsCss}</style>
       <div className="admin-dashboard-wrap">
         <header className="role-admin-nav admin-panel-header mx-auto max-w-7xl">
           <div className="admin-header-grid">
@@ -810,10 +848,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   ))}
                 </div>
 
-                <aside className="admin-side-panel max-h-[calc(100vh-8rem)] overflow-y-auto overscroll-contain custom-scrollbar">
+                <aside className="admin-side-panel admin-side-panel-compact max-h-[calc(100vh-8rem)] overflow-y-auto overscroll-contain custom-scrollbar">
                   <h2>{copy.userDetails}</h2>
                   {selectedUser ? (
-                    <div className="admin-detail-list">
+                    <div className="admin-detail-list admin-detail-list-compact">
                       <div><span>{copy.fullName}</span><strong>{selectedUser.fullName}</strong></div>
                       <div><span>{copy.email}</span><strong>{selectedUser.email}</strong></div>
                       <div><span>{copy.role}</span><strong>{displayRole(selectedUser.role)}</strong></div>

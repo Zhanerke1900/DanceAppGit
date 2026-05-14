@@ -65,16 +65,20 @@ export async function sendTicketEmail({ email, fullName, event, tickets }) {
           <h3 style="margin:0 0 12px;color:#6d28d9">${ticket.ticketCode}</h3>
           <p style="margin:0 0 6px"><strong>Ticket Type:</strong> ${ticket.ticketType}</p>
           <p style="margin:0 0 16px"><strong>Price:</strong> ${formatCurrency(ticket.price)}</p>
-          <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">
-            <div>
-              <p style="margin:0 0 8px;font-size:12px;color:#6b7280">QR Code</p>
-              <img src="cid:qr-${safeCode}" alt="QR ${ticket.ticketCode}" style="width:180px;height:180px;border:1px solid #e5e7eb;border-radius:12px;padding:8px;background:white" />
-            </div>
-            <div>
-              <p style="margin:0 0 8px;font-size:12px;color:#6b7280">Barcode</p>
-              <img src="cid:barcode-${safeCode}" alt="Barcode ${ticket.ticketCode}" style="width:320px;max-width:100%;border:1px solid #e5e7eb;border-radius:12px;padding:8px;background:white" />
-            </div>
-          </div>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-top:18px">
+            <tr>
+              <td align="center" style="padding:0 0 24px">
+                <p style="margin:0 0 10px;font-size:13px;font-weight:700;color:#4b5563">QR Code</p>
+                <img src="cid:qr-${safeCode}" alt="QR ${ticket.ticketCode}" width="300" height="300" style="display:block;width:300px;height:300px;max-width:100%;border:1px solid #d8b4fe;border-radius:18px;padding:14px;background:#ffffff" />
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding:0">
+                <p style="margin:0 0 10px;font-size:12px;font-weight:700;color:#6b7280">Barcode</p>
+                <img src="cid:barcode-${safeCode}" alt="Barcode ${ticket.ticketCode}" width="360" style="display:block;width:360px;max-width:100%;border:1px solid #e5e7eb;border-radius:12px;padding:10px;background:#ffffff" />
+              </td>
+            </tr>
+          </table>
         </div>
       `;
     }).join("")}
