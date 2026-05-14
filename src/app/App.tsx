@@ -45,6 +45,79 @@ type OrganizerTab = 'dashboard' | 'events' | 'create-event' | 'validators' | 'or
 type ValidatorTab = 'events' | 'scan';
 type AdminTab = 'dashboard' | 'requests' | 'users' | 'moderation';
 
+const APP_STATE_STORAGE = {
+  selectedCity: 'danceapp:selected-city',
+  currentView: 'danceapp:current-view',
+  pendingEvent: 'danceapp:pending-event',
+  profileTab: 'danceapp:profile-tab',
+  organizerTab: 'danceapp:organizer-tab',
+  validatorTab: 'danceapp:validator-tab',
+  adminTab: 'danceapp:admin-tab',
+};
+
+const VIEW_STATES: ViewState[] = [
+  'home',
+  'all-events',
+  'all-special-programs',
+  'ticket-selection',
+  'purchase-success',
+  'profile',
+  'become-organizer',
+  'organizer-dashboard',
+  'validator-dashboard',
+  'admin-panel',
+  'verify-email',
+  'reset-password',
+];
+const PROFILE_TABS: ProfileTab[] = ['my-tickets', 'favorites', 'purchase-history', 'account-settings'];
+const ORGANIZER_TABS: OrganizerTab[] = ['dashboard', 'events', 'create-event', 'validators', 'orders', 'analytics'];
+const VALIDATOR_TABS: ValidatorTab[] = ['events', 'scan'];
+const ADMIN_TABS: AdminTab[] = ['dashboard', 'requests', 'users', 'moderation'];
+
+const readStoredText = (key: string, fallback: string) => {
+  if (typeof window === 'undefined') return fallback;
+  const value = window.localStorage.getItem(key);
+  return value && value.trim() ? value : fallback;
+};
+
+const readStoredOption = <T extends string>(key: string, allowed: T[], fallback: T) => {
+  const value = readStoredText(key, '');
+  return allowed.includes(value as T) ? (value as T) : fallback;
+};
+
+const readStoredJson = <T,>(key: string): T | null => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const value = window.localStorage.getItem(key);
+    return value ? JSON.parse(value) as T : null;
+  } catch {
+    return null;
+  }
+};
+
+const writeStoredJson = (key: string, value: any) => {
+  if (typeof window === 'undefined') return;
+  if (value === null || value === undefined) {
+    window.localStorage.removeItem(key);
+    return;
+  }
+  window.localStorage.setItem(key, JSON.stringify(value));
+};
+
+const getInitialView = (): ViewState => {
+  if (typeof window === 'undefined') return 'home';
+  const path = window.location.pathname;
+  if (path.startsWith('/verify-email')) return 'verify-email';
+  if (path.startsWith('/reset-password')) return 'reset-password';
+
+  const storedView = readStoredOption(APP_STATE_STORAGE.currentView, VIEW_STATES, 'home');
+  if (storedView === 'purchase-success') return 'profile';
+  if (storedView === 'ticket-selection' && !readStoredJson(APP_STATE_STORAGE.pendingEvent)) {
+    return 'all-events';
+  }
+  return storedView;
+};
+
 const redirectToPaymentProvider = (paymentUrl: string) => {
   window.location.href = paymentUrl;
   window.setTimeout(() => {
@@ -130,7 +203,7 @@ const MarketplaceBackButton = ({ label, onBack }: { label: string; onBack: () =>
 );
 
 function AppContent() {
-  const [selectedCity, setSelectedCity] = useState("Astana");
+  const [selectedCity, setSelectedCity] = useState(() => readStoredText(APP_STATE_STORAGE.selectedCity, "Astana"));
   const [marketplaceSearchQuery, setMarketplaceSearchQuery] = useState('');
   const [pendingHomeSection, setPendingHomeSection] = useState<'top' | 'events' | 'about' | 'organizers' | null>(null);
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
@@ -145,27 +218,27 @@ function AppContent() {
   
   // Purchase Flow State
   const [isPurchaseGateOpen, setIsPurchaseGateOpen] = useState(false);
-  const [pendingEvent, setPendingEvent] = useState<any>(null);
-  const [currentView, setCurrentView] = useState<ViewState>('home');
+  const [pendingEvent, setPendingEvent] = useState<any>(() => readStoredJson(APP_STATE_STORAGE.pendingEvent));
+  const [currentView, setCurrentView] = useState<ViewState>(() => getInitialView());
   const [purchaseDetails, setPurchaseDetails] = useState<any>(null);
   const [recentPurchaseTickets, setRecentPurchaseTickets] = useState<TicketRecord[]>([]);
   const [ticketSelectionReadOnly, setTicketSelectionReadOnly] = useState(false);
   
   // Profile State
-  const [profileTab, setProfileTab] = useState<ProfileTab>('my-tickets');
+  const [profileTab, setProfileTab] = useState<ProfileTab>(() => readStoredOption(APP_STATE_STORAGE.profileTab, PROFILE_TABS, 'my-tickets'));
   
   // Organizer State
-  const [organizerTab, setOrganizerTab] = useState<OrganizerTab>('dashboard');
+  const [organizerTab, setOrganizerTab] = useState<OrganizerTab>(() => readStoredOption(APP_STATE_STORAGE.organizerTab, ORGANIZER_TABS, 'dashboard'));
   const [organizerEvents, setOrganizerEvents] = useState<any[]>([]);
   const [organizerOrders, setOrganizerOrders] = useState<any[]>([]);
   const [organizerAnalytics, setOrganizerAnalytics] = useState<any>(null);
   const [organizerValidators, setOrganizerValidators] = useState<any[]>([]);
   const [editingOrganizerEvent, setEditingOrganizerEvent] = useState<any>(null);
-  const [validatorTab, setValidatorTab] = useState<ValidatorTab>('events');
+  const [validatorTab, setValidatorTab] = useState<ValidatorTab>(() => readStoredOption(APP_STATE_STORAGE.validatorTab, VALIDATOR_TABS, 'events'));
   const [validatorEvents, setValidatorEvents] = useState<any[]>([]);
   const [validatorRecentScans, setValidatorRecentScans] = useState<any[]>([]);
   const [selectedValidatorEventId, setSelectedValidatorEventId] = useState('');
-  const [adminTab, setAdminTab] = useState<AdminTab>('dashboard');
+  const [adminTab, setAdminTab] = useState<AdminTab>(() => readStoredOption(APP_STATE_STORAGE.adminTab, ADMIN_TABS, 'dashboard'));
   const [adminOverview, setAdminOverview] = useState<any>(null);
   const [adminRequests, setAdminRequests] = useState<any[]>([]);
   const [adminArchivedRequests, setAdminArchivedRequests] = useState<any[]>([]);
@@ -184,6 +257,36 @@ function AppContent() {
   const isValidatorAccountSettingsView =
     currentView === 'profile' && profileTab === 'account-settings' && isValidator;
   const { t } = useI18n();
+
+  useEffect(() => {
+    window.localStorage.setItem(APP_STATE_STORAGE.selectedCity, selectedCity);
+  }, [selectedCity]);
+
+  useEffect(() => {
+    if (currentView === 'verify-email' || currentView === 'reset-password') return;
+    const storedView = currentView === 'purchase-success' ? 'profile' : currentView;
+    window.localStorage.setItem(APP_STATE_STORAGE.currentView, storedView);
+  }, [currentView]);
+
+  useEffect(() => {
+    writeStoredJson(APP_STATE_STORAGE.pendingEvent, pendingEvent);
+  }, [pendingEvent]);
+
+  useEffect(() => {
+    window.localStorage.setItem(APP_STATE_STORAGE.profileTab, profileTab);
+  }, [profileTab]);
+
+  useEffect(() => {
+    window.localStorage.setItem(APP_STATE_STORAGE.organizerTab, organizerTab);
+  }, [organizerTab]);
+
+  useEffect(() => {
+    window.localStorage.setItem(APP_STATE_STORAGE.validatorTab, validatorTab);
+  }, [validatorTab]);
+
+  useEffect(() => {
+    window.localStorage.setItem(APP_STATE_STORAGE.adminTab, adminTab);
+  }, [adminTab]);
 
   useEffect(() => {
     if (!getAuthToken()) {

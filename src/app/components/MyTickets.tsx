@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'motion/react';
 import { Calendar, MapPin, Ticket, ChevronRight, QrCode, Barcode, X, CreditCard, Clock } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
@@ -33,6 +33,13 @@ const formatCurrency = (amount: number, currency = 'KZT') =>
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount) + ` ${currency}`;
+
+const MY_TICKETS_TAB_STORAGE_KEY = 'danceapp:my-tickets-tab';
+
+const getInitialTicketsTab = (): 'upcoming' | 'past' => {
+  if (typeof window === 'undefined') return 'upcoming';
+  return window.localStorage.getItem(MY_TICKETS_TAB_STORAGE_KEY) === 'past' ? 'past' : 'upcoming';
+};
 
 const getRefundDeadlineMs = (ticket: TicketRecord) => {
   const rawDate = String(ticket.event.date || "").trim();
@@ -110,13 +117,17 @@ export const MyTickets = ({
     somethingWrong: language === 'ru' ? 'Что-то пошло не так' : language === 'kk' ? 'Бірдеңе дұрыс болмады' : 'Something went wrong',
     close: language === 'ru' ? 'Закрыть' : language === 'kk' ? 'Жабу' : 'Close',
   };
-  const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
+  const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>(() => getInitialTicketsTab());
   const [selectedTicket, setSelectedTicket] = useState<TicketRecord | null>(null);
   const [refundingTicketId, setRefundingTicketId] = useState<string | null>(null);
   const [processingReservationId, setProcessingReservationId] = useState<string | null>(null);
   const [refundCandidate, setRefundCandidate] = useState<TicketRecord | null>(null);
   const [refundSuccessMessage, setRefundSuccessMessage] = useState<string | null>(null);
   const [refundErrorMessage, setRefundErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    window.localStorage.setItem(MY_TICKETS_TAB_STORAGE_KEY, activeTab);
+  }, [activeTab]);
 
   const filteredTickets = useMemo(
     () => tickets.filter((ticket) => (activeTab === 'upcoming' ? !ticket.isPast : ticket.isPast)),

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Activity,
   Clock,
@@ -9,6 +9,15 @@ import { useI18n } from '../i18n';
 
 type AdminTab = 'dashboard' | 'requests' | 'users' | 'moderation';
 type BlockReason = 'Fraud' | 'Spam' | 'Fake event' | 'Abuse';
+type AdminListView = 'pending' | 'archive';
+
+const ADMIN_REQUEST_VIEW_STORAGE_KEY = 'danceapp:admin-request-view';
+const ADMIN_MODERATION_VIEW_STORAGE_KEY = 'danceapp:admin-moderation-view';
+
+const readAdminListView = (key: string): AdminListView => {
+  if (typeof window === 'undefined') return 'pending';
+  return window.localStorage.getItem(key) === 'archive' ? 'archive' : 'pending';
+};
 
 type DashboardStat = {
   label: string;
@@ -333,10 +342,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const displayRole = (value?: string) => copy.roles[value || 'user'] || value || '';
   const [search, setSearch] = useState('');
   const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [requestView, setRequestView] = useState<'pending' | 'archive'>('pending');
-  const [moderationView, setModerationView] = useState<'pending' | 'archive'>('pending');
+  const [requestView, setRequestView] = useState<AdminListView>(() => readAdminListView(ADMIN_REQUEST_VIEW_STORAGE_KEY));
+  const [moderationView, setModerationView] = useState<AdminListView>(() => readAdminListView(ADMIN_MODERATION_VIEW_STORAGE_KEY));
   const [blockTarget, setBlockTarget] = useState<any>(null);
   const [blockReason, setBlockReason] = useState<BlockReason>('Fraud');
+
+  useEffect(() => {
+    window.localStorage.setItem(ADMIN_REQUEST_VIEW_STORAGE_KEY, requestView);
+  }, [requestView]);
+
+  useEffect(() => {
+    window.localStorage.setItem(ADMIN_MODERATION_VIEW_STORAGE_KEY, moderationView);
+  }, [moderationView]);
 
   const menuItems = [
     { id: 'dashboard', label: copy.adminPanel },
