@@ -926,6 +926,71 @@ html.light :is(.from-purple-600.to-purple-700, .from-purple-600.to-purple-800, .
   }
 }
 
+@layer base {
+  .role-view.organizer-portal .lucide,
+  .role-view.organizer-portal svg.lucide,
+  .role-view.organizer-portal .organizer-eyebrow svg,
+  .role-view.organizer-portal .organizer-data-metric svg,
+  .role-view.organizer-portal .organizer-metric-top svg,
+  .role-view.organizer-portal .organizer-empty-state svg {
+    display: none !important;
+  }
+
+  .role-view.organizer-portal .organizer-eyebrow,
+  .role-view.organizer-portal .organizer-primary-button,
+  .role-view.organizer-portal .organizer-secondary-button {
+    gap: 0 !important;
+  }
+
+  .role-view.organizer-portal .organizer-data-metric,
+  .role-view.organizer-portal .organizer-metric-top {
+    justify-content: flex-start !important;
+  }
+}
+
+.role-view.organizer-portal .lucide,
+.role-view.organizer-portal .organizer-data-page .lucide,
+.role-view.organizer-portal svg.lucide,
+.role-view.organizer-portal .organizer-eyebrow svg,
+.role-view.organizer-portal .organizer-data-metric svg,
+.role-view.organizer-portal .organizer-metric-top svg,
+.role-view.organizer-portal .organizer-empty-state svg {
+  display: none !important;
+}
+
+.role-view.organizer-portal .organizer-eyebrow,
+.role-view.organizer-portal .organizer-primary-button,
+.role-view.organizer-portal .organizer-secondary-button {
+  gap: 0 !important;
+}
+
+.role-view.organizer-portal .organizer-data-metric,
+.role-view.organizer-portal .organizer-metric-top {
+  justify-content: flex-start !important;
+}
+
+@layer base {
+  .role-view.organizer-portal .lucide,
+  .role-view.organizer-portal svg.lucide,
+  .role-view.organizer-portal .organizer-eyebrow svg,
+  .role-view.organizer-portal .organizer-data-metric svg,
+  .role-view.organizer-portal .organizer-metric-top svg,
+  .role-view.organizer-portal .organizer-empty-state svg {
+    display: none !important;
+  }
+
+  .role-view.organizer-portal .organizer-eyebrow,
+  .role-view.organizer-portal .organizer-primary-button,
+  .role-view.organizer-portal .organizer-secondary-button {
+    gap: 0 !important;
+  }
+
+  .role-view.organizer-portal .organizer-data-metric,
+  .role-view.organizer-portal .organizer-metric-top {
+    justify-content: flex-start !important;
+  }
+}
+
 html.light .role-view,
 html.dark .role-view {
   background: var(--role-page) !important;
@@ -2107,7 +2172,7 @@ html.dark .role-view.organizer-portal {
 }
 
 .role-view.organizer-portal .lucide {
-  display: block !important;
+  display: none !important;
 }
 
 .role-view.organizer-portal .organizer-shell {
@@ -3818,4 +3883,50 @@ html.dark .role-view.organizer-portal .organizer-primary-button {
       text-align: left !important;
     }
   }
+}
+
+@layer base {
+  .role-view.organizer-portal .lucide,
+  .role-view.organizer-portal svg.lucide,
+  .role-view.organizer-portal .organizer-eyebrow svg,
+  .role-view.organizer-portal .organizer-data-metric svg,
+  .role-view.organizer-portal .organizer-metric-top svg,
+  .role-view.organizer-portal .organizer-empty-state svg {
+    display: none !important;
+  }
+
+  .role-view.organizer-portal .organizer-eyebrow,
+  .role-view.organizer-portal .organizer-primary-button,
+  .role-view.organizer-portal .organizer-secondary-button {
+    gap: 0 !important;
+  }
+
+  .role-view.organizer-portal .organizer-data-metric,
+  .role-view.organizer-portal .organizer-metric-top {
+    justify-content: flex-start !important;
+  }
+}
+
+.role-view.organizer-portal .lucide,
+.role-view.organizer-portal svg.lucide,
+.role-view.organizer-portal .organizer-eyebrow svg,
+.role-view.organizer-portal .organizer-data-metric svg,
+.role-view.organizer-portal .organizer-metric-top svg,
+.role-view.organizer-portal .organizer-empty-state svg {
+  display: none !important;
+}
+
+.role-view.organizer-portal .organizer-eyebrow,
+.role-view.organizer-portal .organizer-primary-button,
+.role-view.organizer-portal .organizer-secondary-button {
+  gap: 0 !important;
+}
+
+.role-view.organizer-portal .organizer-data-metric,
+.role-view.organizer-portal .organizer-metric-top {
+  justify-content: flex-start !important;
+}
+
+.role-view.organizer-portal .organizer-data-page .lucide {
+  display: none !important;
 }
