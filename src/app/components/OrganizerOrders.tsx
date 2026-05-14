@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { CheckCircle2, Clock3, CreditCard, ReceiptText, Ticket } from 'lucide-react';
+import { ReceiptText, Ticket } from 'lucide-react';
 import { useI18n } from '../i18n';
 
 interface OrganizerOrder {
@@ -133,12 +133,12 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders }) => {
   const checkInTone = (status: string) => (['checked', 'checked-in'].includes(status) ? 'success' : 'neutral');
 
   const metrics = [
-    { label: copy.shownOrders, value: visibleOrders.length, helper: selectedEventTitle, icon: ReceiptText, tone: 'violet' },
-    { label: copy.soldTickets, value: ticketsSold, helper: selectedEventTitle, icon: Ticket, tone: 'blue' },
-    { label: copy.reservedTickets, value: reservedTickets, helper: `${reservedCount} ${copy.status.reserved}`, icon: Clock3, tone: 'amber' },
-    { label: copy.paid, value: formatCurrency(totalPaid), helper: copy.payment, icon: CreditCard, tone: 'green' },
-    { label: copy.balance, value: formatCurrency(totalBalance), helper: `${reservedCount} ${copy.status.reserved}`, icon: Clock3, tone: 'amber' },
-    { label: copy.checkIn, value: visibleOrders.length ? `${checkedInCount}/${visibleOrders.length}` : '0', helper: copy.checkIn, icon: CheckCircle2, tone: 'cyan' },
+    { label: copy.shownOrders, value: visibleOrders.length, helper: selectedEventTitle, tone: 'violet' },
+    { label: copy.soldTickets, value: ticketsSold, helper: selectedEventTitle, tone: 'blue' },
+    { label: copy.reservedTickets, value: reservedTickets, helper: `${reservedCount} ${copy.status.reserved}`, tone: 'amber' },
+    { label: copy.paid, value: formatCurrency(totalPaid), helper: copy.payment, tone: 'green' },
+    { label: copy.balance, value: formatCurrency(totalBalance), helper: `${reservedCount} ${copy.status.reserved}`, tone: 'amber' },
+    { label: copy.checkIn, value: visibleOrders.length ? `${checkedInCount}/${visibleOrders.length}` : '0', helper: copy.checkIn, tone: 'cyan' },
   ];
 
   return (
@@ -160,7 +160,6 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders }) => {
 
       <section className="organizer-data-metrics" aria-label={copy.title}>
         {metrics.map((metric) => {
-          const Icon = metric.icon;
           return (
             <article key={metric.label} className={`organizer-data-metric tone-${metric.tone}`}>
               <div>
@@ -168,7 +167,6 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders }) => {
                 <strong>{metric.value}</strong>
                 <p>{metric.helper}</p>
               </div>
-              <Icon aria-hidden="true" />
             </article>
           );
         })}

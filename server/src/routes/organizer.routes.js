@@ -340,9 +340,36 @@ router.get("/orders", async (req, res) => {
 router.get("/analytics", async (req, res) => {
   try {
     await archivePastPublishedEvents({ organizer: req.user._id });
-    const [orders, events] = await Promise.all([
+    const [orders, events, refundedTicketStats, refundedReservationStats] = await Promise.all([
       Order.find({ organizer: req.user._id, paymentStatus: { $in: ["paid", "reserved"] } }).sort({ createdAt: -1 }).limit(1000).lean(),
       Event.find({ organizer: req.user._id }).limit(500).lean(),
+      Ticket.aggregate([
+        { $match: { organizer: req.user._id, status: "cancelled" } },
+        { $group: { _id: null, count: { $sum: 1 }, amount: { $sum: "$amountPaid" } } },
+      ]),
+      Order.aggregate([
+        {
+          $match: {
+            organizer: req.user._id,
+            paymentStatus: "refunded",
+            $or: [{ ticketsIssuedAt: null }, { ticketsIssuedAt: { $exists: false } }],
+          },
+        },
+        { $unwind: "$paymentTransactions" },
+        {
+          $match: {
+            "paymentTransactions.type": "refund",
+            "paymentTransactions.status": "success",
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            count: { $sum: 1 },
+            amount: { $sum: "$paymentTransactions.amount" },
+          },
+        },
+      ]),
     ]);
 
     const paidOrders = orders.filter((order) => order.paymentStatus === "paid");
@@ -353,6 +380,10 @@ router.get("/analytics", async (req, res) => {
     const outstandingBalance = reservedOrders.reduce((sum, order) => sum + Number(order.balanceDue || 0), 0);
     const ordersCount = orders.length;
     const reservationsCount = reservedOrders.length;
+    const ticketRefunds = refundedTicketStats[0] || { count: 0, amount: 0 };
+    const reservationRefunds = refundedReservationStats[0] || { count: 0, amount: 0 };
+    const refundsCount = Number(ticketRefunds.count || 0) + Number(reservationRefunds.count || 0);
+    const refundedAmount = Number(ticketRefunds.amount || 0) + Number(reservationRefunds.amount || 0);
 
     const topEventsMap = new Map();
     for (const order of orders) {
@@ -405,7 +436,8 @@ router.get("/analytics", async (req, res) => {
       outstandingBalance,
       ordersCount,
       averageOrderValue: ordersCount ? totalRevenue / ordersCount : 0,
-      eventsWithOrders: topEvents.length,
+      refundsCount,
+      refundedAmount,
       topEvents: topEvents.slice(0, 5),
       salesByDay: Array.from(salesByDayMap.values()).sort((a, b) => a.date.localeCompare(b.date)),
       eventStatuses: {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart3, CircleDollarSign, Clock3, ReceiptText, Ticket, TrendingUp, WalletCards } from 'lucide-react';
+import { BarChart3, TrendingUp } from 'lucide-react';
 import { useI18n } from '../i18n';
 
 interface AnalyticsData {
@@ -9,7 +9,8 @@ interface AnalyticsData {
   reservationsCount?: number;
   outstandingBalance?: number;
   averageOrderValue?: number;
-  eventsWithOrders?: number;
+  refundsCount?: number;
+  refundedAmount?: number;
   ordersCount: number;
   topEvents: Array<{
     eventId: string;
@@ -58,7 +59,8 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
       reservationsCount: 'Reservations',
       outstandingBalance: 'Outstanding Balance',
       averageOrderValue: 'Average Order',
-      eventsWithOrders: 'Events with Orders',
+      refundsCount: 'Refunds',
+      refundedAmount: 'Amount',
       ordersCount: 'Orders Count',
       topEvents: 'Top by Revenue',
       topEventsDesc: 'Sorted by revenue already collected: full payments plus reservation deposits.',
@@ -86,7 +88,8 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
       reservationsCount: 'Брони',
       outstandingBalance: 'Остаток к оплате',
       averageOrderValue: 'Средний чек',
-      eventsWithOrders: 'Событий с заказами',
+      refundsCount: 'Возвраты',
+      refundedAmount: 'Сумма',
       ordersCount: 'Количество заказов',
       topEvents: 'Топ по выручке',
       topEventsDesc: 'Сортировка по уже внесенной выручке: полные оплаты плюс предоплаты по броням.',
@@ -114,7 +117,8 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
       reservationsCount: 'Броньдар',
       outstandingBalance: 'Төленетін қалдық',
       averageOrderValue: 'Орташа чек',
-      eventsWithOrders: 'Тапсырысы бар іс-шаралар',
+      refundsCount: 'Қайтарымдар',
+      refundedAmount: 'Сома',
       ordersCount: 'Тапсырыс саны',
       topEvents: 'Табыс бойынша топ',
       topEventsDesc: 'Жиналған табыс бойынша сұрыпталады: толық төлемдер және бронь алдын ала төлемдері.',
@@ -141,16 +145,20 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
   const maxTopEventRevenue = Math.max(...(analytics?.topEvents || []).map((event) => event.revenue), 1);
   const averageOrderValue =
     analytics?.averageOrderValue ?? ((analytics?.ordersCount || 0) ? (analytics?.totalRevenue || 0) / (analytics?.ordersCount || 1) : 0);
-  const eventsWithOrders = analytics?.eventsWithOrders ?? analytics?.topEvents?.length ?? 0;
 
   const metrics = [
-    { label: copy.totalRevenue, value: formatCurrency(analytics?.totalRevenue || 0), icon: CircleDollarSign, tone: 'green' },
-    { label: copy.ticketsSold, value: String(analytics?.ticketsSold || 0), icon: Ticket, tone: 'violet' },
-    { label: copy.reservedTickets, value: String(analytics?.reservedTickets || 0), icon: Clock3, tone: 'amber' },
-    { label: copy.outstandingBalance, value: formatCurrency(analytics?.outstandingBalance || 0), icon: WalletCards, tone: 'cyan' },
-    { label: copy.ordersCount, value: String(analytics?.ordersCount || 0), icon: ReceiptText, tone: 'blue' },
-    { label: copy.averageOrderValue, value: formatCurrency(averageOrderValue), icon: CircleDollarSign, tone: 'green' },
-    { label: copy.eventsWithOrders, value: String(eventsWithOrders), icon: null, tone: 'violet' },
+    { label: copy.totalRevenue, value: formatCurrency(analytics?.totalRevenue || 0), tone: 'green' },
+    { label: copy.ticketsSold, value: String(analytics?.ticketsSold || 0), tone: 'violet' },
+    { label: copy.reservedTickets, value: String(analytics?.reservedTickets || 0), tone: 'amber' },
+    { label: copy.outstandingBalance, value: formatCurrency(analytics?.outstandingBalance || 0), tone: 'cyan' },
+    { label: copy.ordersCount, value: String(analytics?.ordersCount || 0), tone: 'blue' },
+    { label: copy.averageOrderValue, value: formatCurrency(averageOrderValue), tone: 'green' },
+    {
+      label: copy.refundsCount,
+      value: String(analytics?.refundsCount || 0),
+      helper: `${copy.refundedAmount}: ${formatCurrency(analytics?.refundedAmount || 0)}`,
+      tone: 'amber',
+    },
   ];
 
   return (
@@ -172,14 +180,13 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
 
       <section className="organizer-data-metrics organizer-analytics-metrics" aria-label={copy.title}>
         {metrics.map((metric) => {
-          const Icon = metric.icon;
           return (
             <article key={metric.label} className={`organizer-data-metric tone-${metric.tone}`}>
               <div>
                 <span>{metric.label}</span>
                 <strong>{metric.value}</strong>
+                {'helper' in metric && metric.helper ? <p>{metric.helper}</p> : null}
               </div>
-              {Icon ? <Icon aria-hidden="true" /> : null}
             </article>
           );
         })}
