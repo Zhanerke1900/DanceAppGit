@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart3, CalendarDays, CircleDollarSign, Clock3, ReceiptText, Ticket, TrendingUp, WalletCards } from 'lucide-react';
+import { BarChart3, CircleDollarSign, Clock3, ReceiptText, Ticket, TrendingUp, WalletCards } from 'lucide-react';
 import { useI18n } from '../i18n';
 
 interface AnalyticsData {
@@ -8,6 +8,8 @@ interface AnalyticsData {
   reservedTickets?: number;
   reservationsCount?: number;
   outstandingBalance?: number;
+  averageOrderValue?: number;
+  eventsWithOrders?: number;
   ordersCount: number;
   topEvents: Array<{
     eventId: string;
@@ -55,8 +57,11 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
       reservedTickets: 'Reserved Tickets',
       reservationsCount: 'Reservations',
       outstandingBalance: 'Outstanding Balance',
+      averageOrderValue: 'Average Order',
+      eventsWithOrders: 'Events with Orders',
       ordersCount: 'Orders Count',
-      topEvents: 'Top Events',
+      topEvents: 'Top by Revenue',
+      topEventsDesc: 'Sorted by revenue already collected: full payments plus reservation deposits.',
       salesByDay: 'Sales by Day',
       salesByDayDesc: 'Revenue, orders, and tickets sold per date.',
       noSales: 'No sales yet.',
@@ -68,7 +73,7 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
       specialProgramDesc: 'Full event pass vs separate activities.',
       fullEventPass: 'Full Event Pass',
       activityTickets: 'Activity Tickets',
-      topEventsEmpty: 'Top events will appear after your first sales.',
+      topEventsEmpty: 'Top revenue events will appear after your first sales.',
       orders: 'orders',
       tickets: 'tickets',
     },
@@ -80,8 +85,11 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
       reservedTickets: 'Билетов в бронях',
       reservationsCount: 'Брони',
       outstandingBalance: 'Остаток к оплате',
+      averageOrderValue: 'Средний чек',
+      eventsWithOrders: 'Событий с заказами',
       ordersCount: 'Количество заказов',
-      topEvents: 'Лучшие события',
+      topEvents: 'Топ по выручке',
+      topEventsDesc: 'Сортировка по уже внесенной выручке: полные оплаты плюс предоплаты по броням.',
       salesByDay: 'Продажи по дням',
       salesByDayDesc: 'Выручка, заказы и проданные билеты по датам.',
       noSales: 'Продаж пока нет.',
@@ -93,7 +101,7 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
       specialProgramDesc: 'Полный абонемент на событие и отдельные активности.',
       fullEventPass: 'Полный абонемент',
       activityTickets: 'Билеты на активности',
-      topEventsEmpty: 'Лучшие события появятся после первых продаж.',
+      topEventsEmpty: 'Топ по выручке появится после первых продаж.',
       orders: 'заказов',
       tickets: 'билетов',
     },
@@ -105,8 +113,11 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
       reservedTickets: 'Броньдағы билеттер',
       reservationsCount: 'Броньдар',
       outstandingBalance: 'Төленетін қалдық',
+      averageOrderValue: 'Орташа чек',
+      eventsWithOrders: 'Тапсырысы бар іс-шаралар',
       ordersCount: 'Тапсырыс саны',
-      topEvents: 'Үздік іс-шаралар',
+      topEvents: 'Табыс бойынша топ',
+      topEventsDesc: 'Жиналған табыс бойынша сұрыпталады: толық төлемдер және бронь алдын ала төлемдері.',
       salesByDay: 'Күндер бойынша сатылым',
       salesByDayDesc: 'Күн бойынша табыс, тапсырыс және сатылған билеттер.',
       noSales: 'Әзірге сатылым жоқ.',
@@ -118,7 +129,7 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
       specialProgramDesc: 'Толық іс-шара билеті және жеке белсенділіктер.',
       fullEventPass: 'Толық іс-шара билеті',
       activityTickets: 'Белсенділік билеттері',
-      topEventsEmpty: 'Үздік іс-шаралар алғашқы сатылымнан кейін пайда болады.',
+      topEventsEmpty: 'Табыс бойынша топ алғашқы сатылымнан кейін пайда болады.',
       orders: 'тапсырыс',
       tickets: 'билет',
     },
@@ -128,6 +139,9 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
     (analytics?.specialPrograms?.fullEventPassTickets || 0) + (analytics?.specialPrograms?.activityTickets || 0);
   const maxDayRevenue = Math.max(...(analytics?.salesByDay || []).map((day) => day.revenue), 1);
   const maxTopEventRevenue = Math.max(...(analytics?.topEvents || []).map((event) => event.revenue), 1);
+  const averageOrderValue =
+    analytics?.averageOrderValue ?? ((analytics?.ordersCount || 0) ? (analytics?.totalRevenue || 0) / (analytics?.ordersCount || 1) : 0);
+  const eventsWithOrders = analytics?.eventsWithOrders ?? analytics?.topEvents?.length ?? 0;
 
   const metrics = [
     { label: copy.totalRevenue, value: formatCurrency(analytics?.totalRevenue || 0), icon: CircleDollarSign, tone: 'green' },
@@ -135,8 +149,8 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
     { label: copy.reservedTickets, value: String(analytics?.reservedTickets || 0), icon: Clock3, tone: 'amber' },
     { label: copy.outstandingBalance, value: formatCurrency(analytics?.outstandingBalance || 0), icon: WalletCards, tone: 'cyan' },
     { label: copy.ordersCount, value: String(analytics?.ordersCount || 0), icon: ReceiptText, tone: 'blue' },
-    { label: copy.reservationsCount, value: String(analytics?.reservationsCount || 0), icon: CalendarDays, tone: 'pink' },
-    { label: copy.topEvents, value: String(analytics?.topEvents?.length || 0), icon: TrendingUp, tone: 'violet' },
+    { label: copy.averageOrderValue, value: formatCurrency(averageOrderValue), icon: CircleDollarSign, tone: 'green' },
+    { label: copy.eventsWithOrders, value: String(eventsWithOrders), icon: TrendingUp, tone: 'violet' },
   ];
 
   return (
@@ -269,6 +283,7 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
           <div>
             <span className="organizer-section-label">{copy.topEvents}</span>
             <h2>{copy.topEvents}</h2>
+            <p>{copy.topEventsDesc}</p>
           </div>
         </div>
 

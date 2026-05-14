@@ -393,6 +393,8 @@ router.get("/analytics", async (req, res) => {
       }
     }
 
+    const topEvents = Array.from(topEventsMap.values()).sort((a, b) => b.revenue - a.revenue);
+
     return res.json({
       totalRevenue,
       ticketsSold,
@@ -400,7 +402,9 @@ router.get("/analytics", async (req, res) => {
       reservationsCount,
       outstandingBalance,
       ordersCount,
-      topEvents: Array.from(topEventsMap.values()).sort((a, b) => b.revenue - a.revenue).slice(0, 5),
+      averageOrderValue: ordersCount ? totalRevenue / ordersCount : 0,
+      eventsWithOrders: topEvents.length,
+      topEvents: topEvents.slice(0, 5),
       salesByDay: Array.from(salesByDayMap.values()).sort((a, b) => a.date.localeCompare(b.date)),
       eventStatuses: {
         published: publishedEvents,
