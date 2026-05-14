@@ -559,14 +559,12 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
                       key={type.value}
                       type="button"
                       onClick={() => handleEventTypeChange(type.value)}
-                      className={`rounded-2xl border p-4 text-left transition-all ${
-                        formData.eventType === type.value
-                          ? 'border-purple-500 bg-purple-600/15 shadow-lg shadow-purple-600/10'
-                          : 'border-gray-700 bg-gray-800/30 hover:border-purple-500/50'
+                      className={`organizer-choice rounded-2xl border p-4 text-left transition-all ${
+                        formData.eventType === type.value ? 'is-selected' : ''
                       }`}
                     >
-                      <div className="text-white font-semibold">{type.label}</div>
-                      <p className="text-gray-400 text-sm mt-1.5">{type.description}</p>
+                      <div className="organizer-choice-title font-semibold">{type.label}</div>
+                      <p className="organizer-choice-description text-sm mt-1.5">{type.description}</p>
                     </button>
                   ))}
                 </div>
@@ -583,10 +581,8 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
                       key={option}
                       type="button"
                       onClick={() => handleInputChange('category', option)}
-                      className={`rounded-xl border px-4 py-3 text-left font-medium transition-all ${
-                        formData.category === option
-                          ? 'border-purple-500 bg-purple-600/15 text-white'
-                          : 'border-gray-700 bg-gray-800/30 text-gray-300 hover:border-purple-500/50'
+                      className={`organizer-choice rounded-xl border px-4 py-3 text-left font-medium transition-all ${
+                        formData.category === option ? 'is-selected' : ''
                       }`}
                     >
                       {getCategoryLabel(option)}
@@ -655,10 +651,8 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
                     key={city}
                     type="button"
                     onClick={() => handleInputChange('city', city)}
-                    className={`rounded-2xl border px-4 py-3 text-left transition-all ${
-                      formData.city === city
-                        ? 'border-purple-500 bg-gradient-to-br from-purple-600/20 to-fuchsia-600/10 text-white'
-                        : 'border-gray-700 bg-gray-800/20 text-gray-300 hover:border-purple-500/40'
+                    className={`organizer-choice rounded-2xl border px-4 py-3 text-left transition-all ${
+                      formData.city === city ? 'is-selected' : ''
                     }`}
                   >
                     <div className="flex items-center gap-2">
@@ -1212,14 +1206,14 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
                         handleInputChange('date', day.value);
                         setIsDateDialogOpen(false);
                       }}
-                      className={`h-11 rounded-xl text-sm font-medium transition-all ${
+                      className={`organizer-choice h-11 rounded-xl text-sm font-medium transition-all ${
                         !day.isCurrentMonth
                           ? 'invisible'
-                          : day.isPast
-                            ? 'cursor-not-allowed bg-gray-900 text-gray-700'
+                        : day.isPast
+                            ? 'is-disabled cursor-not-allowed'
                             : isSelected
-                              ? 'bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-lg shadow-purple-600/30'
-                              : 'bg-gray-800 text-gray-200 hover:bg-gray-700'
+                              ? 'is-selected'
+                              : ''
                       }`}
                     >
                       {day.label}
@@ -1262,10 +1256,8 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
                         }
                         setIsTimeDialogOpen(false);
                       }}
-                      className={`rounded-xl px-4 py-3 text-sm font-semibold transition-all ${
-                        isSelected
-                          ? 'bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-lg shadow-purple-600/30'
-                          : 'bg-gray-800 text-gray-200 hover:bg-gray-700'
+                      className={`organizer-choice rounded-xl px-4 py-3 text-sm font-semibold transition-all ${
+                        isSelected ? 'is-selected' : ''
                       }`}
                     >
                       {formatTimeLabel(time)}

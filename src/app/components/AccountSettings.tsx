@@ -64,7 +64,6 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
   const [formData, setFormData] = useState({
     name: user?.fullName || user?.name || '',
     email: user?.email || '',
-    language: user?.language || 'en',
     emailNotifications: user?.emailNotifications ?? true,
     eventReminders: user?.eventReminders ?? true,
   });
@@ -73,13 +72,12 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
     setFormData({
       name: user?.fullName || user?.name || '',
       email: user?.email || '',
-      language: user?.language || 'en',
       emailNotifications: user?.emailNotifications ?? true,
       eventReminders: user?.eventReminders ?? true,
     });
   }, [user]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -102,7 +100,6 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
       setIsSaving(true);
       const result = await authApi.updateMe({
         fullName: formData.name.trim(),
-        language: formData.language as 'en' | 'ru' | 'kk',
         emailNotifications: formData.emailNotifications,
         eventReminders: formData.eventReminders,
       });
@@ -112,7 +109,6 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
         setFormData({
           name: result.user.fullName || result.user.name || '',
           email: result.user.email || '',
-          language: result.user.language || 'en',
           emailNotifications: result.user.emailNotifications ?? true,
           eventReminders: result.user.eventReminders ?? true,
         });
@@ -254,23 +250,6 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
                 className="cursor-not-allowed border-border bg-input-background text-muted-foreground placeholder:text-muted-foreground opacity-70 dark:bg-gray-950 dark:border-gray-700 dark:text-gray-400 dark:placeholder:text-gray-600"
               />
               <p className={`text-xs text-muted-foreground dark:text-gray-500 ${compactLayout ? 'mt-1' : 'mt-2'}`}>{copy.emailFixed}</p>
-            </div>
-
-            <div>
-              <Label htmlFor="language" className="text-foreground mb-2 dark:text-gray-200">
-                {language === 'ru' ? 'Язык' : language === 'kk' ? 'Тіл' : 'Language'}
-              </Label>
-              <select
-                id="language"
-                name="language"
-                value={formData.language}
-                onChange={handleChange}
-                className="h-9 w-full rounded-md border border-border bg-input-background px-3 py-1 text-foreground outline-none transition-all focus:border-purple-500 focus:ring-[3px] focus:ring-purple-500/20 dark:bg-gray-950 dark:border-gray-700 dark:text-white"
-              >
-                <option value="en">English</option>
-                <option value="ru">Русский</option>
-                <option value="kk">Қазақша</option>
-              </select>
             </div>
           </div>
         </div>

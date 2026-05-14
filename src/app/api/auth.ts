@@ -231,7 +231,7 @@ export async function me() {
 
 export async function updateMe(payload: {
   fullName: string;
-  language: "en" | "ru" | "kk";
+  language?: "en" | "ru" | "kk";
   emailNotifications: boolean;
   eventReminders: boolean;
 }) {

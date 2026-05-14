@@ -1329,6 +1329,8 @@ function AppContent() {
                   purchaseDate: ticket.purchasedAt,
                   status: ticket.status,
                   image: ticket.event.image,
+                  qrCodeDataUrl: ticket.qrCodeDataUrl,
+                  barcodeDataUrl: ticket.barcodeDataUrl,
                 }))}
               />
             )}
