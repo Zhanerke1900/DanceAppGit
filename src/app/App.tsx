@@ -608,6 +608,17 @@ function AppContent() {
     window.scrollTo(0, 0);
   };
 
+  const handleOpenReservation = (reservation: ReservationRecord) => {
+    setTicketSelectionReadOnly(false);
+    setPendingEvent({
+      ...reservation.event,
+      location: reservation.event.location,
+      image: reservation.event.image,
+    });
+    setCurrentView('ticket-selection');
+    window.scrollTo(0, 0);
+  };
+
   const handleRefundTicket = async (ticket: TicketRecord) => {
     const result = await ticketsApi.refundTicket(ticket.id);
     setMyTickets((prev) =>
@@ -1303,6 +1314,7 @@ function AppContent() {
                 tickets={myTickets}
                 reservations={myReservations}
                 onOpenTicket={handleOpenTicket}
+                onOpenReservation={handleOpenReservation}
                 onRefundTicket={handleRefundTicket}
                 onPayReservation={handlePayReservation}
                 onCancelReservation={handleCancelReservation}

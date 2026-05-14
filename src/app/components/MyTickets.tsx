@@ -10,6 +10,7 @@ interface MyTicketsProps {
   tickets?: TicketRecord[];
   reservations?: ReservationRecord[];
   onOpenTicket?: (ticket: TicketRecord) => void;
+  onOpenReservation?: (reservation: ReservationRecord) => void;
   onRefundTicket?: (ticket: TicketRecord) => Promise<{ refundedAmount?: number; paymentRefunds?: PaymentRefundRecord[]; emailSent?: boolean } | void>;
   onPayReservation?: (reservation: ReservationRecord) => Promise<void>;
   onCancelReservation?: (reservation: ReservationRecord) => Promise<void>;
@@ -60,6 +61,7 @@ export const MyTickets = ({
   tickets = [],
   reservations = [],
   onOpenTicket,
+  onOpenReservation,
   onRefundTicket,
   onPayReservation,
   onCancelReservation,
@@ -224,6 +226,13 @@ export const MyTickets = ({
                   </div>
 
                   <div className="mt-4 flex flex-wrap items-center gap-3">
+                    <button
+                      onClick={() => onOpenReservation?.(reservation)}
+                      className="flex items-center gap-2 rounded-lg bg-[rgba(94,72,166,0.12)] px-5 py-2 text-sm font-semibold text-foreground transition-all hover:bg-[rgba(94,72,166,0.18)] dark:bg-white/5 dark:text-gray-300 dark:hover:bg-white/10"
+                    >
+                      {copy.viewEvent}
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
                     <button
                       disabled={!reservation.canPayBalance || !onPayReservation || processingReservationId === reservation.id}
                       onClick={async () => {
