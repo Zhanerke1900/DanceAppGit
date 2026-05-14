@@ -150,7 +150,7 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
     { label: copy.outstandingBalance, value: formatCurrency(analytics?.outstandingBalance || 0), icon: WalletCards, tone: 'cyan' },
     { label: copy.ordersCount, value: String(analytics?.ordersCount || 0), icon: ReceiptText, tone: 'blue' },
     { label: copy.averageOrderValue, value: formatCurrency(averageOrderValue), icon: CircleDollarSign, tone: 'green' },
-    { label: copy.eventsWithOrders, value: String(eventsWithOrders), icon: TrendingUp, tone: 'violet' },
+    { label: copy.eventsWithOrders, value: String(eventsWithOrders), icon: null, tone: 'violet' },
   ];
 
   return (
@@ -179,7 +179,7 @@ export const OrganizerAnalytics: React.FC<OrganizerAnalyticsProps> = ({ analytic
                 <span>{metric.label}</span>
                 <strong>{metric.value}</strong>
               </div>
-              <Icon aria-hidden="true" />
+              {Icon ? <Icon aria-hidden="true" /> : null}
             </article>
           );
         })}

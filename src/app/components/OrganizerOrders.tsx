@@ -1,9 +1,10 @@
-import React from 'react';
-import { CheckCircle2, Clock3, CreditCard, ReceiptText, Ticket, WalletCards } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { CheckCircle2, Clock3, CreditCard, ReceiptText, Ticket } from 'lucide-react';
 import { useI18n } from '../i18n';
 
 interface OrganizerOrder {
   id: string;
+  eventId?: string;
   buyerName: string;
   buyerEmail: string;
   eventTitle: string;
@@ -49,6 +50,11 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders }) => {
       subtitle: 'Real purchases for your published events.',
       emptyTitle: 'No orders yet',
       emptyDesc: 'Orders and reservations will appear here when people buy or reserve tickets.',
+      allEvents: 'All events',
+      eventFilter: 'Event',
+      shownOrders: 'Shown orders',
+      soldTickets: 'Sold tickets',
+      reservedTickets: 'Reserved tickets',
       order: 'Order',
       amount: 'Full Amount',
       paid: 'Paid',
@@ -63,6 +69,11 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders }) => {
       subtitle: 'Покупки и брони по вашим опубликованным событиям.',
       emptyTitle: 'Заказов пока нет',
       emptyDesc: 'Заказы и брони появятся здесь, когда люди купят или забронируют билеты.',
+      allEvents: 'Все события',
+      eventFilter: 'Событие',
+      shownOrders: 'Показано заказов',
+      soldTickets: 'Продано билетов',
+      reservedTickets: 'Билетов в бронях',
       order: 'Заказ',
       amount: 'Полная сумма',
       paid: 'Оплачено',
@@ -77,6 +88,11 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders }) => {
       subtitle: 'Жарияланған іс-шараларыңыз бойынша сатып алулар мен броньдар.',
       emptyTitle: 'Әзірге тапсырыс жоқ',
       emptyDesc: 'Адамдар билет сатып алғанда немесе брондағанда, тапсырыстар осында пайда болады.',
+      allEvents: 'Барлық іс-шаралар',
+      eventFilter: 'Іс-шара',
+      shownOrders: 'Көрсетілген тапсырыс',
+      soldTickets: 'Сатылған билеттер',
+      reservedTickets: 'Броньдағы билеттер',
       order: 'Тапсырыс',
       amount: 'Толық сома',
       paid: 'Төленді',
@@ -88,20 +104,41 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders }) => {
     },
   }[language];
 
-  const totalAmount = orders.reduce((sum, order) => sum + (Number(order.total) || 0), 0);
-  const totalPaid = orders.reduce((sum, order) => sum + (Number(order.amountPaid ?? order.total) || 0), 0);
-  const totalBalance = orders.reduce((sum, order) => sum + (Number(order.balanceDue) || 0), 0);
-  const reservedCount = orders.filter((order) => order.paymentStatus === 'reserved').length;
-  const checkedInCount = orders.filter((order) => ['checked', 'checked-in'].includes(order.checkInStatus)).length;
+  const [selectedEventId, setSelectedEventId] = useState('all');
+  const eventOptions = useMemo(() => {
+    const events = new Map<string, string>();
+    orders.forEach((order) => {
+      const id = String(order.eventId || order.eventTitle || order.id);
+      if (!events.has(id)) events.set(id, order.eventTitle || id);
+    });
+    return Array.from(events.entries()).map(([id, title]) => ({ id, title }));
+  }, [orders]);
+  const selectedEventTitle = selectedEventId === 'all'
+    ? copy.allEvents
+    : eventOptions.find((event) => event.id === selectedEventId)?.title || copy.allEvents;
+  const visibleOrders = selectedEventId === 'all'
+    ? orders
+    : orders.filter((order) => String(order.eventId || order.eventTitle || order.id) === selectedEventId);
+  const totalPaid = visibleOrders.reduce((sum, order) => sum + (Number(order.amountPaid ?? order.total) || 0), 0);
+  const totalBalance = visibleOrders.reduce((sum, order) => sum + (Number(order.balanceDue) || 0), 0);
+  const ticketsSold = visibleOrders
+    .filter((order) => order.paymentStatus === 'paid')
+    .reduce((sum, order) => sum + (Number(order.quantity) || 0), 0);
+  const reservedTickets = visibleOrders
+    .filter((order) => order.paymentStatus === 'reserved')
+    .reduce((sum, order) => sum + (Number(order.quantity) || 0), 0);
+  const reservedCount = visibleOrders.filter((order) => order.paymentStatus === 'reserved').length;
+  const checkedInCount = visibleOrders.filter((order) => ['checked', 'checked-in'].includes(order.checkInStatus)).length;
   const paymentTone = (status: string) => (status === 'reserved' ? 'warning' : status === 'paid' ? 'success' : 'neutral');
   const checkInTone = (status: string) => (['checked', 'checked-in'].includes(status) ? 'success' : 'neutral');
 
   const metrics = [
-    { label: copy.title, value: orders.length, helper: copy.subtitle, icon: ReceiptText, tone: 'violet' },
-    { label: copy.amount, value: formatCurrency(totalAmount), helper: copy.order, icon: WalletCards, tone: 'cyan' },
+    { label: copy.shownOrders, value: visibleOrders.length, helper: selectedEventTitle, icon: ReceiptText, tone: 'violet' },
+    { label: copy.soldTickets, value: ticketsSold, helper: selectedEventTitle, icon: Ticket, tone: 'blue' },
+    { label: copy.reservedTickets, value: reservedTickets, helper: `${reservedCount} ${copy.status.reserved}`, icon: Clock3, tone: 'amber' },
     { label: copy.paid, value: formatCurrency(totalPaid), helper: copy.payment, icon: CreditCard, tone: 'green' },
     { label: copy.balance, value: formatCurrency(totalBalance), helper: `${reservedCount} ${copy.status.reserved}`, icon: Clock3, tone: 'amber' },
-    { label: copy.checkIn, value: `${checkedInCount}/${orders.length}`, helper: copy.checkIn, icon: CheckCircle2, tone: 'blue' },
+    { label: copy.checkIn, value: visibleOrders.length ? `${checkedInCount}/${visibleOrders.length}` : '0', helper: copy.checkIn, icon: CheckCircle2, tone: 'cyan' },
   ];
 
   return (
@@ -113,10 +150,10 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders }) => {
             <span>{copy.order}</span>
           </div>
           <h1>{copy.title}</h1>
-          <p>{copy.subtitle}</p>
+          <p>{selectedEventId === 'all' ? copy.subtitle : selectedEventTitle}</p>
         </div>
         <div className="organizer-hero-stats" aria-label={copy.title}>
-          <span>{orders.length}</span>
+          <span>{visibleOrders.length}</span>
           <small>{copy.title}</small>
         </div>
       </section>
@@ -143,10 +180,22 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders }) => {
             <span className="organizer-section-label">{copy.payment}</span>
             <h2>{copy.title}</h2>
           </div>
-          <span className="organizer-chip">{orders.length}</span>
+          <div className="organizer-orders-filter">
+            <label htmlFor="organizer-order-event">{copy.eventFilter}</label>
+            <select
+              id="organizer-order-event"
+              value={selectedEventId}
+              onChange={(event) => setSelectedEventId(event.target.value)}
+            >
+              <option value="all">{copy.allEvents}</option>
+              {eventOptions.map((event) => (
+                <option key={event.id} value={event.id}>{event.title}</option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        {orders.length === 0 ? (
+        {visibleOrders.length === 0 ? (
           <div className="organizer-empty-state organizer-data-empty">
             <Ticket aria-hidden="true" />
             <h3>{copy.emptyTitle}</h3>
@@ -154,7 +203,7 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders }) => {
           </div>
         ) : (
           <div className="organizer-orders-list">
-            {orders.map((order) => (
+            {visibleOrders.map((order) => (
               <article key={order.id} className="organizer-order-row">
                 <div className="organizer-order-main">
                   <div className="organizer-order-title-line">
