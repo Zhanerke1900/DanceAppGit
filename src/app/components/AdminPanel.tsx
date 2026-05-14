@@ -810,7 +810,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   ))}
                 </div>
 
-                <aside className="admin-side-panel">
+                <aside className="admin-side-panel max-h-[calc(100vh-8rem)] overflow-y-auto overscroll-contain custom-scrollbar">
                   <h2>{copy.userDetails}</h2>
                   {selectedUser ? (
                     <div className="admin-detail-list">

@@ -963,14 +963,14 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
           {/* RIGHT COLUMN - STICKY ORDER SUMMARY */}
           {!readOnly && (
           <div className="lg:col-span-1 relative">
-            <div className="hidden lg:block sticky top-24 space-y-4">
-              <div className="bg-gray-900 rounded-2xl p-6 border border-white/10 shadow-2xl shadow-black/50">
-                <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+            <div className="hidden lg:block sticky top-20 max-h-[calc(100vh-6rem)] space-y-3 overflow-y-auto overscroll-contain pr-1 custom-scrollbar">
+              <div className="bg-gray-900 rounded-2xl p-4 border border-white/10 shadow-2xl shadow-black/50">
+                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                   <ShoppingCart className="w-5 h-5 text-purple-400" />
                   {copy.orderSummary}
                 </h3>
                 
-                <div className="space-y-4 text-sm max-h-[40vh] overflow-y-auto custom-scrollbar pr-2 mb-6">
+                <div className="space-y-3 text-sm max-h-[22vh] overflow-y-auto custom-scrollbar pr-2 mb-4">
                   {ticketQuantity === 0 && (!isSpecialProgram || (!fullPassSelected && Object.keys(selectedActivities).length === 0)) ? (
                     <div className="text-gray-500 text-center py-10 bg-black/20 rounded-xl border border-dashed border-white/5">
                       <div className="text-4xl mb-3 opacity-20">🎫</div>
@@ -1012,7 +1012,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                   )}
                 </div>
 
-                <div className="mb-4 grid grid-cols-2 gap-2 rounded-xl border border-white/10 bg-black/20 p-1">
+                <div className="mb-3 grid grid-cols-2 gap-2 rounded-xl border border-white/10 bg-black/20 p-1">
                   <button
                     type="button"
                     onClick={() => setPaymentMode('deposit')}
@@ -1033,7 +1033,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                   </button>
                 </div>
 
-                <div className="border-t border-white/10 pt-4 space-y-3">
+                <div className="border-t border-white/10 pt-3 space-y-2.5">
                   <div className="flex justify-between items-center text-gray-400">
                     <span>{copy.subtotal}</span>
                     <span className="text-white font-medium">{formatCurrency(subtotal)}</span>
@@ -1045,7 +1045,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                     </div>
                     <span className="text-white font-medium">{formatCurrency(serviceFee)}</span>
                   </div>
-                  <div className="flex justify-between items-center text-white font-extrabold text-2xl pt-3 border-t border-white/10">
+                  <div className="flex justify-between items-center text-white font-extrabold text-xl pt-2 border-t border-white/10">
                     <span>{copy.total}</span>
                     <span className="text-purple-500 drop-shadow-[0_0_8px_rgba(168,85,247,0.3)]">{formatCurrency(total)}</span>
                   </div>
@@ -1060,7 +1060,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                           <span>{copy.balanceDue}</span>
                           <span>{formatCurrency(balanceDue)}</span>
                         </div>
-                        <p className="mt-2 text-[11px] leading-relaxed text-emerald-100/70">{copy.depositPolicy}</p>
+                        <p className="mt-1.5 text-[10px] leading-snug text-emerald-100/70">{copy.depositPolicy}</p>
                       </>
                     )}
                   </div>
@@ -1069,30 +1069,30 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                 <button 
                   disabled={isCheckoutSubmitting || isSoldOut || (ticketQuantity === 0 && (!isSpecialProgram || (!fullPassSelected && Object.keys(selectedActivities).length === 0)))}
                   onClick={handleCheckout}
-                  className="w-full mt-6 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-800 disabled:text-gray-500 text-white py-4 rounded-xl font-bold transition-all shadow-lg shadow-purple-600/20 disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
+                  className="w-full mt-4 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-800 disabled:text-gray-500 text-white py-3 rounded-xl font-bold transition-all shadow-lg shadow-purple-600/20 disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
                 >
                   {isSoldOut ? copy.soldOut : isCheckoutSubmitting ? copy.processing : paymentMode === 'deposit' ? copy.proceedCheckout : copy.proceedFullCheckout}
                   <ArrowLeft className="w-4 h-4 rotate-180 group-hover:translate-x-1 transition-transform" />
                 </button>
                 
-                <div className="flex items-center justify-center gap-2 mt-4">
+                <div className="flex items-center justify-center gap-2 mt-3">
                   <ShieldCheck className="w-4 h-4 text-green-500/80" />
                   <span className="text-xs text-gray-400 uppercase tracking-[0.14em] font-bold">{copy.securePayment}</span>
                 </div>
               </div>
 
               {/* Security Badges */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gray-900/40 rounded-xl p-3 border border-white/5">
-                  <div className="text-white font-bold text-sm mb-1.5 flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+              <div className="grid grid-cols-2 gap-2">
+                <div className="bg-gray-900/40 rounded-xl p-2.5 border border-white/5">
+                  <div className="text-white font-bold text-xs mb-1 flex items-center gap-1.5">
+                    <div className="w-1 h-1 rounded-full bg-purple-500" />
                     {copy.instantDelivery}
                   </div>
                   <p className="text-xs leading-relaxed text-gray-400">{copy.ticketsSentEmail}</p>
                 </div>
-                <div className="bg-gray-900/40 rounded-xl p-3 border border-white/5">
-                  <div className="text-white font-bold text-sm mb-1.5 flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                <div className="bg-gray-900/40 rounded-xl p-2.5 border border-white/5">
+                  <div className="text-white font-bold text-xs mb-1 flex items-center gap-1.5">
+                    <div className="w-1 h-1 rounded-full bg-purple-500" />
                     {copy.verifiedTickets}
                   </div>
                   <p className="text-xs leading-relaxed text-gray-400">{copy.authenticGuarantee}</p>
