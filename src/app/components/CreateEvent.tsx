@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import { useI18n } from '../i18n';
+import { CITY_OPTIONS, localizeCityName } from '../utils/localization';
 
 interface CreateEventProps {
   onBack: () => void;
@@ -24,17 +25,6 @@ type ScheduleItem = {
   organizerName: string;
   organizerRole: 'Host' | 'Co-organizer';
 };
-
-const cities = [
-  'Astana',
-  'Almaty',
-  'Shymkent',
-  'Aktobe',
-  'Karaganda',
-  'Taraz',
-  'Pavlodar',
-  'Atyrau',
-];
 
 const usualEventCategories = ['Hip Hop', 'Contemporary', 'Ballet', 'Latin', 'Ballroom'];
 const specialProgramCategories = ['Festivals', 'Competitions', 'Masterclasses', 'Camps'];
@@ -646,7 +636,7 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
             <div className="mt-4">
               <label className="block text-sm font-medium text-gray-300 mb-2">{tr('City *', 'Город *', 'Қала *')}</label>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {cities.map((city) => (
+                {CITY_OPTIONS.map((city) => (
                   <button
                     key={city}
                     type="button"
@@ -656,7 +646,7 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <span className="font-medium">{city}</span>
+                      <span className="font-medium">{localizeCityName(city, language)}</span>
                     </div>
                   </button>
                 ))}

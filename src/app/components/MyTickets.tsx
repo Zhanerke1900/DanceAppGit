@@ -4,6 +4,7 @@ import { Calendar, MapPin, Ticket, ChevronRight, QrCode, Barcode, X, CreditCard,
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import type { PaymentRefundRecord, ReservationRecord, TicketRecord } from '../api/tickets';
 import { useI18n } from '../i18n';
+import { localizeEventForDisplay } from '../utils/localization';
 
 interface MyTicketsProps {
   onBack?: () => void;
@@ -180,7 +181,10 @@ export const MyTickets = ({
 
       {filteredTickets.length > 0 || filteredReservations.length > 0 ? (
         <div className="grid grid-cols-1 gap-6">
-          {filteredReservations.map((reservation, index) => (
+          {filteredReservations.map((reservation, index) => {
+            const displayEvent = localizeEventForDisplay(reservation.event, language);
+
+            return (
             <motion.div
               key={reservation.id}
               initial={{ opacity: 0, y: 20 }}
@@ -192,7 +196,7 @@ export const MyTickets = ({
                 <div className="relative h-48 w-full flex-shrink-0 overflow-hidden md:h-auto md:w-64">
                   <ImageWithFallback
                     src={reservation.event.image}
-                    alt={reservation.event.title}
+                    alt={displayEvent.title}
                     className="h-full w-full object-cover"
                   />
                   <div className="absolute left-4 top-4 rounded-full bg-emerald-500 px-3 py-1 text-xs font-bold uppercase text-black">
@@ -205,18 +209,18 @@ export const MyTickets = ({
                     <div className="mb-4 flex items-start justify-between gap-4">
                       <div>
                         <p className="mb-2 text-xs font-bold uppercase tracking-wider text-emerald-500">{copy.reservations}</p>
-                        <h3 className="text-2xl font-bold text-foreground dark:text-white">{reservation.event.title}</h3>
+                        <h3 className="text-2xl font-bold text-foreground dark:text-white">{displayEvent.title}</h3>
                         <p className="mt-2 text-sm text-muted-foreground dark:text-gray-500">{copy.noTicketYet}</p>
                       </div>
                     </div>
                     <div className="mb-4 space-y-2">
                       <div className="flex items-center gap-2 text-muted-foreground dark:text-gray-400">
                         <Calendar className="h-4 w-4" />
-                        <span className="text-sm">{reservation.event.date}{reservation.event.time ? ` - ${reservation.event.time}` : ''}</span>
+                        <span className="text-sm">{displayEvent.date}{displayEvent.time ? ` - ${displayEvent.time}` : ''}</span>
                       </div>
                       <div className="flex items-center gap-2 text-muted-foreground dark:text-gray-400">
                         <MapPin className="h-4 w-4" />
-                        <span className="text-sm">{reservation.event.location}</span>
+                        <span className="text-sm">{displayEvent.location}</span>
                       </div>
                       <div className="flex items-center gap-2 text-muted-foreground dark:text-gray-400">
                         <Clock className="h-4 w-4" />
@@ -279,8 +283,12 @@ export const MyTickets = ({
                 </div>
               </div>
             </motion.div>
-          ))}
-          {filteredTickets.map((ticket, index) => (
+          );
+          })}
+          {filteredTickets.map((ticket, index) => {
+            const displayEvent = localizeEventForDisplay(ticket.event, language);
+
+            return (
             <motion.div
               key={ticket.id}
               initial={{ opacity: 0, y: 20 }}
@@ -292,7 +300,7 @@ export const MyTickets = ({
                 <div className="relative h-48 w-full flex-shrink-0 overflow-hidden md:h-auto md:w-64">
                   <ImageWithFallback
                     src={ticket.event.image}
-                    alt={ticket.event.title}
+                    alt={displayEvent.title}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[rgba(45,35,67,0.2)] dark:to-gray-900/50" />
@@ -303,9 +311,9 @@ export const MyTickets = ({
                     <div className="mb-4 flex items-start justify-between gap-4">
                       <div>
                         <span className="mb-2 inline-block rounded-full bg-purple-600/20 px-3 py-1 text-xs font-semibold text-purple-400">
-                          {ticket.event.category}
+                          {displayEvent.category}
                         </span>
-                        <h3 className="text-2xl font-bold text-foreground dark:text-white">{ticket.event.title}</h3>
+                        <h3 className="text-2xl font-bold text-foreground dark:text-white">{displayEvent.title}</h3>
                         <p className="mt-2 text-sm text-muted-foreground dark:text-gray-500">{ticket.ticketType}</p>
                       </div>
                       <span
@@ -324,11 +332,11 @@ export const MyTickets = ({
                     <div className="mb-4 space-y-2">
                       <div className="flex items-center gap-2 text-muted-foreground dark:text-gray-400">
                         <Calendar className="h-4 w-4" />
-                        <span className="text-sm">{ticket.event.date}{ticket.event.time ? ` - ${ticket.event.time}` : ''}</span>
+                        <span className="text-sm">{displayEvent.date}{displayEvent.time ? ` - ${displayEvent.time}` : ''}</span>
                       </div>
                       <div className="flex items-center gap-2 text-muted-foreground dark:text-gray-400">
                         <MapPin className="h-4 w-4" />
-                        <span className="text-sm">{ticket.event.location}</span>
+                        <span className="text-sm">{displayEvent.location}</span>
                       </div>
                       <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground dark:text-gray-500">
                         <Ticket className="h-4 w-4" />
@@ -404,7 +412,8 @@ export const MyTickets = ({
                 </div>
               </div>
             </motion.div>
-          ))}
+          );
+          })}
         </div>
       ) : (
         <motion.div
@@ -435,7 +444,7 @@ export const MyTickets = ({
               <div>
                 <p className="text-sm uppercase tracking-[0.25em] text-purple-300">{copy.title}</p>
                 <h2 className="mt-2 text-2xl font-bold text-foreground dark:text-white">{selectedTicket.ticketCode}</h2>
-                <p className="mt-1 text-muted-foreground dark:text-gray-400">{selectedTicket.event.title}</p>
+                <p className="mt-1 text-muted-foreground dark:text-gray-400">{localizeEventForDisplay(selectedTicket.event, language).title}</p>
               </div>
               <button
                 onClick={() => setSelectedTicket(null)}

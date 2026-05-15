@@ -30,6 +30,7 @@ const orderSchema = new mongoose.Schema(
     buyer: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
     buyerName: { type: String, required: true },
     buyerEmail: { type: String, required: true, lowercase: true, index: true },
+    buyerLanguage: { type: String, enum: ["en", "ru", "kk"], default: "en" },
 
     event: { type: mongoose.Schema.Types.ObjectId, ref: "Event", default: null, index: true },
     organizer: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null, index: true },

@@ -3,6 +3,12 @@ import { EventCard } from './EventCard';
 import { motion, AnimatePresence } from 'motion/react';
 import { MapPinOff } from 'lucide-react';
 import { useI18n } from '../i18n';
+import {
+  getLocalizedEventSearchValues,
+  localizeCityName,
+  localizeEventForDisplay,
+  normalizeCity as normalizeCityKey,
+} from '../utils/localization';
 
 interface FeaturedEventsProps {
   selectedCity: string;
@@ -81,7 +87,7 @@ export const FeaturedEvents = ({
   hideWhenEmptyDuringSearch = false,
 }: FeaturedEventsProps) => {
   const [activeCategory, setActiveCategory] = useState('All');
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const categoryLabels: Record<string, string> = {
     All: t('featuredEvents.all'),
     'Hip Hop': t('featuredEvents.hipHop'),
@@ -94,12 +100,13 @@ export const FeaturedEvents = ({
   const displayEvents = useMemo(() => dedupeEvents(dynamicEvents.filter(hasDisplayImage)), [dynamicEvents]);
   const normalizedSearchQuery = searchQuery.trim().toLowerCase();
   const isSearching = Boolean(normalizedSearchQuery);
-  const currentCity = normalizeCity(selectedCity);
+  const currentCity = normalizeCityKey(selectedCity);
+  const selectedCityLabel = localizeCityName(selectedCity, language);
 
   const cityEvents = useMemo(
     () =>
       displayEvents.filter((event) => {
-        const eventCity = normalizeCity(event.city);
+        const eventCity = normalizeCityKey(event.city);
         return !eventCity || eventCity === currentCity;
       }),
     [currentCity, displayEvents]
@@ -111,14 +118,8 @@ export const FeaturedEvents = ({
       isSearching ||
       activeCategory === 'All' ||
       String(event.category || '').trim().toLowerCase() === activeCategory.toLowerCase();
-    const matchesSearch = !normalizedSearchQuery || [
-      event.title,
-      event.location,
-      event.city,
-      event.category,
-      event.date,
-      event.price,
-    ].some((value) => String(value || '').toLowerCase().includes(normalizedSearchQuery));
+    const matchesSearch = !normalizedSearchQuery || getLocalizedEventSearchValues(event, language)
+      .some((value) => String(value || '').toLowerCase().includes(normalizedSearchQuery));
 
     return matchesCategory && matchesSearch;
   });
@@ -128,7 +129,7 @@ export const FeaturedEvents = ({
     showExploreMoreButton && !isSearching && cityEvents.length >= 11;
 
   const handleExploreOtherCities = () => {
-    const hub = selectedCity === 'Almaty' ? 'Astana' : 'Almaty';
+    const hub = normalizeCityKey(selectedCity) === 'almaty' ? 'Astana' : 'Almaty';
     onCityChange(hub);
   };
 
@@ -143,10 +144,10 @@ export const FeaturedEvents = ({
           <div>
             <div className="mb-3 h-px w-16 bg-purple-500" />
             <h2 className="font-display mb-4 text-4xl font-bold leading-[0.95] text-foreground sm:text-5xl">
-              {t('featuredEvents.title', { city: selectedCity })}
+              {t('featuredEvents.title', { city: selectedCityLabel })}
             </h2>
             <p className="max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-              {t('featuredEvents.description', { city: selectedCity })}
+              {t('featuredEvents.description', { city: selectedCityLabel })}
             </p>
           </div>
           <div className="w-full space-y-4">
@@ -172,7 +173,7 @@ export const FeaturedEvents = ({
           <AnimatePresence mode="wait">
             {visibleEvents.length > 0 ? (
               <motion.div
-                key={`${selectedCity}-${activeCategory}-${normalizedSearchQuery}`}
+                key={`${selectedCity}-${activeCategory}-${normalizedSearchQuery}-${language}`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
@@ -184,6 +185,7 @@ export const FeaturedEvents = ({
                     ...event,
                     image: String(event.image || '').trim(),
                   };
+                  const localizedEvent = localizeEventForDisplay(eventWithImage, language);
                   const eventId = getEventId(event);
 
                   return (
@@ -191,10 +193,10 @@ export const FeaturedEvents = ({
                       key={eventId}
                       id={eventId}
                       image={eventWithImage.image}
-                      category={event.category}
-                      title={event.title}
-                      date={event.date}
-                      location={event.location}
+                      category={localizedEvent.category}
+                      title={localizedEvent.title}
+                      date={localizedEvent.date}
+                      location={localizedEvent.location}
                       price={event.price}
                       remainingTickets={event.remainingTickets ?? null}
                       soldOut={Boolean(event.soldOut)}
@@ -236,7 +238,7 @@ export const FeaturedEvents = ({
                 <p className="text-muted-foreground max-w-sm mb-10 leading-relaxed">
                   {searchQuery.trim()
                     ? t('featuredEvents.searchEmptyDescription')
-                    : t('featuredEvents.emptyDescription', { city: selectedCity })}
+                    : t('featuredEvents.emptyDescription', { city: selectedCityLabel })}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button
@@ -249,7 +251,7 @@ export const FeaturedEvents = ({
                     onClick={() => setActiveCategory('All')}
                     className="px-8 py-3 bg-card hover:bg-accent text-foreground rounded-xl border border-border font-bold transition-all active:scale-95"
                   >
-                    {t('featuredEvents.viewAllStyles', { city: selectedCity })}
+                    {t('featuredEvents.viewAllStyles', { city: selectedCityLabel })}
                   </button>
                 </div>
               </motion.div>

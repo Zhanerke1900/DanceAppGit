@@ -36,7 +36,7 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [generalError, setGeneralError] = useState('');
-  const { t } = useI18n();
+  const { t, language } = useI18n();
 
   const resetForm = () => {
     setEmail('');
@@ -146,6 +146,7 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
         fullName: fullName.trim(),
         email: email.trim().toLowerCase(),
         password,
+        language,
       });
 
       setView('verification-sent');

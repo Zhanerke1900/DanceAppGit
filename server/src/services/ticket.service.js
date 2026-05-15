@@ -1,6 +1,7 @@
 import Event from "../models/Event.js";
 import Order from "../models/Order.js";
 import Ticket from "../models/Ticket.js";
+import User from "../models/User.js";
 import ValidationLog from "../models/ValidationLog.js";
 import { generateNextTicketCode } from "../utils/ticketCode.js";
 import { createSignedTicketToken, verifySignedTicketToken } from "../utils/ticketSecurity.js";
@@ -10,14 +11,25 @@ import { sendTicketEmail } from "../utils/sendTicketEmail.js";
 import { sendEventCancelledEmail, sendRefundEmail } from "../utils/sendEmails.js";
 import { isAdminEmail } from "../utils/admin.js";
 import { getEventStartAt, isEventPast } from "../utils/eventDates.js";
+import { normalizeEmailLanguage } from "../utils/emailLocale.js";
 import { refundFreedomPayPayment } from "./freedompay.service.js";
 
-function queueTicketEmailDelivery({ email, fullName, event, tickets }) {
+function queueTicketEmailDelivery({ email, fullName, event, tickets, language }) {
   setTimeout(() => {
-    sendTicketEmail({ email, fullName, event, tickets }).catch((error) => {
+    sendTicketEmail({ email, fullName, event, tickets, language }).catch((error) => {
       console.error("Ticket email error:", error?.message || error);
     });
   }, 0);
+}
+
+async function getOrderBuyerLanguage(order) {
+  if (order?.buyer?.language) return normalizeEmailLanguage(order.buyer.language);
+
+  const buyerId = order?.buyer?._id || order?.buyer;
+  if (!buyerId) return normalizeEmailLanguage(order?.buyerLanguage);
+
+  const buyer = await User.findById(buyerId).select("language").lean();
+  return normalizeEmailLanguage(buyer?.language || order?.buyerLanguage);
 }
 
 function toEventSnapshot(eventData = {}) {
@@ -446,6 +458,7 @@ async function buildTicketOrderDataForUser({ user, eventId, eventData, ticketDet
       buyer: user._id,
       buyerName: user.fullName,
       buyerEmail: user.email,
+      buyerLanguage: normalizeEmailLanguage(user.language),
       event: event?._id || null,
       organizer: organizerId,
       eventSnapshot: snapshot,
@@ -572,10 +585,13 @@ export async function issueTicketsForPaidOrder(orderOrId) {
   order.ticketsIssuedAt = new Date();
   await order.save();
 
+  const buyerLanguage = await getOrderBuyerLanguage(order);
+
   queueTicketEmailDelivery({
     email: order.buyerEmail,
     fullName: order.buyerName,
     event: order.eventSnapshot,
+    language: buyerLanguage,
     tickets: createdTickets.map(({ document, qrToken }) => ({
       ticketCode: document.ticketCode,
       ticketType: document.ticketType,
@@ -711,7 +727,7 @@ export async function cancelEventOrdersForOrganizer({ event, cancelledBy }) {
   const orders = await Order.find({
     event: event._id,
     paymentStatus: { $in: ["paid", "reserved"] },
-  }).sort({ createdAt: 1 });
+  }).populate("buyer", "language").sort({ createdAt: 1 });
 
   const summary = {
     orders: orders.length,
@@ -756,6 +772,7 @@ export async function cancelEventOrdersForOrganizer({ event, cancelledBy }) {
         refundedAmount: refundAmount,
         currency: String(process.env.FREEDOMPAY_CURRENCY || "KZT").trim() || "KZT",
         orderId: order._id,
+        language: await getOrderBuyerLanguage(order),
       }).catch((error) => {
         console.error("Event cancellation email error:", error?.message || error);
         return false;
@@ -909,6 +926,7 @@ export async function refundTicketForUser({ ticketId, user }) {
       ticketCode: ticket.ticketCode,
       ticketType: ticket.ticketType,
       event: ticket.eventSnapshot,
+      language: user.language,
     });
   } catch (error) {
     console.error("Refund email error:", error?.message || error);

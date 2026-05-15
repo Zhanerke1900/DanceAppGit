@@ -11,6 +11,12 @@ import { getUserRole } from "../middleware/role.middleware.js";
 
 const router = express.Router();
 const isProduction = process.env.NODE_ENV === "production";
+const allowedLanguages = new Set(["en", "ru", "kk"]);
+
+function normalizeLanguage(language) {
+  const value = String(language || "").trim().toLowerCase();
+  return allowedLanguages.has(value) ? value : "en";
+}
 
 function authCookieOptions() {
   return {
@@ -52,8 +58,9 @@ function publicUser(u) {
 // REGISTER
 router.post("/register", async (req, res) => {
   try {
-    const { fullName, email, password } = req.body || {};
+    const { fullName, email, password, language } = req.body || {};
     const cleanEmail = String(email || "").trim().toLowerCase();
+    const userLanguage = normalizeLanguage(language);
 
     if (!fullName || String(fullName).trim().length < 2) {
       return res.status(400).json({ message: "Full name is required" });
@@ -78,13 +85,14 @@ router.post("/register", async (req, res) => {
       email: cleanEmail,
       passwordHash,
       role: isAdminEmail(cleanEmail) ? "admin" : "user",
+      language: userLanguage,
       emailVerified: false,
       verifyTokenHash: hashToken(token),
       verifyCodeHash: hashToken(code),
       verifyExpiresAt: new Date(Date.now() + 15 * 60 * 1000),
     });
 
-    await sendVerifyEmail({ email: cleanEmail, fullName: user.fullName, token, code });
+    await sendVerifyEmail({ email: cleanEmail, fullName: user.fullName, token, code, language: userLanguage });
 
     return res.status(201).json({
       message: "Registered. Verification email sent.",
@@ -158,7 +166,7 @@ router.post("/resend-verification", async (req, res) => {
     user.verifyExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
     await user.save();
 
-    await sendVerifyEmail({ email: cleanEmail, fullName: user.fullName, token, code });
+    await sendVerifyEmail({ email: cleanEmail, fullName: user.fullName, token, code, language: user.language });
 
     return res.json({ message: "Verification email resent" });
   } catch (e) {
@@ -234,7 +242,6 @@ router.put("/me", requireAuth, async (req, res) => {
       return res.status(400).json({ message: "Full name must be at least 2 characters" });
     }
 
-    const allowedLanguages = new Set(["en", "ru", "kk"]);
     if (language && !allowedLanguages.has(String(language))) {
       return res.status(400).json({ message: "Invalid language" });
     }
@@ -368,6 +375,7 @@ router.post("/change-password", requireAuth, async (req, res) => {
     await sendPasswordChangedEmail({
       email: user.email,
       fullName: user.fullName,
+      language: user.language,
     });
 
     return res.json({ message: "Password changed successfully" });
@@ -411,7 +419,7 @@ router.post("/forgot-password", async (req, res) => {
     user.resetExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
     await user.save();
 
-    await sendResetEmail({ email: cleanEmail, fullName: user.fullName, token, code });
+    await sendResetEmail({ email: cleanEmail, fullName: user.fullName, token, code, language: user.language });
 
     return res.json({ message: "Reset email sent" });
   } catch (e) {
@@ -454,6 +462,12 @@ router.post("/reset-password", async (req, res) => {
     user.resetCodeHash = null;
     user.resetExpiresAt = null;
     await user.save();
+
+    await sendPasswordChangedEmail({
+      email: user.email,
+      fullName: user.fullName,
+      language: user.language,
+    });
 
     return res.json({ message: "Password updated. You can log in now." });
   } catch (e) {

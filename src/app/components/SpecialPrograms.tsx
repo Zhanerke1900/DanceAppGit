@@ -3,6 +3,12 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Star, Trophy, GraduationCap, Tent, LayoutGrid, Sparkles } from 'lucide-react';
 import { useI18n } from '../i18n';
 import { EventCard } from './EventCard';
+import {
+  getLocalizedEventSearchValues,
+  localizeCityName,
+  localizeEventForDisplay,
+  normalizeCity,
+} from '../utils/localization';
 
 const programCategories = ['All', 'Festivals', 'Competitions', 'Masterclasses', 'Camps'];
 
@@ -54,41 +60,24 @@ export const SpecialPrograms = ({
   hideWhenEmptyDuringSearch = false,
 }: SpecialProgramsProps) => {
   const [activeCategory, setActiveCategory] = useState('All');
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const normalizedSearchQuery = searchQuery.trim().toLowerCase();
   const isSearching = Boolean(normalizedSearchQuery);
+  const selectedCityLabel = localizeCityName(selectedCity, language);
+  const selectedCityKey = normalizeCity(selectedCity);
 
   const mergedPrograms = dynamicPrograms.filter(hasDisplayImage);
 
   const filteredPrograms = mergedPrograms.filter(p => {
     const matchesCategory = isSearching || activeCategory === 'All' || p.category === activeCategory;
-    const matchesCity = isSearching || p.city === selectedCity;
-    const matchesSearch = !normalizedSearchQuery || [
-      p.title,
-      p.location,
-      p.city,
-      p.category,
-      p.time,
-      p.price,
-      p.description,
-      p.longDescription,
-      p.targetAudience,
-      ...(p.highlights || []),
-      ...(p.activities || []).flatMap((activity: Activity) => [
-        activity.name,
-        activity.type,
-        activity.time,
-        activity.description,
-        activity.instructor,
-        activity.location,
-        activity.organizer?.name,
-      ]),
-    ].some((value) => String(value || '').toLowerCase().includes(normalizedSearchQuery));
+    const matchesCity = isSearching || normalizeCity(p.city) === selectedCityKey;
+    const matchesSearch = !normalizedSearchQuery || getLocalizedEventSearchValues(p, language)
+      .some((value) => String(value || '').toLowerCase().includes(normalizedSearchQuery));
 
     return matchesCategory && matchesCity && matchesSearch;
   });
   const visiblePrograms = expandedMode || isSearching ? filteredPrograms : filteredPrograms.slice(0, 10);
-  const cityProgramsCount = mergedPrograms.filter((program) => program.city === selectedCity).length;
+  const cityProgramsCount = mergedPrograms.filter((program) => normalizeCity(program.city) === selectedCityKey).length;
   const shouldShowExploreMoreButton = showExploreMoreButton && !isSearching && cityProgramsCount > 10 && Boolean(onExploreMore);
 
   const getIcon = (category: string) => {
@@ -127,7 +116,7 @@ export const SpecialPrograms = ({
               {t('specialPrograms.titleStart')} <span className="text-purple-500">{t('specialPrograms.titleAccent')}</span>
             </h2>
             <p className="max-w-xl text-lg leading-relaxed text-muted-foreground dark:text-gray-400">
-              {t('specialPrograms.description', { city: selectedCity })}
+              {t('specialPrograms.description', { city: selectedCityLabel })}
             </p>
           </div>
 
@@ -155,7 +144,7 @@ export const SpecialPrograms = ({
           <AnimatePresence mode="wait">
             {visiblePrograms.length > 0 ? (
               <motion.div
-                key={`${selectedCity}-${activeCategory}-${normalizedSearchQuery}`}
+                key={`${selectedCity}-${activeCategory}-${normalizedSearchQuery}-${language}`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
@@ -167,6 +156,7 @@ export const SpecialPrograms = ({
                     ...program,
                     image: String(program.image || '').trim(),
                   };
+                  const localizedProgram = localizeEventForDisplay(programWithImage, language);
                   const programId = program.id || `${program.title}-${program.time}-${program.location}`;
 
                   return (
@@ -174,10 +164,10 @@ export const SpecialPrograms = ({
                       key={programId}
                       id={programId}
                       image={programWithImage.image}
-                      category={program.category}
-                      title={program.title}
-                      date={program.time}
-                      location={program.location}
+                      category={localizedProgram.category}
+                      title={localizedProgram.title}
+                      date={localizedProgram.time}
+                      location={localizedProgram.location}
                       price={program.price}
                       remainingTickets={program.remainingTickets ?? null}
                       soldOut={Boolean(program.soldOut)}
@@ -212,7 +202,7 @@ export const SpecialPrograms = ({
                 <h3 className="text-2xl font-bold text-foreground mb-2 dark:text-white">
                   {t('specialPrograms.emptyTitle', {
                     category: activeCategory !== 'All' ? (categoryLabels[activeCategory] || activeCategory).toLowerCase() : '',
-                    city: selectedCity,
+                    city: selectedCityLabel,
                   })}
                 </h3>
                 <p className="max-w-sm mx-auto text-muted-foreground dark:text-gray-400">

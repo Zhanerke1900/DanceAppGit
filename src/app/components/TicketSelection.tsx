@@ -8,6 +8,7 @@ import {
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { motion, AnimatePresence } from 'motion/react';
 import { useI18n } from '../i18n';
+import { localizeCategoryName, localizeEventForDisplay } from '../utils/localization';
 
 interface Activity {
   id: string;
@@ -92,6 +93,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
     totalAmount: language === 'ru' ? 'К оплате сейчас' : language === 'kk' ? 'Қазір төлеу' : 'Due Now',
     checkout: language === 'ru' ? 'Забронировать' : language === 'kk' ? 'Брондау' : 'Reserve',
   };
+  const displayEvent = localizeEventForDisplay(event, language);
   // Check if this is a special program event (has activities with organizer info)
   const isSpecialProgram = event.eventType === 'special-program' || (event.activities && event.activities.length > 0 && event.longDescription);
   
@@ -112,7 +114,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
   const [isCheckoutSubmitting, setIsCheckoutSubmitting] = useState(false);
   const [paymentMode, setPaymentMode] = useState<'deposit' | 'full'>('deposit');
 
-  const activities: Activity[] = isSpecialProgram ? (event.activities || []) : [];
+  const activities: Activity[] = isSpecialProgram ? (displayEvent.activities || []) : [];
   const hasSoldOutLimitedActivity = activities.some((activity: any) => Boolean(activity.soldOut));
   const selectedActivityQuantity = fullPassSelected
     ? 1
@@ -121,8 +123,8 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
   const canAddMoreTickets = remainingTickets === null || remainingTickets === undefined
     ? true
     : selectedTotalQuantity < remainingTickets;
-  const scheduleItems = Array.isArray(event.schedule) && event.schedule.length > 0
-    ? event.schedule
+  const scheduleItems = Array.isArray(displayEvent.schedule) && displayEvent.schedule.length > 0
+    ? displayEvent.schedule
     : [
         { time: '19:00', title: 'Doors Open', description: '', location: '' },
         { time: '20:00', title: 'Warm-up Set', description: '', location: '' },
@@ -300,25 +302,25 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                     <div className="w-32 h-32 rounded-xl overflow-hidden shrink-0 shadow-lg shadow-purple-900/20 border border-white/5">
                       <ImageWithFallback
                         src={event.image} 
-                        alt={event.title}
+                        alt={displayEvent.title}
                         className="w-full h-full object-cover"
                       />
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-2">
                         <span className="bg-purple-500/20 text-purple-300 text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wider">
-                          {event.category}
+                          {displayEvent.category}
                         </span>
                       </div>
-                      <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3">{event.title}</h1>
+                      <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3">{displayEvent.title}</h1>
                       <div className="flex flex-col gap-2 text-gray-400 text-sm">
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-gray-500" />
-                          {event.time}
+                          {displayEvent.time}
                         </div>
                         <div className="flex items-center gap-2">
                           <MapPin className="w-4 h-4 text-gray-500" />
-                          {event.location}
+                          {displayEvent.location}
                         </div>
                       </div>
                     </div>
@@ -340,19 +342,19 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                     {/* Overview */}
                     <div>
                       <div className="prose prose-invert max-w-none text-gray-300 leading-relaxed text-base">
-                        <p>{event.longDescription || event.description}</p>
+                        <p>{displayEvent.longDescription || displayEvent.description}</p>
                       </div>
                     </div>
 
                     {/* Key Highlights */}
-                    {event.highlights && event.highlights.length > 0 && (
+                    {displayEvent.highlights && displayEvent.highlights.length > 0 && (
                       <div className="pt-6 border-t border-white/10">
                         <div className="flex items-center gap-2 mb-4">
                           <Sparkles className="w-5 h-5 text-purple-400" />
                           <h3 className="text-lg font-bold text-white">{copy.keyHighlights}</h3>
                         </div>
                         <ul className="grid sm:grid-cols-2 gap-3">
-                          {event.highlights.map((highlight: string, index: number) => (
+                          {displayEvent.highlights.map((highlight: string, index: number) => (
                             <li key={index} className="flex items-start gap-2 text-gray-400">
                               <Check className="w-4 h-4 text-purple-500 mt-0.5 shrink-0" />
                               <span className="text-sm">{highlight}</span>
@@ -363,13 +365,13 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                     )}
 
                     {/* Target Audience */}
-                    {event.targetAudience && (
+                    {displayEvent.targetAudience && (
                       <div className="pt-6 border-t border-white/10">
                         <div className="flex items-center gap-2 mb-3">
                           <Target className="w-5 h-5 text-purple-400" />
                           <h3 className="text-lg font-bold text-white">{copy.whoShouldAttend}</h3>
                         </div>
-                        <p className="text-gray-400 text-sm leading-relaxed">{event.targetAudience}</p>
+                        <p className="text-gray-400 text-sm leading-relaxed">{displayEvent.targetAudience}</p>
                       </div>
                     )}
                   </div>
@@ -436,7 +438,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                               <div className="flex flex-wrap items-center gap-3 mb-3">
                                 <span className="bg-purple-500/10 text-purple-400 text-[10px] font-bold px-2 py-1 rounded border border-purple-500/20 flex items-center gap-1.5 uppercase tracking-widest">
                                   {getIcon(activity.type)}
-                                  {activity.type}
+                                  {localizeCategoryName(activity.type, language)}
                                 </span>
                                 <div className="flex items-center gap-1.5 text-gray-500 text-xs font-bold">
                                   <Clock className="w-3.5 h-3.5" />
@@ -541,7 +543,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                         <div className="flex-1 pt-2">
                           <div className="flex items-center gap-2 mb-2">
                             <span className="bg-purple-500/10 text-purple-400 text-[9px] font-bold px-2 py-0.5 rounded border border-purple-500/20 uppercase tracking-widest">
-                              {activity.type}
+                              {localizeCategoryName(activity.type, language)}
                             </span>
                           </div>
                           <div className="font-bold text-white text-lg mb-1 group-hover:text-purple-400 transition-colors">{activity.name}</div>
@@ -576,8 +578,8 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                   </div>
 
                   <div className="space-y-4">
-                    <div className="text-white font-medium text-lg">{event.location}</div>
-                    <div className="text-gray-400">{event.address || event.location || `${event.city || 'Unknown city'}, Kazakhstan`}</div>
+                    <div className="text-white font-medium text-lg">{displayEvent.location}</div>
+                    <div className="text-gray-400">{displayEvent.address || displayEvent.location || `${displayEvent.city || 'Unknown city'}, Kazakhstan`}</div>
                     {mapUrl && (
                       <div className="w-full h-64 overflow-hidden rounded-3xl border border-white/10 bg-slate-950/80 mt-4">
                         <iframe
@@ -615,25 +617,25 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                       <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-xl overflow-hidden shrink-0 shadow-lg shadow-purple-900/20 border border-white/5">
                         <ImageWithFallback
                           src={event.image} 
-                          alt={event.title}
+                          alt={displayEvent.title}
                           className="w-full h-full object-cover"
                         />
                       </div>
                       <div>
                         <div className="flex items-center gap-2 mb-2">
                           <span className="bg-purple-500/20 text-purple-300 text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wider">
-                            {event.category}
+                            {displayEvent.category}
                           </span>
                         </div>
-                        <h3 className="text-xl sm:text-2xl font-bold text-white mb-3">{event.title}</h3>
+                        <h3 className="text-xl sm:text-2xl font-bold text-white mb-3">{displayEvent.title}</h3>
                         <div className="flex flex-col gap-2 text-gray-400 text-sm">
                           <div className="flex items-center gap-2">
                             <Calendar className="w-4 h-4 text-gray-500" />
-                            {event.date}
+                            {displayEvent.date}
                           </div>
                           <div className="flex items-center gap-2">
                             <MapPin className="w-4 h-4 text-gray-500" />
-                            {event.location}
+                            {displayEvent.location}
                           </div>
                           <div className="flex items-center gap-2">
                             <Clock className="w-4 h-4 text-gray-500" />
@@ -764,7 +766,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                           )}
                           <span className="relative z-10 flex items-center gap-2">
                             {cat !== 'All' && getIcon(cat)}
-                            {cat}
+                            {localizeCategoryName(cat, language)}
                           </span>
                         </button>
                       ))}
@@ -798,7 +800,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                                   <div className="flex items-center gap-3 mb-3">
                                     <span className="bg-purple-500/10 text-purple-400 text-[10px] font-bold px-2 py-0.5 rounded border border-purple-500/20 flex items-center gap-1.5 uppercase tracking-widest">
                                       {getIcon(activity.type)}
-                                      {activity.type}
+                                      {localizeCategoryName(activity.type, language)}
                                     </span>
                                     <div className="flex items-center gap-1.5 text-gray-500 text-xs font-bold">
                                       <Clock className="w-3.5 h-3.5" />
@@ -875,26 +877,26 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                   </div>
                   
                   <div className="prose prose-invert max-w-none text-gray-400 mb-8 leading-relaxed">
-                    <p>{event.description || `Join us for ${event.title}, the premier dance event of the season in ${event.city}. Experience an unforgettable night showcasing the best ${event.category} talent from across Kazakhstan and beyond.`}</p>
+                    <p>{displayEvent.description || `Join us for ${displayEvent.title}, the premier dance event of the season in ${displayEvent.city}. Experience an unforgettable night showcasing the best ${displayEvent.category} talent from across Kazakhstan and beyond.`}</p>
                   </div>
 
                   <div className="grid sm:grid-cols-3 gap-6 pt-6 border-t border-white/10">
                     <div>
                       <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{copy.danceStyle}</div>
-                      <div className="text-white font-medium">{event.category}</div>
+                      <div className="text-white font-medium">{displayEvent.category}</div>
                     </div>
                     <div>
                       <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{copy.ageRestriction}</div>
                       <div className="flex items-center gap-2 text-white font-medium">
                         <AlertCircle className="w-4 h-4 text-yellow-500" />
-                        {event.ageRestriction || copy.allAges}
+                        {displayEvent.ageRestriction || copy.allAges}
                       </div>
                     </div>
                     <div>
                       <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{copy.dressCode}</div>
                       <div className="flex items-center gap-2 text-white font-medium">
                         <Shirt className="w-4 h-4 text-purple-400" />
-                        {event.dressCode || copy.noDressCode}
+                        {displayEvent.dressCode || copy.noDressCode}
                       </div>
                     </div>
                   </div>
@@ -937,8 +939,8 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                   </div>
 
                   <div className="space-y-4">
-                    <div className="text-white font-medium text-lg">{event.location}</div>
-                    <div className="text-gray-400">{event.address || event.location || `${event.city}, Kazakhstan`}</div>
+                    <div className="text-white font-medium text-lg">{displayEvent.location}</div>
+                    <div className="text-gray-400">{displayEvent.address || displayEvent.location || `${displayEvent.city}, Kazakhstan`}</div>
                     {mapUrl && (
                       <div className="w-full h-64 overflow-hidden rounded-3xl border border-white/10 bg-slate-950/80 mt-4">
                         <iframe

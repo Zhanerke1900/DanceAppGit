@@ -256,7 +256,7 @@ function AppContent() {
     currentView === 'profile' && profileTab === 'account-settings' && isOrganizer && !isAdmin;
   const isValidatorAccountSettingsView =
     currentView === 'profile' && profileTab === 'account-settings' && isValidator;
-  const { t } = useI18n();
+  const { t, language, isLanguageReady } = useI18n();
 
   useEffect(() => {
     window.localStorage.setItem(APP_STATE_STORAGE.selectedCity, selectedCity);
@@ -298,6 +298,40 @@ function AppContent() {
       .then(({ user }) => setUser(user))
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (!isLanguageReady || !user) return;
+    if (user.language === language) return;
+
+    const fullName = String(user.fullName || user.name || '').trim();
+    if (fullName.length < 2) return;
+
+    let cancelled = false;
+    authApi.updateMe({
+      fullName,
+      language,
+      emailNotifications: user.emailNotifications ?? true,
+      eventReminders: user.eventReminders ?? true,
+    })
+      .then(({ user: updatedUser }) => {
+        if (!cancelled && updatedUser) setUser(updatedUser);
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    isLanguageReady,
+    language,
+    user?._id,
+    user?.id,
+    user?.language,
+    user?.fullName,
+    user?.name,
+    user?.emailNotifications,
+    user?.eventReminders,
+  ]);
 
   useEffect(() => {
     const handleBlocked = (event: Event) => {

@@ -674,6 +674,7 @@ type TranslationTree = typeof translations.en;
 
 interface I18nContextValue {
   language: Language;
+  isLanguageReady: boolean;
   setLanguage: (language: Language) => void;
   t: (key: string, params?: Record<string, string | number>) => string;
 }
@@ -695,26 +696,44 @@ export const I18nProvider: React.FC<{ children: React.ReactNode; userLanguage?: 
   userLanguage,
 }) => {
   const [language, setLanguageState] = useState<Language>('en');
+  const [isLanguageReady, setIsLanguageReady] = useState(typeof window === 'undefined');
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined') {
+      setIsLanguageReady(true);
+      return;
+    }
     const storedLanguage = window.localStorage.getItem('danceapp:language') as Language | null;
-    const nextLanguage = storedLanguage || userLanguage || 'en';
-    setLanguageState(nextLanguage);
+    if (storedLanguage && ['en', 'ru', 'kk'].includes(storedLanguage)) {
+      setLanguageState(storedLanguage);
+      setIsLanguageReady(true);
+      return;
+    }
+    if (userLanguage) {
+      setLanguageState(userLanguage);
+      setIsLanguageReady(true);
+      return;
+    }
+    setLanguageState('en');
+    setIsLanguageReady(false);
   }, [userLanguage]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (isLanguageReady && typeof window !== 'undefined') {
       window.localStorage.setItem('danceapp:language', language);
     }
     if (typeof document !== 'undefined') {
       document.documentElement.lang = language;
     }
-  }, [language]);
+  }, [language, isLanguageReady]);
 
   const value = useMemo<I18nContextValue>(() => ({
     language,
-    setLanguage: setLanguageState,
+    isLanguageReady,
+    setLanguage: (nextLanguage) => {
+      setLanguageState(nextLanguage);
+      setIsLanguageReady(true);
+    },
     t: (key, params) => {
       const languageTree = translations[language] || translations.en;
       const value = getValue(languageTree, key) ?? getValue(translations.en, key);
@@ -723,7 +742,7 @@ export const I18nProvider: React.FC<{ children: React.ReactNode; userLanguage?: 
       }
       return value ?? key;
     },
-  }), [language]);
+  }), [language, isLanguageReady]);
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 };

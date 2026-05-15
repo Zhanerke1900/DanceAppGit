@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema(
       submittedAt: { type: Date, default: null },
     },
 
-    language: { type: String, default: "en" },
+    language: { type: String, enum: ["en", "ru", "kk"], default: "en" },
     emailNotifications: { type: Boolean, default: true },
     eventReminders: { type: Boolean, default: true },
     accountStatus: { type: String, enum: ["active", "blocked"], default: "active", index: true },

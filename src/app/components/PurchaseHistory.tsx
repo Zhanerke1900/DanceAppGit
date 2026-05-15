@@ -1,6 +1,7 @@
 import React from 'react';
 import { ShoppingBag, Calendar, MapPin, CreditCard, Download, CheckCircle2, Clock } from 'lucide-react';
 import { useI18n } from '../i18n';
+import { localizeCityName, localizeDateText, localizeEventTitle, localizeLocationText } from '../utils/localization';
 
 type PurchaseItem = {
   id: string;
@@ -41,7 +42,9 @@ export const PurchaseHistory: React.FC<PurchaseHistoryProps> = ({ purchases }) =
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    if (Number.isNaN(date.getTime())) return localizeDateText(dateString, language);
+    const locale = language === 'ru' ? 'ru-RU' : language === 'kk' ? 'kk-KZ' : 'en-US';
+    return date.toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
   const formatPrice = (price: number) => {
@@ -73,11 +76,11 @@ export const PurchaseHistory: React.FC<PurchaseHistoryProps> = ({ purchases }) =
         <body style="font-family:Arial,sans-serif;padding:28px;background:#111827;color:white">
           <main style="max-width:680px;margin:0 auto">
             <p style="margin:0 0 8px;color:#a78bfa;font-weight:700;text-transform:uppercase;letter-spacing:.12em">${escapeHtml(copy.receipt)}</p>
-            <h1 style="margin:0 0 16px;font-size:28px">${escapeHtml(purchase.event)}</h1>
+            <h1 style="margin:0 0 16px;font-size:28px">${escapeHtml(localizeEventTitle(purchase.event, language))}</h1>
             <div style="margin-bottom:22px;padding:16px;border:1px solid rgba(255,255,255,.16);border-radius:14px;background:rgba(255,255,255,.06)">
               <p><strong>${escapeHtml(copy.orderId)}:</strong> ${escapeHtml(purchase.id)}</p>
               <p><strong>${escapeHtml(copy.eventDate)}:</strong> ${escapeHtml(formatDate(purchase.date))}</p>
-              <p><strong>${escapeHtml(copy.venue)}:</strong> ${escapeHtml(`${purchase.venue}, ${purchase.city}`)}</p>
+              <p><strong>${escapeHtml(copy.venue)}:</strong> ${escapeHtml(`${localizeLocationText(purchase.venue, language)}, ${localizeCityName(purchase.city, language)}`)}</p>
               <p><strong>${escapeHtml(copy.purchaseDate)}:</strong> ${escapeHtml(formatDate(purchase.purchaseDate))}</p>
               <p><strong>${escapeHtml(copy.tickets)}:</strong> ${escapeHtml(`${purchase.tickets}x ${purchase.ticketType}`)}</p>
               <p><strong>${escapeHtml(copy.totalAmount)}:</strong> ${escapeHtml(formatPrice(purchase.total))}</p>
@@ -147,14 +150,14 @@ export const PurchaseHistory: React.FC<PurchaseHistoryProps> = ({ purchases }) =
               <div className="relative w-full md:w-48 h-48 md:h-auto overflow-hidden">
                 <img
                   src={purchase.image}
-                  alt={purchase.event}
+                  alt={localizeEventTitle(purchase.event, language)}
                   className="absolute inset-0 w-full h-full object-cover"
                 />
               </div>
 
               {/* Content */}
               <div className="flex-1 p-6">
-                <h3 className="text-xl font-bold text-foreground mb-4 dark:text-white">{purchase.event}</h3>
+                <h3 className="text-xl font-bold text-foreground mb-4 dark:text-white">{localizeEventTitle(purchase.event, language)}</h3>
 
                 <div className="grid md:grid-cols-2 gap-4 mb-6">
                   <div>
@@ -170,7 +173,7 @@ export const PurchaseHistory: React.FC<PurchaseHistoryProps> = ({ purchases }) =
                       <MapPin className="w-4 h-4 text-primary dark:text-purple-400" />
                       <span className="text-sm">{copy.venue}</span>
                     </div>
-                    <p className="text-foreground dark:text-white">{purchase.venue}, {purchase.city}</p>
+                    <p className="text-foreground dark:text-white">{localizeLocationText(purchase.venue, language)}, {localizeCityName(purchase.city, language)}</p>
                   </div>
 
                   <div>

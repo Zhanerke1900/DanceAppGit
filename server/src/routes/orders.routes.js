@@ -69,6 +69,7 @@ router.post("/", requireAuth, async (req, res) => {
       buyer: req.user._id,
       buyerName: req.user.fullName,
       buyerEmail: req.user.email,
+      buyerLanguage: req.user.language || "en",
       event: event._id,
       organizer: event.organizer,
       eventSnapshot: {

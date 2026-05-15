@@ -201,7 +201,7 @@ export async function rejectAdminEvent(id: string) {
   return data;
 }
 
-export async function register(payload: { fullName: string; email: string; password: string }) {
+export async function register(payload: { fullName: string; email: string; password: string; language?: "en" | "ru" | "kk" }) {
   const { res, data } = await request<{ message?: string }>("/api/auth/register", {
     method: "POST",
     json: payload,

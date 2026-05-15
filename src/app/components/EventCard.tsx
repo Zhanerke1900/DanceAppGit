@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, Heart, MapPin } from 'lucide-react';
 import { useI18n } from '../i18n';
+import { stripCityFromEventTitle } from '../utils/localization';
 
 interface EventCardProps {
   id?: string;
@@ -45,13 +46,17 @@ export const EventCard = ({
   remainingTickets = null,
   soldOut = false,
 }: EventCardProps) => {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const actionLabel = soldOut ? t('common.viewDetails') : t('common.buyTicket');
   const displayImage = String(image || '').trim();
   const [imageFailed, setImageFailed] = useState(false);
-  const displayTitle = stripCityFromTitle(title);
+  const displayTitle = stripCityFromEventTitle(title);
   const numericPrice = getNumericPrice(price);
-  const priceLabel = numericPrice ? `от ${formatKzt(numericPrice)}` : price;
+  const priceLabel = numericPrice
+    ? language === 'kk'
+      ? `${formatKzt(numericPrice)} бастап`
+      : `${language === 'ru' ? 'от' : 'from'} ${formatKzt(numericPrice)}`
+    : price;
 
   useEffect(() => {
     setImageFailed(false);

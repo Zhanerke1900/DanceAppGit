@@ -1,15 +1,16 @@
 import { getMailer, getMailFrom } from "./mailer.js";
 import { generateTicketQrBuffer } from "./ticketQr.js";
 import { generateTicketBarcodeBuffer } from "./ticketBarcode.js";
+import {
+  escapeHtml,
+  formatMoneyForEmail,
+  getEmailCopy,
+  normalizeEmailLanguage,
+} from "./emailLocale.js";
 
-function formatCurrency(amount) {
-  return new Intl.NumberFormat("ru-KZ", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount) + " KZT";
-}
-
-export async function sendTicketEmail({ email, fullName, event, tickets }) {
+export async function sendTicketEmail({ email, fullName, event, tickets, language = "en" }) {
+  const lang = normalizeEmailLanguage(language);
+  const copy = getEmailCopy(lang);
   const transporter = getMailer();
   const from = getMailFrom();
   const provider = transporter?.provider || "none";
@@ -18,6 +19,7 @@ export async function sendTicketEmail({ email, fullName, event, tickets }) {
     console.log("EMAIL provider not configured. Ticket email skipped.");
     console.log("PROVIDER:", provider);
     console.log("EMAIL:", email);
+    console.log("LANGUAGE:", lang);
     console.log("TICKETS:", tickets.map((ticket) => ticket.ticketCode));
     return;
   }
@@ -45,37 +47,41 @@ export async function sendTicketEmail({ email, fullName, event, tickets }) {
     })
   );
   const attachments = attachmentPairs.flat();
+  const eventTitle = event?.title || "DanceTime Event";
+  const safeEventTitle = escapeHtml(eventTitle);
+  const safeGreeting = copy.greeting(escapeHtml(fullName || ""));
+  const eventDate = [event?.date, event?.time].filter(Boolean).join(" - ");
 
   const html = `
-  <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111827">
-    <h2>Your DanceTime tickets are ready</h2>
-    <p>Hi${fullName ? `, ${fullName}` : ""}!</p>
-    <p>Thank you for your purchase. Your tickets for <strong>${event.title}</strong> are attached below.</p>
+  <div lang="${lang}" style="font-family:Arial,sans-serif;line-height:1.6;color:#111827">
+    <h2>${escapeHtml(copy.ticketsTitle)}</h2>
+    <p>${safeGreeting}!</p>
+    <p>${copy.ticketsThanks(safeEventTitle)}</p>
 
     <div style="margin:20px 0;padding:16px;border:1px solid #e5e7eb;border-radius:14px;background:#f9fafb">
-      <p style="margin:0 0 8px"><strong>Event:</strong> ${event.title}</p>
-      <p style="margin:0 0 8px"><strong>Date:</strong> ${event.date}${event.time ? ` - ${event.time}` : ""}</p>
-      <p style="margin:0"><strong>Location:</strong> ${event.location}</p>
+      <p style="margin:0 0 8px"><strong>${escapeHtml(copy.event)}:</strong> ${safeEventTitle}</p>
+      <p style="margin:0 0 8px"><strong>${escapeHtml(copy.date)}:</strong> ${escapeHtml(eventDate || "-")}</p>
+      <p style="margin:0"><strong>${escapeHtml(copy.location)}:</strong> ${escapeHtml(event?.location || "-")}</p>
     </div>
 
     ${tickets.map((ticket) => {
       const safeCode = ticket.ticketCode.replace(/[^A-Z0-9-]/gi, "");
       return `
         <div style="margin:24px 0;padding:18px;border:1px solid #ddd6fe;border-radius:16px;background:#ffffff">
-          <h3 style="margin:0 0 12px;color:#6d28d9">${ticket.ticketCode}</h3>
-          <p style="margin:0 0 6px"><strong>Ticket Type:</strong> ${ticket.ticketType}</p>
-          <p style="margin:0 0 16px"><strong>Price:</strong> ${formatCurrency(ticket.price)}</p>
+          <h3 style="margin:0 0 12px;color:#6d28d9">${escapeHtml(ticket.ticketCode)}</h3>
+          <p style="margin:0 0 6px"><strong>${escapeHtml(copy.ticketType)}:</strong> ${escapeHtml(ticket.ticketType)}</p>
+          <p style="margin:0 0 16px"><strong>${escapeHtml(copy.price)}:</strong> ${escapeHtml(formatMoneyForEmail(ticket.price, "KZT", lang))}</p>
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-top:18px">
             <tr>
               <td align="center" style="padding:0 0 24px">
-                <p style="margin:0 0 10px;font-size:13px;font-weight:700;color:#4b5563">QR Code</p>
-                <img src="cid:qr-${safeCode}" alt="QR ${ticket.ticketCode}" width="300" height="300" style="display:block;width:300px;height:300px;max-width:100%;border:1px solid #d8b4fe;border-radius:18px;padding:14px;background:#ffffff" />
+                <p style="margin:0 0 10px;font-size:13px;font-weight:700;color:#4b5563">${escapeHtml(copy.qrCode)}</p>
+                <img src="cid:qr-${safeCode}" alt="QR ${escapeHtml(ticket.ticketCode)}" width="300" height="300" style="display:block;width:300px;height:300px;max-width:100%;border:1px solid #d8b4fe;border-radius:18px;padding:14px;background:#ffffff" />
               </td>
             </tr>
             <tr>
               <td align="center" style="padding:0">
-                <p style="margin:0 0 10px;font-size:12px;font-weight:700;color:#6b7280">Barcode</p>
-                <img src="cid:barcode-${safeCode}" alt="Barcode ${ticket.ticketCode}" width="360" style="display:block;width:360px;max-width:100%;border:1px solid #e5e7eb;border-radius:12px;padding:10px;background:#ffffff" />
+                <p style="margin:0 0 10px;font-size:12px;font-weight:700;color:#6b7280">${escapeHtml(copy.barcode)}</p>
+                <img src="cid:barcode-${safeCode}" alt="${escapeHtml(copy.barcode)} ${escapeHtml(ticket.ticketCode)}" width="360" style="display:block;width:360px;max-width:100%;border:1px solid #e5e7eb;border-radius:12px;padding:10px;background:#ffffff" />
               </td>
             </tr>
           </table>
@@ -83,19 +89,20 @@ export async function sendTicketEmail({ email, fullName, event, tickets }) {
       `;
     }).join("")}
 
-    <p style="font-size:12px;color:#6b7280;margin-top:24px">Present the QR code at the entrance. Each ticket can be used only once.</p>
+    <p style="font-size:12px;color:#6b7280;margin-top:24px">${escapeHtml(copy.presentQr)}</p>
   </div>`;
 
   const info = await transporter.sendMail({
     from,
     to: email,
-    subject: `Your DanceTime tickets for ${event.title}`,
+    subject: copy.ticketsSubject(eventTitle),
     html,
     attachments,
   });
 
   console.log("TICKET EMAIL SENT");
   console.log("   to:", email);
+  console.log("   language:", lang);
   console.log("   provider:", info?.provider || provider);
   console.log("   messageId:", info?.messageId);
   console.log("   accepted:", info?.accepted);

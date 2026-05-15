@@ -10,6 +10,7 @@ import { archivePastPublishedEvents, isEventPast } from "../utils/eventDates.js"
 import { getLowestDisplayPrice } from "../utils/eventPricing.js";
 import { makeCode, makeToken, hashToken } from "../utils/tokens.js";
 import { sendValidatorInviteEmail } from "../utils/sendEmails.js";
+import { normalizeEmailLanguage } from "../utils/emailLocale.js";
 import { queueEventUpdateNotifications } from "../services/notification.service.js";
 import { cancelEventOrdersForOrganizer } from "../services/ticket.service.js";
 import { invalidatePublishedEventsCache } from "./events.routes.js";
@@ -501,12 +502,14 @@ router.post("/validators", async (req, res) => {
     const token = makeToken();
     const code = makeCode();
     const passwordHash = await bcrypt.hash(cleanPassword, 10);
+    const validatorLanguage = normalizeEmailLanguage(req.body?.language || req.user.language);
     const validator = await User.create({
       fullName: cleanName,
       email: cleanEmail,
       passwordHash,
       emailVerified: false,
       role: "validator",
+      language: validatorLanguage,
       validatorOwner: req.user._id,
       verifyTokenHash: hashToken(token),
       verifyCodeHash: hashToken(code),
@@ -519,6 +522,7 @@ router.post("/validators", async (req, res) => {
       token,
       code,
       organizerName: req.user.fullName,
+      language: validatorLanguage,
     });
 
     return res.status(201).json({

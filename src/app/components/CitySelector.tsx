@@ -3,11 +3,7 @@ import { createPortal } from 'react-dom';
 import { MapPin, Search, ChevronDown, X, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useI18n } from '../i18n';
-
-const cities = [
-  "Astana", "Almaty", "Shymkent", "Karaganda", 
-  "Aktobe", "Taraz", "Pavlodar", "Ust-Kamenogorsk"
-];
+import { CITY_OPTIONS, citySearchText, localizeCityName, normalizeCity } from '../utils/localization';
 
 interface CitySelectorProps {
   selectedCity: string;
@@ -19,10 +15,12 @@ export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) 
   const [searchQuery, setSearchQuery] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
   const mobileSheetRef = useRef<HTMLDivElement>(null);
-  const { t } = useI18n();
+  const { t, language } = useI18n();
+  const selectedCityKey = normalizeCity(selectedCity);
+  const selectedCityLabel = localizeCityName(selectedCity, language);
 
-  const filteredCities = cities.filter(city => 
-    city.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredCities = CITY_OPTIONS.filter(city =>
+    citySearchText(city, language).includes(searchQuery.toLocaleLowerCase())
   );
   const canUseDom = typeof document !== 'undefined';
 
@@ -67,7 +65,7 @@ export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) 
         className="flex touch-manipulation items-center gap-2 px-3 py-1.5 rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-primary dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-purple-400 group"
       >
         <MapPin className="w-4 h-4 text-purple-500" />
-        <span className="font-medium text-sm">{selectedCity}</span>
+        <span className="font-medium text-sm">{selectedCityLabel}</span>
         <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
@@ -101,13 +99,13 @@ export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) 
                       key={city}
                       onClick={() => handleSelect(city)}
                       className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
-                        selectedCity === city 
+                        selectedCityKey === normalizeCity(city)
                           ? 'bg-purple-600/10 text-purple-600 dark:text-purple-400' 
                           : 'text-muted-foreground hover:bg-accent hover:text-foreground dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white'
                       }`}
                     >
-                      {city}
-                      {selectedCity === city && <Check className="w-4 h-4" />}
+                      {localizeCityName(city, language)}
+                      {selectedCityKey === normalizeCity(city) && <Check className="w-4 h-4" />}
                     </button>
                   ))
                 ) : (
@@ -183,13 +181,13 @@ export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) 
                           key={city}
                           onClick={() => handleSelect(city)}
                           className={`w-full touch-manipulation flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                            selectedCity === city
+                            selectedCityKey === normalizeCity(city)
                               ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20'
                               : 'bg-accent text-foreground dark:bg-white/5 dark:text-gray-300'
                           }`}
                         >
-                          {city}
-                          {selectedCity === city && <Check className="w-4 h-4" />}
+                          {localizeCityName(city, language)}
+                          {selectedCityKey === normalizeCity(city) && <Check className="w-4 h-4" />}
                         </button>
                       ))
                     ) : (

@@ -100,6 +100,7 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
       setIsSaving(true);
       const result = await authApi.updateMe({
         fullName: formData.name.trim(),
+        language,
         emailNotifications: formData.emailNotifications,
         eventReminders: formData.eventReminders,
       });
@@ -353,19 +354,19 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
           if (!open) resetPasswordModalState();
         }}
       >
-        <DialogContent className="max-h-[90vh] max-w-md overflow-y-auto border-border bg-popover text-popover-foreground dark:bg-gray-900 dark:border-purple-500/20 dark:text-gray-100">
+        <DialogContent className="max-h-[90vh] max-w-md overflow-y-auto border-[rgba(108,82,193,0.18)] bg-white text-[#241a38] shadow-[0_24px_80px_rgba(53,42,83,0.22)] dark:border-purple-500/20 dark:bg-gray-900 dark:text-gray-100">
           <DialogHeader>
-            <DialogTitle className="text-2xl text-foreground dark:text-white">{copy.changePassword}</DialogTitle>
-            <DialogDescription className="text-muted-foreground dark:text-gray-400">
+            <DialogTitle className="text-2xl text-[#241a38] dark:text-white">{copy.changePassword}</DialogTitle>
+            <DialogDescription className="text-[#6f647f] dark:text-gray-400">
               {copy.updatePasswordDesc}
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleChangePassword} className="space-y-4 mt-4">
             <div className="space-y-2">
-              <Label htmlFor="currentPassword" className="text-foreground dark:text-gray-300">{copy.currentPassword}</Label>
+              <Label htmlFor="currentPassword" className="text-[#34234f] dark:text-gray-300">{copy.currentPassword}</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground dark:text-gray-500" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7e718f] dark:text-gray-500" />
                 <Input
                   id="currentPassword"
                   name="currentPassword"
@@ -373,13 +374,13 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
                   placeholder={copy.enterCurrentPassword}
                   value={changePasswordForm.currentPassword}
                   onChange={handlePasswordFieldChange}
-                  className="border-border bg-input-background pl-10 pr-10 text-foreground placeholder:text-muted-foreground focus:border-purple-500 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder:text-gray-500"
+                  className="border-[rgba(108,82,193,0.22)] bg-[#f8f5ff] pl-10 pr-10 text-[#241a38] placeholder:text-[#8b8197] focus:border-purple-500 focus:ring-purple-500/20 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder:text-gray-500"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowCurrentPassword(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground dark:text-gray-500 dark:hover:text-gray-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7e718f] hover:text-[#34234f] dark:text-gray-500 dark:hover:text-gray-300"
                 >
                   {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -387,9 +388,9 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="newPassword" className="text-foreground dark:text-gray-300">{copy.newPassword}</Label>
+              <Label htmlFor="newPassword" className="text-[#34234f] dark:text-gray-300">{copy.newPassword}</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground dark:text-gray-500" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7e718f] dark:text-gray-500" />
                 <Input
                   id="newPassword"
                   name="newPassword"
@@ -397,13 +398,13 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
                   placeholder={copy.createPassword}
                   value={changePasswordForm.newPassword}
                   onChange={handlePasswordFieldChange}
-                  className="border-border bg-input-background pl-10 pr-10 text-foreground placeholder:text-muted-foreground focus:border-purple-500 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder:text-gray-500"
+                  className="border-[rgba(108,82,193,0.22)] bg-[#f8f5ff] pl-10 pr-10 text-[#241a38] placeholder:text-[#8b8197] focus:border-purple-500 focus:ring-purple-500/20 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder:text-gray-500"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowNewPassword(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground dark:text-gray-500 dark:hover:text-gray-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7e718f] hover:text-[#34234f] dark:text-gray-500 dark:hover:text-gray-300"
                 >
                   {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -411,9 +412,9 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmNewPassword" className="text-foreground dark:text-gray-300">{copy.repeatNewPassword}</Label>
+              <Label htmlFor="confirmNewPassword" className="text-[#34234f] dark:text-gray-300">{copy.repeatNewPassword}</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground dark:text-gray-500" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7e718f] dark:text-gray-500" />
                 <Input
                   id="confirmNewPassword"
                   name="confirmNewPassword"
@@ -421,13 +422,13 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
                   placeholder={copy.repeatNewPassword}
                   value={changePasswordForm.confirmNewPassword}
                   onChange={handlePasswordFieldChange}
-                  className="border-border bg-input-background pl-10 pr-10 text-foreground placeholder:text-muted-foreground focus:border-purple-500 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder:text-gray-500"
+                  className="border-[rgba(108,82,193,0.22)] bg-[#f8f5ff] pl-10 pr-10 text-[#241a38] placeholder:text-[#8b8197] focus:border-purple-500 focus:ring-purple-500/20 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder:text-gray-500"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground dark:text-gray-500 dark:hover:text-gray-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7e718f] hover:text-[#34234f] dark:text-gray-500 dark:hover:text-gray-300"
                 >
                   {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -435,21 +436,21 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
             </div>
 
             {passwordError && (
-              <div className="flex items-center gap-2 text-red-400 text-sm">
+              <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-transparent dark:bg-transparent dark:px-0 dark:py-0 dark:text-red-400">
                 <AlertCircle className="w-4 h-4" />
                 {passwordError}
               </div>
             )}
 
             {passwordSuccess && (
-              <div className="flex items-center gap-2 text-green-400 text-sm">
+              <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700 dark:border-transparent dark:bg-transparent dark:px-0 dark:py-0 dark:text-green-400">
                 <CheckCircle2 className="w-4 h-4" />
                 {passwordSuccess}
               </div>
             )}
 
             {forgotPasswordMessage && (
-              <div className="flex items-center gap-2 text-sm text-foreground dark:text-gray-300">
+              <div className="flex items-center gap-2 rounded-lg border border-purple-100 bg-purple-50 px-3 py-2 text-sm text-[#34234f] dark:border-transparent dark:bg-transparent dark:px-0 dark:py-0 dark:text-gray-300">
                 <Mail className="w-4 h-4" />
                 {forgotPasswordMessage}
               </div>
@@ -460,7 +461,7 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ user, onUserUp
                 type="button"
                 onClick={handleForgotPassword}
                 disabled={isChangingPassword}
-                className="text-sm text-purple-500 hover:text-purple-600 disabled:text-gray-500 dark:text-purple-400 dark:hover:text-purple-300"
+                className="text-sm text-purple-700 hover:text-purple-800 disabled:text-gray-400 dark:text-purple-400 dark:hover:text-purple-300"
               >
                 {copy.forgotPassword}
               </button>

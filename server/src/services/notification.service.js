@@ -3,17 +3,9 @@ import Order from "../models/Order.js";
 import Ticket from "../models/Ticket.js";
 import { getEventStartAt } from "../utils/eventDates.js";
 import { getMailer, getMailerProvider, getMailFrom } from "../utils/mailer.js";
+import { escapeHtml, getEmailCopy, normalizeEmailLanguage } from "../utils/emailLocale.js";
 
 const DEFAULT_REMINDER_INTERVAL_MS = 15 * 60 * 1000;
-
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
 
 function normalizeEventInfo(event = {}) {
   return {
@@ -30,13 +22,14 @@ function eventLine(event = {}) {
   return [info.date, info.time].filter(Boolean).join(" - ");
 }
 
-function buildEventDetailsHtml(event = {}) {
+function buildEventDetailsHtml(event = {}, language = "en") {
+  const copy = getEmailCopy(language);
   const info = normalizeEventInfo(event);
   return `
     <div style="margin:16px 0;padding:16px;border:1px solid #e5e7eb;border-radius:12px;background:#fafafa">
-      <p style="margin:0 0 8px"><b>Event:</b> ${escapeHtml(info.title)}</p>
-      <p style="margin:0 0 8px"><b>Date:</b> ${escapeHtml(eventLine(info) || "-")}</p>
-      <p style="margin:0"><b>Location:</b> ${escapeHtml(info.location || info.city || "-")}</p>
+      <p style="margin:0 0 8px"><b>${escapeHtml(copy.event)}:</b> ${escapeHtml(info.title)}</p>
+      <p style="margin:0 0 8px"><b>${escapeHtml(copy.date)}:</b> ${escapeHtml(eventLine(info) || "-")}</p>
+      <p style="margin:0"><b>${escapeHtml(copy.location)}:</b> ${escapeHtml(info.location || info.city || "-")}</p>
     </div>`;
 }
 
@@ -70,7 +63,7 @@ async function sendMail({ label, to, subject, html }) {
 async function getNotificationRecipientsForEvent(eventId, { remindersOnly = false } = {}) {
   const [tickets, reservations] = await Promise.all([
     Ticket.find({ event: eventId, status: "active" })
-      .populate("user", "fullName email emailNotifications eventReminders accountStatus")
+      .populate("user", "fullName email language emailNotifications eventReminders accountStatus")
       .select("user userEmail userFullName ticketCode")
       .lean(),
     Order.find({
@@ -78,13 +71,13 @@ async function getNotificationRecipientsForEvent(eventId, { remindersOnly = fals
       paymentStatus: "reserved",
       $or: [{ balanceDueDeadlineAt: null }, { balanceDueDeadlineAt: { $gt: new Date() } }],
     })
-      .populate("buyer", "fullName email emailNotifications eventReminders accountStatus")
-      .select("buyer buyerEmail buyerName")
+      .populate("buyer", "fullName email language emailNotifications eventReminders accountStatus")
+      .select("buyer buyerEmail buyerName buyerLanguage")
       .lean(),
   ]);
 
   const recipientsByUser = new Map();
-  const addRecipient = ({ user, fallbackEmail, fallbackName, ticketCode }) => {
+  const addRecipient = ({ user, fallbackEmail, fallbackName, fallbackLanguage, ticketCode }) => {
     const email = String(user?.email || fallbackEmail || "").trim().toLowerCase();
     if (!email || user?.accountStatus === "blocked") return;
     if (user?.emailNotifications === false) return;
@@ -94,6 +87,7 @@ async function getNotificationRecipientsForEvent(eventId, { remindersOnly = fals
     const current = recipientsByUser.get(key) || {
       email,
       fullName: user?.fullName || fallbackName || "",
+      language: normalizeEmailLanguage(user?.language || fallbackLanguage),
       ticketCodes: [],
     };
     if (ticketCode && !current.ticketCodes.includes(ticketCode)) {
@@ -116,6 +110,7 @@ async function getNotificationRecipientsForEvent(eventId, { remindersOnly = fals
       user: order.buyer,
       fallbackEmail: order.buyerEmail,
       fallbackName: order.buyerName,
+      fallbackLanguage: order.buyerLanguage,
     });
   }
 
@@ -152,33 +147,37 @@ export async function sendEventUpdateNotifications(event, previousEvent = null) 
 
   const changedRows = previous
     ? [
-        ["Date", eventLine(previous), eventLine(current)],
-        ["Location", previous.location || previous.city, current.location || current.city],
-        ["Title", previous.title, current.title],
+        ["changedDate", eventLine(previous), eventLine(current)],
+        ["changedLocation", previous.location || previous.city, current.location || current.city],
+        ["changedTitle", previous.title, current.title],
       ].filter(([, before, after]) => String(before || "") !== String(after || ""))
     : [];
 
-  const changesHtml = changedRows.length
-    ? `<ul>${changedRows
-        .map(([label, before, after]) => `<li><b>${escapeHtml(label)}:</b> ${escapeHtml(before || "-")} -> ${escapeHtml(after || "-")}</li>`)
-        .join("")}</ul>`
-    : "<p>The event details were updated by the organizer.</p>";
-
   let sent = 0;
   for (const recipient of recipients) {
+    const lang = normalizeEmailLanguage(recipient.language);
+    const copy = getEmailCopy(lang);
+    const changesHtml = changedRows.length
+      ? `<ul>${changedRows
+          .map(([labelKey, before, after]) =>
+            `<li><b>${escapeHtml(copy[labelKey])}:</b> ${escapeHtml(before || "-")} &rarr; ${escapeHtml(after || "-")}</li>`
+          )
+          .join("")}</ul>`
+      : `<p>${escapeHtml(copy.eventUpdatedFallback)}</p>`;
+
     const html = `
-      <div style="font-family:Arial,sans-serif;line-height:1.5;color:#111827">
-        <h2>Event update</h2>
-        <p>Hi${recipient.fullName ? `, ${escapeHtml(recipient.fullName)}` : ""}! Details for <b>${escapeHtml(current.title)}</b> have changed.</p>
+      <div lang="${lang}" style="font-family:Arial,sans-serif;line-height:1.5;color:#111827">
+        <h2>${escapeHtml(copy.eventUpdateTitle)}</h2>
+        <p>${copy.greeting(escapeHtml(recipient.fullName || ""))}! ${copy.eventUpdateIntro(escapeHtml(current.title))}</p>
         ${changesHtml}
-        ${buildEventDetailsHtml(current)}
-        <p style="color:#666;font-size:12px">You received this because you have a ticket or active reservation for this event.</p>
+        ${buildEventDetailsHtml(current, lang)}
+        <p style="color:#666;font-size:12px">${escapeHtml(copy.eventUpdateReason)}</p>
       </div>`;
 
     const ok = await sendMail({
       label: "EVENT UPDATE EMAIL",
       to: recipient.email,
-      subject: `DanceTime event update: ${current.title}`,
+      subject: copy.eventUpdateSubject(current.title),
       html,
     });
     if (ok) sent += 1;
@@ -188,25 +187,27 @@ export async function sendEventUpdateNotifications(event, previousEvent = null) 
 }
 
 export async function sendEventReminderEmail({ recipient, event }) {
+  const lang = normalizeEmailLanguage(recipient.language);
+  const copy = getEmailCopy(lang);
   const current = normalizeEventInfo(event);
   const ticketCodes = recipient.ticketCodes?.length
-    ? `<p><b>Your ticket${recipient.ticketCodes.length > 1 ? "s" : ""}:</b> ${recipient.ticketCodes.map(escapeHtml).join(", ")}</p>`
+    ? `<p><b>${escapeHtml(copy.yourTickets(recipient.ticketCodes.length))}:</b> ${recipient.ticketCodes.map(escapeHtml).join(", ")}</p>`
     : "";
 
   const html = `
-    <div style="font-family:Arial,sans-serif;line-height:1.5;color:#111827">
-      <h2>Your event is tomorrow</h2>
-      <p>Hi${recipient.fullName ? `, ${escapeHtml(recipient.fullName)}` : ""}! This is your 24-hour reminder for <b>${escapeHtml(current.title)}</b>.</p>
-      ${buildEventDetailsHtml(current)}
+    <div lang="${lang}" style="font-family:Arial,sans-serif;line-height:1.5;color:#111827">
+      <h2>${escapeHtml(copy.reminderTitle)}</h2>
+      <p>${copy.greeting(escapeHtml(recipient.fullName || ""))}! ${copy.reminderIntro(escapeHtml(current.title))}</p>
+      ${buildEventDetailsHtml(current, lang)}
       ${ticketCodes}
-      <p>Please keep your QR ticket ready for check-in.</p>
-      <p style="color:#666;font-size:12px">You can turn off event reminders in your DanceTime notification preferences.</p>
+      <p>${escapeHtml(copy.keepQrReady)}</p>
+      <p style="color:#666;font-size:12px">${escapeHtml(copy.reminderPrefs)}</p>
     </div>`;
 
   return sendMail({
     label: "EVENT REMINDER EMAIL",
     to: recipient.email,
-    subject: `Reminder: ${current.title} is tomorrow`,
+    subject: copy.reminderSubject(current.title),
     html,
   });
 }
@@ -231,7 +232,7 @@ export async function sendDueEventReminders({ now = new Date(), windowMs = DEFAU
       status: "active",
       eventReminderSentAt: null,
     })
-      .populate("user", "fullName email emailNotifications eventReminders accountStatus")
+      .populate("user", "fullName email language emailNotifications eventReminders accountStatus")
       .select("_id user userEmail userFullName ticketCode")
       .lean();
 
@@ -246,6 +247,7 @@ export async function sendDueEventReminders({ now = new Date(), windowMs = DEFAU
       const current = recipientsByUser.get(key) || {
         email,
         fullName: user?.fullName || ticket.userFullName || "",
+        language: normalizeEmailLanguage(user?.language),
         ticketCodes: [],
         ticketIds: [],
       };

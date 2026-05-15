@@ -1,6 +1,7 @@
 import React from 'react';
 import { Heart, Calendar, MapPin, Trash2 } from 'lucide-react';
 import { useI18n } from '../i18n';
+import { localizeEventForDisplay } from '../utils/localization';
 
 type FavoriteItem = {
   id: string;
@@ -58,7 +59,10 @@ export const Favorites: React.FC<FavoritesProps> = ({ favorites, onRemoveFavorit
       </div>
 
       <div className="grid gap-6">
-        {favorites.map((event) => (
+        {favorites.map((event) => {
+          const displayEvent = localizeEventForDisplay(event.eventData || event, language);
+
+          return (
           <div
             key={event.id}
             onClick={() => onOpenFavorite(event)}
@@ -69,11 +73,11 @@ export const Favorites: React.FC<FavoritesProps> = ({ favorites, onRemoveFavorit
               <div className="relative w-full md:w-64 h-48 md:h-auto overflow-hidden">
                 <img
                   src={event.image}
-                  alt={event.title}
+                  alt={displayEvent.title}
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute top-4 right-4 rounded-full px-3 py-1 backdrop-blur-sm bg-[rgba(238,231,249,0.88)] border border-[rgba(90,70,150,0.18)] dark:bg-black/60 dark:border-white/10">
-                  <span className="text-primary text-sm font-medium dark:text-purple-400">{event.category}</span>
+                  <span className="text-primary text-sm font-medium dark:text-purple-400">{displayEvent.category}</span>
                 </div>
               </div>
 
@@ -81,17 +85,17 @@ export const Favorites: React.FC<FavoritesProps> = ({ favorites, onRemoveFavorit
               <div className="flex-1 p-6 flex flex-col justify-between">
                 <div>
                   <h3 className="text-2xl font-bold text-foreground mb-4 transition-colors group-hover:text-primary dark:text-white dark:group-hover:text-purple-400">
-                    {event.title}
+                    {displayEvent.title}
                   </h3>
 
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center gap-2 text-muted-foreground dark:text-gray-400">
                       <Calendar className="w-4 h-4 text-primary dark:text-purple-400" />
-                      <span>{event.date}</span>
+                      <span>{displayEvent.date || event.date}</span>
                     </div>
                     <div className="flex items-center gap-2 text-muted-foreground dark:text-gray-400">
                       <MapPin className="w-4 h-4 text-primary dark:text-purple-400" />
-                      <span>{event.location}{event.city ? `, ${event.city}` : ''}</span>
+                      <span>{displayEvent.location || event.location}{displayEvent.city ? `, ${displayEvent.city}` : ''}</span>
                     </div>
                   </div>
                 </div>
@@ -120,7 +124,8 @@ export const Favorites: React.FC<FavoritesProps> = ({ favorites, onRemoveFavorit
               </div>
             </div>
           </div>
-        ))}
+        );
+        })}
       </div>
     </div>
   );
