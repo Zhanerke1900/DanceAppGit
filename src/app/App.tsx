@@ -37,6 +37,10 @@ import { VerifyEmailPage } from './components/VerifyEmailPage';
 import { ResetPasswordPage } from './components/ResetPasswordPage';
 import { I18nProvider, useI18n } from './i18n';
 import { ArrowLeft, Loader2, Search, X } from 'lucide-react';
+import blazeLogo from './assets/partners/blaze.svg';
+import hipLogo from './assets/partners/hip-logo.png';
+import nomadLogo from './assets/partners/nomad.png';
+import soulSideLogo from './assets/partners/soul-side.png';
 
 type ViewState = 'home' | 'all-events' | 'all-special-programs' | 'ticket-selection' | 'purchase-success' | 'profile' | 'become-organizer' | 'organizer-dashboard' | 'validator-dashboard' | 'admin-panel' | 'verify-email'
   | 'reset-password';
@@ -73,6 +77,12 @@ const PROFILE_TABS: ProfileTab[] = ['my-tickets', 'favorites', 'purchase-history
 const ORGANIZER_TABS: OrganizerTab[] = ['dashboard', 'events', 'create-event', 'validators', 'orders', 'analytics'];
 const VALIDATOR_TABS: ValidatorTab[] = ['events', 'scan'];
 const ADMIN_TABS: AdminTab[] = ['dashboard', 'requests', 'users', 'moderation'];
+const PARTNER_LOGOS = [
+  { src: blazeLogo, alt: 'Blaze' },
+  { src: nomadLogo, alt: 'Nomad' },
+  { src: hipLogo, alt: 'Hip Dance' },
+  { src: soulSideLogo, alt: 'Soul Side' },
+];
 
 const readStoredText = (key: string, fallback: string) => {
   if (typeof window === 'undefined') return fallback;
@@ -1307,12 +1317,20 @@ function AppContent() {
                 <p className="text-center text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-8 dark:text-gray-500">
                   {t('home.partners')}
                 </p>
-                <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-55 grayscale hover:grayscale-0 transition-all duration-500 dark:opacity-40">
-                  <span className="text-2xl font-black text-foreground italic dark:text-white">Astana Ballet</span>
-                  <span className="text-2xl font-bold text-foreground dark:text-white">Tribal Pro</span>
-                  <span className="text-2xl font-serif text-foreground dark:text-white">SDance</span>
-                  <span className="text-2xl font-mono font-bold text-foreground tracking-tighter dark:text-white">Dream Way</span>
-                  <span className="text-2xl font-bold text-foreground dark:text-white">Prima</span>
+                <div className="flex flex-wrap justify-center items-center gap-5 sm:gap-7 md:gap-10">
+                  {PARTNER_LOGOS.map((logo) => (
+                    <div
+                      key={logo.alt}
+                      className="flex h-20 w-36 items-center justify-center rounded-md bg-white/70 p-3 shadow-sm ring-1 ring-purple-950/5 dark:bg-white/10 dark:ring-white/10 sm:h-24 sm:w-44"
+                    >
+                      <img
+                        src={logo.src}
+                        alt={logo.alt}
+                        className="max-h-full max-w-full object-contain"
+                        loading="lazy"
+                      />
+                    </div>
+                  ))}
                 </div>
               </div>
             </section>
