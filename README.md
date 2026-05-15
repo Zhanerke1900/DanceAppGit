@@ -19,6 +19,12 @@ npm i
 npm run dev
 ```
 
+Automated verification:
+
+```bash
+npm test
+```
+
 ## Deploy
 
 ### Vercel

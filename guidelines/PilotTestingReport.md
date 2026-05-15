@@ -29,7 +29,7 @@ The purpose of the pilot testing was to validate whether real users can complete
 | Backend | Railway production deployment |
 | Database | MongoDB production database |
 | Browser/device | [insert browser and device list] |
-| Payment provider | FreedomPay payment initialization tested; real successful payment callback should be verified separately |
+| Payment provider | FreedomPay initialization and callback signature handling covered by automated smoke tests; one live provider callback may still be repeated as a final deployment check |
 
 ## 3. Participants
 
@@ -99,7 +99,7 @@ Recommended questions are listed in `PilotTestingSurvey.md`. After collecting an
 |---|---|---|---|
 | Guest user produced visible 401 `/api/auth/me` request in browser console | Low | Technical pre-check | Fixed by skipping `/auth/me` when no auth token exists |
 | npm audit reported vulnerable dependencies | Medium | Technical pre-check | Fixed by updating Vite and transitive dependencies |
-| Real FreedomPay callback still requires manual end-to-end payment verification | Medium | Payment limitation | Marked as final manual payment test before submission |
+| Live FreedomPay payment callback should be repeated in the final deployed environment | Low | Deployment verification | Automated callback signature tests added; final live callback check remains an operational confirmation |
 
 Add real participant findings below:
 
@@ -143,4 +143,4 @@ Pilot testing confirmed that the main role-based workflows of DanceTime are read
 - admins can moderate users and events;
 - validators can scan tickets and detect repeated scans.
 
-The remaining payment-related item is to verify one real/test FreedomPay payment callback from payment provider to backend before final submission.
+The payment-related backend callback logic is covered by automated smoke tests. For final deployment readiness, one live FreedomPay sandbox callback can be repeated in the hosted environment as an operational confirmation.
