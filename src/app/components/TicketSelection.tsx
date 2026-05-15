@@ -192,21 +192,24 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
     return new Intl.NumberFormat('en-US').format(amount).replace(/,/g, ' ') + ' ₸';
   };
 
-  const handleCheckout = () => {
+  const handleCheckoutForMode = (checkoutPaymentMode: 'deposit' | 'full') => {
     if (isCheckoutSubmitting) return;
     if (isSoldOut) return;
     if (ticketQuantity === 0 && (!isSpecialProgram || (!fullPassSelected && Object.keys(selectedActivities).length === 0))) return;
+
+    const checkoutBalanceDue = checkoutPaymentMode === 'deposit' ? Math.max(total - depositAmount, 0) : 0;
+    const checkoutDueNow = checkoutPaymentMode === 'deposit' ? depositAmount : total;
 
     const ticketDetails = {
       quantity: ticketQuantity,
       subtotal: subtotal,
       serviceFee: serviceFee,
       total: total,
-      paymentType: paymentMode,
-      depositRate: paymentMode === 'deposit' ? depositRate : 1,
-      depositAmount: paymentMode === 'deposit' ? depositAmount : total,
-      amountPaid: dueNow,
-      balanceDue,
+      paymentType: checkoutPaymentMode,
+      depositRate: checkoutPaymentMode === 'deposit' ? depositRate : 1,
+      depositAmount: checkoutPaymentMode === 'deposit' ? depositAmount : total,
+      amountPaid: checkoutDueNow,
+      balanceDue: checkoutBalanceDue,
       ticketTypes: isSpecialProgram
         ? [
             ...(ticketQuantity > 0 ? [{
@@ -245,6 +248,8 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
       .catch(() => {})
       .finally(() => setIsCheckoutSubmitting(false));
   };
+
+  const handleCheckout = () => handleCheckoutForMode(paymentMode);
 
   const activityCategories = ['All', 'Masterclass', 'Battle', 'Contest', 'Camp'];
   const filteredActivities = activeActivityTab === 'All' 
@@ -1106,18 +1111,33 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
 
       {/* MOBILE FIXED BOTTOM BAR */}
       {!readOnly && <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-md border-t border-white/10 p-4 z-40 safe-area-bottom shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
           <div className="flex flex-col">
             <span className="text-gray-400 text-[10px] uppercase font-bold tracking-wider">{copy.totalAmount}</span>
             <span className="text-xl font-bold text-white">{formatCurrency(dueNow)}</span>
           </div>
-          <button 
-            disabled={isCheckoutSubmitting || isSoldOut || (ticketQuantity === 0 && (!isSpecialProgram || (!fullPassSelected && Object.keys(selectedActivities).length === 0)))}
-            onClick={handleCheckout}
-            className="flex-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-800 disabled:text-gray-500 text-white py-3.5 px-6 rounded-xl font-bold transition-all shadow-lg shadow-purple-600/20 disabled:shadow-none disabled:cursor-not-allowed text-center"
-          >
-            {isSoldOut ? copy.soldOut : isCheckoutSubmitting ? copy.processing : paymentMode === 'deposit' ? copy.checkout : copy.proceedFullCheckout}
-          </button>
+          <div className="grid flex-1 grid-cols-2 gap-2">
+            <button
+              disabled={isCheckoutSubmitting || isSoldOut || (ticketQuantity === 0 && (!isSpecialProgram || (!fullPassSelected && Object.keys(selectedActivities).length === 0)))}
+              onClick={() => {
+                setPaymentMode('deposit');
+                handleCheckoutForMode('deposit');
+              }}
+              className="bg-emerald-500 hover:bg-emerald-400 disabled:bg-gray-800 disabled:text-gray-500 text-black py-3.5 px-3 rounded-xl font-bold transition-all shadow-lg shadow-emerald-500/20 disabled:shadow-none disabled:cursor-not-allowed text-center text-sm"
+            >
+              {isSoldOut ? copy.soldOut : isCheckoutSubmitting ? copy.processing : copy.proceedCheckout}
+            </button>
+            <button
+              disabled={isCheckoutSubmitting || isSoldOut || (ticketQuantity === 0 && (!isSpecialProgram || (!fullPassSelected && Object.keys(selectedActivities).length === 0)))}
+              onClick={() => {
+                setPaymentMode('full');
+                handleCheckoutForMode('full');
+              }}
+              className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-800 disabled:text-gray-500 text-white py-3.5 px-3 rounded-xl font-bold transition-all shadow-lg shadow-purple-600/20 disabled:shadow-none disabled:cursor-not-allowed text-center text-sm"
+            >
+              {isSoldOut ? copy.soldOut : isCheckoutSubmitting ? copy.processing : copy.proceedFullCheckout}
+            </button>
+          </div>
         </div>
       </div>}
     </div>
