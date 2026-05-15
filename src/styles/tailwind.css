@@ -1,4 +1,6 @@
+/* Tailwind база */
 @import 'tailwindcss' source(none);
 @source '../**/*.{js,ts,jsx,tsx}';
 
+/* Анимации */
 @import 'tw-animate-css';

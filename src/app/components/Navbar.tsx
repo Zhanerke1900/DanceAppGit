@@ -72,6 +72,7 @@ export const Navbar = ({
   hideCitySelector = false,
   showValidatorNavLinks = false,
 }: NavbarProps) => {
+  // Мобильное меню
   const [isOpen, setIsOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const displayName = user?.fullName || user?.name || 'User';
@@ -109,6 +110,7 @@ export const Navbar = ({
     handler?.();
   };
 
+  // Смена темы
   const toggleTheme = () => {
     const nextTheme = isDark ? 'light' : 'dark';
     setIsDark(nextTheme === 'dark');
@@ -144,6 +146,7 @@ export const Navbar = ({
               </span>
             </div>
 
+            {/* Выбор города */}
             {!organizerCompactMode && !hideCitySelector && <CitySelector selectedCity={selectedCity} onCityChange={onCityChange} />}
           </div>
 
@@ -187,6 +190,7 @@ export const Navbar = ({
                 ) : null}
               </>
             )}
+            {/* Смена языка */}
             <LanguageSwitcher />
             {!user && !organizerCompactMode && !isValidator && (
               <button
@@ -226,6 +230,7 @@ export const Navbar = ({
             ) : (
               !organizerCompactMode && !isValidator && (
               <>
+                {/* Кнопки входа */}
                 <button 
                   onClick={() => onOpenAuth('login')}
                   className="text-muted-foreground hover:text-foreground transition-colors"
@@ -253,7 +258,7 @@ export const Navbar = ({
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Мобильное меню */}
       {isOpen && !organizerCompactMode && (
         <div className="md:hidden max-h-[calc(100dvh-4rem)] overflow-y-auto border-b border-border bg-popover px-2.5 py-2 shadow-[0_18px_40px_rgba(35,31,54,0.08)]">
           <div className="grid grid-cols-2 gap-1">

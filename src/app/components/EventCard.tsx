@@ -47,6 +47,7 @@ export const EventCard = ({
   remainingTickets = null,
   soldOut = false,
 }: EventCardProps) => {
+  // Текст кнопки
   const { t, language } = useI18n();
   const actionLabel = soldOut ? t('common.viewDetails') : t('common.buyTicket');
   const displayImage = String(image || '').trim();
@@ -72,6 +73,7 @@ export const EventCard = ({
   };
 
   return (
+    // Карточка события
     <article
       role="button"
       tabIndex={0}

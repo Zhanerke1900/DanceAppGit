@@ -24,6 +24,7 @@ interface FeaturedEventsProps {
   hideWhenEmptyDuringSearch?: boolean;
 }
 
+// Категории событий
 const categories = ['All', 'Hip Hop', 'Contemporary', 'Ballet', 'Latin', 'Ballroom'];
 
 
@@ -84,6 +85,7 @@ export const FeaturedEvents = ({
   searchQuery = '',
   hideWhenEmptyDuringSearch = false,
 }: FeaturedEventsProps) => {
+  // Активная категория
   const [activeCategory, setActiveCategory] = useState('All');
   const { t, language } = useI18n();
   const categoryLabels: Record<string, string> = {
@@ -111,6 +113,7 @@ export const FeaturedEvents = ({
   );
 
   const searchScopeEvents = isSearching ? displayEvents : cityEvents;
+  // Фильтр событий
   const filteredEvents = searchScopeEvents.filter((event) => {
     const matchesCategory =
       isSearching ||
@@ -121,6 +124,7 @@ export const FeaturedEvents = ({
 
     return matchesCategory && matchesSearch;
   });
+  // Видимые события
   const visibleEvents = expandedMode || isSearching ? filteredEvents : filteredEvents.slice(0, 10);
 
   const shouldShowExploreMoreButton =
@@ -187,6 +191,7 @@ export const FeaturedEvents = ({
                   const eventId = getEventId(event);
 
                   return (
+                    // Карточка события
                     <EventCard
                       key={eventId}
                       id={eventId}

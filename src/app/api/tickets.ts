@@ -67,6 +67,7 @@ export type PaymentRefundRecord = {
   simulated?: boolean;
 };
 
+// Покупка билетов
 export async function purchaseTickets(payload: { eventId?: string; eventData: any; ticketDetails: any }) {
   const { res, data } = await request<any>("/api/tickets/purchase", {
     method: "POST",
@@ -83,18 +84,21 @@ export async function purchaseTickets(payload: { eventId?: string; eventData: an
   };
 }
 
+// Мои билеты
 export async function myTickets() {
   const { res, data } = await request<any>("/api/tickets/my", { method: "GET" });
   if (!res.ok) throw new Error((data as any)?.message || "Failed to load tickets");
   return data as { tickets: TicketRecord[]; reservations?: ReservationRecord[] };
 }
 
+// История покупок
 export async function purchaseHistory() {
   const { res, data } = await request<any>("/api/tickets/history", { method: "GET" });
   if (!res.ok) throw new Error((data as any)?.message || "Failed to load purchase history");
   return data as { tickets: TicketRecord[] };
 }
 
+// Оплатить остаток
 export async function payReservationBalance(orderId: string) {
   const { res, data } = await request<any>(`/api/tickets/reservations/${encodeURIComponent(orderId)}/pay-balance`, {
     method: "POST",
@@ -126,6 +130,7 @@ export async function validateTicket(qrToken: string) {
   return data;
 }
 
+// Возврат билета
 export async function refundTicket(ticketId: string) {
   const { res, data } = await request<any>(`/api/tickets/${encodeURIComponent(ticketId)}/refund`, {
     method: "POST",

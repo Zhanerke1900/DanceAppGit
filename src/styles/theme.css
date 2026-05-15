@@ -1,5 +1,6 @@
 @custom-variant dark (&:is(.dark *));
 
+/* Светлая тема */
 :root {
   --font-size: 16px;
   --surface-page: #ebe3f7;
@@ -79,6 +80,7 @@ html.light {
   color-scheme: light;
 }
 
+/* Темная тема */
 .dark {
   --background: #0b1220;
   --foreground: #f8fafc;
@@ -275,6 +277,7 @@ html.light :is(.from-purple-600.to-purple-700, .from-purple-600.to-purple-800, .
   color: #ffffff !important;
 }
 
+/* Tailwind токены */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -316,6 +319,7 @@ html.light :is(.from-purple-600.to-purple-700, .from-purple-600.to-purple-800, .
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* Базовые стили */
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -377,6 +381,7 @@ html.light :is(.from-purple-600.to-purple-700, .from-purple-600.to-purple-800, .
   }
 }
 
+/* Утилиты темы */
 @layer utilities {
   .surface-card {
     background: var(--card);
@@ -400,6 +405,7 @@ html.light :is(.from-purple-600.to-purple-700, .from-purple-600.to-purple-800, .
     border: 1px solid color-mix(in srgb, var(--primary) 20%, transparent);
   }
 
+  /* Ролевые экраны */
   .role-view {
     --role-page: #eceff2;
     --role-surface: #ffffff;

@@ -1,3 +1,6 @@
+/* Шрифты */
 @import './fonts.css';
+/* Tailwind стили */
 @import './tailwind.css';
+/* Тема проекта */
 @import './theme.css';

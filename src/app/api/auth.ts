@@ -85,12 +85,14 @@ export async function adminEvents(status = "") {
   return data;
 }
 
+// Опубликованные события
 export async function publishedEvents() {
   const { res, data } = await request<any>("/api/events/published", { method: "GET" });
   if (!res.ok) throw new Error((data as any)?.message || "Failed to load published events");
   return data;
 }
 
+// События организатора
 export async function organizerEvents() {
   const { res, data } = await request<any>("/api/organizer/events", { method: "GET" });
   if (!res.ok) throw new Error((data as any)?.message || "Failed to load organizer events");
@@ -201,6 +203,7 @@ export async function rejectAdminEvent(id: string) {
   return data;
 }
 
+// Регистрация
 export async function register(payload: { fullName: string; email: string; password: string; language?: "en" | "ru" | "kk" }) {
   const { res, data } = await request<{ message?: string }>("/api/auth/register", {
     method: "POST",
@@ -211,6 +214,7 @@ export async function register(payload: { fullName: string; email: string; passw
   return data;
 }
 
+// Вход
 export async function login(payload: { email: string; password: string }) {
   const { res, data } = await request<{ user?: User; token?: string; message?: string; code?: string }>("/api/auth/login", {
     method: "POST",
@@ -227,6 +231,7 @@ export async function login(payload: { email: string; password: string }) {
   return data;
 }
 
+// Текущий пользователь
 export async function me() {
   const { res, data } = await request<{ user?: User }>("/api/auth/me", { method: "GET" });
   if (!res.ok) throw new Error((data as any)?.message || "Not authenticated");

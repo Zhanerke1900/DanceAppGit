@@ -6,13 +6,16 @@ const isLocalDevHost =
 export const API_URL =
   import.meta.env.VITE_API_URL || (isLocalDevHost ? "http://localhost:4000" : "");
 
+// Ключ токена
 const AUTH_TOKEN_KEY = "danceapp:auth-token";
 
+// Получить токен
 export function getAuthToken() {
   if (typeof window === "undefined") return "";
   return window.localStorage.getItem(AUTH_TOKEN_KEY) || "";
 }
 
+// Сохранить токен
 export function setAuthToken(token?: string) {
   if (typeof window === "undefined") return;
   if (token) {
@@ -26,6 +29,7 @@ export function clearAuthToken() {
   setAuthToken("");
 }
 
+// Разбор ответа
 async function parseJson(res: Response) {
   const text = await res.text();
   try {
@@ -37,6 +41,7 @@ async function parseJson(res: Response) {
 
 export type ApiError = { message?: string; code?: string };
 
+// Запрос к серверу
 export async function request<T>(
   path: string,
   options: RequestInit & { json?: any } = {}
@@ -51,8 +56,10 @@ export async function request<T>(
 
   if (options.json !== undefined) headers["Content-Type"] = "application/json";
   const authToken = getAuthToken();
+  // Токен в запрос
   if (authToken && !headers.Authorization) headers.Authorization = `Bearer ${authToken}`;
 
+  // Fetch запрос
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
     headers,

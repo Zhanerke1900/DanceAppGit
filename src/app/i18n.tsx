@@ -4,6 +4,7 @@ export type Language = 'en' | 'ru' | 'kk';
 
 type TranslationValue = string | ((params?: Record<string, string | number>) => string);
 
+// Все переводы
 const translations = {
   en: {
     common: {
@@ -685,12 +686,14 @@ const getValue = (tree: TranslationTree, key: string): TranslationValue | undefi
   return key.split('.').reduce<any>((acc, part) => acc?.[part], tree);
 };
 
+// Метки языков
 export const languageLabels: Record<Language, string> = {
   en: 'EN',
   ru: 'РУС',
   kk: 'ҚАЗ',
 };
 
+// Провайдер языка
 export const I18nProvider: React.FC<{ children: React.ReactNode; userLanguage?: Language | null }> = ({
   children,
   userLanguage,
@@ -720,9 +723,11 @@ export const I18nProvider: React.FC<{ children: React.ReactNode; userLanguage?: 
 
   useEffect(() => {
     if (isLanguageReady && typeof window !== 'undefined') {
+      // Сохранить язык
       window.localStorage.setItem('danceapp:language', language);
     }
     if (typeof document !== 'undefined') {
+      // Язык страницы
       document.documentElement.lang = language;
     }
   }, [language, isLanguageReady]);
@@ -734,6 +739,7 @@ export const I18nProvider: React.FC<{ children: React.ReactNode; userLanguage?: 
       setLanguageState(nextLanguage);
       setIsLanguageReady(true);
     },
+    // Функция перевода
     t: (key, params) => {
       const languageTree = translations[language] || translations.en;
       const value = getValue(languageTree, key) ?? getValue(translations.en, key);

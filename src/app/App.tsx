@@ -42,6 +42,7 @@ import hipLogo from './assets/partners/hip-logo.png';
 import nomadLogo from './assets/partners/nomad.png';
 import soulSideLogo from './assets/partners/soul-side.png';
 
+// Экраны приложения
 type ViewState = 'home' | 'all-events' | 'all-special-programs' | 'ticket-selection' | 'purchase-success' | 'profile' | 'become-organizer' | 'organizer-dashboard' | 'validator-dashboard' | 'admin-panel' | 'verify-email'
   | 'reset-password';
 type ProfileTab = 'my-tickets' | 'favorites' | 'purchase-history' | 'account-settings';
@@ -49,6 +50,7 @@ type OrganizerTab = 'dashboard' | 'events' | 'create-event' | 'validators' | 'or
 type ValidatorTab = 'events' | 'scan';
 type AdminTab = 'dashboard' | 'requests' | 'users' | 'moderation';
 
+// Память браузера
 const APP_STATE_STORAGE = {
   selectedCity: 'danceapp:selected-city',
   currentView: 'danceapp:current-view',
@@ -212,7 +214,9 @@ const MarketplaceBackButton = ({ label, onBack }: { label: string; onBack: () =>
   </section>
 );
 
+// Главная логика
 function AppContent() {
+  // Выбранный город
   const [selectedCity, setSelectedCity] = useState(() => readStoredText(APP_STATE_STORAGE.selectedCity, "Astana"));
   const [marketplaceSearchQuery, setMarketplaceSearchQuery] = useState('');
   const [pendingHomeSection, setPendingHomeSection] = useState<'top' | 'events' | 'about' | 'organizers' | null>(null);
@@ -229,6 +233,7 @@ function AppContent() {
   // Purchase Flow State
   const [isPurchaseGateOpen, setIsPurchaseGateOpen] = useState(false);
   const [pendingEvent, setPendingEvent] = useState<any>(() => readStoredJson(APP_STATE_STORAGE.pendingEvent));
+  // Текущий экран
   const [currentView, setCurrentView] = useState<ViewState>(() => getInitialView());
   const [purchaseDetails, setPurchaseDetails] = useState<any>(null);
   const [recentPurchaseTickets, setRecentPurchaseTickets] = useState<TicketRecord[]>([]);
@@ -268,10 +273,12 @@ function AppContent() {
     currentView === 'profile' && profileTab === 'account-settings' && isValidator;
   const { t, language, isLanguageReady } = useI18n();
 
+  // Сохранить город
   useEffect(() => {
     window.localStorage.setItem(APP_STATE_STORAGE.selectedCity, selectedCity);
   }, [selectedCity]);
 
+  // Сохранить экран
   useEffect(() => {
     if (currentView === 'verify-email' || currentView === 'reset-password') return;
     const storedView = currentView === 'purchase-success' ? 'profile' : currentView;
@@ -298,6 +305,7 @@ function AppContent() {
     window.localStorage.setItem(APP_STATE_STORAGE.adminTab, adminTab);
   }, [adminTab]);
 
+  // Проверка входа
   useEffect(() => {
     if (!getAuthToken()) {
       setUser(null);
@@ -377,6 +385,7 @@ function AppContent() {
 
     const loadPublishedEvents = () => {
       setIsMarketplaceEventsLoading(true);
+      // Загрузка событий
       authApi.publishedEvents()
         .then((data) => {
           if (cancelled) return;
@@ -1308,6 +1317,7 @@ function AppContent() {
           </div>
         )}
 
+        {/* Выбор экрана */}
         {currentView === 'home' ? (
           <>
             <Hero />
@@ -1654,6 +1664,7 @@ function AppContent() {
   );
 }
 
+// Корневой App
 export default function App() {
   const [appUserLanguage, setAppUserLanguage] = useState<'en' | 'ru' | 'kk' | null>(null);
 
@@ -1669,6 +1680,7 @@ export default function App() {
   }, []);
 
   return (
+    // Провайдер языка
     <I18nProvider userLanguage={appUserLanguage}>
       <AppContent />
     </I18nProvider>
