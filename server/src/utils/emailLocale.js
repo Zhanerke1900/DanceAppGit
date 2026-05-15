@@ -21,6 +21,7 @@ const moneyLocales = {
 };
 
 export function normalizeEmailLanguage(language) {
+  // Все письма поддерживают только en/ru/kk, иначе fallback на en.
   const value = String(language || "").trim().toLowerCase();
   return EMAIL_LANGUAGES.has(value) ? value : "en";
 }
@@ -286,6 +287,7 @@ function normalizeNumericDateText(value) {
 }
 
 export function localizeEventForEmail(event = {}, language = "en") {
+  // Для email берем перевод события, если он есть, иначе fallback на основные поля Event.
   const lang = normalizeEmailLanguage(language);
   const localized = event?.translations?.[lang] || {};
   const fallback = event || {};

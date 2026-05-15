@@ -20,6 +20,7 @@ function normalizeLanguage(language) {
 
 function authCookieOptions() {
   return {
+    // httpOnly защищает JWT от чтения через frontend JavaScript.
     httpOnly: true,
     sameSite: isProduction ? "none" : "lax",
     secure: isProduction,
@@ -28,12 +29,14 @@ function authCookieOptions() {
 }
 
 function setAuthCookie(res, userId) {
+  // В JWT кладем только userId. Остальные данные каждый раз берутся из MongoDB в requireAuth.
   const token = jwt.sign({ sub: userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
   res.cookie("token", token, authCookieOptions());
   return token;
 }
 
 function publicUser(u) {
+  // Безопасная версия пользователя для frontend: passwordHash и служебные токены наружу не отдаем.
   const role = getUserRole(u);
   return {
     _id: u._id,
@@ -77,6 +80,7 @@ router.post("/register", async (req, res) => {
 
     const passwordHash = await bcrypt.hash(String(password), 10);
 
+    // В письме отправляем raw token/code, а в MongoDB сохраняем только hash.
     const token = makeToken();
     const code = makeCode();
 
@@ -129,6 +133,7 @@ router.get("/verify-email", async (req, res) => {
       return res.status(400).json({ message: "Verification token expired" });
     }
 
+    // Проверяем token из ссылки через hash, чтобы raw token не лежал в базе.
     if (hashToken(rawToken) !== user.verifyTokenHash) {
       return res.status(400).json({ message: "Invalid verification token" });
     }
@@ -158,6 +163,7 @@ router.post("/resend-verification", async (req, res) => {
 
     if (user.emailVerified) return res.json({ message: "Email already verified" });
 
+    // Старый verification token заменяется новым, срок снова 15 минут.
     const token = makeToken();
     const code = makeCode();
 
@@ -193,7 +199,7 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    // ✅ если не подтвержден — не логиним
+    // Без подтвержденного email пользователь не может войти.
     if (!user.emailVerified) {
       return res.status(403).json({
         message: "Please verify your email first",
@@ -205,7 +211,6 @@ router.post("/login", async (req, res) => {
     const ok = await bcrypt.compare(String(password || ""), user.passwordHash);
     const passwordDuration = Date.now() - passwordStartedAt;
     if (!ok) {
-      // ✅ это то, что ты хотела: “неправильный пароль”
       return res.status(401).json({ message: "Incorrect password", code: "WRONG_PASSWORD" });
     }
 
@@ -223,6 +228,7 @@ router.post("/login", async (req, res) => {
 
 // ME
 router.get("/me", requireAuth, async (req, res) => {
+  // /me нужен frontend-у после refresh: по cookie backend возвращает текущего пользователя.
   if (!req.user) return res.status(401).json({ message: "Not authenticated" });
   return res.json({ user: publicUser(req.user) });
 });
@@ -295,6 +301,7 @@ router.post("/organizer-request", requireAuth, async (req, res) => {
       return res.status(400).json({ message: "Phone number is required" });
     }
 
+    // Пользователь еще не organizer. Он только отправляет заявку, которую потом видит admin.
     user.organizerStatus = "pending";
     user.isOrganizer = false;
     user.role = isAdminEmail(user.email) ? "admin" : "user";
@@ -366,6 +373,7 @@ router.post("/change-password", requireAuth, async (req, res) => {
       return res.status(400).json({ message: "New password must be different from the current password" });
     }
 
+    // При смене пароля сбрасываем старые reset tokens, чтобы ими нельзя было воспользоваться позже.
     user.passwordHash = await bcrypt.hash(String(newPassword), 10);
     user.resetTokenHash = null;
     user.resetCodeHash = null;
@@ -414,6 +422,7 @@ router.post("/forgot-password", async (req, res) => {
       });
     }
 
+    // Reset token работает 15 минут. В базе хранится hash, а не сам token из письма.
     const token = makeToken();
     const code = makeCode();
 
@@ -456,6 +465,7 @@ router.post("/reset-password", async (req, res) => {
       return res.status(400).json({ message: "Reset token expired" });
     }
 
+    // Проверка reset token такая же, как verification: hash из запроса должен совпасть с hash в базе.
     if (hashToken(rawToken) !== user.resetTokenHash) {
       return res.status(400).json({ message: "Invalid reset token" });
     }

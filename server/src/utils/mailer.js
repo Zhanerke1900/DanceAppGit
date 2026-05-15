@@ -136,6 +136,7 @@ export function getMailFrom() {
 }
 
 export function getMailerProvider() {
+  // Provider выбирается из env: gmail, resend, smtp, log или auto fallback.
   const requested = getRequestedProvider();
 
   if (requested === "log") return "log";
@@ -455,6 +456,7 @@ function withLogFallback(mailer, provider) {
 }
 
 export function getMailer() {
+  // Если реальный email provider не настроен или упал, можно логировать письма в консоль.
   const requested = getRequestedProvider();
   const gmailMailer = createGmailMailer();
   const resendMailer = createResendMailer();

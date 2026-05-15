@@ -123,6 +123,7 @@ function buildBalanceDueDeadline(eventSnapshot = {}) {
 }
 
 function buildBookingPaymentFields(total, ticketDetails = {}, eventSnapshot = {}) {
+  // full = сразу вся сумма, deposit = 40% сейчас и остаток до дедлайна.
   const paymentType = normalizePaymentType(ticketDetails?.paymentType);
   const depositRate = paymentType === "deposit" ? DEFAULT_DEPOSIT_RATE : 1;
   const depositAmount = money(paymentType === "deposit" ? total * depositRate : total);
@@ -148,6 +149,7 @@ function reservationCanBeCompleted(order) {
 }
 
 export function getOrderPaymentDueNow(order) {
+  // Для обычного pending order платится первый платеж, для reserved order платится только остаток.
   if (order.paymentStatus === "reserved") {
     return money(order.balanceDue || 0);
   }
@@ -155,6 +157,7 @@ export function getOrderPaymentDueNow(order) {
 }
 
 function recordSuccessfulPayment(order, paymentFields = {}) {
+  // Сохраняем успешные FreedomPay транзакции, чтобы потом можно было делать refund.
   order.paymentTransactions = order.paymentTransactions || [];
   const provider = String(paymentFields.paymentProvider || order.paymentProvider || "").trim();
   const paymentId = String(paymentFields.freedomPayPaymentId || "").trim();
@@ -378,6 +381,7 @@ async function buildTicketOrderDataForUser({ user, eventId, eventData, ticketDet
   let organizerId = null;
   let snapshot;
 
+  // Если eventId есть, цена и лимиты берутся с managed Event из базы, а не слепо с frontend.
   if (eventId) {
     event = await Event.findById(eventId);
     if (!event) throw new Error("Event not found");
@@ -414,6 +418,7 @@ async function buildTicketOrderDataForUser({ user, eventId, eventData, ticketDet
     throw new Error("Payment amount is invalid");
   }
 
+  // Проверка общего лимита билетов на событие.
   if (event?.ticketLimit > 0) {
     const soldTickets = await getEventSoldTickets(event._id);
     const remainingTickets = Math.max(event.ticketLimit - soldTickets, 0);
@@ -425,6 +430,7 @@ async function buildTicketOrderDataForUser({ user, eventId, eventData, ticketDet
     }
   }
 
+  // Для special program проверяем лимиты по каждой activity отдельно.
   if (event?.eventType === "special-program" && (event.activities || []).length) {
     const activityUsageMap = await getActivityUsageMap(event);
     const requestedFullPassQty = items
@@ -520,6 +526,7 @@ export async function issueTicketsForPaidOrder(orderOrId) {
     throw new Error("Order is not paid");
   }
 
+  // Защита от повторной выдачи: если билеты уже есть, второй раз их не создаем.
   const existingTickets = await Ticket.find({ order: order._id, status: { $ne: "cancelled" } }).sort({ createdAt: 1 }).lean();
   if (existingTickets.length >= Number(order.quantity || 0)) {
     return existingTickets.map(publicTicket);
@@ -562,6 +569,7 @@ export async function issueTicketsForPaidOrder(orderOrId) {
         status: "active",
       });
 
+      // QR содержит подписанный token. Его нельзя просто подделать без QR_SECRET/JWT_SECRET.
       const signed = createSignedTicketToken({
         ticketId: ticketDraft._id.toString(),
         ticketCode,
@@ -652,6 +660,7 @@ export async function markOrderPaidAndIssueTickets(orderOrId, paymentFields = {}
   Object.assign(order, paymentFields);
   await order.save();
 
+  // Только после paid status выпускаем реальные Ticket документы.
   const tickets = await issueTicketsForPaidOrder(order);
   return { order, tickets };
 }
@@ -668,6 +677,7 @@ export async function markOrderReserved(orderOrId, paymentFields = {}) {
     throw new Error("Only deposit orders can be reserved");
   }
 
+  // Deposit order становится reserved: место занято, но билеты еще не выданы.
   order.paymentStatus = "reserved";
   order.reservedAt = order.reservedAt || new Date();
   order.paidAt = order.paidAt || new Date();
@@ -698,6 +708,7 @@ export async function completeReservationAndIssueTickets(orderOrId, paymentField
     throw new Error("Reservation must be fully paid at least 5 hours before the event");
   }
 
+  // После доплаты остатка reserved order превращается в paid и получает билеты.
   return markOrderPaidAndIssueTickets(order, {
     ...paymentFields,
     amountPaid: Number(order.total || 0),
@@ -726,6 +737,7 @@ export async function getMyReservations(userId) {
 }
 
 export async function cancelEventOrdersForOrganizer({ event, cancelledBy }) {
+  // При отмене published event отменяем все активные билеты/брони и запускаем refund.
   const orders = await Order.find({
     event: event._id,
     paymentStatus: { $in: ["paid", "reserved"] },
@@ -864,6 +876,7 @@ export async function refundTicketForUser({ ticketId, user }) {
   }
 
   // Atomically mark ticket as cancelled to prevent double refunds
+  // Сначала атомарно переводим билет в cancelled, чтобы не было двойного refund.
   const updatedTicket = await Ticket.findByIdAndUpdate(
     ticketId,
     { status: "cancelled" },
@@ -988,6 +1001,7 @@ export async function validateTicketScan({ qrToken, currentUser, expectedEventId
     return { status: "invalid", message: "invalid ticket" };
   }
 
+  // Проверять билет может admin, organizer этого события или назначенный validator.
   const canValidate =
     isAdminEmail(currentUser?.email) ||
     (ticket.organizer && String(ticket.organizer) === String(currentUser?._id)) ||
@@ -1050,6 +1064,7 @@ export async function validateTicketScan({ qrToken, currentUser, expectedEventId
     return { status: "invalid", message: "invalid ticket" };
   }
 
+  // Успешный scan одноразовый: билет сразу становится used.
   ticket.status = "used";
   ticket.usedAt = new Date();
   await ticket.save();

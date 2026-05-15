@@ -64,6 +64,7 @@ export function getFreedomPayScriptName(urlOrPath) {
 }
 
 export function makeFreedomPaySignature(scriptName, params, secretKey) {
+  // FreedomPay требует подпись из scriptName, отсортированных параметров и secret key.
   const values = [scriptName];
   for (const key of Object.keys(params || {}).filter((item) => item !== "pg_sig").sort()) {
     values.push(...collectSignatureValues(params[key]));
@@ -77,6 +78,7 @@ export function verifyFreedomPaySignature(scriptName, params, secretKey) {
   if (!received) return false;
   const expected = makeFreedomPaySignature(scriptName, params, secretKey).toLowerCase();
   if (received.length !== expected.length) return false;
+  // timingSafeEqual снижает риск атак по времени сравнения подписи.
   return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(received));
 }
 
@@ -247,6 +249,7 @@ export async function createFreedomPayPayment(order) {
     throw new Error("Freedom Pay response signature is invalid");
   }
 
+  // Если FreedomPay не вернул redirect URL, frontend не сможет отправить пользователя на оплату.
   if (String(parsed.pg_status || "").toLowerCase() !== "ok" || !parsed.pg_redirect_url) {
     throw new Error(parsed.pg_error_description || parsed.pg_description || "Freedom Pay did not return a payment URL");
   }
@@ -286,6 +289,8 @@ export async function refundFreedomPayPayment({ paymentId, amount, orderId, idem
     throw new Error("Refund amount is invalid");
   }
 
+  // Init request создает платеж и говорит FreedomPay, куда прислать check/result callbacks.
+  // Refund идет отдельным запросом revoke.php, по paymentId из успешной транзакции.
   const request = {
     pg_merchant_id: config.merchantId,
     pg_payment_id: String(paymentId),

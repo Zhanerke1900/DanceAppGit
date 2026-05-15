@@ -9,6 +9,8 @@ const router = express.Router();
 const PUBLISHED_EVENTS_CACHE_MS = Number(process.env.PUBLISHED_EVENTS_CACHE_MS || 15000);
 const DEFAULT_EVENT_IMAGE =
   "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&q=80&w=1080";
+
+// Небольшой cache нужен, чтобы главная страница не делала тяжелый запрос в MongoDB на каждый refresh.
 let publishedEventsCache = { expiresAt: 0, payload: null };
 let publishedEventsInFlight = null;
 
@@ -42,6 +44,7 @@ function sortPublishedEvents(a, b) {
 }
 
 function activeInventoryQuery(eventIds) {
+  // Для sold out считаем оплаченные заказы и активные брони, срок которых еще не прошел.
   return {
     event: { $in: eventIds },
     $or: [
@@ -52,6 +55,7 @@ function activeInventoryQuery(eventIds) {
 }
 
 async function loadAvailability(events) {
+  // Считает, сколько билетов уже занято по событию и по отдельным activity в special program.
   const eventIds = events.map((event) => event._id);
   const soldMap = new Map();
   const activityUsageByEvent = new Map(
@@ -131,6 +135,7 @@ function publicPublishedEvent(event, availability = {}) {
 }
 
 async function buildPublishedEventsPayload() {
+  // Перед показом marketplace убираем прошедшие published events в archive.
   const archiveResult = await archivePastPublishedEvents();
   if (archiveResult.archivedCount > 0) invalidatePublishedEventsCache();
 
@@ -159,6 +164,7 @@ async function buildPublishedEventsPayload() {
 
 router.get("/published", async (req, res) => {
   try {
+    // fresh=1 заставляет обойти cache, это полезно после изменений событий.
     const skipCache = String(req.query.fresh || "") === "1";
     if (!skipCache && publishedEventsCache.payload && publishedEventsCache.expiresAt > Date.now()) {
       return res.set("X-Cache", "HIT").json(publishedEventsCache.payload);

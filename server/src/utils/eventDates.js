@@ -111,6 +111,7 @@ function parseDateRange(value = "") {
 }
 
 export function getEventStartAt(event = {}) {
+  // Приводит date/time события к Date, чтобы сортировать, архивировать и считать deadlines.
   const range = parseDateRange(event.date);
   if (!range) return null;
 
@@ -120,6 +121,7 @@ export function getEventStartAt(event = {}) {
 }
 
 export function getEventEndAt(event = {}) {
+  // Конец события нужен для archive. Если времени конца нет, берем конец дня.
   const range = parseDateRange(event.date);
   if (!range) return null;
 
@@ -146,6 +148,7 @@ export function isEventPast(event = {}, now = new Date()) {
 }
 
 export async function archivePastPublishedEvents(filter = {}) {
+  // Published events, которые уже прошли, автоматически уходят в archived и исчезают из marketplace.
   const events = await Event.find({ ...filter, status: "published" }).select("_id date time").lean();
   const pastIds = events.filter((event) => isEventPast(event)).map((event) => event._id);
 

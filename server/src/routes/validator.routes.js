@@ -8,6 +8,7 @@ import { validateTicketScan } from "../services/ticket.service.js";
 
 const router = express.Router();
 
+// Validator routes закрыты для всех, кроме пользователей с role="validator".
 router.use(requireAuth, requireRole("validator"));
 
 router.get("/events", async (req, res) => {
@@ -63,6 +64,7 @@ router.get("/recent-scans", async (req, res) => {
 router.post("/scan", async (req, res) => {
   try {
     const { qrToken, eventId } = req.body || {};
+    // Скан может быть QR token или barcode ticketCode. Разбор и проверка прав внутри ticket.service.js.
     const result = await validateTicketScan({
       qrToken: String(qrToken || "").trim(),
       expectedEventId: String(eventId || "").trim(),

@@ -39,6 +39,7 @@ app.use(cookieParser());
 
 app.use(
   cors({
+    // credentials:true нужен, чтобы браузер отправлял auth cookie на backend.
     origin: true,
     credentials: true,
     methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
@@ -62,6 +63,7 @@ const PORT = process.env.PORT || 4000;
 const ARCHIVE_SWEEP_INTERVAL_MS = Number(process.env.EVENT_ARCHIVE_SWEEP_INTERVAL_MS || 15 * 60 * 1000);
 
 async function sweepPastEvents() {
+  // Фоновая уборка: прошедшие published events переводим в archived.
   const result = await archivePastPublishedEvents();
   if (result.archivedCount > 0) {
     console.log(`Archived ${result.archivedCount} past published event(s)`);
@@ -73,6 +75,7 @@ mongoose
   .then(async () => {
     console.log("MongoDB connected");
     try {
+      // При старте backend поднимает demo marketplace events, если seed включен.
       await seedMarketplaceEvents();
     } catch (err) {
       console.error("Marketplace seed error:", err.message);

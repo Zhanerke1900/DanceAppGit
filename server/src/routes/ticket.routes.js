@@ -13,6 +13,7 @@ import {
 
 const router = express.Router();
 
+// Здесь только маршруты. Вся бизнес-логика покупки, refund и проверки билетов лежит в ticket.controller.js / ticket.service.js.
 router.post("/purchase", requireAuth, purchaseTickets);
 router.get("/my", requireAuth, myTickets);
 router.get("/history", requireAuth, purchaseHistory);

@@ -1,6 +1,7 @@
 import crypto from "crypto";
 
 function getQrSecret() {
+  // QR_SECRET должен быть секретным. Если его нет, используем JWT_SECRET.
   return process.env.QR_SECRET || process.env.JWT_SECRET || "danceapp-ticket-secret";
 }
 
@@ -17,6 +18,7 @@ export function signTicketPayload(payload) {
 }
 
 export function createSignedTicketToken({ ticketId, ticketCode }) {
+  // QR token = payload + signature. Payload можно прочитать, но нельзя безопасно изменить без secret.
   const payload = JSON.stringify({
     ticketId,
     ticketCode,
@@ -38,6 +40,7 @@ export function verifySignedTicketToken(token) {
 
     const payload = fromBase64Url(encodedPayload);
     const expectedSignature = signTicketPayload(payload);
+    // Если подпись не совпадает, QR считается поддельным или поврежденным.
     const isValid = crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature));
     if (!isValid) return { valid: false };
 

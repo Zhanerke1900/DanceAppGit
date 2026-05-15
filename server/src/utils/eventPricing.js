@@ -10,6 +10,7 @@ export function formatKztPrice(value) {
 }
 
 export function getLowestTicketPrice(event = {}) {
+  // Для карточки события показываем минимальную доступную цену.
   const candidates =
     event.eventType === "special-program"
       ? [

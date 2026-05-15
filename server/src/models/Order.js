@@ -27,6 +27,7 @@ const paymentTransactionSchema = new mongoose.Schema(
 
 const orderSchema = new mongoose.Schema(
   {
+    // Order хранит покупку/бронь целиком. Реальные Ticket создаются только после полной оплаты.
     buyer: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
     buyerName: { type: String, required: true },
     buyerEmail: { type: String, required: true, lowercase: true, index: true },
@@ -35,6 +36,7 @@ const orderSchema = new mongoose.Schema(
     event: { type: mongoose.Schema.Types.ObjectId, ref: "Event", default: null, index: true },
     organizer: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null, index: true },
 
+    // Snapshot нужен, чтобы билет сохранил название/дату события даже если Event позже изменят.
     eventSnapshot: {
       title: { type: String, default: "" },
       category: { type: String, default: "" },
@@ -52,6 +54,7 @@ const orderSchema = new mongoose.Schema(
     subtotal: { type: Number, required: true, min: 0 },
     serviceFee: { type: Number, required: true, min: 0 },
     total: { type: Number, required: true, min: 0 },
+    // full = вся сумма сразу, deposit = предоплата и остаток позже.
     paymentType: { type: String, enum: ["full", "deposit"], default: "deposit", index: true },
     depositRate: { type: Number, default: 0.4, min: 0, max: 1 },
     depositAmount: { type: Number, default: 0, min: 0 },
@@ -62,6 +65,7 @@ const orderSchema = new mongoose.Schema(
     balanceDueDeadlineAt: { type: Date, default: null, index: true },
     reservedAt: { type: Date, default: null },
 
+    // pending ждет FreedomPay, reserved значит внесен deposit, paid значит можно выпускать tickets.
     paymentStatus: { type: String, enum: ["paid", "pending", "reserved", "failed", "refunded"], default: "paid" },
     paymentProvider: { type: String, enum: ["manual", "freedompay"], default: "manual", index: true },
     freedomPayPaymentId: { type: String, default: "", index: true },

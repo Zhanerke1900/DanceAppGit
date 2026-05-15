@@ -24,6 +24,7 @@ function getSecretKey() {
 }
 
 function normalizePayload(payload = {}) {
+  // FreedomPay может прислать данные разными форматами, дальше работаем с обычными строками.
   return Object.fromEntries(
     Object.entries(payload).map(([key, value]) => [
       key,
@@ -128,6 +129,7 @@ router.all("/check", async (req, res) => {
   try {
     const payload = await getPaymentPayload(req);
     const scriptName = getFreedomPayScriptName(req.path);
+    // Любой callback от FreedomPay сначала проверяем по подписи.
     const signatureOk = verifyFreedomPaySignature(scriptName, payload, getSecretKey());
     if (!signatureOk) {
       return sendFreedomPayResponse(req, res, {
@@ -150,6 +152,7 @@ router.all("/check", async (req, res) => {
       });
     }
 
+    // Не принимаем платеж, если сумма или валюта отличаются от заказа.
     if (!amountMatches(order, payload) || !currencyMatches(payload)) {
       return sendFreedomPayResponse(req, res, {
         pg_status: "rejected",
@@ -221,6 +224,7 @@ router.all("/result", async (req, res) => {
       paymentFailureReason: "",
     };
 
+    // По результату оплаты либо создаем бронь, либо выпускаем билеты, либо закрываем остаток брони.
     if (order.paymentStatus === "pending" && order.paymentType === "deposit") {
       await markOrderReserved(order, paymentFields);
     } else if (order.paymentStatus === "reserved") {

@@ -10,6 +10,7 @@ import {
 } from "./emailLocale.js";
 
 export async function sendTicketEmail({ email, fullName, event, tickets, language = "en" }) {
+  // После успешной оплаты отправляем email с QR и barcode для каждого билета.
   const lang = normalizeEmailLanguage(language);
   const copy = getEmailCopy(lang);
   const transporter = getMailer();

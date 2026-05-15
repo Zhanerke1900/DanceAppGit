@@ -5,6 +5,7 @@ function bufferToDataUrl(buffer) {
 }
 
 export async function generateTicketBarcodeBuffer(ticketCode) {
+  // Barcode содержит видимый ticketCode, его можно сканировать как запасной вариант вместо QR.
   return bwipjs.toBuffer({
     bcid: "code128",
     text: ticketCode,

@@ -35,6 +35,7 @@ const activitySchema = new mongoose.Schema(
 
 const eventSchema = new mongoose.Schema(
   {
+    // Organizer владеет событием, admin только модерирует status.
     organizer: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
     submittedByEmail: { type: String, required: true, lowercase: true, index: true },
     submittedByName: { type: String, required: true },
@@ -73,12 +74,14 @@ const eventSchema = new mongoose.Schema(
     activities: { type: [activitySchema], default: [] },
     validators: [{ type: mongoose.Schema.Types.ObjectId, ref: "User", index: true }],
 
+    // Главный lifecycle события: draft -> pending -> published -> archived.
     status: {
       type: String,
       enum: ["draft", "pending", "pending-update-review", "published", "archived"],
       default: "draft",
       index: true,
     },
+    // Старая published версия, если organizer отправил важные изменения на повторную проверку.
     pendingUpdateSnapshot: { type: mongoose.Schema.Types.Mixed, default: null },
     cancelledAt: { type: Date, default: null },
     cancelledBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
@@ -88,6 +91,7 @@ const eventSchema = new mongoose.Schema(
 );
 
 eventSchema.pre("validate", function requirePosterForPublicEvents(next) {
+  // Событие нельзя отправить на модерацию или опубликовать без poster image.
   const publicStatuses = ["pending", "pending-update-review", "published"];
   if (publicStatuses.includes(this.status) && !hasEventImage(this.image)) {
     this.invalidate("image", "Event poster is required before publishing.");

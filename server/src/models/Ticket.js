@@ -2,7 +2,9 @@ import mongoose from "mongoose";
 
 const ticketSchema = new mongoose.Schema(
   {
+    // Ticket - один проход на событие. ticketCode виден пользователю и в barcode.
     ticketCode: { type: String, required: true, unique: true, index: true },
+    // active можно использовать, used уже прошел check-in, cancelled возвращен/refunded.
     status: { type: String, enum: ["active", "used", "cancelled"], default: "active", index: true },
     purchasedAt: { type: Date, default: Date.now, index: true },
     usedAt: { type: Date, default: null },
@@ -16,6 +18,7 @@ const ticketSchema = new mongoose.Schema(
     event: { type: mongoose.Schema.Types.ObjectId, ref: "Event", default: null, index: true },
     organizer: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null, index: true },
 
+    // Snapshot защищает билет от изменений Event после покупки.
     eventSnapshot: {
       title: { type: String, default: "" },
       category: { type: String, default: "" },
@@ -38,6 +41,7 @@ const ticketSchema = new mongoose.Schema(
     orderTotal: { type: Number, default: 0, min: 0 },
     refundPolicyHours: { type: Number, default: 48, min: 0 },
 
+    // QR подписан backend-ом. На scan проверяется подпись, чтобы билет нельзя было подделать.
     qrPayload: { type: String, required: true },
     qrSignature: { type: String, required: true },
     qrCodeDataUrl: { type: String, required: true },

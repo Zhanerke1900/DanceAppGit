@@ -19,6 +19,7 @@ const router = express.Router();
 const EVENT_TRANSLATION_LANGUAGES = ["en", "ru", "kk"];
 
 function requireOrganizer(req, res, next) {
+  // Organizer routes доступны только пользователю, чья заявка уже approved.
   if (!req.user || !(req.user.isOrganizer || req.user.organizerStatus === "approved")) {
     return res.status(403).json({ message: "Organizer access required" });
   }
@@ -29,6 +30,7 @@ function organizerCanSendRequests(user) {
   return String(user?.organizerAccessStatus || "active") !== "deactivated";
 }
 
+// Сначала проверяем login, потом organizer-доступ для всех endpoints ниже.
 router.use(requireAuth, requireOrganizer);
 
 function publicValidator(user) {
@@ -150,6 +152,7 @@ function normalizeActivities(value) {
 }
 
 function normalizeEventPayload(payload = {}) {
+  // Приводим данные события к одному формату перед сохранением в MongoDB.
   const normalized = {
     status: normalizeText(payload.status),
     title: normalizeText(payload.title),
@@ -188,6 +191,7 @@ function normalizeEventPayload(payload = {}) {
 }
 
 function applyEventData(event, data) {
+  // Общая функция обновления Event, чтобы create/edit не расходились по полям.
   event.title = data.title;
   event.eventType = data.eventType;
   event.category = data.category;
@@ -218,6 +222,7 @@ function applyEventData(event, data) {
 }
 
 function snapshotEventData(event) {
+  // Snapshot хранит старую published версию, если organizer меняет важные данные события.
   return {
     title: event.title,
     eventType: event.eventType,
@@ -251,6 +256,7 @@ function snapshotEventData(event) {
 }
 
 function hasCriticalPublishedChanges(currentEvent, nextData) {
+  // Важные изменения published event должны пройти повторную проверку admin.
   const currentSnapshot = snapshotEventData(currentEvent);
   const criticalKeys = [
     "title",
@@ -321,6 +327,7 @@ function publicOrganizerEvent(event) {
 }
 
 async function loadOrganizerEventAvailability(events) {
+  // Для кабинета organizer считаем sold/remaining tickets по его событиям.
   const eventIds = events.map((event) => event._id);
   if (!eventIds.length) return new Map();
 
@@ -574,6 +581,7 @@ router.post("/validators", async (req, res) => {
     const code = makeCode();
     const passwordHash = await bcrypt.hash(cleanPassword, 10);
     const validatorLanguage = normalizeEmailLanguage(req.body?.language || req.user.language);
+    // Organizer создает отдельный validator account и привязывает его к себе через validatorOwner.
     const validator = await User.create({
       fullName: cleanName,
       email: cleanEmail,
@@ -617,6 +625,7 @@ router.post("/events/:id/assign-validator", async (req, res) => {
     if (!event) return res.status(404).json({ message: "Event not found" });
     if (!validator) return res.status(404).json({ message: "Validator not found" });
 
+    // Связь хранится с двух сторон: event.validators и validator.validatorAssignedEventIds.
     if (!event.validators.some((item) => String(item) === String(validator._id))) {
       event.validators.push(validator._id);
     }
@@ -686,6 +695,7 @@ router.post("/events", async (req, res) => {
       return res.status(400).json({ message: "Event poster is required before publishing." });
     }
 
+    // Draft сохраняется без модерации, а обычная отправка идет в status pending для admin review.
     const event = new Event({
       organizer: req.user._id,
       submittedByEmail: req.user.email,
@@ -749,6 +759,7 @@ router.put("/events/:id", async (req, res) => {
       return res.status(403).json({ message: "Organizer account is deactivated. New moderation requests are disabled." });
     }
 
+    // Published event с критичными изменениями не меняется сразу на сайте, а уходит на admin review.
     if (isPublishedEvent && hasCriticalChanges) {
       event.pendingUpdateSnapshot = snapshotEventData(event);
       applyEventData(event, payload);
@@ -815,6 +826,7 @@ router.delete("/events/:id", async (req, res) => {
     const event = await Event.findOne({ _id: req.params.id, organizer: req.user._id });
     if (!event) return res.status(404).json({ message: "Event not found" });
 
+    // Draft/pending можно удалить полностью, потому что они еще не продавались публично.
     if (["draft", "pending"].includes(event.status)) {
       await Event.deleteOne({ _id: event._id });
 
@@ -824,6 +836,7 @@ router.delete("/events/:id", async (req, res) => {
       });
     }
 
+    // Published event не удаляем: архивируем, отменяем заказы и запускаем возвраты.
     if (event.status === "published") {
       if (isEventPast(event)) {
         return res.status(400).json({ message: "Past published events cannot be cancelled from this action" });

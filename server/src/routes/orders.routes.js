@@ -6,6 +6,7 @@ import { requireAuth } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
+// Простой legacy endpoint создания paid order. Основной flow покупки сейчас идет через /api/tickets/purchase.
 router.post("/", requireAuth, async (req, res) => {
   try {
     const { eventId, ticketDetails } = req.body || {};

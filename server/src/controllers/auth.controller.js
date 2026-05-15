@@ -5,6 +5,7 @@ import { randomToken, hashToken, generate6DigitCode } from "../utils/crypto.js";
 import { signAccessToken, setAuthCookie, clearAuthCookie } from "../utils/jwt.js";
 import { isValidEmail, isStrongEnoughPassword } from "../utils/validators.js";
 
+// Legacy auth controller. Актуальная auth-логика сейчас находится в routes/auth.routes.js.
 function publicUser(u) {
   return {
     id: u._id,

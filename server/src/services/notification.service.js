@@ -62,6 +62,7 @@ async function sendMail({ label, to, subject, html }) {
 }
 
 async function getNotificationRecipientsForEvent(eventId, { remindersOnly = false } = {}) {
+  // Получателей берем из активных билетов и активных броней по событию.
   const [tickets, reservations] = await Promise.all([
     Ticket.find({ event: eventId, status: "active" })
       .populate("user", "fullName email language emailNotifications eventReminders accountStatus")
@@ -119,6 +120,7 @@ async function getNotificationRecipientsForEvent(eventId, { remindersOnly = fals
 }
 
 export function queueEventUpdateNotifications(event, previousEvent = null) {
+  // Уведомления ставим в очередь через setTimeout, чтобы approve event не ждал отправку email.
   setTimeout(() => {
     sendEventUpdateNotifications(event, previousEvent).catch((error) => {
       console.error("Event update notification error:", error?.message || error);
@@ -132,6 +134,7 @@ export async function sendEventUpdateNotifications(event, previousEvent = null) 
   const current = normalizeEventInfo(event);
   const previous = previousEvent ? normalizeEventInfo(previousEvent) : null;
 
+  // Если изменилась дата/время, разрешаем заново отправить 24h reminder.
   if (
     previous &&
     (String(previous.date || "") !== String(current.date || "") ||
@@ -223,6 +226,7 @@ export async function sendEventReminderEmail({ recipient, event }) {
 }
 
 export async function sendDueEventReminders({ now = new Date(), windowMs = DEFAULT_REMINDER_INTERVAL_MS } = {}) {
+  // Scheduler ищет события, которые начнутся примерно в ближайшие 24 часа.
   const upperBound = new Date(now.getTime() + 24 * 60 * 60 * 1000 + Number(windowMs || 0));
   const events = await Event.find({ status: "published" })
     .select("title date time location venue address city")
@@ -285,6 +289,7 @@ export async function sendDueEventReminders({ now = new Date(), windowMs = DEFAU
 let reminderSweepRunning = false;
 
 export function startEventReminderScheduler() {
+  // Запускается из index.js после подключения MongoDB.
   const intervalMs = Number(process.env.EVENT_REMINDER_SWEEP_INTERVAL_MS || DEFAULT_REMINDER_INTERVAL_MS);
   const run = async () => {
     if (reminderSweepRunning) return;

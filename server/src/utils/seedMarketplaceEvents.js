@@ -1268,6 +1268,7 @@ const buildEventRecord = (item, eventType) => {
 };
 
 async function ensureSeedOrganizer() {
+  // Demo marketplace events должны принадлежать реальному organizer user в базе.
   const existing = await User.findOne({ email: SEED_ORGANIZER_EMAIL });
   if (existing) {
     existing.fullName = existing.fullName || "DanceTime Marketplace";
@@ -1303,6 +1304,7 @@ async function ensureSeedOrganizer() {
 }
 
 export async function seedMarketplaceEvents() {
+  // Запускается при старте backend и создает/обновляет demo events для marketplace.
   if (!shouldSeedMarketplaceEvents()) {
     console.log("Marketplace seed skipped by SEED_MARKETPLACE_EVENTS");
     return;

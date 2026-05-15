@@ -28,6 +28,7 @@ function isLocalDevelopmentPaymentFallbackEnabled() {
 export async function purchaseTickets(req, res) {
   try {
     const { eventId, eventData, ticketDetails } = req.body || {};
+    // Сначала создаем Order в статусе pending. Билеты появятся только после оплаты.
     const order = await createPendingTicketOrderForUser({
       user: req.user,
       eventId,
@@ -35,6 +36,7 @@ export async function purchaseTickets(req, res) {
       ticketDetails,
     });
 
+    // В local/dev можно обойти FreedomPay, чтобы тестировать покупку без реальной оплаты.
     if (Number(order.total || 0) <= 0 || (freedomPayConfigMissing() && isLocalDevelopmentPaymentFallbackEnabled())) {
       if (order.paymentType === "deposit" && Number(order.balanceDue || 0) > 0) {
         const result = await markOrderReserved(order, {
@@ -62,6 +64,7 @@ export async function purchaseTickets(req, res) {
       });
     }
 
+    // В production создаем платежную ссылку FreedomPay и ждем callback в payment.routes.js.
     let payment;
     try {
       payment = await createFreedomPayPayment(order);
@@ -91,6 +94,7 @@ export async function purchaseTickets(req, res) {
 
 export async function myTickets(req, res) {
   try {
+    // Пользователь видит отдельно готовые билеты и активные брони с остатком к оплате.
     const [tickets, reservations] = await Promise.all([
       getMyTickets(req.user._id),
       getMyReservations(req.user._id),
@@ -124,6 +128,7 @@ export async function payReservationBalance(req, res) {
     if (!order) {
       return res.status(404).json({ message: "Reservation not found" });
     }
+    // Бронь нужно закрыть до дедлайна, обычно за 5 часов до начала события.
     if (order.balanceDueDeadlineAt && new Date(order.balanceDueDeadlineAt).getTime() <= Date.now()) {
       order.paymentStatus = "failed";
       order.paymentFailureReason = "Reservation payment deadline has passed";

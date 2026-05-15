@@ -2,10 +2,12 @@
 
 const userSchema = new mongoose.Schema(
   {
+    // Основные данные аккаунта. Пароль хранится только как hash.
     fullName: { type: String, required: true },
     email: { type: String, required: true, unique: true, lowercase: true, index: true },
     passwordHash: { type: String, required: true },
 
+    // Email должен быть подтвержден до login.
     emailVerified: { type: Boolean, default: false },
     role: { type: String, enum: ["user", "organizer", "admin", "validator"], default: "user", index: true },
 
@@ -19,7 +21,7 @@ const userSchema = new mongoose.Schema(
     resetCodeHash: { type: String, default: null },
     resetExpiresAt: { type: Date, default: null },
 
-    // optional organizer fields (если у тебя есть)
+    // Заявка и доступ organizer. Admin меняет эти поля при approve/reject/deactivate.
     isOrganizer: { type: Boolean, default: false },
     organizerStatus: { type: String, default: "none" }, // none | pending | approved | rejected
     organizerAccessStatus: { type: String, enum: ["active", "deactivated"], default: "active" },
@@ -44,6 +46,7 @@ const userSchema = new mongoose.Schema(
     blockedAt: { type: Date, default: null },
     blockedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
 
+    // Validator создается organizer-ом и получает список событий, которые может сканировать.
     validatorOwner: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null, index: true },
     validatorAssignedEventIds: [{ type: mongoose.Schema.Types.ObjectId, ref: "Event" }],
   },

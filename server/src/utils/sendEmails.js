@@ -59,6 +59,7 @@ function greeting(copy, fullName) {
 }
 
 export async function sendVerifyEmail({ email, fullName, token, code, language = "en" }) {
+  // Письмо подтверждения email после register/resend-verification.
   const lang = normalizeEmailLanguage(language);
   const copy = getEmailCopy(lang);
   const { FRONTEND_URL } = appUrls();
@@ -112,6 +113,7 @@ export async function sendVerifyEmail({ email, fullName, token, code, language =
 }
 
 export async function sendResetEmail({ email, fullName, token, code, language = "en" }) {
+  // Письмо для forgot-password: ссылка ведет на frontend reset-password page.
   const lang = normalizeEmailLanguage(language);
   const copy = getEmailCopy(lang);
   const { FRONTEND_URL } = appUrls();
@@ -171,6 +173,7 @@ export async function sendValidatorInviteEmail({
   organizerName,
   language = "en",
 }) {
+  // Organizer создает validator account, а это письмо активирует email validator-а.
   const lang = normalizeEmailLanguage(language);
   const copy = getEmailCopy(lang);
   const { FRONTEND_URL } = appUrls();
@@ -263,6 +266,7 @@ export async function sendPasswordChangedEmail({ email, fullName, language = "en
 }
 
 export async function sendRefundEmail({ email, fullName, ticketCode, ticketType, event, language = "en" }) {
+  // Уведомление пользователю, что refund по билету запрошен.
   const lang = normalizeEmailLanguage(language);
   const copy = getEmailCopy(lang);
   const displayEvent = localizeEventForEmail(event, lang);
@@ -320,6 +324,7 @@ export async function sendEventCancelledEmail({
   orderId,
   language = "en",
 }) {
+  // Уведомление всем покупателям/броням, если organizer отменил published event.
   const lang = normalizeEmailLanguage(language);
   const copy = getEmailCopy(lang);
   const from = getMailFrom();

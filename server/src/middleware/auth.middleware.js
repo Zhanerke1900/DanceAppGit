@@ -3,6 +3,7 @@ import User from "../models/User.js";
 
 export async function requireAuth(req, res, next) {
   try {
+    // Ищем токен там, откуда его может отправить frontend: cookie или Authorization header.
     const token =
       req.cookies?.token ||
       req.cookies?.access_token ||
@@ -15,6 +16,8 @@ export async function requireAuth(req, res, next) {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(payload.sub).select("-passwordHash");
     if (!user) return res.status(401).json({ message: "Not authenticated" });
+
+    // Заблокированный пользователь может иметь старый валидный токен, но доступ все равно запрещаем.
     if (user.accountStatus === "blocked") {
       res.clearCookie("token");
       res.clearCookie("access_token");
@@ -25,6 +28,7 @@ export async function requireAuth(req, res, next) {
       });
     }
 
+    // Дальше все защищенные routes берут текущего пользователя из req.user.
     req.user = user;
     next();
   } catch {

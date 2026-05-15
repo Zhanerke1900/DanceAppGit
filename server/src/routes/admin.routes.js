@@ -33,6 +33,7 @@ function publicAdminEvent(event) {
   };
 }
 
+// Все endpoints ниже доступны только авторизованному admin.
 router.use(requireAuth, requireRole("admin"));
 
 router.get("/overview", async (req, res) => {
@@ -48,6 +49,7 @@ router.get("/overview", async (req, res) => {
       ],
     };
 
+    // Dashboard админки собирает счетчики параллельно, чтобы не ждать каждый запрос по очереди.
     const [
       totalUsers,
       totalOrganizers,
@@ -306,6 +308,7 @@ router.post("/users/:id/block", async (req, res) => {
       return res.status(400).json({ message: "Admin account cannot be blocked" });
     }
 
+    // Блокировка хранится в User. Потом requireAuth не пустит такого пользователя в защищенные routes.
     user.accountStatus = "blocked";
     user.blockedReason = reason;
     user.blockedAt = new Date();
@@ -368,6 +371,7 @@ router.post("/requests/:id/approve", async (req, res) => {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "Request not found" });
 
+    // Одобрение заявки превращает обычного пользователя в organizer.
     user.isOrganizer = true;
     user.organizerStatus = "approved";
     user.organizerAccessStatus = "active";
@@ -437,6 +441,7 @@ router.post("/requests/:id/reject", async (req, res) => {
 router.get("/events", async (req, res) => {
   try {
     const status = String(req.query.status || "").trim().toLowerCase();
+    // Для админа pending включает новые события и изменения уже опубликованных событий.
     const filter = status === "pending"
       ? { status: { $in: ["pending", "pending-update-review"] } }
       : status
@@ -457,6 +462,7 @@ router.post("/events/:id/approve", async (req, res) => {
     if (!hasEventImage(event)) {
       return res.status(400).json({ message: "Event poster is required before publishing." });
     }
+    // Если это update review, snapshot нужен для уведомления покупателей об изменениях.
     const previousSnapshot = event.status === "pending-update-review" ? event.pendingUpdateSnapshot : null;
     event.status = "published";
     event.pendingUpdateSnapshot = null;
@@ -475,6 +481,7 @@ router.post("/events/:id/reject", async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
     if (!event) return res.status(404).json({ message: "Event not found" });
+    // Reject для update review не удаляет событие, а откатывает его к старой published версии.
     if (event.status === "pending-update-review" && event.pendingUpdateSnapshot) {
       Object.assign(event, event.pendingUpdateSnapshot);
       event.status = "published";

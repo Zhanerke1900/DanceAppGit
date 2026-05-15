@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const validationLogSchema = new mongoose.Schema(
   {
+    // История каждого scan: кто проверял, какой билет, какое событие и какой результат.
     validator: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
     validatorEmail: { type: String, required: true, lowercase: true, index: true },
     ticket: { type: mongoose.Schema.Types.ObjectId, ref: "Ticket", default: null, index: true },
