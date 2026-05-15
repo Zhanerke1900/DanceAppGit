@@ -27,6 +27,7 @@ export type TicketRecord = {
     location: string;
     city: string;
     image: string;
+    translations?: Record<string, any>;
   };
   isPast: boolean;
 };

@@ -101,6 +101,7 @@ function publicPublishedEvent(event, availability = {}) {
     longDescription: event.longDescription,
     targetAudience: event.targetAudience,
     highlights: event.highlights || [],
+    translations: event.translations || {},
     ageRestriction: event.ageRestriction,
     dressCode: event.dressCode,
     image: event.image,

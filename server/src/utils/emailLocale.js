@@ -249,3 +249,23 @@ const copy = {
 export function getEmailCopy(language) {
   return copy[normalizeEmailLanguage(language)];
 }
+
+export function localizeEventForEmail(event = {}, language = "en") {
+  const lang = normalizeEmailLanguage(language);
+  const localized = event?.translations?.[lang] || {};
+  const fallback = event || {};
+
+  return {
+    ...fallback,
+    title: localized.title || fallback.title,
+    venue: localized.venue || fallback.venue,
+    address: localized.address || fallback.address,
+    location: localized.location || fallback.location,
+    description: localized.description || fallback.description,
+    longDescription: localized.longDescription || fallback.longDescription,
+    targetAudience: localized.targetAudience || fallback.targetAudience,
+    highlights: Array.isArray(localized.highlights) && localized.highlights.length
+      ? localized.highlights
+      : fallback.highlights,
+  };
+}

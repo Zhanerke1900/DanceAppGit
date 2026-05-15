@@ -3,6 +3,7 @@ import {
   escapeHtml,
   formatMoneyForEmail,
   getEmailCopy,
+  localizeEventForEmail,
   normalizeEmailLanguage,
 } from "./emailLocale.js";
 
@@ -264,6 +265,7 @@ export async function sendPasswordChangedEmail({ email, fullName, language = "en
 export async function sendRefundEmail({ email, fullName, ticketCode, ticketType, event, language = "en" }) {
   const lang = normalizeEmailLanguage(language);
   const copy = getEmailCopy(lang);
+  const displayEvent = localizeEventForEmail(event, lang);
   const from = getMailFrom();
   const transporter = getMailer();
   const provider = transporter?.provider || getMailerProvider();
@@ -282,9 +284,9 @@ export async function sendRefundEmail({ email, fullName, ticketCode, ticketType,
     <h2>${escapeHtml(copy.refundTitle)}</h2>
     <p>${greeting(copy, fullName)} ${escapeHtml(copy.refundIntro)}</p>
     <div style="margin:16px 0;padding:16px;border:1px solid #e5e7eb;border-radius:12px;background:#fafafa">
-      ${detailLine(copy.event, event?.title || "DanceTime Event")}
-      ${detailLine(copy.date, event?.date || "-")}
-      ${detailLine(copy.location, event?.location || "-")}
+      ${detailLine(copy.event, displayEvent?.title || "DanceTime Event")}
+      ${detailLine(copy.date, displayEvent?.date || "-")}
+      ${detailLine(copy.location, displayEvent?.location || "-")}
       ${detailLine(copy.ticketType, ticketType || "-")}
       ${detailLine(copy.ticketCode, ticketCode || "-", true)}
     </div>
@@ -323,7 +325,8 @@ export async function sendEventCancelledEmail({
   const from = getMailFrom();
   const transporter = getMailer();
   const provider = transporter?.provider || getMailerProvider();
-  const eventTitle = event?.title || "DanceTime Event";
+  const displayEvent = localizeEventForEmail(event, lang);
+  const eventTitle = displayEvent?.title || "DanceTime Event";
   const safeEventTitle = escapeHtml(eventTitle);
   const safeCodes = ticketCodes.length
     ? ticketCodes.map((code) => `<li>${escapeHtml(code)}</li>`).join("")
@@ -345,9 +348,9 @@ export async function sendEventCancelledEmail({
     <p>${greeting(copy, fullName)} ${copy.cancelledIntro(safeEventTitle)}</p>
     <div style="margin:16px 0;padding:16px;border:1px solid #fecaca;border-radius:12px;background:#fff7f7">
       ${detailLine(copy.event, eventTitle)}
-      ${detailLine(copy.date, event?.date || "-")}
-      ${detailLine(copy.time, event?.time || "-")}
-      ${detailLine(copy.location, event?.location || "-", true)}
+      ${detailLine(copy.date, displayEvent?.date || "-")}
+      ${detailLine(copy.time, displayEvent?.time || "-")}
+      ${detailLine(copy.location, displayEvent?.location || "-", true)}
     </div>
     <p>${escapeHtml(copy.bookingLabel(ticketCodes.length))}</p>
     <ul>${safeCodes}</ul>

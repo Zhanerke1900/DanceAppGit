@@ -16,6 +16,7 @@ import { cancelEventOrdersForOrganizer } from "../services/ticket.service.js";
 import { invalidatePublishedEventsCache } from "./events.routes.js";
 
 const router = express.Router();
+const EVENT_TRANSLATION_LANGUAGES = ["en", "ru", "kk"];
 
 function requireOrganizer(req, res, next) {
   if (!req.user || !(req.user.isOrganizer || req.user.organizerStatus === "approved")) {
@@ -43,6 +44,68 @@ function publicValidator(user) {
 
 function normalizeText(value) {
   return String(value || "").trim();
+}
+
+function normalizeStringList(value) {
+  return Array.isArray(value) ? value.map((item) => normalizeText(item)).filter(Boolean) : [];
+}
+
+function normalizeEventTranslations(value = {}) {
+  if (!value || typeof value !== "object") return {};
+
+  const normalized = {};
+  for (const language of EVENT_TRANSLATION_LANGUAGES) {
+    const item = value[language];
+    if (!item || typeof item !== "object") continue;
+
+    const translation = {
+      title: normalizeText(item.title),
+      venue: normalizeText(item.venue),
+      address: normalizeText(item.address),
+      location: normalizeText(item.location),
+      description: normalizeText(item.description),
+      longDescription: normalizeText(item.longDescription),
+      targetAudience: normalizeText(item.targetAudience),
+      highlights: normalizeStringList(item.highlights),
+      schedule: Array.isArray(item.schedule)
+        ? item.schedule.map((scheduleItem) => ({
+            title: normalizeText(scheduleItem?.title),
+            description: normalizeText(scheduleItem?.description),
+            location: normalizeText(scheduleItem?.location),
+          }))
+        : [],
+      activities: Array.isArray(item.activities)
+        ? item.activities.map((activity) => ({
+            name: normalizeText(activity?.name),
+            description: normalizeText(activity?.description),
+            location: normalizeText(activity?.location),
+            organizer: activity?.organizer
+              ? {
+                  name: normalizeText(activity.organizer?.name),
+                  role: normalizeText(activity.organizer?.role),
+                }
+              : undefined,
+          }))
+        : [],
+    };
+
+    if (
+      translation.title ||
+      translation.venue ||
+      translation.address ||
+      translation.location ||
+      translation.description ||
+      translation.longDescription ||
+      translation.targetAudience ||
+      translation.highlights.length ||
+      translation.schedule.length ||
+      translation.activities.length
+    ) {
+      normalized[language] = translation;
+    }
+  }
+
+  return normalized;
 }
 
 function hasEventImage(value) {
@@ -116,6 +179,8 @@ function normalizeEventPayload(payload = {}) {
     fullPassDiscount: Number(payload.fullPassDiscount || 0),
     schedule: normalizeSchedule(payload.schedule),
     activities: normalizeActivities(payload.activities),
+    contentLanguage: normalizeEmailLanguage(payload.contentLanguage),
+    translations: normalizeEventTranslations(payload.translations),
   };
 
   normalized.price = getLowestDisplayPrice(normalized);
@@ -146,6 +211,10 @@ function applyEventData(event, data) {
   event.fullPassDiscount = data.fullPassDiscount;
   event.schedule = data.schedule;
   event.activities = data.activities;
+  event.translations = {
+    ...(event.translations || {}),
+    ...(data.translations || {}),
+  };
 }
 
 function snapshotEventData(event) {
@@ -163,6 +232,7 @@ function snapshotEventData(event) {
     longDescription: event.longDescription,
     targetAudience: event.targetAudience,
     highlights: event.highlights || [],
+    translations: event.translations || {},
     ageRestriction: event.ageRestriction,
     dressCode: event.dressCode,
     image: event.image,
@@ -232,6 +302,7 @@ function publicOrganizerEvent(event) {
     longDescription: event.longDescription,
     targetAudience: event.targetAudience,
     highlights: event.highlights || [],
+    translations: event.translations || {},
     ageRestriction: event.ageRestriction,
     dressCode: event.dressCode,
     image: event.image,
@@ -632,6 +703,7 @@ router.post("/events", async (req, res) => {
       longDescription: payload.longDescription,
       targetAudience: payload.targetAudience,
       highlights: payload.highlights,
+      translations: payload.translations,
       ageRestriction: payload.ageRestriction,
       dressCode: payload.dressCode,
       image: payload.image,

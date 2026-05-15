@@ -25,6 +25,7 @@ const ticketSchema = new mongoose.Schema(
       location: { type: String, default: "" },
       city: { type: String, default: "" },
       image: { type: String, default: "" },
+      translations: { type: mongoose.Schema.Types.Mixed, default: {} },
     },
 
     ticketType: { type: String, required: true },

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
-import { useI18n } from '../i18n';
+import { useI18n, type Language } from '../i18n';
 import { CITY_OPTIONS, localizeCityName } from '../utils/localization';
 
 interface CreateEventProps {
@@ -59,54 +59,70 @@ const createEmptyScheduleItem = (): ScheduleItem => ({
 
 const extractDigits = (value: string | number | undefined | null) => String(value || '').replace(/\D/g, '');
 
-const buildFormDataFromEvent = (event?: any | null) => ({
-  title: event?.title || '',
-  eventType: (event?.eventType || '') as EventType,
-  category: event?.category || '',
-  date: event?.date || '',
-  time: event?.time || '',
-  city: event?.city || '',
-  venue: event?.venue || '',
-  address: event?.address || '',
-  description: event?.description || '',
-  longDescription: event?.longDescription || '',
-  targetAudience: event?.targetAudience || '',
-  highlights: Array.isArray(event?.highlights) ? event.highlights.join('\n') : '',
-  ageRestriction: event?.ageRestriction || '',
-  dressCode: event?.dressCode || '',
-  ticketPrice: extractDigits(event?.ticketPricing?.generalAdmission || event?.price),
-  ticketLimit: String(event?.ticketLimit || ''),
-  hasFullEventPass: Boolean(event?.ticketPricing?.fullEventPass || event?.fullPassPrice),
-  fullEventPassPrice: extractDigits(event?.ticketPricing?.fullEventPass || event?.fullPassPrice),
-  fullEventPassDiscount: extractDigits(event?.ticketPricing?.fullEventPassDiscount || event?.fullPassDiscount) || '20',
-});
+const getEventTranslation = (event: any | null | undefined, language: Language) => {
+  const translation = event?.translations?.[language];
+  return translation && typeof translation === 'object' ? translation : {};
+};
 
-const buildScheduleFromEvent = (event?: any | null): ScheduleItem[] => {
+const buildFormDataFromEvent = (event?: any | null, language: Language = 'en') => {
+  const translation = getEventTranslation(event, language);
+  return {
+    title: translation.title || event?.title || '',
+    eventType: (event?.eventType || '') as EventType,
+    category: event?.category || '',
+    date: event?.date || '',
+    time: event?.time || '',
+    city: event?.city || '',
+    venue: translation.venue || event?.venue || '',
+    address: translation.address || event?.address || '',
+    description: translation.description || event?.description || '',
+    longDescription: translation.longDescription || event?.longDescription || '',
+    targetAudience: translation.targetAudience || event?.targetAudience || '',
+    highlights: Array.isArray(translation.highlights)
+      ? translation.highlights.join('\n')
+      : Array.isArray(event?.highlights) ? event.highlights.join('\n') : '',
+    ageRestriction: event?.ageRestriction || '',
+    dressCode: event?.dressCode || '',
+    ticketPrice: extractDigits(event?.ticketPricing?.generalAdmission || event?.price),
+    ticketLimit: String(event?.ticketLimit || ''),
+    hasFullEventPass: Boolean(event?.ticketPricing?.fullEventPass || event?.fullPassPrice),
+    fullEventPassPrice: extractDigits(event?.ticketPricing?.fullEventPass || event?.fullPassPrice),
+    fullEventPassDiscount: extractDigits(event?.ticketPricing?.fullEventPassDiscount || event?.fullPassDiscount) || '20',
+  };
+};
+
+const buildScheduleFromEvent = (event?: any | null, language: Language = 'en'): ScheduleItem[] => {
   if (!event) return [createEmptyScheduleItem()];
+  const translation = getEventTranslation(event, language);
+  const translatedActivities = Array.isArray(translation.activities) ? translation.activities : [];
+  const translatedSchedule = Array.isArray(translation.schedule) ? translation.schedule : [];
 
   if (event.eventType === 'special-program' && Array.isArray(event.activities) && event.activities.length > 0) {
-    return event.activities.map((activity: any, index: number) => ({
-      id: activity.id || `schedule-${index + 1}`,
-      time: activity.time || '',
-      title: activity.name || '',
-      description: activity.description || '',
-      location: activity.location || '',
-      ticketLimit: activity.ticketLimit ? String(activity.ticketLimit) : '',
-      type: activity.type || 'Masterclass',
-      instructor: activity.instructor || '',
-      price: activity.price ? String(activity.price) : '',
-      organizerName: activity.organizer?.name || '',
-      organizerRole: activity.organizer?.role || 'Host',
-    }));
+    return event.activities.map((activity: any, index: number) => {
+      const translated = translatedActivities[index] || {};
+      return {
+        id: activity.id || `schedule-${index + 1}`,
+        time: activity.time || '',
+        title: translated.name || activity.name || '',
+        description: translated.description || activity.description || '',
+        location: translated.location || activity.location || '',
+        ticketLimit: activity.ticketLimit ? String(activity.ticketLimit) : '',
+        type: activity.type || 'Masterclass',
+        instructor: activity.instructor || '',
+        price: activity.price ? String(activity.price) : '',
+        organizerName: translated.organizer?.name || activity.organizer?.name || '',
+        organizerRole: translated.organizer?.role || activity.organizer?.role || 'Host',
+      };
+    });
   }
 
   if (Array.isArray(event.schedule) && event.schedule.length > 0) {
     return event.schedule.map((item: any, index: number) => ({
       id: item.id || `schedule-${index + 1}`,
       time: item.time || '',
-      title: item.title || '',
-      description: item.description || '',
-      location: item.location || '',
+      title: translatedSchedule[index]?.title || item.title || '',
+      description: translatedSchedule[index]?.description || item.description || '',
+      location: translatedSchedule[index]?.location || item.location || '',
       ticketLimit: '',
       type: 'Masterclass',
       instructor: '',
@@ -137,8 +153,8 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
     : language === 'kk'
       ? ['Дс', 'Сс', 'Ср', 'Бс', 'Жм', 'Сб', 'Жс']
       : weekdays;
-  const [formData, setFormData] = useState(() => buildFormDataFromEvent(initialEvent));
-  const [schedule, setSchedule] = useState<ScheduleItem[]>(() => buildScheduleFromEvent(initialEvent));
+  const [formData, setFormData] = useState(() => buildFormDataFromEvent(initialEvent, language));
+  const [schedule, setSchedule] = useState<ScheduleItem[]>(() => buildScheduleFromEvent(initialEvent, language));
   const [posterFile, setPosterFile] = useState<File | null>(null);
   const [posterPreview, setPosterPreview] = useState<string | null>(initialEvent?.image || null);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -158,8 +174,8 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
   const isDraftEdit = initialEvent?.status === 'draft';
 
   useEffect(() => {
-    setFormData(buildFormDataFromEvent(initialEvent));
-    setSchedule(buildScheduleFromEvent(initialEvent));
+    setFormData(buildFormDataFromEvent(initialEvent, language));
+    setSchedule(buildScheduleFromEvent(initialEvent, language));
     setPosterFile(null);
     setPosterPreview(initialEvent?.image || null);
     setErrors({});
@@ -169,7 +185,7 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
       const current = initialEvent?.date ? new Date(`${initialEvent.date}T00:00:00`) : new Date();
       return new Date(current.getFullYear(), current.getMonth(), 1);
     });
-  }, [initialEvent]);
+  }, [initialEvent, language]);
 
   const categoryOptions =
     formData.eventType === 'usual-event'
@@ -383,9 +399,31 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
       .split('\n')
       .map((item) => item.replace(/^[-*]\s*/, '').trim())
       .filter(Boolean);
+    const localizedContent = {
+      title: formData.title.trim(),
+      venue: formData.venue.trim(),
+      address: formData.address.trim(),
+      location: `${formData.venue.trim()}, ${formData.city}`.trim(),
+      description: formData.description.trim(),
+      longDescription: formData.longDescription.trim() || formData.description.trim(),
+      targetAudience: formData.targetAudience.trim(),
+      highlights,
+      schedule: cleanedSchedule.map((item) => ({
+        title: item.title,
+        description: item.description,
+        location: item.location,
+      })),
+      activities: activities.map((activity) => ({
+        name: activity.name,
+        description: activity.description,
+        location: activity.location,
+        organizer: activity.organizer,
+      })),
+    };
 
     return {
       ...formData,
+      contentLanguage: language,
       poster: posterFile,
       image: posterPreview,
       category: formData.category,
@@ -409,6 +447,10 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
       fullPassDiscount: formData.eventType === 'special-program' && formData.hasFullEventPass ? Number(formData.fullEventPassDiscount.replace(/\D/g, '') || 0) : 0,
       schedule: cleanedSchedule,
       activities,
+      translations: {
+        ...(initialEvent?.translations || {}),
+        [language]: localizedContent,
+      },
       status,
     };
   };

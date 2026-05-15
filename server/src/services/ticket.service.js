@@ -42,6 +42,7 @@ function toEventSnapshot(eventData = {}) {
     location: String(eventData.location || "").trim(),
     city: String(eventData.city || "").trim(),
     image: String(eventData.image || "").trim(),
+    translations: eventData.translations && typeof eventData.translations === "object" ? eventData.translations : {},
   };
 }
 
@@ -390,6 +391,7 @@ async function buildTicketOrderDataForUser({ user, eventId, eventData, ticketDet
       location: event.location,
       city: event.city,
       image: event.image,
+      translations: event.translations || {},
     });
     organizerId = event.organizer || null;
     items = applyManagedEventPrices(items, event);

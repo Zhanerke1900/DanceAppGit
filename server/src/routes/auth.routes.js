@@ -408,7 +408,10 @@ router.post("/forgot-password", async (req, res) => {
       console.log("RESET EMAIL SKIPPED");
       console.log("   REASON:", "USER_NOT_FOUND");
       console.log("   EMAIL:", cleanEmail);
-      return res.json({ message: "If that email exists, reset link was sent" });
+      return res.status(404).json({
+        message: "This email is not registered",
+        code: "USER_NOT_FOUND",
+      });
     }
 
     const token = makeToken();

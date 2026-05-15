@@ -81,6 +81,7 @@ router.post("/", requireAuth, async (req, res) => {
         location: event.location,
         city: event.city,
         image: event.image,
+        translations: event.translations || {},
       },
       items: normalizedItems,
       quantity,

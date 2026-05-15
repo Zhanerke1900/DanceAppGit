@@ -178,6 +178,16 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, initialView = 'login
       await authApi.forgotPassword(email.trim().toLowerCase());
       setView('reset-sent');
     } catch (err: any) {
+      if (err?.code === 'USER_NOT_FOUND') {
+        setEmailError(
+          language === 'ru'
+            ? 'Этот email не зарегистрирован'
+            : language === 'kk'
+              ? 'Бұл email тіркелмеген'
+              : 'This email is not registered'
+        );
+        return;
+      }
       setGeneralError(err?.message || t('auth.failedResetEmail'));
     } finally {
       setLoading(false);

@@ -311,10 +311,14 @@ export async function resendVerification(email: string) {
   return data;
 }
 export async function forgotPassword(email: string) {
-  const { res, data } = await request<{ message?: string }>("/api/auth/forgot-password", {
+  const { res, data } = await request<{ message?: string; code?: string }>("/api/auth/forgot-password", {
     method: "POST",
     json: { email },
   });
-  if (!res.ok) throw new Error((data as any)?.message || "Failed to send reset email");
+  if (!res.ok) {
+    const err: any = new Error((data as any)?.message || "Failed to send reset email");
+    err.code = (data as any)?.code;
+    throw err;
+  }
   return data;
 }

@@ -5,6 +5,7 @@ import {
   escapeHtml,
   formatMoneyForEmail,
   getEmailCopy,
+  localizeEventForEmail,
   normalizeEmailLanguage,
 } from "./emailLocale.js";
 
@@ -47,10 +48,11 @@ export async function sendTicketEmail({ email, fullName, event, tickets, languag
     })
   );
   const attachments = attachmentPairs.flat();
-  const eventTitle = event?.title || "DanceTime Event";
+  const displayEvent = localizeEventForEmail(event, lang);
+  const eventTitle = displayEvent?.title || "DanceTime Event";
   const safeEventTitle = escapeHtml(eventTitle);
   const safeGreeting = copy.greeting(escapeHtml(fullName || ""));
-  const eventDate = [event?.date, event?.time].filter(Boolean).join(" - ");
+  const eventDate = [displayEvent?.date, displayEvent?.time].filter(Boolean).join(" - ");
 
   const html = `
   <div lang="${lang}" style="font-family:Arial,sans-serif;line-height:1.6;color:#111827">
@@ -61,7 +63,7 @@ export async function sendTicketEmail({ email, fullName, event, tickets, languag
     <div style="margin:20px 0;padding:16px;border:1px solid #e5e7eb;border-radius:14px;background:#f9fafb">
       <p style="margin:0 0 8px"><strong>${escapeHtml(copy.event)}:</strong> ${safeEventTitle}</p>
       <p style="margin:0 0 8px"><strong>${escapeHtml(copy.date)}:</strong> ${escapeHtml(eventDate || "-")}</p>
-      <p style="margin:0"><strong>${escapeHtml(copy.location)}:</strong> ${escapeHtml(event?.location || "-")}</p>
+      <p style="margin:0"><strong>${escapeHtml(copy.location)}:</strong> ${escapeHtml(displayEvent?.location || "-")}</p>
     </div>
 
     ${tickets.map((ticket) => {

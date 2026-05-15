@@ -247,16 +247,164 @@ const KNOWN_TEXT_TRANSLATIONS: Record<string, Partial<LocalizedText>> = {
 
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
+type EventTranslation = {
+  title?: string;
+  venue?: string;
+  address?: string;
+  location?: string;
+  description?: string;
+  longDescription?: string;
+  targetAudience?: string;
+  highlights?: string[];
+  schedule?: Array<{ title?: string; description?: string; location?: string }>;
+  activities?: Array<{
+    name?: string;
+    description?: string;
+    location?: string;
+    organizer?: { name?: string; role?: string };
+  }>;
+};
+
+const EVENT_TEXT_REPLACEMENTS: Record<Language, Array<[string, string]>> = {
+  en: [],
+  ru: [
+    ['dance festival', 'танцевальный фестиваль'],
+    ['dance camp', 'танцевальный лагерь'],
+    ['dance night', 'танцевальный вечер'],
+    ['dance showcase', 'танцевальный шоукейс'],
+    ['dance workshop', 'танцевальный воркшоп'],
+    ['masterclass', 'мастер-класс'],
+    ['workshop', 'воркшоп'],
+    ['showcase', 'шоукейс'],
+    ['festival', 'фестиваль'],
+    ['competition', 'соревнование'],
+    ['battle', 'баттл'],
+    ['contest', 'конкурс'],
+    ['camp', 'лагерь'],
+    ['gala', 'гала'],
+    ['night', 'вечер'],
+    ['weekend', 'уикенд'],
+    ['intensive', 'интенсив'],
+    ['social', 'social-вечер'],
+    ['session', 'сессия'],
+    ['program', 'программа'],
+    ['performance', 'выступление'],
+    ['lineup', 'программа'],
+    ['guests', 'гости'],
+    ['dancers', 'танцоры'],
+    ['students', 'студенты'],
+    ['community', 'комьюнити'],
+    ['tickets', 'билеты'],
+    ['ticket', 'билет'],
+    ['venue', 'площадка'],
+    ['stage', 'сцена'],
+    ['hall', 'зал'],
+    ['studio', 'студия'],
+    ['center', 'центр'],
+    ['theatre', 'театр'],
+    ['palace', 'дворец'],
+    ['street', 'уличный'],
+    ['urban', 'урбан'],
+    ['modern', 'современный'],
+    ['contemporary', 'контемпорари'],
+    ['ballroom', 'бальные танцы'],
+    ['latin', 'латина'],
+    ['ballet', 'балет'],
+    ['salsa', 'сальса'],
+    ['bachata', 'бачата'],
+    ['tango', 'танго'],
+    ['vogue', 'vogue'],
+    ['hip hop', 'хип-хоп'],
+    ['freestyle', 'фристайл'],
+    ['rhythm', 'ритм'],
+    ['open', 'открытый'],
+    ['cup', 'кубок'],
+    ['live', 'живой'],
+  ],
+  kk: [
+    ['dance festival', 'би фестивалі'],
+    ['dance camp', 'би лагері'],
+    ['dance night', 'би кеші'],
+    ['dance showcase', 'би көрсетілімі'],
+    ['dance workshop', 'би воркшобы'],
+    ['masterclass', 'шеберлік сабағы'],
+    ['workshop', 'воркшоп'],
+    ['showcase', 'көрсетілім'],
+    ['festival', 'фестиваль'],
+    ['competition', 'жарыс'],
+    ['battle', 'баттл'],
+    ['contest', 'байқау'],
+    ['camp', 'лагерь'],
+    ['gala', 'гала кеші'],
+    ['night', 'кеш'],
+    ['weekend', 'демалыс'],
+    ['intensive', 'интенсив'],
+    ['social', 'social кеші'],
+    ['session', 'сессия'],
+    ['program', 'бағдарлама'],
+    ['performance', 'қойылым'],
+    ['lineup', 'бағдарлама'],
+    ['guests', 'қонақтар'],
+    ['dancers', 'бишілер'],
+    ['students', 'студенттер'],
+    ['community', 'қауымдастық'],
+    ['tickets', 'билеттер'],
+    ['ticket', 'билет'],
+    ['venue', 'алаң'],
+    ['stage', 'сахна'],
+    ['hall', 'зал'],
+    ['studio', 'студия'],
+    ['center', 'орталық'],
+    ['theatre', 'театр'],
+    ['palace', 'сарай'],
+    ['street', 'көше'],
+    ['urban', 'урбан'],
+    ['modern', 'заманауи'],
+    ['contemporary', 'контемпорари'],
+    ['ballroom', 'бал биі'],
+    ['latin', 'латын биі'],
+    ['ballet', 'балет'],
+    ['salsa', 'сальса'],
+    ['bachata', 'бачата'],
+    ['tango', 'танго'],
+    ['vogue', 'vogue'],
+    ['hip hop', 'хип-хоп'],
+    ['freestyle', 'фристайл'],
+    ['rhythm', 'ырғақ'],
+    ['open', 'ашық'],
+    ['cup', 'кубок'],
+    ['live', 'жанды'],
+  ],
+};
+
+const localizeFreeText = (value: string, language: Language) => {
+  let text = String(value || '');
+  if (!text || language === 'en') return text;
+
+  const replacements = EVENT_TEXT_REPLACEMENTS[language] || [];
+  for (const [source, target] of replacements.sort((a, b) => b[0].length - a[0].length)) {
+    text = text.replace(new RegExp(`\\b${escapeRegExp(source)}\\b`, 'gi'), target);
+  }
+  return text;
+};
+
+const getEventTranslation = (event: any, language: Language): EventTranslation => {
+  const translations = event?.translations;
+  if (!translations || typeof translations !== 'object') return {};
+  const translation = translations[language];
+  return translation && typeof translation === 'object' ? translation : {};
+};
+
 export const localizeKnownText = (value: string, language: Language) => {
   const text = String(value || '');
   if (!text || language === 'en') return text;
-  return KNOWN_TEXT_TRANSLATIONS[text]?.[language] || text;
+  return KNOWN_TEXT_TRANSLATIONS[text]?.[language] || localizeFreeText(text, language);
 };
 
 export const localizeEventTitle = (title: string, language: Language) => {
   const text = String(title || '');
   if (!text || language === 'en') return text;
-  return EVENT_TITLE_TRANSLATIONS[text]?.[language] || text;
+  return EVENT_TITLE_TRANSLATIONS[text]?.[language] || localizeFreeText(text, language);
 };
 
 export const stripCityFromEventTitle = (title: string) => {
@@ -294,7 +442,7 @@ export const localizeLocationText = (value: string, language: Language) => {
     }
   }
 
-  return text;
+  return localizeFreeText(text, language);
 };
 
 const localizeEventDescription = (
@@ -340,11 +488,21 @@ const localizeActivityDescription = (value: string, rawName: string, localizedNa
 export const localizeEventForDisplay = <T extends Record<string, any>>(event: T, language: Language): T => {
   if (!event) return event;
 
+  const translation = getEventTranslation(event, language);
   const rawTitle = String(event.title || '');
-  const localizedTitle = localizeEventTitle(rawTitle, language);
-  const localizedHighlights = Array.isArray(event.highlights)
-    ? event.highlights.map((item: string) => localizeKnownText(item, language))
-    : event.highlights;
+  const localizedTitle = translation.title || localizeEventTitle(rawTitle, language);
+  const localizedHighlights = Array.isArray(translation.highlights) && translation.highlights.length
+    ? translation.highlights
+    : Array.isArray(event.highlights)
+      ? event.highlights.map((item: string) => localizeKnownText(item, language))
+      : event.highlights;
+  const translatedSchedule = Array.isArray(translation.schedule) ? translation.schedule : [];
+  const translatedActivities = Array.isArray(translation.activities) ? translation.activities : [];
+
+  const description = translation.description ||
+    localizeEventDescription(event.description, rawTitle, localizedTitle, language, 'short');
+  const longDescription = translation.longDescription ||
+    localizeEventDescription(event.longDescription, rawTitle, localizedTitle, language, 'long');
 
   return {
     ...event,
@@ -353,34 +511,40 @@ export const localizeEventForDisplay = <T extends Record<string, any>>(event: T,
     date: localizeDateText(event.date, language),
     time: localizeDateText(event.time, language),
     city: localizeCityName(event.city, language),
-    venue: localizeLocationText(event.venue, language),
-    address: localizeLocationText(event.address, language),
-    location: localizeLocationText(event.location, language),
-    description: localizeEventDescription(event.description, rawTitle, localizedTitle, language, 'short'),
-    longDescription: localizeEventDescription(event.longDescription, rawTitle, localizedTitle, language, 'long'),
-    targetAudience: localizeKnownText(event.targetAudience, language),
+    venue: translation.venue || localizeLocationText(event.venue, language),
+    address: translation.address || localizeLocationText(event.address, language),
+    location: translation.location || localizeLocationText(event.location, language),
+    description,
+    longDescription,
+    targetAudience: translation.targetAudience || localizeKnownText(event.targetAudience, language),
     highlights: localizedHighlights,
     schedule: Array.isArray(event.schedule)
-      ? event.schedule.map((item: any) => ({
-          ...item,
-          title: localizeEventTitle(item.title, language),
-          description: localizeKnownText(item.description, language),
-          location: localizeLocationText(item.location, language),
-        }))
+      ? event.schedule.map((item: any, index: number) => {
+          const translated = translatedSchedule[index] || {};
+          return {
+            ...item,
+            title: translated.title || localizeEventTitle(item.title, language),
+            description: translated.description || localizeKnownText(item.description, language),
+            location: translated.location || localizeLocationText(item.location, language),
+          };
+        })
       : event.schedule,
     activities: Array.isArray(event.activities)
-      ? event.activities.map((activity: any) => {
+      ? event.activities.map((activity: any, index: number) => {
+          const translated = translatedActivities[index] || {};
           const rawName = String(activity.name || '');
-          const localizedName = localizeEventTitle(rawName, language);
+          const localizedName = translated.name || localizeEventTitle(rawName, language);
           return {
             ...activity,
             name: localizedName,
-            description: localizeActivityDescription(activity.description, rawName, localizedName, language),
-            location: localizeLocationText(activity.location, language),
+            description: translated.description ||
+              localizeActivityDescription(activity.description, rawName, localizedName, language),
+            location: translated.location || localizeLocationText(activity.location, language),
             organizer: activity.organizer
               ? {
                   ...activity.organizer,
-                  role: localizeKnownText(activity.organizer.role, language),
+                  name: translated.organizer?.name || activity.organizer.name,
+                  role: translated.organizer?.role || localizeKnownText(activity.organizer.role, language),
                 }
               : activity.organizer,
           };

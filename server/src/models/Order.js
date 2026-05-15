@@ -44,6 +44,7 @@ const orderSchema = new mongoose.Schema(
       location: { type: String, default: "" },
       city: { type: String, default: "" },
       image: { type: String, default: "" },
+      translations: { type: mongoose.Schema.Types.Mixed, default: {} },
     },
 
     items: { type: [orderItemSchema], default: [] },

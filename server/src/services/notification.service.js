@@ -3,17 +3,18 @@ import Order from "../models/Order.js";
 import Ticket from "../models/Ticket.js";
 import { getEventStartAt } from "../utils/eventDates.js";
 import { getMailer, getMailerProvider, getMailFrom } from "../utils/mailer.js";
-import { escapeHtml, getEmailCopy, normalizeEmailLanguage } from "../utils/emailLocale.js";
+import { escapeHtml, getEmailCopy, localizeEventForEmail, normalizeEmailLanguage } from "../utils/emailLocale.js";
 
 const DEFAULT_REMINDER_INTERVAL_MS = 15 * 60 * 1000;
 
-function normalizeEventInfo(event = {}) {
+function normalizeEventInfo(event = {}, language = "en") {
+  const displayEvent = localizeEventForEmail(event, language);
   return {
-    title: String(event.title || "DanceTime Event").trim(),
-    date: String(event.date || "").trim(),
-    time: String(event.time || "").trim(),
-    location: String(event.location || event.venue || event.address || "").trim(),
-    city: String(event.city || "").trim(),
+    title: String(displayEvent.title || "DanceTime Event").trim(),
+    date: String(displayEvent.date || "").trim(),
+    time: String(displayEvent.time || "").trim(),
+    location: String(displayEvent.location || displayEvent.venue || displayEvent.address || "").trim(),
+    city: String(displayEvent.city || "").trim(),
   };
 }
 
@@ -24,7 +25,7 @@ function eventLine(event = {}) {
 
 function buildEventDetailsHtml(event = {}, language = "en") {
   const copy = getEmailCopy(language);
-  const info = normalizeEventInfo(event);
+  const info = normalizeEventInfo(event, language);
   return `
     <div style="margin:16px 0;padding:16px;border:1px solid #e5e7eb;border-radius:12px;background:#fafafa">
       <p style="margin:0 0 8px"><b>${escapeHtml(copy.event)}:</b> ${escapeHtml(info.title)}</p>
@@ -157,8 +158,17 @@ export async function sendEventUpdateNotifications(event, previousEvent = null) 
   for (const recipient of recipients) {
     const lang = normalizeEmailLanguage(recipient.language);
     const copy = getEmailCopy(lang);
-    const changesHtml = changedRows.length
-      ? `<ul>${changedRows
+    const recipientCurrent = normalizeEventInfo(event, lang);
+    const recipientPrevious = previousEvent ? normalizeEventInfo(previousEvent, lang) : null;
+    const recipientChangedRows = recipientPrevious
+      ? [
+          ["changedDate", eventLine(recipientPrevious), eventLine(recipientCurrent)],
+          ["changedLocation", recipientPrevious.location || recipientPrevious.city, recipientCurrent.location || recipientCurrent.city],
+          ["changedTitle", recipientPrevious.title, recipientCurrent.title],
+        ].filter(([, before, after]) => String(before || "") !== String(after || ""))
+      : changedRows;
+    const changesHtml = recipientChangedRows.length
+      ? `<ul>${recipientChangedRows
           .map(([labelKey, before, after]) =>
             `<li><b>${escapeHtml(copy[labelKey])}:</b> ${escapeHtml(before || "-")} &rarr; ${escapeHtml(after || "-")}</li>`
           )
@@ -168,16 +178,16 @@ export async function sendEventUpdateNotifications(event, previousEvent = null) 
     const html = `
       <div lang="${lang}" style="font-family:Arial,sans-serif;line-height:1.5;color:#111827">
         <h2>${escapeHtml(copy.eventUpdateTitle)}</h2>
-        <p>${copy.greeting(escapeHtml(recipient.fullName || ""))}! ${copy.eventUpdateIntro(escapeHtml(current.title))}</p>
+        <p>${copy.greeting(escapeHtml(recipient.fullName || ""))}! ${copy.eventUpdateIntro(escapeHtml(recipientCurrent.title))}</p>
         ${changesHtml}
-        ${buildEventDetailsHtml(current, lang)}
+        ${buildEventDetailsHtml(event, lang)}
         <p style="color:#666;font-size:12px">${escapeHtml(copy.eventUpdateReason)}</p>
       </div>`;
 
     const ok = await sendMail({
       label: "EVENT UPDATE EMAIL",
       to: recipient.email,
-      subject: copy.eventUpdateSubject(current.title),
+      subject: copy.eventUpdateSubject(recipientCurrent.title),
       html,
     });
     if (ok) sent += 1;
@@ -189,7 +199,7 @@ export async function sendEventUpdateNotifications(event, previousEvent = null) 
 export async function sendEventReminderEmail({ recipient, event }) {
   const lang = normalizeEmailLanguage(recipient.language);
   const copy = getEmailCopy(lang);
-  const current = normalizeEventInfo(event);
+  const current = normalizeEventInfo(event, lang);
   const ticketCodes = recipient.ticketCodes?.length
     ? `<p><b>${escapeHtml(copy.yourTickets(recipient.ticketCodes.length))}:</b> ${recipient.ticketCodes.map(escapeHtml).join(", ")}</p>`
     : "";
@@ -198,7 +208,7 @@ export async function sendEventReminderEmail({ recipient, event }) {
     <div lang="${lang}" style="font-family:Arial,sans-serif;line-height:1.5;color:#111827">
       <h2>${escapeHtml(copy.reminderTitle)}</h2>
       <p>${copy.greeting(escapeHtml(recipient.fullName || ""))}! ${copy.reminderIntro(escapeHtml(current.title))}</p>
-      ${buildEventDetailsHtml(current, lang)}
+      ${buildEventDetailsHtml(event, lang)}
       ${ticketCodes}
       <p>${escapeHtml(copy.keepQrReady)}</p>
       <p style="color:#666;font-size:12px">${escapeHtml(copy.reminderPrefs)}</p>

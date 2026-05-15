@@ -54,6 +54,7 @@ const eventSchema = new mongoose.Schema(
     longDescription: { type: String, default: "" },
     targetAudience: { type: String, default: "" },
     highlights: { type: [String], default: [] },
+    translations: { type: mongoose.Schema.Types.Mixed, default: {} },
     ageRestriction: { type: String, default: "" },
     dressCode: { type: String, default: "" },
 
