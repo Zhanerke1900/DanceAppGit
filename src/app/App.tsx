@@ -1321,7 +1321,7 @@ function AppContent() {
                   {PARTNER_LOGOS.map((logo) => (
                     <div
                       key={logo.alt}
-                      className="flex h-20 w-36 items-center justify-center rounded-md bg-white/70 p-3 shadow-sm ring-1 ring-purple-950/5 dark:bg-white/10 dark:ring-white/10 sm:h-24 sm:w-44"
+                      className="flex h-20 w-36 items-center justify-center p-2 sm:h-24 sm:w-44"
                     >
                       <img
                         src={logo.src}
