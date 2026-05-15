@@ -57,8 +57,6 @@ const normalizeCity = (value: string) => {
   return aliases[normalized] || normalized;
 };
 
-const hasDisplayImage = (event: any) => Boolean(String(event?.image || '').trim());
-
 const getEventId = (event: any) =>
   String(event?.id || event?._id || `${event?.title || ''}-${event?.date || ''}-${event?.location || ''}`).trim();
 
@@ -97,7 +95,7 @@ export const FeaturedEvents = ({
     Ballroom: t('featuredEvents.ballroom'),
   };
 
-  const displayEvents = useMemo(() => dedupeEvents(dynamicEvents.filter(hasDisplayImage)), [dynamicEvents]);
+  const displayEvents = useMemo(() => dedupeEvents(dynamicEvents), [dynamicEvents]);
   const normalizedSearchQuery = searchQuery.trim().toLowerCase();
   const isSearching = Boolean(normalizedSearchQuery);
   const currentCity = normalizeCityKey(selectedCity);

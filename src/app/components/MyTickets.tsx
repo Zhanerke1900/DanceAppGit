@@ -48,6 +48,12 @@ const getRefundDeadlineMs = (ticket: TicketRecord) => {
   const direct = new Date(rawTime ? `${rawDate} ${rawTime}` : rawDate);
   if (!Number.isNaN(direct.getTime())) return direct.getTime() - Date.now();
 
+  const isoRangeMatch = rawDate.match(/^(\d{4}-\d{2}-\d{2})\s*-\s*(\d{4}-\d{2}-\d{2})$/);
+  if (isoRangeMatch) {
+    const parsed = new Date(rawTime ? `${isoRangeMatch[1]} ${rawTime}` : isoRangeMatch[1]);
+    if (!Number.isNaN(parsed.getTime())) return parsed.getTime() - Date.now();
+  }
+
   const monthRangeMatch = rawDate.match(/^([A-Za-z]+)\s+(\d{1,2})\s*-\s*\d{1,2},\s*(\d{4})$/);
   if (monthRangeMatch) {
     const normalized = `${monthRangeMatch[1]} ${monthRangeMatch[2]}, ${monthRangeMatch[3]}${rawTime ? ` ${rawTime}` : ""}`;

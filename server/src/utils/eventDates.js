@@ -54,6 +54,18 @@ function parseDateRange(value = "") {
   const rawDate = String(value || "").trim();
   if (!rawDate) return null;
 
+  const isoRange = rawDate.match(/^(\d{4})-(\d{2})-(\d{2})\s*-\s*(\d{4})-(\d{2})-(\d{2})$/);
+  if (isoRange) {
+    const [, startYear, startMonth, startDay, endYear, endMonth, endDay] = isoRange;
+    const startMonthIndex = Number(startMonth) - 1;
+    const endMonthIndex = Number(endMonth) - 1;
+    if (startMonthIndex < 0 || startMonthIndex > 11 || endMonthIndex < 0 || endMonthIndex > 11) return null;
+    return {
+      start: { year: Number(startYear), monthIndex: startMonthIndex, day: Number(startDay) },
+      end: { year: Number(endYear), monthIndex: endMonthIndex, day: Number(endDay) },
+    };
+  }
+
   const iso = rawDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (iso) {
     const [, year, month, day] = iso;

@@ -7,6 +7,8 @@ import { getLowestDisplayPrice } from "../utils/eventPricing.js";
 
 const router = express.Router();
 const PUBLISHED_EVENTS_CACHE_MS = Number(process.env.PUBLISHED_EVENTS_CACHE_MS || 15000);
+const DEFAULT_EVENT_IMAGE =
+  "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&q=80&w=1080";
 let publishedEventsCache = { expiresAt: 0, payload: null };
 let publishedEventsInFlight = null;
 
@@ -14,12 +16,12 @@ export function invalidatePublishedEventsCache() {
   publishedEventsCache = { expiresAt: 0, payload: null };
 }
 
-function hasDisplayImage(event) {
-  return Boolean(String(event?.image || "").trim());
-}
-
 function isSeededMarketplaceEvent(event) {
   return String(event?.seedKey || "").startsWith("marketplace-");
+}
+
+function getDisplayImage(event) {
+  return String(event?.image || "").trim() || DEFAULT_EVENT_IMAGE;
 }
 
 function getTimestamp(value) {
@@ -104,7 +106,7 @@ function publicPublishedEvent(event, availability = {}) {
     translations: event.translations || {},
     ageRestriction: event.ageRestriction,
     dressCode: event.dressCode,
-    image: event.image,
+    image: getDisplayImage(event),
     price: getLowestDisplayPrice(event),
     ticketLimit: Number(event.ticketLimit || 0),
     soldTickets: Number(availability.soldTickets || 0),
@@ -132,11 +134,11 @@ async function buildPublishedEventsPayload() {
   const archiveResult = await archivePastPublishedEvents();
   if (archiveResult.archivedCount > 0) invalidatePublishedEventsCache();
 
-  const allPublishedEvents = await Event.find({ status: "published", image: { $exists: true, $nin: ["", null] } })
+  const allPublishedEvents = await Event.find({ status: "published" })
     .sort({ createdAt: -1 })
     .limit(400)
     .lean();
-  const events = allPublishedEvents.filter(hasDisplayImage).filter((event) => !isEventPast(event)).sort(sortPublishedEvents);
+  const events = allPublishedEvents.filter((event) => !isEventPast(event)).sort(sortPublishedEvents);
   const { soldMap, activityUsageByEvent } = await loadAvailability(events);
 
   return {

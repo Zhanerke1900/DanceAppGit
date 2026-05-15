@@ -87,33 +87,36 @@ export const citySearchText = (city: string, language: Language) => {
   return [canonical, ...labels, localizeCityName(city, language)].join(' ').toLocaleLowerCase();
 };
 
-const MONTH_LABELS: Record<string, LocalizedText> = {
-  January: { en: 'January', ru: 'января', kk: 'қаңтар' },
-  February: { en: 'February', ru: 'февраля', kk: 'ақпан' },
-  March: { en: 'March', ru: 'марта', kk: 'наурыз' },
-  April: { en: 'April', ru: 'апреля', kk: 'сәуір' },
-  May: { en: 'May', ru: 'мая', kk: 'мамыр' },
-  June: { en: 'June', ru: 'июня', kk: 'маусым' },
-  July: { en: 'July', ru: 'июля', kk: 'шілде' },
-  August: { en: 'August', ru: 'августа', kk: 'тамыз' },
-  September: { en: 'September', ru: 'сентября', kk: 'қыркүйек' },
-  October: { en: 'October', ru: 'октября', kk: 'қазан' },
-  November: { en: 'November', ru: 'ноября', kk: 'қараша' },
-  December: { en: 'December', ru: 'декабря', kk: 'желтоқсан' },
+const MONTH_NUMBERS: Record<string, string> = {
+  January: '01',
+  February: '02',
+  March: '03',
+  April: '04',
+  May: '05',
+  June: '06',
+  July: '07',
+  August: '08',
+  September: '09',
+  October: '10',
+  November: '11',
+  December: '12',
 };
 
-export const localizeDateText = (value: string, language: Language) => {
-  const text = String(value || '');
-  if (!text || language === 'en') return text;
+const padDatePart = (value: string | number) => String(value).padStart(2, '0');
+
+export const localizeDateText = (value: string, _language: Language) => {
+  const text = String(value || '').trim();
+  if (!text) return text;
+
+  const isoRange = text.match(/^(\d{4}-\d{2}-\d{2})\s*-\s*(\d{4}-\d{2}-\d{2})$/);
+  if (isoRange) return `${isoRange[1]} - ${isoRange[2]}`;
 
   return text.replace(
     /\b(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2})(?:\s*-\s*(\d{1,2}))?,\s*(\d{4})\b/g,
     (_match, month: string, day: string, endDay: string | undefined, year: string) => {
-      const dayPart = endDay ? `${day}-${endDay}` : day;
-      const monthLabel = MONTH_LABELS[month]?.[language] || month;
-      return language === 'kk'
-        ? `${year} жылғы ${dayPart} ${monthLabel}`
-        : `${dayPart} ${monthLabel} ${year}`;
+      const monthNumber = MONTH_NUMBERS[month] || month;
+      const startDate = `${year}-${monthNumber}-${padDatePart(day)}`;
+      return endDay ? `${startDate} - ${year}-${monthNumber}-${padDatePart(endDay)}` : startDate;
     }
   );
 };

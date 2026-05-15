@@ -1,4 +1,18 @@
 const EMAIL_LANGUAGES = new Set(["en", "ru", "kk"]);
+const MONTH_NUMBERS = {
+  January: "01",
+  February: "02",
+  March: "03",
+  April: "04",
+  May: "05",
+  June: "06",
+  July: "07",
+  August: "08",
+  September: "09",
+  October: "10",
+  November: "11",
+  December: "12",
+};
 
 const moneyLocales = {
   en: "en-US",
@@ -250,6 +264,27 @@ export function getEmailCopy(language) {
   return copy[normalizeEmailLanguage(language)];
 }
 
+function padDatePart(value) {
+  return String(value || "").padStart(2, "0");
+}
+
+function normalizeNumericDateText(value) {
+  const text = String(value || "").trim();
+  if (!text) return text;
+
+  const isoRange = text.match(/^(\d{4}-\d{2}-\d{2})\s*-\s*(\d{4}-\d{2}-\d{2})$/);
+  if (isoRange) return `${isoRange[1]} - ${isoRange[2]}`;
+
+  return text.replace(
+    /\b(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2})(?:\s*-\s*(\d{1,2}))?,\s*(\d{4})\b/g,
+    (_match, month, day, endDay, year) => {
+      const monthNumber = MONTH_NUMBERS[month] || month;
+      const startDate = `${year}-${monthNumber}-${padDatePart(day)}`;
+      return endDay ? `${startDate} - ${year}-${monthNumber}-${padDatePart(endDay)}` : startDate;
+    }
+  );
+}
+
 export function localizeEventForEmail(event = {}, language = "en") {
   const lang = normalizeEmailLanguage(language);
   const localized = event?.translations?.[lang] || {};
@@ -258,6 +293,7 @@ export function localizeEventForEmail(event = {}, language = "en") {
   return {
     ...fallback,
     title: localized.title || fallback.title,
+    date: normalizeNumericDateText(fallback.date),
     venue: localized.venue || fallback.venue,
     address: localized.address || fallback.address,
     location: localized.location || fallback.location,

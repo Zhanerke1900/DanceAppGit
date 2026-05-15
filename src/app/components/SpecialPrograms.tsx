@@ -32,8 +32,6 @@ export interface Activity {
   location?: string;
 }
 
-const hasDisplayImage = (program: any) => Boolean(String(program?.image || '').trim());
-
 interface SpecialProgramsProps {
   onBookTicket: (event: any) => void;
   selectedCity: string;
@@ -66,7 +64,7 @@ export const SpecialPrograms = ({
   const selectedCityLabel = localizeCityName(selectedCity, language);
   const selectedCityKey = normalizeCity(selectedCity);
 
-  const mergedPrograms = dynamicPrograms.filter(hasDisplayImage);
+  const mergedPrograms = dynamicPrograms;
 
   const filteredPrograms = mergedPrograms.filter(p => {
     const matchesCategory = isSearching || activeCategory === 'All' || p.category === activeCategory;

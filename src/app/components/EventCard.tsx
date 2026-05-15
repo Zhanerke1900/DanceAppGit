@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, Heart, MapPin } from 'lucide-react';
 import { useI18n } from '../i18n';
+import { DEFAULT_EVENT_IMAGE, getDisplayEventImage } from '../utils/eventImages';
 import { stripCityFromEventTitle } from '../utils/localization';
 
 interface EventCardProps {
@@ -50,6 +51,7 @@ export const EventCard = ({
   const actionLabel = soldOut ? t('common.viewDetails') : t('common.buyTicket');
   const displayImage = String(image || '').trim();
   const [imageFailed, setImageFailed] = useState(false);
+  const imageSrc = imageFailed ? DEFAULT_EVENT_IMAGE : getDisplayEventImage(displayImage);
   const displayTitle = stripCityFromEventTitle(title);
   const numericPrice = getNumericPrice(price);
   const priceLabel = numericPrice
@@ -61,10 +63,6 @@ export const EventCard = ({
   useEffect(() => {
     setImageFailed(false);
   }, [displayImage]);
-
-  if (!displayImage || imageFailed) {
-    return null;
-  }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -84,10 +82,12 @@ export const EventCard = ({
     >
       <div className="relative aspect-[4/5] overflow-hidden rounded-xl bg-gray-200 shadow-[0_10px_24px_rgba(61,41,110,0.14)] transition-transform duration-300 group-hover:-translate-y-0.5 group-focus-visible:ring-2 group-focus-visible:ring-purple-500 dark:bg-gray-900">
         <img
-          src={displayImage}
+          src={imageSrc}
           alt={displayTitle}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.035]"
-          onError={() => setImageFailed(true)}
+          onError={() => {
+            if (!imageFailed) setImageFailed(true);
+          }}
         />
         <button
           type="button"
