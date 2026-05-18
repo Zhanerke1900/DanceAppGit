@@ -1327,16 +1327,20 @@ function AppContent() {
                 <p className="text-center text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-8 dark:text-gray-500">
                   {t('home.partners')}
                 </p>
-                <div className="flex flex-wrap justify-center items-center gap-5 sm:gap-7 md:gap-10">
+                <div className="partner-logo-strip flex flex-wrap justify-center items-center gap-5 sm:gap-7 md:gap-10">
                   {PARTNER_LOGOS.map((logo) => (
                     <div
                       key={logo.alt}
-                      className="flex h-20 w-36 items-center justify-center p-2 sm:h-24 sm:w-44"
+                      className={`partner-logo-frame flex h-20 w-36 items-center justify-center p-2 sm:h-24 sm:w-44 ${
+                        logo.alt === 'Blaze' ? 'partner-logo-frame--blaze' : ''
+                      }`}
                     >
                       <img
                         src={logo.src}
                         alt={logo.alt}
-                        className="max-h-full max-w-full object-contain"
+                        className={`partner-logo max-h-full max-w-full object-contain ${
+                          logo.alt === 'Blaze' ? 'partner-logo--blaze' : ''
+                        }`}
                         loading="lazy"
                       />
                     </div>
