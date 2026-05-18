@@ -162,12 +162,12 @@ const MarketplaceSearch = ({ value, onChange, elevated = false }: MarketplaceSea
     <section className={`${elevated ? 'pt-24' : 'pt-9'} bg-background px-4 pb-4 sm:px-6 lg:px-8`}>
       <div className="mx-auto max-w-7xl">
         <div className="relative mx-auto h-11 w-full max-w-[640px] rounded-full bg-[#f1f2f4] shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] dark:bg-white/10">
-          <Search className="pointer-events-none absolute left-6 top-1/2 h-5 w-5 -translate-y-1/2 text-[#6f7782] dark:text-white/60" />
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f7782] dark:text-white/60 sm:left-6 sm:h-5 sm:w-5" />
           <input
             value={value}
             onChange={(event) => onChange(event.target.value)}
             placeholder={t('common.searchMarketplace')}
-            className="h-full w-full rounded-full border-0 bg-transparent pl-14 pr-12 text-[16px] font-medium text-foreground outline-none placeholder:text-[#a1a8b3] dark:placeholder:text-white/45"
+            className="h-full w-full min-w-0 truncate rounded-full border-0 bg-transparent pl-10 pr-10 text-[13px] font-medium text-foreground outline-none placeholder:text-[#a1a8b3] dark:placeholder:text-white/45 sm:pl-14 sm:pr-12 sm:text-[16px]"
           />
           {value && (
             <button
@@ -1327,13 +1327,11 @@ function AppContent() {
                 <p className="text-center text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-8 dark:text-gray-500">
                   {t('home.partners')}
                 </p>
-                <div className="partner-logo-strip flex flex-wrap justify-center items-center gap-5 sm:gap-7 md:gap-10">
+                <div className="partner-logo-strip flex flex-nowrap justify-center items-center gap-1.5 sm:flex-wrap sm:gap-7 md:gap-10">
                   {PARTNER_LOGOS.map((logo) => (
                     <div
                       key={logo.alt}
-                      className={`partner-logo-frame flex h-20 w-36 items-center justify-center p-2 sm:h-24 sm:w-44 ${
-                        logo.alt === 'Blaze' ? 'partner-logo-frame--blaze' : ''
-                      }`}
+                      className="partner-logo-frame flex h-12 w-[20.5vw] max-w-[5.75rem] items-center justify-center p-1 sm:h-24 sm:w-44 sm:max-w-none sm:p-2"
                     >
                       <img
                         src={logo.src}
