@@ -15,17 +15,6 @@ type ScanResultView = {
   title: string;
 };
 
-const getScannerQrBox = (viewfinderWidth: number, viewfinderHeight: number) => {
-  const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-  const isMobile = viewfinderWidth < 640;
-  const margin = isMobile ? 4 : 48;
-  const availableEdge = Math.max(180, minEdge - margin);
-  const preferredEdge = Math.floor(minEdge * (isMobile ? 0.98 : 0.78));
-  const edge = Math.min(availableEdge, Math.max(isMobile ? 280 : 250, preferredEdge));
-
-  return { width: edge, height: edge };
-};
-
 export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
   events,
   selectedEvent,
@@ -214,15 +203,18 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
       return;
     }
 
-    setCameraError('');
-    setResult(null);
-    setIsCameraStarting(true);
-    setIsCameraOpen(true);
-    setScannerHint(copy.startingCamera);
-
     try {
       await stopCamera();
+
+      setCameraError('');
+      setResult(null);
+      setIsCameraStarting(true);
       setIsCameraOpen(true);
+      setScannerHint(copy.startingCamera);
+
+      await new Promise<void>((resolve) => {
+        window.requestAnimationFrame(() => resolve());
+      });
 
       const scanner = new Html5Qrcode(scannerElementId, {
         formatsToSupport: [
@@ -237,14 +229,10 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
       scannerRef.current = scanner;
 
       await scanner.start(
+        { facingMode: 'environment' },
         {
-          facingMode: { ideal: 'environment' },
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-        },
-        {
-          fps: 20,
-          qrbox: getScannerQrBox,
+          fps: 15,
+          qrbox: { width: 300, height: 300 },
           disableFlip: false,
         },
         async (decodedText) => {
