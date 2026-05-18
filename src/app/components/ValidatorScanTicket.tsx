@@ -18,10 +18,10 @@ type ScanResultView = {
 const getScannerQrBox = (viewfinderWidth: number, viewfinderHeight: number) => {
   const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
   const isMobile = viewfinderWidth < 640;
-  const margin = isMobile ? 12 : 48;
-  const availableEdge = Math.max(160, minEdge - margin);
-  const preferredEdge = Math.floor(minEdge * (isMobile ? 0.94 : 0.78));
-  const edge = Math.min(availableEdge, Math.max(250, preferredEdge));
+  const margin = isMobile ? 4 : 48;
+  const availableEdge = Math.max(180, minEdge - margin);
+  const preferredEdge = Math.floor(minEdge * (isMobile ? 0.98 : 0.78));
+  const edge = Math.min(availableEdge, Math.max(isMobile ? 280 : 250, preferredEdge));
 
   return { width: edge, height: edge };
 };
@@ -243,7 +243,7 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
           height: { ideal: 1080 },
         },
         {
-          fps: 15,
+          fps: 20,
           qrbox: getScannerQrBox,
           disableFlip: false,
         },
@@ -297,7 +297,7 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
   const resultView = getResultView();
 
   return (
-    <div className="min-h-screen bg-black p-2 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-black p-0 sm:p-6 lg:p-8">
       <style>{`
         #${scannerElementId} {
           width: 100%;
@@ -325,26 +325,26 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
           display: none !important;
         }
       `}</style>
-      <div className="mx-auto max-w-6xl space-y-5 sm:space-y-8">
-        <div>
+      <div className="mx-auto max-w-6xl space-y-4 sm:space-y-8">
+        <div className="hidden sm:block">
           <h1 className="mb-1 text-xl font-bold text-white sm:mb-2 sm:text-3xl">{copy.title}</h1>
           <p className="text-sm text-gray-400 sm:text-base">{copy.subtitle}</p>
         </div>
 
-        <div className="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
-          <div className="space-y-6">
-            <div className="rounded-xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-3 sm:rounded-2xl sm:p-6">
-              <div className="mb-3 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-                <div>
-                  <h2 className="text-lg font-bold text-white sm:text-xl">{copy.cameraScanner}</h2>
-                  <p className="text-xs text-gray-400 sm:text-sm">{copy.cameraDesc}</p>
+        <div className="grid gap-4 sm:gap-6 xl:grid-cols-[1fr_0.9fr]">
+          <div className="space-y-4 sm:space-y-6">
+            <div className="border-b border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-2 sm:rounded-2xl sm:border sm:p-6">
+              <div className="mb-2 flex items-center justify-between gap-2 sm:mb-5 sm:gap-4">
+                <div className="min-w-0">
+                  <h2 className="truncate text-base font-bold text-white sm:text-xl">{copy.cameraScanner}</h2>
+                  <p className="hidden text-xs text-gray-400 min-[420px]:block sm:text-sm">{copy.cameraDesc}</p>
                 </div>
-                <div className="flex w-full gap-3 sm:w-auto">
+                <div className="shrink-0">
                   {isCameraOpen ? (
                     <button
                       type="button"
                       onClick={() => stopCamera()}
-                      className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 font-medium text-red-300 transition-colors hover:bg-red-500/20 sm:w-auto"
+                      className="flex items-center justify-center rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm font-semibold text-red-300 transition-colors hover:bg-red-500/20 sm:rounded-xl sm:px-4 sm:py-3 sm:text-base"
                     >
                       {copy.stop}
                     </button>
@@ -353,7 +353,7 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
                       type="button"
                       onClick={() => startCamera()}
                       disabled={isCameraStarting || !selectedEvent?.id}
-                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-purple-600 px-4 py-3 font-medium text-white transition-colors hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                      className="flex items-center justify-center rounded-lg bg-purple-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-xl sm:px-4 sm:py-3 sm:text-base"
                     >
                       {isCameraStarting ? copy.starting : copy.startScanner}
                     </button>
@@ -362,7 +362,7 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
               </div>
 
               <div className="overflow-hidden rounded-xl border border-white/10 bg-black sm:rounded-2xl">
-                <div className="relative h-[68svh] min-h-[420px] bg-gray-950 sm:h-auto sm:min-h-0 sm:aspect-video">
+                <div className="relative h-[80svh] min-h-[560px] max-h-[820px] bg-gray-950 sm:h-auto sm:min-h-0 sm:max-h-none sm:aspect-video">
                   <div id={scannerElementId} className={`h-full w-full ${isCameraOpen ? 'block' : 'hidden'}`} />
                   {!isCameraOpen && (
                     <div className="flex h-full flex-col items-center justify-center px-6 text-center">
