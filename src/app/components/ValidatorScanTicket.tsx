@@ -15,6 +15,17 @@ type ScanResultView = {
   title: string;
 };
 
+const getScannerQrBox = (viewfinderWidth: number, viewfinderHeight: number) => {
+  const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+  const isMobile = viewfinderWidth < 640;
+  const margin = isMobile ? 12 : 48;
+  const availableEdge = Math.max(160, minEdge - margin);
+  const preferredEdge = Math.floor(minEdge * (isMobile ? 0.94 : 0.78));
+  const edge = Math.min(availableEdge, Math.max(250, preferredEdge));
+
+  return { width: edge, height: edge };
+};
+
 export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
   events,
   selectedEvent,
@@ -226,11 +237,14 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
       scannerRef.current = scanner;
 
       await scanner.start(
-        { facingMode: 'environment' },
         {
-          fps: 10,
-          qrbox: { width: 260, height: 260 },
-          aspectRatio: 1.7777778,
+          facingMode: { ideal: 'environment' },
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+        },
+        {
+          fps: 15,
+          qrbox: getScannerQrBox,
           disableFlip: false,
         },
         async (decodedText) => {
@@ -283,7 +297,7 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
   const resultView = getResultView();
 
   return (
-    <div className="min-h-screen bg-black p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-black p-2 sm:p-6 lg:p-8">
       <style>{`
         #${scannerElementId} {
           width: 100%;
@@ -311,19 +325,19 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
           display: none !important;
         }
       `}</style>
-      <div className="mx-auto max-w-6xl space-y-8">
+      <div className="mx-auto max-w-6xl space-y-5 sm:space-y-8">
         <div>
-          <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl">{copy.title}</h1>
-          <p className="text-gray-400">{copy.subtitle}</p>
+          <h1 className="mb-1 text-xl font-bold text-white sm:mb-2 sm:text-3xl">{copy.title}</h1>
+          <p className="text-sm text-gray-400 sm:text-base">{copy.subtitle}</p>
         </div>
 
         <div className="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
           <div className="space-y-6">
-            <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-5 sm:p-6">
-              <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="rounded-xl border border-purple-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-3 sm:rounded-2xl sm:p-6">
+              <div className="mb-3 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                 <div>
-                  <h2 className="text-xl font-bold text-white">{copy.cameraScanner}</h2>
-                  <p className="text-sm text-gray-400">{copy.cameraDesc}</p>
+                  <h2 className="text-lg font-bold text-white sm:text-xl">{copy.cameraScanner}</h2>
+                  <p className="text-xs text-gray-400 sm:text-sm">{copy.cameraDesc}</p>
                 </div>
                 <div className="flex w-full gap-3 sm:w-auto">
                   {isCameraOpen ? (
@@ -347,8 +361,8 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
                 </div>
               </div>
 
-              <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
-                <div className="relative aspect-square bg-gray-950 sm:aspect-video">
+              <div className="overflow-hidden rounded-xl border border-white/10 bg-black sm:rounded-2xl">
+                <div className="relative h-[68svh] min-h-[420px] bg-gray-950 sm:h-auto sm:min-h-0 sm:aspect-video">
                   <div id={scannerElementId} className={`h-full w-full ${isCameraOpen ? 'block' : 'hidden'}`} />
                   {!isCameraOpen && (
                     <div className="flex h-full flex-col items-center justify-center px-6 text-center">
