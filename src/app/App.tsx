@@ -1519,21 +1519,36 @@ function AppContent() {
             )}
             {!isAdmin && !isOrganizer && !isValidator && profileTab === 'purchase-history' && (
               <PurchaseHistory
-                purchases={purchaseHistory.map((ticket) => ({
-                  id: ticket.ticketCode,
-                  event: ticket.event.title,
-                  date: ticket.event.date,
-                  venue: ticket.event.location,
-                  city: ticket.event.city,
-                  tickets: 1,
-                  ticketType: ticket.ticketType,
-                  total: ticket.price,
-                  purchaseDate: ticket.purchasedAt,
-                  status: ticket.status,
-                  image: ticket.event.image,
-                  qrCodeDataUrl: ticket.qrCodeDataUrl,
-                  barcodeDataUrl: ticket.barcodeDataUrl,
-                }))}
+                purchases={Object.values(purchaseHistory.reduce<Record<string, any>>((groups, ticket) => {
+                  const groupId = ticket.orderId || ticket.ticketCode;
+                  if (!groups[groupId]) {
+                    groups[groupId] = {
+                      id: groupId,
+                      event: ticket.event.title,
+                      date: ticket.event.date,
+                      venue: ticket.event.location,
+                      city: ticket.event.city,
+                      tickets: 0,
+                      ticketType: '',
+                      total: 0,
+                      purchaseDate: ticket.purchasedAt,
+                      status: ticket.status,
+                      image: ticket.event.image,
+                      qrCodeDataUrl: ticket.qrCodeDataUrl,
+                      barcodeDataUrl: ticket.barcodeDataUrl,
+                      ticketTypes: {} as Record<string, number>,
+                    };
+                  }
+                  const group = groups[groupId];
+                  group.tickets += 1;
+                  group.total += Number(ticket.price || 0);
+                  group.status = group.status === 'active' || ticket.status === 'active' ? 'active' : ticket.status;
+                  group.ticketTypes[ticket.ticketType] = (group.ticketTypes[ticket.ticketType] || 0) + 1;
+                  group.ticketType = Object.entries(group.ticketTypes)
+                    .map(([name, count]) => `${name} x${count}`)
+                    .join(', ');
+                  return groups;
+                }, {}))}
               />
             )}
             {profileTab === 'account-settings' && <AccountSettings user={user} onUserUpdate={setUser} />}

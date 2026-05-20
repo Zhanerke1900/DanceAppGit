@@ -17,13 +17,18 @@ export function signTicketPayload(payload) {
   return crypto.createHmac("sha256", getQrSecret()).update(payload).digest("hex");
 }
 
-export function createSignedTicketToken({ ticketId, ticketCode }) {
+export function createSignedTicketToken({ ticketId, ticketCode, orderId = "", ticketIds = [], ticketCodes = [] }) {
   // QR token = payload + signature. Payload можно прочитать, но нельзя безопасно изменить без secret.
-  const payload = JSON.stringify({
+  const body = {
     ticketId,
     ticketCode,
     issuedAt: new Date().toISOString(),
-  });
+  };
+  if (orderId) body.orderId = orderId;
+  if (ticketIds.length > 0) body.ticketIds = ticketIds;
+  if (ticketCodes.length > 0) body.ticketCodes = ticketCodes;
+
+  const payload = JSON.stringify(body);
   const encodedPayload = toBase64Url(payload);
   const signature = signTicketPayload(payload);
   return {

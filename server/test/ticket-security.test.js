@@ -30,6 +30,33 @@ test("ticket QR tokens contain signed ticket identity", () => {
   }
 });
 
+test("ticket QR tokens can contain a full order identity", () => {
+  const previousSecret = process.env.QR_SECRET;
+  process.env.QR_SECRET = "test-qr-secret";
+
+  try {
+    const signed = createSignedTicketToken({
+      ticketId: "ticket-1",
+      ticketCode: "DT-2026-000001",
+      orderId: "order-1",
+      ticketIds: ["ticket-1", "ticket-2"],
+      ticketCodes: ["DT-2026-000001", "DT-2026-000002"],
+    });
+    const verified = verifySignedTicketToken(signed.token);
+
+    assert.equal(verified.valid, true);
+    assert.equal(verified.payload.orderId, "order-1");
+    assert.deepEqual(verified.payload.ticketIds, ["ticket-1", "ticket-2"]);
+    assert.deepEqual(verified.payload.ticketCodes, ["DT-2026-000001", "DT-2026-000002"]);
+  } finally {
+    if (previousSecret === undefined) {
+      delete process.env.QR_SECRET;
+    } else {
+      process.env.QR_SECRET = previousSecret;
+    }
+  }
+});
+
 test("ticket QR verification rejects malformed or tampered tokens", () => {
   const previousSecret = process.env.QR_SECRET;
   process.env.QR_SECRET = "test-qr-secret";

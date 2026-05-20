@@ -325,6 +325,7 @@ export function publicTicket(ticket) {
   return {
     id: ticket._id,
     ticketId: ticket._id,
+    orderId: ticket.order,
     ticketCode: ticket.ticketCode,
     status: ticket.status,
     purchasedAt: ticket.purchasedAt || ticket.createdAt,
@@ -540,11 +541,12 @@ export async function issueTicketsForPaidOrder(orderOrId) {
   const orderAmountPaid = Number(order.amountPaid || order.total || 0);
   const orderBalanceDue = Number(order.balanceDue || 0);
   const orderSubtotal = Number(order.subtotal || 0);
+  const ticketDrafts = [];
   for (const item of order.items || []) {
     for (let index = 0; index < Number(item.quantity || 0); index += 1) {
       const ticketCode = await generateNextTicketCode();
       const itemRatio = orderSubtotal > 0 ? Number(item.price || 0) / orderSubtotal : 1 / Number(order.quantity || 1);
-      const ticketDraft = new Ticket({
+      ticketDrafts.push(new Ticket({
         ticketCode,
         user: order.buyer,
         userEmail: order.buyerEmail,
@@ -567,29 +569,43 @@ export async function issueTicketsForPaidOrder(orderOrId) {
         qrCodeDataUrl: "",
         barcodeDataUrl: "",
         status: "active",
-      });
-
-      // QR содержит подписанный token. Его нельзя просто подделать без QR_SECRET/JWT_SECRET.
-      const signed = createSignedTicketToken({
-        ticketId: ticketDraft._id.toString(),
-        ticketCode,
-      });
-
-      ticketDraft.qrPayload = signed.payload;
-      ticketDraft.qrSignature = signed.signature;
-      const [qrCodeDataUrl, barcodeDataUrl] = await Promise.all([
-        generateTicketQrDataUrl(signed.token),
-        generateTicketBarcodeDataUrl(ticketCode),
-      ]);
-      ticketDraft.qrCodeDataUrl = qrCodeDataUrl;
-      ticketDraft.barcodeDataUrl = barcodeDataUrl;
-
-      await ticketDraft.save();
-      createdTickets.push({
-        document: ticketDraft,
-        qrToken: signed.token,
-      });
+      }));
     }
+  }
+
+  if (ticketDrafts.length === 0) {
+    throw new Error("No tickets to issue");
+  }
+
+  const primaryTicket = ticketDrafts[0];
+  const ticketIds = ticketDrafts.map((ticket) => ticket._id.toString());
+  const ticketCodes = ticketDrafts.map((ticket) => ticket.ticketCode);
+  // Один order-level QR покрывает все билеты, купленные в рамках этой оплаты.
+  const signed = createSignedTicketToken({
+    ticketId: primaryTicket._id.toString(),
+    ticketCode: primaryTicket.ticketCode,
+    orderId: order._id.toString(),
+    ticketIds,
+    ticketCodes,
+  });
+
+  const [qrCodeDataUrl, barcodeDataUrls] = await Promise.all([
+    generateTicketQrDataUrl(signed.token),
+    Promise.all(ticketDrafts.map((ticket) => generateTicketBarcodeDataUrl(ticket.ticketCode))),
+  ]);
+
+  for (let index = 0; index < ticketDrafts.length; index += 1) {
+    const ticketDraft = ticketDrafts[index];
+    ticketDraft.qrPayload = signed.payload;
+    ticketDraft.qrSignature = signed.signature;
+    ticketDraft.qrCodeDataUrl = qrCodeDataUrl;
+    ticketDraft.barcodeDataUrl = barcodeDataUrls[index];
+
+    await ticketDraft.save();
+    createdTickets.push({
+      document: ticketDraft,
+      qrToken: signed.token,
+    });
   }
 
   order.ticketsIssuedAt = new Date();
@@ -971,24 +987,67 @@ async function createValidationLog({ validator, ticket, event, qrToken, result, 
 
 async function resolveTicketFromScanInput(scanInput) {
   const verified = verifySignedTicketToken(scanInput);
+  if (verified.valid && verified.payload?.orderId) {
+    const ticketIds = Array.isArray(verified.payload.ticketIds)
+      ? verified.payload.ticketIds.map((item) => String(item)).filter(Boolean)
+      : [];
+    const ticketCodes = Array.isArray(verified.payload.ticketCodes)
+      ? verified.payload.ticketCodes.map((item) => String(item)).filter(Boolean)
+      : [];
+    const query = {
+      order: verified.payload.orderId,
+      ...(ticketIds.length > 0 ? { _id: { $in: ticketIds } } : {}),
+    };
+    const orderTickets = await Ticket.find(query).sort({ createdAt: 1 });
+    const matchingTickets = ticketCodes.length > 0
+      ? orderTickets.filter((ticket) => ticketCodes.includes(ticket.ticketCode))
+      : orderTickets;
+    const tickets = matchingTickets.length > 0 ? matchingTickets : orderTickets;
+    const ticket = tickets.find((item) => item.status !== "cancelled") || tickets[0] || null;
+    if (!ticket) {
+      return { ticket: null, tickets: [], mode: "invalid" };
+    }
+    return { ticket, tickets, mode: "order-qr" };
+  }
+
   if (verified.valid && verified.payload?.ticketId && verified.payload?.ticketCode) {
     const ticket = await Ticket.findById(verified.payload.ticketId);
     if (!ticket || ticket.ticketCode !== verified.payload.ticketCode) {
       return { ticket: null, mode: "invalid" };
     }
-    return { ticket, mode: "qr" };
+    return { ticket, tickets: [ticket], mode: "qr" };
   }
 
   const barcodeTicket = await Ticket.findOne({ ticketCode: String(scanInput || "").trim() });
   if (barcodeTicket) {
-    return { ticket: barcodeTicket, mode: "barcode" };
+    return { ticket: barcodeTicket, tickets: [barcodeTicket], mode: "barcode" };
   }
 
-  return { ticket: null, mode: "invalid" };
+  return { ticket: null, tickets: [], mode: "invalid" };
+}
+
+function userIsAssignedToEvent(user, eventId) {
+  const normalizedEventId = String(eventId || "");
+  if (!normalizedEventId) return false;
+  return (user?.validatorAssignedEventIds || []).some((item) => String(item) === normalizedEventId);
+}
+
+export function getScanAccess({ currentUser, ticketEventId, ticketOrganizerId, expectedEventId = "" }) {
+  const isValidator = currentUser?.role === "validator" || currentUser?.isValidator;
+  const isAdmin = currentUser?.role === "admin" || currentUser?.isAdmin || isAdminEmail(currentUser?.email);
+  const isTicketOrganizer = Boolean(ticketOrganizerId && String(ticketOrganizerId) === String(currentUser?._id));
+  const canValidateAssignedTicket = isValidator && userIsAssignedToEvent(currentUser, ticketEventId);
+  const canInspectSelectedEvent = isValidator && userIsAssignedToEvent(currentUser, expectedEventId);
+
+  return {
+    canValidateTicket: isAdmin || isTicketOrganizer || canValidateAssignedTicket,
+    canReportAnotherEvent: isAdmin || isTicketOrganizer || canInspectSelectedEvent,
+  };
 }
 
 export async function validateTicketScan({ qrToken, currentUser, expectedEventId = "" }) {
-  const { ticket } = await resolveTicketFromScanInput(qrToken);
+  const resolvedScan = await resolveTicketFromScanInput(qrToken);
+  const { ticket } = resolvedScan;
   if (!ticket) {
     await createValidationLog({
       validator: currentUser,
@@ -1001,30 +1060,35 @@ export async function validateTicketScan({ qrToken, currentUser, expectedEventId
     return { status: "invalid", message: "invalid ticket" };
   }
 
-  // Проверять билет может admin, organizer этого события или назначенный validator.
-  const canValidate =
-    isAdminEmail(currentUser?.email) ||
-    (ticket.organizer && String(ticket.organizer) === String(currentUser?._id)) ||
-    ((currentUser?.role === "validator" || currentUser?.isValidator) &&
-      (currentUser?.validatorAssignedEventIds || []).some((item) => String(item) === String(ticket.event || expectedEventId || "")));
+  const scanTickets = resolvedScan.tickets?.length ? resolvedScan.tickets : [ticket];
+  const activeTickets = scanTickets.filter((item) => item.status === "active");
+  const nonCancelledTickets = scanTickets.filter((item) => item.status !== "cancelled");
+  const ticketEventId = String(ticket.event || "");
+  const selectedEventId = String(expectedEventId || "");
+  const scanAccess = getScanAccess({
+    currentUser,
+    ticketEventId,
+    ticketOrganizerId: ticket.organizer,
+    expectedEventId: selectedEventId,
+  });
 
-  if (!canValidate) {
+  if (selectedEventId && ticketEventId !== selectedEventId) {
+    if (!scanAccess.canReportAnotherEvent) {
+      await createValidationLog({
+        validator: currentUser,
+        ticket,
+        event: selectedEventId || ticket.event,
+        qrToken,
+        result: "invalid",
+        message: "invalid ticket",
+      });
+      return { status: "invalid", message: "invalid ticket" };
+    }
+
     await createValidationLog({
       validator: currentUser,
       ticket,
-      event: ticket.event,
-      qrToken,
-      result: "invalid",
-      message: "invalid ticket",
-    });
-    return { status: "invalid", message: "invalid ticket" };
-  }
-
-  if (expectedEventId && String(ticket.event || "") !== String(expectedEventId)) {
-    await createValidationLog({
-      validator: currentUser,
-      ticket,
-      event: expectedEventId,
+      event: selectedEventId,
       qrToken,
       result: "another-event",
       message: "ticket belongs to another event",
@@ -1036,7 +1100,20 @@ export async function validateTicketScan({ qrToken, currentUser, expectedEventId
     };
   }
 
-  if (ticket.status === "used") {
+  // Проверять билет может admin, organizer этого события или назначенный validator.
+  if (!scanAccess.canValidateTicket) {
+    await createValidationLog({
+      validator: currentUser,
+      ticket,
+      event: ticket.event,
+      qrToken,
+      result: "invalid",
+      message: "invalid ticket",
+    });
+    return { status: "invalid", message: "invalid ticket" };
+  }
+
+  if (activeTickets.length === 0 && nonCancelledTickets.some((item) => item.status === "used")) {
     await createValidationLog({
       validator: currentUser,
       ticket,
@@ -1049,10 +1126,12 @@ export async function validateTicketScan({ qrToken, currentUser, expectedEventId
       status: "already-used",
       message: "already used",
       ticket: publicTicket(ticket),
+      ticketCount: nonCancelledTickets.length,
+      ticketCodes: nonCancelledTickets.map((item) => item.ticketCode),
     };
   }
 
-  if (ticket.status !== "active") {
+  if (activeTickets.length === 0) {
     await createValidationLog({
       validator: currentUser,
       ticket,
@@ -1064,10 +1143,16 @@ export async function validateTicketScan({ qrToken, currentUser, expectedEventId
     return { status: "invalid", message: "invalid ticket" };
   }
 
-  // Успешный scan одноразовый: билет сразу становится used.
-  ticket.status = "used";
-  ticket.usedAt = new Date();
-  await ticket.save();
+  // Успешный order-level QR scan одноразово проводит все активные билеты этой покупки.
+  const usedAt = new Date();
+  await Ticket.updateMany(
+    { _id: { $in: activeTickets.map((item) => item._id) }, status: "active" },
+    { $set: { status: "used", usedAt } }
+  );
+  for (const item of activeTickets) {
+    item.status = "used";
+    item.usedAt = usedAt;
+  }
   if (ticket.order) {
     await Order.findByIdAndUpdate(ticket.order, {
       checkInStatus: "checked-in",
@@ -1079,12 +1164,15 @@ export async function validateTicketScan({ qrToken, currentUser, expectedEventId
     event: ticket.event,
     qrToken,
     result: "validated",
-    message: "ticket validated",
+    message: activeTickets.length > 1 ? `${activeTickets.length} tickets validated` : "ticket validated",
   });
 
   return {
     status: "validated",
-    message: "ticket validated",
-    ticket: publicTicket(ticket),
+    message: activeTickets.length > 1 ? `${activeTickets.length} tickets validated` : "ticket validated",
+    ticket: publicTicket(activeTickets[0] || ticket),
+    tickets: activeTickets.map(publicTicket),
+    ticketCount: activeTickets.length,
+    ticketCodes: activeTickets.map((item) => item.ticketCode),
   };
 }

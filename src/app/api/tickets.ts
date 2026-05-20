@@ -3,6 +3,7 @@ import { request } from "./http";
 export type TicketRecord = {
   id: string;
   ticketId: string;
+  orderId?: string;
   ticketCode: string;
   status: "active" | "used" | "cancelled";
   purchasedAt: string;

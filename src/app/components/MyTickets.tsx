@@ -17,6 +17,12 @@ interface MyTicketsProps {
   onCancelReservation?: (reservation: ReservationRecord) => Promise<void>;
 }
 
+type TicketGroup = {
+  id: string;
+  tickets: TicketRecord[];
+  primaryTicket: TicketRecord;
+};
+
 const formatDate = (value: string) => {
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return value;
@@ -108,9 +114,11 @@ export const MyTickets = ({
     noUpcoming: language === 'ru' ? 'У вас пока нет предстоящих билетов.' : language === 'kk' ? 'Сізде әзірге алдағы билеттер жоқ.' : "You don't have any upcoming tickets yet.",
     noPast: language === 'ru' ? 'Вы еще не посещали билетные события.' : language === 'kk' ? 'Сіз әлі билетпен іс-шараларға қатыспадыңыз.' : "You haven't attended any ticketed events yet.",
     explore: language === 'ru' ? 'Смотреть события' : language === 'kk' ? 'Іс-шараларды көру' : 'Explore Events',
-    qrCode: language === 'ru' ? 'QR-код' : language === 'kk' ? 'QR-код' : 'QR Code',
+    qrCode: language === 'ru' ? 'QR-код покупки' : language === 'kk' ? 'Сатып алу QR-коды' : 'Purchase QR Code',
     barcode: language === 'ru' ? 'Штрихкод' : language === 'kk' ? 'Штрихкод' : 'Barcode',
     ticketType: language === 'ru' ? 'Тип билета:' : language === 'kk' ? 'Билет түрі:' : 'Ticket Type:',
+    ticketCodes: language === 'ru' ? 'Коды билетов:' : language === 'kk' ? 'Билет кодтары:' : 'Ticket codes:',
+    ticketsInOrder: language === 'ru' ? 'Билетов в покупке:' : language === 'kk' ? 'Сатып алудағы билеттер:' : 'Tickets in purchase:',
     status: language === 'ru' ? 'Статус:' : language === 'kk' ? 'Күйі:' : 'Status:',
     confirmRefund: language === 'ru' ? 'Подтвердите возврат' : language === 'kk' ? 'Қайтаруды растаңыз' : 'Confirm Refund',
     areYouSure: language === 'ru' ? 'Вы уверены?' : language === 'kk' ? 'Сенімдісіз бе?' : 'Are you sure?',
@@ -125,7 +133,7 @@ export const MyTickets = ({
     close: language === 'ru' ? 'Закрыть' : language === 'kk' ? 'Жабу' : 'Close',
   };
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>(() => getInitialTicketsTab());
-  const [selectedTicket, setSelectedTicket] = useState<TicketRecord | null>(null);
+  const [selectedTicketGroup, setSelectedTicketGroup] = useState<TicketGroup | null>(null);
   const [refundingTicketId, setRefundingTicketId] = useState<string | null>(null);
   const [processingReservationId, setProcessingReservationId] = useState<string | null>(null);
   const [refundCandidate, setRefundCandidate] = useState<TicketRecord | null>(null);
@@ -140,6 +148,19 @@ export const MyTickets = ({
     () => tickets.filter((ticket) => (activeTab === 'upcoming' ? !ticket.isPast : ticket.isPast)),
     [activeTab, tickets]
   );
+  const filteredTicketGroups = useMemo(() => {
+    const groups = new Map<string, TicketRecord[]>();
+    for (const ticket of filteredTickets) {
+      const groupId = ticket.orderId || ticket.id;
+      groups.set(groupId, [...(groups.get(groupId) || []), ticket]);
+    }
+    return Array.from(groups.entries()).map(([id, groupTickets]) => ({
+      id,
+      tickets: groupTickets,
+      primaryTicket: groupTickets[0],
+    }));
+  }, [filteredTickets]);
+  const selectedTicket = selectedTicketGroup?.primaryTicket || null;
   const filteredReservations = useMemo(
     () => reservations.filter((reservation) => (activeTab === 'upcoming' ? !reservation.isPast : reservation.isPast)),
     [activeTab, reservations]
@@ -185,7 +206,7 @@ export const MyTickets = ({
         </button>
       </div>
 
-      {filteredTickets.length > 0 || filteredReservations.length > 0 ? (
+      {filteredTicketGroups.length > 0 || filteredReservations.length > 0 ? (
         <div className="grid grid-cols-1 gap-6">
           {filteredReservations.map((reservation, index) => {
             const displayEvent = localizeEventForDisplay(reservation.event, language);
@@ -291,12 +312,29 @@ export const MyTickets = ({
             </motion.div>
           );
           })}
-          {filteredTickets.map((ticket, index) => {
+          {filteredTicketGroups.map((group, index) => {
+            const ticket = group.primaryTicket;
             const displayEvent = localizeEventForDisplay(ticket.event, language);
+            const ticketTypeSummary = Array.from(
+              group.tickets.reduce((map, item) => {
+                map.set(item.ticketType, (map.get(item.ticketType) || 0) + 1);
+                return map;
+              }, new Map<string, number>())
+            ).map(([type, count]) => `${type} x${count}`).join(', ');
+            const groupStatus = group.tickets.some((item) => item.status === 'active')
+              ? 'active'
+              : group.tickets.every((item) => item.status === 'used')
+                ? 'used'
+                : group.tickets.every((item) => item.status === 'cancelled')
+                  ? 'cancelled'
+                  : 'mixed';
+            const groupPrice = group.tickets.reduce((sum, item) => sum + Number(item.price || 0), 0);
+            const groupAmountPaid = group.tickets.reduce((sum, item) => sum + Number(item.amountPaid || 0), 0);
+            const groupBalanceDue = group.tickets.reduce((sum, item) => sum + Number(item.balanceDue || 0), 0);
 
             return (
             <motion.div
-              key={ticket.id}
+              key={group.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.06 }}
@@ -320,18 +358,18 @@ export const MyTickets = ({
                           {displayEvent.category}
                         </span>
                         <h3 className="text-2xl font-bold text-foreground dark:text-white">{displayEvent.title}</h3>
-                        <p className="mt-2 text-sm text-muted-foreground dark:text-gray-500">{ticket.ticketType}</p>
+                        <p className="mt-2 text-sm text-muted-foreground dark:text-gray-500">{ticketTypeSummary}</p>
                       </div>
                       <span
                         className={`rounded-full px-3 py-1 text-xs font-semibold uppercase ${
-                          ticket.status === 'used'
+                          groupStatus === 'used'
                             ? 'bg-gray-700 text-gray-200'
-                            : ticket.status === 'cancelled'
+                            : groupStatus === 'cancelled'
                               ? 'bg-red-500/20 text-red-300'
                               : 'bg-emerald-500/20 text-emerald-300'
                         }`}
                       >
-                        {ticket.paymentType === 'deposit' && Number(ticket.balanceDue || 0) > 0 && ticket.status === 'active' ? copy.reserved : ticket.status}
+                        {ticket.paymentType === 'deposit' && groupBalanceDue > 0 && groupStatus === 'active' ? copy.reserved : groupStatus}
                       </span>
                     </div>
 
@@ -346,7 +384,7 @@ export const MyTickets = ({
                       </div>
                       <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground dark:text-gray-500">
                         <Ticket className="h-4 w-4" />
-                        {ticket.ticketCode}
+                        {group.tickets.map((item) => item.ticketCode).join(', ')}
                       </div>
                     </div>
 
@@ -354,13 +392,13 @@ export const MyTickets = ({
                       {copy.purchased} <span className="text-foreground dark:text-white">{formatDate(ticket.purchasedAt)}</span>
                     </div>
                     <div className="mt-1 text-sm text-muted-foreground dark:text-gray-400">
-                      {copy.price} <span className="text-foreground dark:text-white">{formatCurrency(ticket.price, ticket.currency)}</span>
+                      {copy.price} <span className="text-foreground dark:text-white">{formatCurrency(groupPrice, ticket.currency)}</span>
                     </div>
-                    {ticket.paymentType === 'deposit' && Number(ticket.balanceDue || 0) > 0 && (
+                    {ticket.paymentType === 'deposit' && groupBalanceDue > 0 && (
                       <div className="mt-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-sm">
                         <div className="flex flex-wrap gap-x-4 gap-y-1 text-emerald-100">
-                          <span>{copy.prepaid} <b>{formatCurrency(ticket.amountPaid || 0, ticket.currency)}</b></span>
-                          <span>{copy.balanceDue} <b>{formatCurrency(ticket.balanceDue || 0, ticket.currency)}</b></span>
+                          <span>{copy.prepaid} <b>{formatCurrency(groupAmountPaid, ticket.currency)}</b></span>
+                          <span>{copy.balanceDue} <b>{formatCurrency(groupBalanceDue, ticket.currency)}</b></span>
                         </div>
                         <p className="mt-1 text-xs text-emerald-100/70">{copy.refundPolicy}</p>
                       </div>
@@ -369,7 +407,7 @@ export const MyTickets = ({
 
                   <div className="mt-4 flex flex-wrap items-center gap-3">
                     <button
-                      onClick={() => setSelectedTicket(ticket)}
+                      onClick={() => setSelectedTicketGroup(group)}
                       className="flex items-center gap-2 rounded-lg bg-purple-600 px-5 py-2 text-sm font-semibold text-white transition-all hover:bg-purple-700"
                     >
                       <QrCode className="h-4 w-4" />
@@ -382,16 +420,16 @@ export const MyTickets = ({
                       {copy.viewEvent}
                       <ChevronRight className="h-4 w-4" />
                     </button>
-                    {ticket.paymentType === 'deposit' && Number(ticket.balanceDue || 0) > 0 && (
+                    {ticket.paymentType === 'deposit' && groupBalanceDue > 0 && (
                       <button
-                        onClick={() => setSelectedTicket(ticket)}
+                        onClick={() => setSelectedTicketGroup(group)}
                         className="flex items-center gap-2 rounded-lg bg-[rgba(94,72,166,0.12)] px-5 py-2 text-sm font-semibold text-foreground transition-all hover:bg-[rgba(94,72,166,0.18)] dark:bg-white/5 dark:text-gray-300 dark:hover:bg-white/10"
                       >
                         {copy.viewDetails}
                         <ChevronRight className="h-4 w-4" />
                       </button>
                     )}
-                    {activeTab === 'upcoming' && ticket.status === 'active' && !ticket.isPast && (() => {
+                    {group.tickets.length === 1 && activeTab === 'upcoming' && ticket.status === 'active' && !ticket.isPast && (() => {
                       const refundDeadlineMs = getRefundDeadlineMs(ticket);
                       const refundPolicyHours = ticket.paymentType === 'deposit' ? (ticket.refundPolicyHours || 48) : 24;
                       const canRefund = refundDeadlineMs > refundPolicyHours * 60 * 60 * 1000;
@@ -409,6 +447,38 @@ export const MyTickets = ({
                       );
                     })()}
                   </div>
+                  {group.tickets.length > 1 && (
+                    <div className="mt-4 divide-y divide-border rounded-xl border border-border bg-[rgba(94,72,166,0.06)] text-sm dark:divide-white/10 dark:border-white/10 dark:bg-white/5">
+                      {group.tickets.map((item) => {
+                        const refundDeadlineMs = getRefundDeadlineMs(item);
+                        const refundPolicyHours = item.paymentType === 'deposit' ? (item.refundPolicyHours || 48) : 24;
+                        const canRefund = activeTab === 'upcoming' && item.status === 'active' && !item.isPast && refundDeadlineMs > refundPolicyHours * 60 * 60 * 1000;
+                        return (
+                          <div key={item.id} className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                              <p className="font-mono text-xs text-foreground dark:text-white">{item.ticketCode}</p>
+                              <p className="mt-1 text-muted-foreground dark:text-gray-400">{item.ticketType} - {formatCurrency(item.price, item.currency)}</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="rounded-full bg-black/5 px-2 py-1 text-xs uppercase text-muted-foreground dark:bg-white/5 dark:text-gray-400">{item.status}</span>
+                              {activeTab === 'upcoming' && (
+                                <button
+                                  onClick={() => {
+                                    if (!canRefund || !onRefundTicket) return;
+                                    setRefundCandidate(item);
+                                  }}
+                                  disabled={!canRefund || !onRefundTicket || refundingTicketId === item.id}
+                                  className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-200 transition-all hover:bg-red-500/20 disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/5 disabled:text-gray-500"
+                                >
+                                  {refundingTicketId === item.id ? copy.processingRefund : canRefund ? copy.refundTicket : copy.refundUnavailable}
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 <div className="hidden items-center justify-center border-l border-border p-6 lg:flex dark:border-white/10">
@@ -449,11 +519,11 @@ export const MyTickets = ({
             <div className="mb-6 flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm uppercase tracking-[0.25em] text-purple-300">{copy.title}</p>
-                <h2 className="mt-2 text-2xl font-bold text-foreground dark:text-white">{selectedTicket.ticketCode}</h2>
+                <h2 className="mt-2 text-2xl font-bold text-foreground dark:text-white">{copy.qrCode}</h2>
                 <p className="mt-1 text-muted-foreground dark:text-gray-400">{localizeEventForDisplay(selectedTicket.event, language).title}</p>
               </div>
               <button
-                onClick={() => setSelectedTicket(null)}
+                onClick={() => setSelectedTicketGroup(null)}
                 className="rounded-xl p-2 transition-colors bg-[rgba(94,72,166,0.12)] text-foreground hover:bg-[rgba(94,72,166,0.18)] dark:bg-white/5 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white"
               >
                 <X className="h-5 w-5" />
@@ -483,8 +553,10 @@ export const MyTickets = ({
                 </div>
 
                 <div className="rounded-2xl border border-border bg-[rgba(94,72,166,0.08)] p-5 text-sm text-foreground dark:border-white/10 dark:bg-gray-900/60 dark:text-gray-300">
-                  <p><span className="text-muted-foreground dark:text-gray-500">{copy.ticketType}</span> {selectedTicket.ticketType}</p>
-                  <p className="mt-2"><span className="text-muted-foreground dark:text-gray-500">{copy.price}</span> {formatCurrency(selectedTicket.price, selectedTicket.currency)}</p>
+                  <p><span className="text-muted-foreground dark:text-gray-500">{copy.ticketsInOrder}</span> {selectedTicketGroup?.tickets.length || 1}</p>
+                  <p className="mt-2"><span className="text-muted-foreground dark:text-gray-500">{copy.ticketCodes}</span> {selectedTicketGroup?.tickets.map((item) => item.ticketCode).join(', ')}</p>
+                  <p className="mt-2"><span className="text-muted-foreground dark:text-gray-500">{copy.ticketType}</span> {selectedTicketGroup?.tickets.map((item) => item.ticketType).join(', ') || selectedTicket.ticketType}</p>
+                  <p className="mt-2"><span className="text-muted-foreground dark:text-gray-500">{copy.price}</span> {formatCurrency(selectedTicketGroup?.tickets.reduce((sum, item) => sum + Number(item.price || 0), 0) || selectedTicket.price, selectedTicket.currency)}</p>
                   <p className="mt-2"><span className="text-muted-foreground dark:text-gray-500">{copy.status}</span> {selectedTicket.status}</p>
                   <p className="mt-2"><span className="text-muted-foreground dark:text-gray-500">{copy.purchased}</span> {formatDate(selectedTicket.purchasedAt)}</p>
                 </div>

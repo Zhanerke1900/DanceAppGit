@@ -424,8 +424,10 @@ export const ValidatorScanTicket: React.FC<ValidatorScanTicketProps> = ({
                     <span className="text-lg font-semibold">{resultView.title}</span>
                   </div>
                   <p className="text-sm">{result?.message}</p>
-                  {result?.ticket?.ticketCode && (
-                    <p className="mt-3 text-sm text-white">{copy.ticket}: {result.ticket.ticketCode}</p>
+                  {(result?.ticketCodes?.length || result?.ticket?.ticketCode) && (
+                    <p className="mt-3 text-sm text-white">
+                      {copy.ticket}: {result?.ticketCodes?.length ? result.ticketCodes.join(', ') : result.ticket.ticketCode}
+                    </p>
                   )}
                 </div>
               ) : (

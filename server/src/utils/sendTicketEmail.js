@@ -10,12 +10,13 @@ import {
 } from "./emailLocale.js";
 
 export async function sendTicketEmail({ email, fullName, event, tickets, language = "en" }) {
-  // После успешной оплаты отправляем email с QR и barcode для каждого билета.
+  // После успешной оплаты отправляем один QR на заказ и отдельные коды билетов.
   const lang = normalizeEmailLanguage(language);
   const copy = getEmailCopy(lang);
   const transporter = getMailer();
   const from = getMailFrom();
   const provider = transporter?.provider || "none";
+  const primaryTicket = tickets[0];
 
   if (!transporter) {
     console.log("EMAIL provider not configured. Ticket email skipped.");
@@ -26,29 +27,28 @@ export async function sendTicketEmail({ email, fullName, event, tickets, languag
     return;
   }
 
-  const attachmentPairs = await Promise.all(
-    tickets.map(async (ticket) => {
+  const safeOrderCode = (primaryTicket?.ticketCode || "dance-time-order").replace(/[^A-Z0-9-]/gi, "");
+  const [qrBuffer, barcodeAttachments] = await Promise.all([
+    generateTicketQrBuffer(primaryTicket?.qrToken || ""),
+    Promise.all(tickets.map(async (ticket) => {
       const safeCode = ticket.ticketCode.replace(/[^A-Z0-9-]/gi, "");
-      const [qrBuffer, barcodeBuffer] = await Promise.all([
-        generateTicketQrBuffer(ticket.qrToken),
-        generateTicketBarcodeBuffer(ticket.ticketCode),
-      ]);
+      const barcodeBuffer = await generateTicketBarcodeBuffer(ticket.ticketCode);
 
-      return [
-        {
-          filename: `${safeCode}-qr.png`,
-          content: qrBuffer,
-          cid: `qr-${safeCode}`,
-        },
-        {
-          filename: `${safeCode}-barcode.png`,
-          content: barcodeBuffer,
-          cid: `barcode-${safeCode}`,
-        },
-      ];
-    })
-  );
-  const attachments = attachmentPairs.flat();
+      return {
+        filename: `${safeCode}-barcode.png`,
+        content: barcodeBuffer,
+        cid: `barcode-${safeCode}`,
+      };
+    }))
+  ]);
+  const attachments = [
+    {
+      filename: `${safeOrderCode}-qr.png`,
+      content: qrBuffer,
+      cid: `qr-${safeOrderCode}`,
+    },
+    ...barcodeAttachments,
+  ];
   const displayEvent = localizeEventForEmail(event, lang);
   const eventTitle = displayEvent?.title || "DanceTime Event";
   const safeEventTitle = escapeHtml(eventTitle);
@@ -67,20 +67,22 @@ export async function sendTicketEmail({ email, fullName, event, tickets, languag
       <p style="margin:0"><strong>${escapeHtml(copy.location)}:</strong> ${escapeHtml(displayEvent?.location || "-")}</p>
     </div>
 
+    <div style="margin:24px 0;padding:18px;border:1px solid #ddd6fe;border-radius:16px;background:#ffffff">
+      <h3 style="margin:0 0 12px;color:#6d28d9">${escapeHtml(copy.qrCode)}</h3>
+      <p style="margin:0 0 16px;color:#4b5563">${escapeHtml(copy.presentQr)}</p>
+      <div style="text-align:center">
+        <img src="cid:qr-${safeOrderCode}" alt="${escapeHtml(copy.qrCode)}" width="300" height="300" style="display:block;width:300px;height:300px;max-width:100%;margin:0 auto;border:1px solid #d8b4fe;border-radius:18px;padding:14px;background:#ffffff" />
+      </div>
+    </div>
+
     ${tickets.map((ticket) => {
       const safeCode = ticket.ticketCode.replace(/[^A-Z0-9-]/gi, "");
       return `
-        <div style="margin:24px 0;padding:18px;border:1px solid #ddd6fe;border-radius:16px;background:#ffffff">
+        <div style="margin:16px 0;padding:18px;border:1px solid #e5e7eb;border-radius:16px;background:#ffffff">
           <h3 style="margin:0 0 12px;color:#6d28d9">${escapeHtml(ticket.ticketCode)}</h3>
           <p style="margin:0 0 6px"><strong>${escapeHtml(copy.ticketType)}:</strong> ${escapeHtml(ticket.ticketType)}</p>
           <p style="margin:0 0 16px"><strong>${escapeHtml(copy.price)}:</strong> ${escapeHtml(formatMoneyForEmail(ticket.price, "KZT", lang))}</p>
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-top:18px">
-            <tr>
-              <td align="center" style="padding:0 0 24px">
-                <p style="margin:0 0 10px;font-size:13px;font-weight:700;color:#4b5563">${escapeHtml(copy.qrCode)}</p>
-                <img src="cid:qr-${safeCode}" alt="QR ${escapeHtml(ticket.ticketCode)}" width="300" height="300" style="display:block;width:300px;height:300px;max-width:100%;border:1px solid #d8b4fe;border-radius:18px;padding:14px;background:#ffffff" />
-              </td>
-            </tr>
             <tr>
               <td align="center" style="padding:0">
                 <p style="margin:0 0 10px;font-size:12px;font-weight:700;color:#6b7280">${escapeHtml(copy.barcode)}</p>
@@ -91,8 +93,6 @@ export async function sendTicketEmail({ email, fullName, event, tickets, languag
         </div>
       `;
     }).join("")}
-
-    <p style="font-size:12px;color:#6b7280;margin-top:24px">${escapeHtml(copy.presentQr)}</p>
   </div>`;
 
   const info = await transporter.sendMail({

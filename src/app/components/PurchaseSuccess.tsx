@@ -51,9 +51,9 @@ export const PurchaseSuccess = ({
     timeTba: language === 'ru' ? 'Время уточняется' : language === 'kk' ? 'Уақыты кейін хабарланады' : 'Time TBA',
     location: language === 'ru' ? 'Локация' : language === 'kk' ? 'Орны' : 'Location',
     openMaps: language === 'ru' ? 'Открыть в картах' : language === 'kk' ? 'Картадан ашу' : 'Open in Maps',
-    qr: language === 'ru' ? 'Основной QR билета' : language === 'kk' ? 'Негізгі билет QR-ы' : 'Primary ticket QR',
+    qr: language === 'ru' ? 'QR покупки' : language === 'kk' ? 'Сатып алу QR-ы' : 'Purchase QR',
     barcode: language === 'ru' ? 'Штрихкод первого билета' : language === 'kk' ? 'Бірінші билеттің штрихкоды' : 'First ticket barcode',
-    barcodeNote: language === 'ru' ? 'У каждого купленного билета есть свой уникальный код, QR, штрихкод и запись в базе.' : language === 'kk' ? 'Әр билетте бірегей код, QR, штрихкод және дерекқор жазбасы бар.' : 'Every purchased ticket has its own unique code, QR, barcode, and database record.',
+    barcodeNote: language === 'ru' ? 'Один QR действует на все билеты в этой покупке. У каждого билета остается свой код для учета и возврата.' : language === 'kk' ? 'Бір QR осы сатып алудағы барлық билеттерге жарайды. Әр билетте есеп пен қайтару үшін жеке код қалады.' : 'One QR covers every ticket in this purchase. Each ticket still keeps its own code for records and refunds.',
     ticketDetails: language === 'ru' ? 'Детали билетов' : language === 'kk' ? 'Билет мәліметтері' : 'Ticket Details',
     totalPaid: ticketDetails.paymentType === 'deposit'
       ? (language === 'ru' ? 'Предоплата' : language === 'kk' ? 'Алдын ала төлем' : 'Deposit Paid')
@@ -70,12 +70,13 @@ export const PurchaseSuccess = ({
   const mapEmbedUrl = event.location ? `https://www.google.com/maps?q=${mapQuery}&output=embed` : '';
 
   const handleDownloadTicket = (ticket: TicketRecord) => {
+    const ticketRows = tickets.map((item) => `<li>${item.ticketCode} - ${item.ticketType}</li>`).join('');
     const html = `
       <html>
         <body style="font-family:Arial,sans-serif;padding:24px;background:#111827;color:white">
           <h1>${ticket.event.title}</h1>
-          <p>${ticket.ticketCode}</p>
-          <p>${ticket.ticketType}</p>
+          <p>${tickets.length} tickets</p>
+          <ul>${ticketRows}</ul>
           <img src="${ticket.qrCodeDataUrl}" alt="QR" style="width:220px;height:220px;display:block;margin:20px 0;" />
           <img src="${ticket.barcodeDataUrl}" alt="Barcode" style="width:320px;display:block;" />
         </body>
@@ -85,7 +86,7 @@ export const PurchaseSuccess = ({
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${ticket.ticketCode}.html`;
+    link.download = `${ticket.ticketCode}-order.html`;
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -181,6 +182,13 @@ export const PurchaseSuccess = ({
                     <img src={firstTicket.qrCodeDataUrl} alt="Real QR Code" className="h-48 w-48" />
                   </div>
                   <p className="mt-4 font-mono text-xs text-muted-foreground dark:text-gray-500">{firstTicket.ticketCode}</p>
+                  <button
+                    onClick={() => handleDownloadTicket(firstTicket)}
+                    className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-purple-600 px-4 py-2 font-semibold text-white transition-all hover:bg-purple-700"
+                  >
+                    <Download className="h-4 w-4" />
+                    {copy.download}
+                  </button>
                 </div>
                 <div className="px-8">
                   <div className="mb-4 flex items-center gap-2 text-foreground dark:text-white">
@@ -234,13 +242,6 @@ export const PurchaseSuccess = ({
                     <p className="font-semibold text-foreground dark:text-white">{ticket.ticketCode}</p>
                     <p className="text-sm text-muted-foreground dark:text-gray-400">{ticket.ticketType}</p>
                   </div>
-                  <button
-                    onClick={() => handleDownloadTicket(ticket)}
-                    className="flex items-center justify-center gap-2 rounded-xl bg-purple-600 px-4 py-2 font-semibold text-white transition-all hover:bg-purple-700"
-                  >
-                    <Download className="h-4 w-4" />
-                    {copy.download}
-                  </button>
                 </div>
               ))}
             </div>
