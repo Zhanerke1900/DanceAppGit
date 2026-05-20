@@ -12,6 +12,7 @@ interface MyTicketsProps {
   reservations?: ReservationRecord[];
   onOpenTicket?: (ticket: TicketRecord) => void;
   onOpenReservation?: (reservation: ReservationRecord) => void;
+  onLoadTicketMedia?: (ticket: TicketRecord) => Promise<TicketRecord>;
   onRefundTicket?: (ticket: TicketRecord) => Promise<{ refundedAmount?: number; paymentRefunds?: PaymentRefundRecord[]; emailSent?: boolean } | void>;
   onPayReservation?: (reservation: ReservationRecord) => Promise<void>;
   onCancelReservation?: (reservation: ReservationRecord) => Promise<void>;
@@ -82,6 +83,7 @@ export const MyTickets = ({
   reservations = [],
   onOpenTicket,
   onOpenReservation,
+  onLoadTicketMedia,
   onRefundTicket,
   onPayReservation,
   onCancelReservation,
@@ -134,6 +136,7 @@ export const MyTickets = ({
   };
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>(() => getInitialTicketsTab());
   const [selectedTicketGroup, setSelectedTicketGroup] = useState<TicketGroup | null>(null);
+  const [loadingTicketMediaId, setLoadingTicketMediaId] = useState<string | null>(null);
   const [refundingTicketId, setRefundingTicketId] = useState<string | null>(null);
   const [processingReservationId, setProcessingReservationId] = useState<string | null>(null);
   const [refundCandidate, setRefundCandidate] = useState<TicketRecord | null>(null);
@@ -161,6 +164,28 @@ export const MyTickets = ({
     }));
   }, [filteredTickets]);
   const selectedTicket = selectedTicketGroup?.primaryTicket || null;
+
+  const handleOpenTicketGroup = async (group: TicketGroup) => {
+    const primaryTicket = group.primaryTicket;
+    if (onLoadTicketMedia && (!primaryTicket.qrCodeDataUrl || !primaryTicket.barcodeDataUrl)) {
+      setLoadingTicketMediaId(primaryTicket.id);
+      try {
+        const loadedTicket = await onLoadTicketMedia(primaryTicket);
+        const hydratedPrimary = { ...primaryTicket, ...loadedTicket };
+        setSelectedTicketGroup({
+          ...group,
+          primaryTicket: hydratedPrimary,
+          tickets: group.tickets.map((item) => item.id === hydratedPrimary.id ? { ...item, ...loadedTicket } : item),
+        });
+      } catch (error: any) {
+        window.alert(error?.message || "Failed to load ticket QR");
+      } finally {
+        setLoadingTicketMediaId(null);
+      }
+      return;
+    }
+    setSelectedTicketGroup(group);
+  };
   const filteredReservations = useMemo(
     () => reservations.filter((reservation) => (activeTab === 'upcoming' ? !reservation.isPast : reservation.isPast)),
     [activeTab, reservations]
@@ -407,11 +432,12 @@ export const MyTickets = ({
 
                   <div className="mt-4 flex flex-wrap items-center gap-3">
                     <button
-                      onClick={() => setSelectedTicketGroup(group)}
+                      onClick={() => handleOpenTicketGroup(group)}
+                      disabled={loadingTicketMediaId === ticket.id}
                       className="flex items-center gap-2 rounded-lg bg-purple-600 px-5 py-2 text-sm font-semibold text-white transition-all hover:bg-purple-700"
                     >
                       <QrCode className="h-4 w-4" />
-                      {copy.showTicket}
+                      {loadingTicketMediaId === ticket.id ? copy.processing : copy.showTicket}
                     </button>
                     <button
                       onClick={() => onOpenTicket?.(ticket)}
@@ -422,10 +448,11 @@ export const MyTickets = ({
                     </button>
                     {ticket.paymentType === 'deposit' && groupBalanceDue > 0 && (
                       <button
-                        onClick={() => setSelectedTicketGroup(group)}
+                        onClick={() => handleOpenTicketGroup(group)}
+                        disabled={loadingTicketMediaId === ticket.id}
                         className="flex items-center gap-2 rounded-lg bg-[rgba(94,72,166,0.12)] px-5 py-2 text-sm font-semibold text-foreground transition-all hover:bg-[rgba(94,72,166,0.18)] dark:bg-white/5 dark:text-gray-300 dark:hover:bg-white/10"
                       >
-                        {copy.viewDetails}
+                        {loadingTicketMediaId === ticket.id ? copy.processing : copy.viewDetails}
                         <ChevronRight className="h-4 w-4" />
                       </button>
                     )}
@@ -483,7 +510,13 @@ export const MyTickets = ({
 
                 <div className="hidden items-center justify-center border-l border-border p-6 lg:flex dark:border-white/10">
                   <div className="rounded-xl bg-white p-3">
-                    <img src={ticket.qrCodeDataUrl} alt={`QR ${ticket.ticketCode}`} className="h-24 w-24" />
+                    {ticket.qrCodeDataUrl ? (
+                      <img src={ticket.qrCodeDataUrl} alt={`QR ${ticket.ticketCode}`} className="h-24 w-24" />
+                    ) : (
+                      <div className="flex h-24 w-24 items-center justify-center text-purple-600">
+                        <QrCode className="h-10 w-10" />
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -537,7 +570,13 @@ export const MyTickets = ({
                     <span className="font-semibold">{copy.qrCode}</span>
                 </div>
                 <div className="rounded-2xl bg-white p-4">
-                  <img src={selectedTicket.qrCodeDataUrl} alt={`QR ${selectedTicket.ticketCode}`} className="mx-auto h-52 w-52" />
+                  {selectedTicket.qrCodeDataUrl ? (
+                    <img src={selectedTicket.qrCodeDataUrl} alt={`QR ${selectedTicket.ticketCode}`} className="mx-auto h-52 w-52" />
+                  ) : (
+                    <div className="flex h-52 w-52 items-center justify-center text-purple-600">
+                      <QrCode className="h-16 w-16" />
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -548,7 +587,13 @@ export const MyTickets = ({
                     <span className="font-semibold">{copy.barcode}</span>
                   </div>
                   <div className="rounded-2xl bg-white p-4">
-                    <img src={selectedTicket.barcodeDataUrl} alt={`Barcode ${selectedTicket.ticketCode}`} className="w-full" />
+                    {selectedTicket.barcodeDataUrl ? (
+                      <img src={selectedTicket.barcodeDataUrl} alt={`Barcode ${selectedTicket.ticketCode}`} className="w-full" />
+                    ) : (
+                      <div className="flex h-24 items-center justify-center text-purple-600">
+                        <Barcode className="h-12 w-12" />
+                      </div>
+                    )}
                   </div>
                 </div>
 

@@ -321,8 +321,8 @@ async function getActivityUsageMap(event) {
   return usageMap;
 }
 
-export function publicTicket(ticket) {
-  return {
+export function publicTicket(ticket, { includeMedia = true } = {}) {
+  const result = {
     id: ticket._id,
     ticketId: ticket._id,
     orderId: ticket.order,
@@ -339,11 +339,14 @@ export function publicTicket(ticket) {
     balanceDue: Number(ticket.balanceDue || 0),
     orderTotal: Number(ticket.orderTotal || ticket.price || 0),
     refundPolicyHours: Number(ticket.refundPolicyHours || DEFAULT_REFUND_POLICY_HOURS),
-    qrCodeDataUrl: ticket.qrCodeDataUrl,
-    barcodeDataUrl: ticket.barcodeDataUrl,
     event: ticket.eventSnapshot,
     isPast: isPastEventSnapshot(ticket.eventSnapshot),
   };
+  if (includeMedia) {
+    result.qrCodeDataUrl = ticket.qrCodeDataUrl;
+    result.barcodeDataUrl = ticket.barcodeDataUrl;
+  }
+  return result;
 }
 
 export function publicReservation(order) {
@@ -734,13 +737,35 @@ export async function completeReservationAndIssueTickets(orderOrId, paymentField
 }
 
 export async function getMyTickets(userId) {
-  const tickets = await Ticket.find({ user: userId, status: { $ne: "cancelled" } }).sort({ createdAt: -1 }).limit(300).lean();
-  return tickets.map(publicTicket);
+  const tickets = await Ticket.find({ user: userId, status: { $ne: "cancelled" } })
+    .select("-qrPayload -qrSignature -qrCodeDataUrl -barcodeDataUrl")
+    .sort({ createdAt: -1 })
+    .limit(300)
+    .lean();
+  return tickets.map((ticket) => publicTicket(ticket, { includeMedia: false }));
 }
 
 export async function getPurchaseHistory(userId) {
-  const tickets = await Ticket.find({ user: userId }).sort({ createdAt: -1 }).limit(500).lean();
-  return tickets.map(publicTicket);
+  const tickets = await Ticket.find({ user: userId })
+    .select("-qrPayload -qrSignature -qrCodeDataUrl -barcodeDataUrl")
+    .sort({ createdAt: -1 })
+    .limit(500)
+    .lean();
+  return tickets.map((ticket) => publicTicket(ticket, { includeMedia: false }));
+}
+
+export async function getTicketForUser({ ticketId, user }) {
+  const ticket = await Ticket.findOne({
+    _id: ticketId,
+    user: user._id,
+    status: { $ne: "cancelled" },
+  }).lean();
+
+  if (!ticket) {
+    throw new Error("Ticket not found");
+  }
+
+  return publicTicket(ticket, { includeMedia: true });
 }
 
 export async function getMyReservations(userId) {

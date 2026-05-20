@@ -15,8 +15,8 @@ type PurchaseItem = {
   purchaseDate: string;
   status: string;
   image: string;
-  qrCodeDataUrl: string;
-  barcodeDataUrl: string;
+  qrCodeDataUrl?: string;
+  barcodeDataUrl?: string;
 };
 
 interface PurchaseHistoryProps {

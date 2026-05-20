@@ -7,6 +7,7 @@ import {
   createPendingTicketOrderForUser,
   getMyReservations,
   getMyTickets,
+  getTicketForUser,
   getPurchaseHistory,
   markOrderPaidAndIssueTickets,
   markOrderReserved,
@@ -113,6 +114,20 @@ export async function purchaseHistory(req, res) {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Failed to load purchase history" });
+  }
+}
+
+export async function ticketDetails(req, res) {
+  try {
+    const ticketId = String(req.params?.ticketId || "").trim();
+    const ticket = await getTicketForUser({
+      ticketId,
+      user: req.user,
+    });
+    return res.json({ ticket });
+  } catch (error) {
+    console.error(error);
+    return res.status(404).json({ message: error?.message || "Ticket not found" });
   }
 }
 

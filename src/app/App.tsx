@@ -430,14 +430,10 @@ function AppContent() {
     if (paymentStatus === 'success') {
       setCurrentView('profile');
       setProfileTab('my-tickets');
-      Promise.all([
-        ticketsApi.myTickets(),
-        ticketsApi.purchaseHistory(),
-      ])
-        .then(([ticketsData, historyData]) => {
+      ticketsApi.myTickets()
+        .then((ticketsData) => {
           setMyTickets(ticketsData.tickets || []);
           setMyReservations(ticketsData.reservations || []);
-          setPurchaseHistory(historyData.tickets || []);
         })
         .catch(() => {});
       window.alert('Payment accepted. Your profile has been updated.');
@@ -570,21 +566,30 @@ function AppContent() {
       return;
     }
 
-    Promise.all([
-      ticketsApi.myTickets(),
-      ticketsApi.purchaseHistory(),
-    ])
-      .then(([ticketsData, historyData]) => {
+    ticketsApi.myTickets()
+      .then((ticketsData) => {
         setMyTickets(ticketsData.tickets || []);
-        setPurchaseHistory(historyData.tickets || []);
         setMyReservations(ticketsData.reservations || []);
       })
       .catch(() => {
         setMyTickets([]);
-        setPurchaseHistory([]);
         setMyReservations([]);
       });
   }, [user?._id, user?.id, user?.email]);
+
+  useEffect(() => {
+    if ((!user?._id && !user?.id) || currentView !== 'profile' || profileTab !== 'purchase-history') {
+      return;
+    }
+
+    ticketsApi.purchaseHistory()
+      .then((historyData) => {
+        setPurchaseHistory(historyData.tickets || []);
+      })
+      .catch(() => {
+        setPurchaseHistory([]);
+      });
+  }, [user?._id, user?.id, user?.email, currentView, profileTab]);
 
   const refreshAdminRequests = () => {
     authApi.adminRequests("pending").then((data) => setAdminRequests(data.requests || [])).catch(() => {});
@@ -618,6 +623,17 @@ function AppContent() {
         setMyReservations(data.reservations || []);
       })
       .catch(() => {});
+  };
+
+  const handleLoadTicketMedia = async (ticket: TicketRecord) => {
+    if (ticket.qrCodeDataUrl && ticket.barcodeDataUrl) return ticket;
+
+    const data = await ticketsApi.ticketDetails(ticket.id);
+    const fullTicket = data.ticket;
+    setMyTickets((prev) =>
+      prev.map((item) => String(item.id) === String(fullTicket.id) ? { ...item, ...fullTicket } : item)
+    );
+    return fullTicket;
   };
 
   const refreshOrganizerCommerce = () => {
@@ -1505,6 +1521,7 @@ function AppContent() {
                 reservations={myReservations}
                 onOpenTicket={handleOpenTicket}
                 onOpenReservation={handleOpenReservation}
+                onLoadTicketMedia={handleLoadTicketMedia}
                 onRefundTicket={handleRefundTicket}
                 onPayReservation={handlePayReservation}
                 onCancelReservation={handleCancelReservation}

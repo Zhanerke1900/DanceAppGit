@@ -8,6 +8,7 @@ import {
   purchaseHistory,
   purchaseTickets,
   refundTicket,
+  ticketDetails,
   validateTicket,
 } from "../controllers/ticket.controller.js";
 
@@ -17,6 +18,7 @@ const router = express.Router();
 router.post("/purchase", requireAuth, purchaseTickets);
 router.get("/my", requireAuth, myTickets);
 router.get("/history", requireAuth, purchaseHistory);
+router.get("/:ticketId", requireAuth, ticketDetails);
 router.post("/reservations/:orderId/pay-balance", requireAuth, payReservationBalance);
 router.post("/reservations/:orderId/cancel", requireAuth, cancelReservation);
 router.post("/:ticketId/refund", requireAuth, refundTicket);

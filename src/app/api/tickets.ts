@@ -17,8 +17,8 @@ export type TicketRecord = {
   balanceDue?: number;
   orderTotal?: number;
   refundPolicyHours?: number;
-  qrCodeDataUrl: string;
-  barcodeDataUrl: string;
+  qrCodeDataUrl?: string;
+  barcodeDataUrl?: string;
   event: {
     title: string;
     category: string;
@@ -97,6 +97,12 @@ export async function purchaseHistory() {
   const { res, data } = await request<any>("/api/tickets/history", { method: "GET" });
   if (!res.ok) throw new Error((data as any)?.message || "Failed to load purchase history");
   return data as { tickets: TicketRecord[] };
+}
+
+export async function ticketDetails(ticketId: string) {
+  const { res, data } = await request<any>(`/api/tickets/${encodeURIComponent(ticketId)}`, { method: "GET" });
+  if (!res.ok) throw new Error((data as any)?.message || "Failed to load ticket");
+  return data as { ticket: TicketRecord };
 }
 
 // Оплатить остаток
