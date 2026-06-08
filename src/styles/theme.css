@@ -4658,3 +4658,142 @@ html body .developer-admin-panel .admin-stat-card::before {
   background: #3a3a3a !important;
   background-image: none !important;
 }
+
+/* Final role light-mode and checkout readability fixes. */
+
+html.light body .role-view.organizer-portal,
+html.light body .developer-admin-panel {
+  --organizer-page: #f3f4f6 !important;
+  --organizer-page-2: #f3f4f6 !important;
+  --organizer-sidebar: #e5e7eb !important;
+  --organizer-surface: #ffffff !important;
+  --organizer-surface-strong: #f9fafb !important;
+  --organizer-surface-muted: #eef0f3 !important;
+  --organizer-border: #c4c7cc !important;
+  --organizer-border-strong: #8f949c !important;
+  --organizer-text: #121417 !important;
+  --organizer-muted: #4b5563 !important;
+  --organizer-soft: #647080 !important;
+  --organizer-accent: #4b5563 !important;
+  --organizer-accent-hot: #4b5563 !important;
+  --organizer-accent-cool: #4b5563 !important;
+  --role-page: #f3f4f6 !important;
+  --role-surface: #ffffff !important;
+  --role-surface-muted: #eef0f3 !important;
+  --role-line: #c4c7cc !important;
+  --role-line-strong: #8f949c !important;
+  --role-text: #121417 !important;
+  --role-muted: #4b5563 !important;
+  --role-accent: #4b5563 !important;
+  background: #f3f4f6 !important;
+  background-color: #f3f4f6 !important;
+  background-image: none !important;
+  color: #121417 !important;
+}
+
+html.light body .role-view.organizer-portal :is(.organizer-tabs-bar, .organizer-tabs, .organizer-tab, .organizer-hero, .organizer-data-hero, .organizer-hero-stats, .organizer-panel, .organizer-metric-card, .organizer-data-metric, .organizer-event-row, .organizer-event-table-row, .organizer-mini-row, .organizer-activity-row, .organizer-check-row, .organizer-order-row, .organizer-order-finance-grid > div, .organizer-analytics-row, .organizer-breakdown-row, .organizer-empty-state, .organizer-quiet-empty, .organizer-chip, .organizer-status, .organizer-status-pill, .organizer-date-button, .organizer-date-panel, .organizer-date-modes button, .organizer-date-clear, .organizer-date-select-grid select, .organizer-orders-filter select, .organizer-primary-button, .organizer-secondary-button, .organizer-wide-button, .organizer-create-event input, .organizer-create-event textarea, .organizer-create-event select, .organizer-create-event button, .organizer-create-event label, .organizer-choice, .organizer-alert),
+html.light body .developer-admin-panel :is(.admin-panel-header, .admin-tabs, .admin-tab, .admin-stat-card, .admin-surface, .admin-list-row, .admin-side-panel, .admin-empty-state, .admin-modal, .admin-status-pill, .admin-state-badge, .admin-segmented, .admin-segmented button, .admin-input, input, select, textarea, .role-action-neutral, .role-action-success, .role-action-warning, .role-action-danger, .admin-analytics-date-button, .admin-analytics-date-panel, .admin-analytics-date-modes button, .admin-analytics-date-clear, .admin-analytics-date-select-grid select, .admin-analytics-row, .admin-analytics-mini-row, .admin-reason-option, .admin-chart-canvas, .admin-chart-tooltip, .admin-review-summary, .admin-metric-row, .admin-info-grid > div, .admin-description-box, .admin-detail-list > div) {
+  border-radius: 0 !important;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #c4c7cc !important;
+  box-shadow: none !important;
+  color: #121417 !important;
+}
+
+html.light body .role-view.organizer-portal :is(.organizer-metric-card:hover, .organizer-data-metric:hover, .organizer-panel:hover, .organizer-tab:hover, .organizer-tab.is-active, .organizer-primary-button:hover, .organizer-secondary-button:hover),
+html.light body .developer-admin-panel :is(.admin-stat-card:hover, .admin-list-row:hover, .admin-tab:hover, .admin-tab-active, .admin-segment-active, .role-action-neutral:hover, .role-action-success:hover, .role-action-warning:hover, .role-action-danger:hover) {
+  background: #e8eaed !important;
+  background-color: #e8eaed !important;
+  background-image: none !important;
+  border-color: #8f949c !important;
+  color: #111827 !important;
+}
+
+html.light body .role-view.organizer-portal :is(.organizer-eyebrow, .organizer-section-label, .organizer-tabs-heading span, .organizer-metric-top span, .organizer-data-metric span, .organizer-order-finance-grid span, .organizer-row-value span, .organizer-breakdown-row span, label, p, small),
+html.light body .developer-admin-panel :is(.admin-section-kicker, .admin-stat-title, .admin-stat-change, .admin-breadcrumb-row, .admin-row-title p, .admin-row-title span, .admin-info-grid span, .admin-detail-list span, label, p, small) {
+  color: #4b5563 !important;
+}
+
+html.light body .role-view.organizer-portal :is(.organizer-hero h1, .organizer-panel h2, .organizer-empty-state h3, .organizer-metric-card strong, .organizer-data-metric strong, .organizer-order-finance-grid strong, .organizer-row-value strong, .organizer-breakdown-row strong, h1, h2, h3),
+html.light body .developer-admin-panel :is(.admin-header-copy h1, .admin-section-heading h2, .admin-side-panel h2, .admin-modal h3, .admin-stat-value, .admin-row-title h3, .admin-detail-list strong, h1, h2, h3) {
+  color: #111827 !important;
+  text-shadow: none !important;
+}
+
+html.light body .role-view.organizer-portal :is(.tone-success, .tone-warning, .tone-green, .tone-amber, .tone-cyan),
+html.light body .developer-admin-panel :is(.admin-state-purple, .admin-state-success, .admin-state-warning, .admin-state-danger, .admin-state-muted) {
+  background: #eef0f3 !important;
+  border-color: #b6bac1 !important;
+  color: #22272e !important;
+}
+
+html body .developer-admin-panel :is(.role-chart-primary, .role-chart-secondary, .role-chart-tertiary),
+html body .role-view.organizer-portal :is(.role-chart-primary, .role-chart-secondary, .role-chart-tertiary) {
+  stroke: #9ca3af !important;
+}
+
+html.light body .developer-admin-panel :is(.role-chart-primary, .role-chart-secondary, .role-chart-tertiary),
+html.light body .role-view.organizer-portal :is(.role-chart-primary, .role-chart-secondary, .role-chart-tertiary) {
+  stroke: #4b5563 !important;
+}
+
+html.light body [class*="lg:col-span-1"] [class*="bg-gray-900"],
+html.light body [class*="lg:col-span-1"] [class*="bg-gray-800"],
+html.light body [class*="lg:col-span-1"] [class*="bg-black"],
+html.light body [class*="lg:col-span-1"] [class*="bg-emerald"],
+html.light body [class*="lg:col-span-1"] [class*="bg-purple"],
+html.light body [class*="lg:hidden"][class*="fixed"] {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #c4c7cc !important;
+  color: #111827 !important;
+}
+
+html.light body [class*="lg:col-span-1"] :is(.text-white, [class*="text-emerald"], [class*="text-purple"], [class*="text-black"]),
+html.light body [class*="lg:hidden"][class*="fixed"] :is(.text-white, [class*="text-emerald"], [class*="text-purple"], [class*="text-black"]) {
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+}
+
+html.light body [class*="lg:col-span-1"] :is(.text-gray-300, .text-gray-400, .text-gray-500),
+html.light body [class*="lg:hidden"][class*="fixed"] :is(.text-gray-300, .text-gray-400, .text-gray-500) {
+  color: #4b5563 !important;
+}
+
+html.light body [class*="lg:col-span-1"] :is([class*="border-white"], [class*="border-emerald"], [class*="border-purple"]),
+html.light body [class*="lg:hidden"][class*="fixed"] :is([class*="border-white"], [class*="border-emerald"], [class*="border-purple"]) {
+  border-color: #c4c7cc !important;
+}
+
+html.light body [class*="lg:col-span-1"] button,
+html.light body [class*="lg:hidden"][class*="fixed"] button {
+  background: #1f2937 !important;
+  background-color: #1f2937 !important;
+  background-image: none !important;
+  border-color: #1f2937 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+html.light body [class*="lg:col-span-1"] button:is(.text-white, .text-black, [class*="text-white"], [class*="text-black"]),
+html.light body [class*="lg:hidden"][class*="fixed"] button:is(.text-white, .text-black, [class*="text-white"], [class*="text-black"]) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html.light body [class*="lg:col-span-1"] button:disabled,
+html.light body [class*="lg:hidden"][class*="fixed"] button:disabled {
+  background: #e5e7eb !important;
+  background-color: #e5e7eb !important;
+  border-color: #c4c7cc !important;
+  color: #6b7280 !important;
+}
+
+html.light body [class*="lg:col-span-1"] [class*="bg-emerald"] :is(span, p, div),
+html.light body [class*="lg:col-span-1"] [class*="bg-purple"] :is(span, p, div) {
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+}
