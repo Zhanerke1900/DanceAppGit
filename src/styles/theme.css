@@ -4558,41 +4558,39 @@ html.dark .role-view.organizer-portal .organizer-primary-button {
   box-shadow: none !important;
 }
 
-/* Role screens workbench restyle: tighter, flatter, and less template-like. */
+/* Final organizer/admin reset: square grey controls and cards. */
+html.dark body .role-view.organizer-portal,
+html.light body .role-view.organizer-portal,
+html.dark body .developer-admin-panel,
+html.light body .developer-admin-panel,
 html body .role-view.organizer-portal,
 html body .developer-admin-panel {
-  background: #0f1115 !important;
-  color: #eceff3 !important;
-}
-
-html body .role-view.organizer-portal {
-  --organizer-page: #0f1115;
-  --organizer-page-2: #0f1115;
-  --organizer-sidebar: #12151b;
-  --organizer-surface: #171a21;
-  --organizer-surface-strong: #1b1f28;
-  --organizer-surface-muted: #1e232c;
-  --organizer-border: #303746;
-  --organizer-border-strong: #5a6474;
-  --organizer-text: #eef1f5;
-  --organizer-muted: #a9b0bd;
-  --organizer-soft: #8e97a7;
-  --organizer-accent: #d5dde8;
-  --organizer-accent-hot: #c7b7ff;
-  --organizer-accent-cool: #9fc7db;
-  --organizer-shadow: none;
-}
-
-html body .developer-admin-panel {
-  --role-page: #0f1115;
-  --role-surface: #171a21;
-  --role-surface-muted: #1e232c;
-  --role-line: #303746;
-  --role-line-strong: #5a6474;
-  --role-text: #eef1f5;
-  --role-muted: #a9b0bd;
-  --role-accent: #d5dde8;
-  padding-top: 5.25rem !important;
+  --organizer-page: #111111 !important;
+  --organizer-page-2: #111111 !important;
+  --organizer-sidebar: #171717 !important;
+  --organizer-surface: #202020 !important;
+  --organizer-surface-strong: #242424 !important;
+  --organizer-surface-muted: #292929 !important;
+  --organizer-border: #4a4a4a !important;
+  --organizer-border-strong: #707070 !important;
+  --organizer-text: #f1f1f1 !important;
+  --organizer-muted: #c7c7c7 !important;
+  --organizer-soft: #a8a8a8 !important;
+  --organizer-accent: #d0d0d0 !important;
+  --organizer-accent-hot: #d0d0d0 !important;
+  --organizer-accent-cool: #d0d0d0 !important;
+  --organizer-shadow: none !important;
+  --role-page: #111111 !important;
+  --role-surface: #202020 !important;
+  --role-surface-muted: #292929 !important;
+  --role-line: #4a4a4a !important;
+  --role-line-strong: #707070 !important;
+  --role-text: #f1f1f1 !important;
+  --role-muted: #c7c7c7 !important;
+  --role-accent: #d0d0d0 !important;
+  background: #111111 !important;
+  background-image: none !important;
+  color: #f1f1f1 !important;
 }
 
 html body .role-view.organizer-portal *,
@@ -4600,364 +4598,63 @@ html body .role-view.organizer-portal *::before,
 html body .role-view.organizer-portal *::after,
 html body .developer-admin-panel *,
 html body .developer-admin-panel *::before,
-html body .developer-admin-panel *::after {
-  border-radius: 0 !important;
-  letter-spacing: 0 !important;
-}
-
+html body .developer-admin-panel *::after,
 html body .role-view.organizer-portal [class*="rounded"],
 html body .developer-admin-panel [class*="rounded"] {
   border-radius: 0 !important;
 }
 
-html body .role-view.organizer-portal :is(.organizer-hero, .organizer-panel, .organizer-metric-card, .organizer-data-metric, .organizer-order-row, .organizer-event-row, .organizer-mini-row, .organizer-activity-row, .organizer-check-row, .organizer-breakdown-row, .organizer-analytics-row, .organizer-date-panel),
-html body .developer-admin-panel :is(.admin-panel-header, .admin-stat-card, .admin-surface, .admin-list-row, .admin-side-panel, .admin-empty-state, .admin-modal, .admin-analytics-date-panel, .admin-analytics-row, .admin-analytics-mini-row) {
-  background: #171a21 !important;
+html body .role-view.organizer-portal :is(.organizer-tabs-bar, .organizer-tabs, .organizer-tab, .organizer-hero, .organizer-data-hero, .organizer-hero-stats, .organizer-panel, .organizer-metric-card, .organizer-data-metric, .organizer-event-row, .organizer-event-table-row, .organizer-mini-row, .organizer-activity-row, .organizer-check-row, .organizer-order-row, .organizer-order-finance-grid > div, .organizer-analytics-row, .organizer-breakdown-row, .organizer-empty-state, .organizer-quiet-empty, .organizer-chip, .organizer-status, .organizer-status-pill, .organizer-date-button, .organizer-date-panel, .organizer-date-modes button, .organizer-date-clear, .organizer-date-select-grid select, .organizer-orders-filter select, .organizer-primary-button, .organizer-secondary-button, .organizer-wide-button, .organizer-create-event input, .organizer-create-event textarea, .organizer-create-event select, .organizer-create-event button, .organizer-create-event label, .organizer-choice, .organizer-alert),
+html body .developer-admin-panel :is(.admin-panel-header, .admin-tabs, .admin-tab, .admin-stat-card, .admin-surface, .admin-list-row, .admin-side-panel, .admin-empty-state, .admin-modal, .admin-status-pill, .admin-state-badge, .admin-segmented, .admin-segmented button, .admin-input, input, select, textarea, .role-action-neutral, .role-action-success, .role-action-warning, .role-action-danger, .admin-analytics-date-button, .admin-analytics-date-panel, .admin-analytics-date-modes button, .admin-analytics-date-clear, .admin-analytics-date-select-grid select, .admin-analytics-row, .admin-analytics-mini-row, .admin-reason-option, .admin-chart-canvas, .admin-chart-tooltip, .admin-review-summary, .admin-metric-row, .admin-info-grid > div, .admin-description-box, .admin-detail-list > div) {
+  border-radius: 0 !important;
+  background: #202020 !important;
+  background-color: #202020 !important;
   background-image: none !important;
-  border: 1px solid #303746 !important;
+  border: 1px solid #4a4a4a !important;
   box-shadow: none !important;
-  backdrop-filter: none !important;
+  color: #f1f1f1 !important;
 }
 
-html body .role-view.organizer-portal :is(.organizer-hero, .organizer-panel, .organizer-metric-card, .organizer-data-metric),
-html body .developer-admin-panel :is(.admin-panel-header, .admin-stat-card, .admin-surface) {
-  border-top: 2px solid #5a6474 !important;
-}
-
-html body .role-view.organizer-portal .organizer-shell {
-  background: #0f1115 !important;
-}
-
-html body .role-view.organizer-portal .organizer-main {
-  padding: 1rem 1rem 2.5rem !important;
-}
-
-html body .role-view.organizer-portal .organizer-dashboard,
-html body .role-view.organizer-portal .organizer-data-page {
-  display: grid !important;
-  gap: 0.85rem !important;
-}
-
-html body .role-view.organizer-portal .organizer-tabs-bar {
-  background: #12151b !important;
-  border-right: 1px solid #303746 !important;
-  box-shadow: none !important;
-}
-
-html body .role-view.organizer-portal .organizer-tabs-heading {
-  padding: 0.9rem 0.85rem !important;
-  border-bottom: 1px solid #303746 !important;
-}
-
-html body .role-view.organizer-portal .organizer-tabs-heading span,
-html body .role-view.organizer-portal .organizer-eyebrow,
-html body .role-view.organizer-portal .organizer-section-label,
-html body .developer-admin-panel .admin-section-kicker,
-html body .developer-admin-panel .admin-stat-title,
-html body .developer-admin-panel .admin-breadcrumb-row {
-  color: #9aa3b1 !important;
-  font-size: 0.72rem !important;
-  font-weight: 650 !important;
-  text-transform: none !important;
-}
-
-html body .role-view.organizer-portal .organizer-tabs {
-  gap: 0 !important;
-  padding: 0 !important;
-  border: 0 !important;
-  background: transparent !important;
-}
-
-html body .role-view.organizer-portal .organizer-tab {
-  min-height: 2.4rem !important;
-  padding: 0.55rem 0.8rem !important;
-  border: 0 !important;
-  border-bottom: 1px solid rgba(48, 55, 70, 0.72) !important;
-  background: transparent !important;
-  color: #b4bbc7 !important;
-  font-size: 0.85rem !important;
-  font-weight: 620 !important;
-}
-
-html body .role-view.organizer-portal .organizer-tab:hover,
-html body .role-view.organizer-portal .organizer-tab.is-active {
-  background: #1d232c !important;
-  color: #f4f7fb !important;
-}
-
-html body .role-view.organizer-portal .organizer-tab.is-active {
-  border-left: 3px solid #98a3b5 !important;
-}
-
-html body .role-view.organizer-portal .organizer-hero,
-html body .role-view.organizer-portal .organizer-data-hero {
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr) auto !important;
-  align-items: center !important;
-  min-height: 0 !important;
-  padding: 1rem !important;
-  gap: 0.8rem !important;
-}
-
-html body .role-view.organizer-portal .organizer-hero h1,
-html body .developer-admin-panel .admin-header-copy h1 {
-  margin: 0.35rem 0 0 !important;
-  color: #f4f7fb !important;
-  font-size: clamp(1.35rem, 1.9vw, 1.75rem) !important;
-  font-weight: 720 !important;
-  line-height: 1.15 !important;
-  text-wrap: balance !important;
-}
-
-html body .role-view.organizer-portal .organizer-hero p,
-html body .role-view.organizer-portal .organizer-panel p,
-html body .role-view.organizer-portal .organizer-metric-card p,
-html body .developer-admin-panel .admin-header-copy p,
-html body .developer-admin-panel .admin-section-heading p {
-  margin-top: 0.35rem !important;
-  color: #a9b0bd !important;
-  font-size: 0.88rem !important;
-  line-height: 1.45 !important;
-}
-
-html body .role-view.organizer-portal .organizer-primary-button,
-html body .role-view.organizer-portal .organizer-secondary-button,
-html body .developer-admin-panel :is(.role-action-neutral, .role-action-success, .role-action-warning, .role-action-danger) {
-  min-height: 2.35rem !important;
-  padding: 0.5rem 0.75rem !important;
-  border: 1px solid #3a4250 !important;
-  background: #222936 !important;
-  color: #eef1f5 !important;
-  box-shadow: none !important;
-  font-size: 0.84rem !important;
-  font-weight: 650 !important;
-}
-
-html body .role-view.organizer-portal .organizer-primary-button:hover,
-html body .role-view.organizer-portal .organizer-secondary-button:hover,
-html body .developer-admin-panel :is(.role-action-neutral, .role-action-success, .role-action-warning, .role-action-danger):hover {
-  background: #29313f !important;
+html body .role-view.organizer-portal :is(.organizer-metric-card:hover, .organizer-data-metric:hover, .organizer-panel:hover, .organizer-tab:hover, .organizer-tab.is-active, .organizer-primary-button:hover, .organizer-secondary-button:hover),
+html body .developer-admin-panel :is(.admin-stat-card:hover, .admin-list-row:hover, .admin-tab:hover, .admin-tab-active, .admin-segment-active, .role-action-neutral:hover, .role-action-success:hover, .role-action-warning:hover, .role-action-danger:hover) {
+  background: #2a2a2a !important;
+  background-color: #2a2a2a !important;
+  background-image: none !important;
+  border-color: #6a6a6a !important;
+  color: #ffffff !important;
   transform: none !important;
 }
 
-html body .role-view.organizer-portal .organizer-hero-stats {
-  min-width: 7.25rem !important;
-  padding: 0.55rem 0.65rem !important;
-  border: 1px solid #303746 !important;
-  background: #1b2029 !important;
+html body .role-view.organizer-portal :is(.organizer-eyebrow, .organizer-section-label, .organizer-tabs-heading span, .organizer-metric-top span, .organizer-data-metric span, .organizer-order-finance-grid span, .organizer-row-value span, .organizer-breakdown-row span, label),
+html body .developer-admin-panel :is(.admin-section-kicker, .admin-stat-title, .admin-stat-change, .admin-breadcrumb-row, .admin-row-title p, .admin-row-title span, .admin-info-grid span, .admin-detail-list span, label) {
+  color: #c7c7c7 !important;
 }
 
-html body .role-view.organizer-portal .organizer-hero-stats span {
-  font-size: 1.5rem !important;
-  font-weight: 720 !important;
-}
-
-html body .role-view.organizer-portal .organizer-hero-stats small {
-  font-size: 0.72rem !important;
-}
-
-html body .role-view.organizer-portal .organizer-metrics-grid,
-html body .role-view.organizer-portal .organizer-data-metrics,
-html body .developer-admin-panel .admin-kpi-grid,
-html body .developer-admin-panel .admin-analytics-kpi-grid {
-  grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)) !important;
-  gap: 0.6rem !important;
-}
-
-html body .role-view.organizer-portal .organizer-metric-card,
-html body .role-view.organizer-portal .organizer-data-metric,
-html body .developer-admin-panel .admin-stat-card {
-  min-height: 6.1rem !important;
-  padding: 0.75rem !important;
-  overflow: hidden !important;
-  transition: border-color 140ms ease, background-color 140ms ease !important;
-}
-
-html body .role-view.organizer-portal .organizer-metric-card:hover,
-html body .role-view.organizer-portal .organizer-data-metric:hover,
-html body .developer-admin-panel .admin-stat-card:hover {
-  border-color: #4b5566 !important;
-  transform: none !important;
-}
-
-html body .developer-admin-panel .admin-stat-card::before,
-html body .role-view.organizer-portal .organizer-metric-card::before,
-html body .role-view.organizer-portal .organizer-data-metric::before {
-  display: none !important;
-}
-
-html body .role-view.organizer-portal .organizer-metric-top,
-html body .developer-admin-panel .admin-card-topline {
-  margin-bottom: 0.55rem !important;
-}
-
-html body .role-view.organizer-portal .organizer-metric-top span,
-html body .role-view.organizer-portal .organizer-data-metric span,
-html body .role-view.organizer-portal .organizer-order-finance-grid span,
-html body .role-view.organizer-portal .organizer-breakdown-row span,
-html body .role-view.organizer-portal .organizer-row-value span {
-  color: #a9b0bd !important;
-  font-size: 0.74rem !important;
-  font-weight: 650 !important;
-  text-transform: none !important;
-}
-
-html body .role-view.organizer-portal .organizer-metric-card strong,
-html body .role-view.organizer-portal .organizer-data-metric strong,
-html body .developer-admin-panel .admin-stat-value {
-  color: #f4f7fb !important;
-  font-size: clamp(1.35rem, 2vw, 1.7rem) !important;
-  font-weight: 720 !important;
-  line-height: 1.08 !important;
+html body .role-view.organizer-portal :is(.organizer-hero h1, .organizer-panel h2, .organizer-empty-state h3, .organizer-metric-card strong, .organizer-data-metric strong, .organizer-order-finance-grid strong, .organizer-row-value strong, .organizer-breakdown-row strong),
+html body .developer-admin-panel :is(.admin-header-copy h1, .admin-section-heading h2, .admin-side-panel h2, .admin-modal h3, .admin-stat-value, .admin-row-title h3, .admin-detail-list strong) {
+  color: #ffffff !important;
   text-shadow: none !important;
 }
 
-html body .role-view.organizer-portal .organizer-content-grid,
-html body .role-view.organizer-portal .organizer-lower-grid,
-html body .role-view.organizer-portal .organizer-analytics-grid,
-html body .developer-admin-panel .admin-dashboard-grid,
-html body .developer-admin-panel .admin-users-grid,
-html body .developer-admin-panel .admin-analytics-grid {
-  gap: 0.75rem !important;
+html body .role-view.organizer-portal :is([class*="bg-purple"], [class*="from-purple"], [class*="to-pink"], [class*="border-purple"], [class*="text-purple"], [class*="bg-gradient"]),
+html body .developer-admin-panel :is([class*="bg-purple"], [class*="from-purple"], [class*="to-pink"], [class*="border-purple"], [class*="text-purple"], [class*="bg-gradient"]) {
+  background: #2a2a2a !important;
+  background-color: #2a2a2a !important;
+  background-image: none !important;
+  border-color: #6a6a6a !important;
+  color: #f1f1f1 !important;
 }
 
-html body .role-view.organizer-portal .organizer-panel,
-html body .developer-admin-panel .admin-surface,
-html body .developer-admin-panel .admin-section-shell {
-  padding: 0.9rem !important;
+html body .role-view.organizer-portal :is(.tone-success, .tone-warning, .tone-green, .tone-amber, .tone-cyan),
+html body .developer-admin-panel :is(.admin-state-purple, .admin-state-success, .admin-state-warning, .admin-state-danger, .admin-state-muted) {
+  background: #242424 !important;
+  border-color: #5a5a5a !important;
+  color: #f1f1f1 !important;
 }
 
-html body .role-view.organizer-portal .organizer-panel-header,
-html body .developer-admin-panel .admin-section-heading {
-  gap: 0.75rem !important;
-  margin-bottom: 0.65rem !important;
-}
-
-html body .role-view.organizer-portal .organizer-panel h2,
-html body .role-view.organizer-portal .organizer-empty-state h3,
-html body .developer-admin-panel .admin-section-heading h2,
-html body .developer-admin-panel .admin-side-panel h2,
-html body .developer-admin-panel .admin-modal h3 {
-  color: #f4f7fb !important;
-  font-size: 1.05rem !important;
-  font-weight: 700 !important;
-  line-height: 1.25 !important;
-}
-
-html body .role-view.organizer-portal .organizer-event-table-row,
-html body .role-view.organizer-portal .organizer-order-row,
-html body .role-view.organizer-portal .organizer-analytics-row,
-html body .role-view.organizer-portal .organizer-breakdown-row,
-html body .developer-admin-panel .admin-list-row,
-html body .developer-admin-panel .admin-analytics-row,
-html body .developer-admin-panel .admin-analytics-mini-row {
-  background: #1b2029 !important;
-  border: 1px solid #303746 !important;
-  padding: 0.7rem !important;
-}
-
-html body .role-view.organizer-portal :is(.organizer-chip, .organizer-status, .organizer-status-pill),
-html body .developer-admin-panel :is(.admin-state-badge, .admin-status-pill, .admin-legend, .admin-breadcrumb-row span) {
-  min-height: 0 !important;
-  padding: 0.22rem 0.45rem !important;
-  border: 1px solid #3a4250 !important;
-  background: #202632 !important;
-  color: #c2c8d2 !important;
-  font-size: 0.74rem !important;
-  font-weight: 620 !important;
-  text-transform: none !important;
-}
-
-html body .developer-admin-panel .admin-dashboard-wrap {
-  padding: 0 1rem 3rem !important;
-}
-
-html body .developer-admin-panel .admin-panel-header {
-  padding: 0.9rem !important;
-}
-
-html body .developer-admin-panel .admin-header-grid {
-  align-items: center !important;
-  gap: 0.85rem !important;
-}
-
-html body .developer-admin-panel .admin-header-actions {
-  gap: 0.4rem !important;
-}
-
-html body .developer-admin-panel .admin-tabs {
-  gap: 0 !important;
-  margin-top: 0.8rem !important;
-  padding: 0 !important;
-  border: 1px solid #303746 !important;
-  background: #12151b !important;
-}
-
-html body .developer-admin-panel .admin-tab {
-  min-height: 2.15rem !important;
-  padding: 0.45rem 0.7rem !important;
-  border: 0 !important;
-  border-right: 1px solid #303746 !important;
-  background: transparent !important;
-  color: #b4bbc7 !important;
-  font-size: 0.84rem !important;
-  font-weight: 620 !important;
-}
-
-html body .developer-admin-panel .admin-tab:hover,
-html body .developer-admin-panel .admin-tab-active {
-  background: #1d232c !important;
-  color: #f4f7fb !important;
-  transform: none !important;
-}
-
-html body .developer-admin-panel .admin-tab-active {
-  border-bottom: 2px solid #98a3b5 !important;
-}
-
-html body .developer-admin-panel .admin-main {
-  padding-top: 0.8rem !important;
-}
-
-html body .developer-admin-panel .admin-chart-panel,
-html body .developer-admin-panel .admin-insights-panel {
-  padding: 0.9rem !important;
-}
-
-html body .developer-admin-panel .admin-chart-canvas {
-  min-height: 13rem !important;
-  background: #12151b !important;
-  border: 1px solid #303746 !important;
-}
-
-html body .developer-admin-panel .admin-chart-tooltip {
-  background: #202632 !important;
-  border: 1px solid #3a4250 !important;
-  box-shadow: none !important;
-}
-
-html body .role-view.organizer-portal :is(select, input, textarea, button),
-html body .developer-admin-panel :is(select, input, textarea, button) {
+html body .role-view.organizer-portal :is(.organizer-progress-track, .organizer-progress-track > span),
+html body .developer-admin-panel .admin-stat-card::before {
   border-radius: 0 !important;
-}
-
-html body .role-view.organizer-portal :focus-visible,
-html body .developer-admin-panel :focus-visible {
-  outline: 2px solid #9aa3b1 !important;
-  outline-offset: 2px !important;
-  box-shadow: none !important;
-}
-
-@media (max-width: 860px) {
-  html body .role-view.organizer-portal .organizer-hero,
-  html body .role-view.organizer-portal .organizer-data-hero,
-  html body .developer-admin-panel .admin-header-grid {
-    grid-template-columns: 1fr !important;
-  }
-
-  html body .role-view.organizer-portal .organizer-main,
-  html body .developer-admin-panel .admin-dashboard-wrap {
-    padding-left: 0.75rem !important;
-    padding-right: 0.75rem !important;
-  }
+  background: #3a3a3a !important;
+  background-image: none !important;
 }
