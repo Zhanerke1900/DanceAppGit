@@ -4885,3 +4885,23 @@ html:not(.dark) body .role-view.organizer-portal main h3[class*="text-purple"] {
 html:not(.dark) body .role-view.organizer-portal .organizer-create-event button span[class*="text-purple"] {
   color: #6d28d9 !important;
 }
+
+/* Organizer portal uses strictly rectangular UI elements. */
+html body .role-view.organizer-portal,
+html body .role-view.organizer-portal *,
+html body .role-view.organizer-portal *::before,
+html body .role-view.organizer-portal *::after,
+html body .role-view.organizer-portal :is(
+  [class*="rounded"],
+  button,
+  input,
+  select,
+  textarea,
+  label,
+  article,
+  section,
+  aside,
+  nav
+) {
+  border-radius: 0 !important;
+}

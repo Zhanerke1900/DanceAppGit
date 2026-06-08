@@ -3,7 +3,6 @@ import {
   Activity,
   Clock,
   Search,
-  ShieldCheck,
 } from 'lucide-react';
 import { useI18n } from '../i18n';
 import { AdminAnalytics } from './AdminAnalytics';
@@ -140,7 +139,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const { language } = useI18n();
   const copy = {
     en: {
-      developerPanel: 'Developer Admin Panel',
       adminPanel: 'Admin Panel',
       requests: 'Requests',
       userManagement: 'User Management',
@@ -208,7 +206,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       roles: { user: 'user', organizer: 'organizer', admin: 'admin', validator: 'validator' } as Record<string, string>,
     },
     ru: {
-      developerPanel: 'Панель администратора',
       adminPanel: 'Админ-панель',
       requests: 'Заявки',
       userManagement: 'Пользователи',
@@ -275,7 +272,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       roles: { user: 'пользователь', organizer: 'организатор', admin: 'администратор', validator: 'валидатор' } as Record<string, string>,
     },
     kk: {
-      developerPanel: 'Әкімші панелі',
       adminPanel: 'Әкімші панелі',
       requests: 'Өтінімдер',
       userManagement: 'Қолданушылар',
@@ -497,16 +493,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             <div className="admin-header-copy">
               <div className="admin-breadcrumb-row">
                 <span>Admin Console</span>
-                <span>Developer Admin</span>
               </div>
-              <h1>Developer Admin Panel</h1>
+              <h1>{copy.adminPanel}</h1>
               <p>{copy.overview}</p>
             </div>
             <div className="admin-header-actions">
-              <span className="admin-status-pill admin-status-pill-primary">
-                <ShieldCheck aria-hidden="true" />
-                Developer Admin
-              </span>
               <span className="admin-status-pill">
                 <Clock aria-hidden="true" />
                 {overview?.pendingOrganizerApplications ?? 0} {copy.pending}
