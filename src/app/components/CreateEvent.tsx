@@ -1149,7 +1149,7 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
                   type="button"
                   onClick={handleDraftEditSendForApproval}
                   disabled={isSubmittingDraft || isSubmittingReview}
-                  className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg shadow-purple-600/20 hover:shadow-purple-600/40"
+                  className="flex-1 flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg shadow-purple-600/20 hover:shadow-purple-600/40"
                 >
                   {isSubmittingReview ? tr('Sending...', 'Отправка...', 'Жіберілуде...') : tr('Send for Approval', 'Отправить на проверку', 'Тексеруге жіберу')}
                 </button>
@@ -1159,7 +1159,7 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
                 type="button"
                 onClick={handleSaveChanges}
                 disabled={isSubmittingReview}
-                className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg shadow-purple-600/20 hover:shadow-purple-600/40"
+                className="flex-1 flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg shadow-purple-600/20 hover:shadow-purple-600/40"
               >
                 {isSubmittingReview ? tr('Saving...', 'Сохранение...', 'Сақталуда...') : tr('Save Changes', 'Сохранить изменения', 'Өзгерістерді сақтау')}
               </button>
@@ -1177,7 +1177,7 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
                   type="button"
                   onClick={handleSendForApproval}
                   disabled={isSubmittingDraft || isSubmittingReview}
-                  className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg shadow-purple-600/20 hover:shadow-purple-600/40"
+                  className="flex-1 flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg shadow-purple-600/20 hover:shadow-purple-600/40"
                 >
                   {isSubmittingReview ? tr('Sending...', 'Отправка...', 'Жіберілуде...') : tr('Send for Approval', 'Отправить на проверку', 'Тексеруге жіберу')}
                 </button>

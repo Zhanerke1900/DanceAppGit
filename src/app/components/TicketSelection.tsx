@@ -453,7 +453,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                               {/* Organizer Info */}
                               {activity.organizer && (
                                 <div className="flex items-center gap-3 pt-4 border-t border-white/5">
-                                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-fuchsia-500 flex items-center justify-center text-white font-bold text-sm shadow-lg">
+                                  <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-lg">
                                     {activity.organizer.name.charAt(0)}
                                   </div>
                                   <div>
@@ -967,9 +967,9 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
 
           {/* RIGHT COLUMN - STICKY ORDER SUMMARY */}
           {!readOnly && (
-          <div className="lg:col-span-1 relative">
+          <div className="ticket-checkout lg:col-span-1 relative">
             <div className="hidden lg:block sticky top-20 max-h-[calc(100vh-6rem)] space-y-3 overflow-y-auto overscroll-contain pr-1 custom-scrollbar">
-              <div className="bg-gray-900 rounded-2xl p-4 border border-white/10 shadow-2xl shadow-black/50">
+              <div className="ticket-checkout-card bg-gray-900 rounded-2xl p-4 border border-white/10 shadow-2xl shadow-black/50">
                 <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                   <ShoppingCart className="w-5 h-5 text-purple-400" />
                   {copy.orderSummary}
@@ -977,7 +977,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                 
                 <div className="space-y-3 text-sm max-h-[22vh] overflow-y-auto custom-scrollbar pr-2 mb-4">
                   {ticketQuantity === 0 && (!isSpecialProgram || (!fullPassSelected && Object.keys(selectedActivities).length === 0)) ? (
-                    <div className="text-gray-500 text-center py-10 bg-black/20 rounded-xl border border-dashed border-white/5">
+                    <div className="ticket-checkout-empty text-gray-500 text-center py-10 bg-black/20 rounded-xl border border-dashed border-white/5">
                       <div className="text-4xl mb-3 opacity-20">🎫</div>
                       <p>{copy.selectTicketsContinue}</p>
                     </div>
@@ -1017,7 +1017,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                   )}
                 </div>
 
-                <div className="mb-3 grid grid-cols-2 gap-2 rounded-xl border border-white/10 bg-black/20 p-1">
+                <div className="ticket-payment-mode mb-3 grid grid-cols-2 gap-2 rounded-xl border border-white/10 bg-black/20 p-1">
                   <button
                     type="button"
                     onClick={() => setPaymentMode('deposit')}
@@ -1047,7 +1047,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                     <span>{copy.total}</span>
                     <span className="text-purple-500 drop-shadow-[0_0_8px_rgba(168,85,247,0.3)]">{formatCurrency(total)}</span>
                   </div>
-                  <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3">
+                  <div className="ticket-deposit-summary rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3">
                     <div className="flex justify-between items-center text-emerald-100 font-bold">
                       <span>{paymentMode === 'deposit' ? copy.deposit : copy.dueNow}</span>
                       <span>{formatCurrency(dueNow)}</span>
@@ -1067,7 +1067,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                 <button 
                   disabled={isCheckoutSubmitting || isSoldOut || (ticketQuantity === 0 && (!isSpecialProgram || (!fullPassSelected && Object.keys(selectedActivities).length === 0)))}
                   onClick={handleCheckout}
-                  className="w-full mt-4 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-800 disabled:text-gray-500 text-white py-3 rounded-xl font-bold transition-all shadow-lg shadow-purple-600/20 disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
+                  className="ticket-checkout-submit w-full mt-4 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-800 disabled:text-gray-500 text-white py-3 rounded-xl font-bold transition-all shadow-lg shadow-purple-600/20 disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
                 >
                   {isSoldOut ? copy.soldOut : isCheckoutSubmitting ? copy.processing : paymentMode === 'deposit' ? copy.proceedCheckout : copy.proceedFullCheckout}
                   <ArrowLeft className="w-4 h-4 rotate-180 group-hover:translate-x-1 transition-transform" />
@@ -1103,7 +1103,7 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
       </div>
 
       {/* MOBILE FIXED BOTTOM BAR */}
-      {!readOnly && <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-md border-t border-white/10 p-4 z-40 safe-area-bottom shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+      {!readOnly && <div className="ticket-mobile-checkout lg:hidden fixed bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-md border-t border-white/10 p-4 z-40 safe-area-bottom shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
           <div className="flex flex-col">
             <span className="text-gray-400 text-[10px] uppercase font-bold tracking-wider">{copy.totalAmount}</span>

@@ -92,7 +92,7 @@ export const PurchaseSuccess = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#ede4f8] via-[#e7dcf5] to-[#e2d6f1] pb-16 pt-24 dark:from-purple-950 dark:via-black dark:to-black">
+    <div className="min-h-screen bg-[#e7dcf5] pb-16 pt-24 dark:bg-black">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ scale: 0 }}
@@ -101,7 +101,7 @@ export const PurchaseSuccess = ({
           className="mb-12 flex flex-col items-center"
         >
           <div className="relative mb-6">
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-fuchsia-600">
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-purple-600">
               <Check className="h-12 w-12 text-white" strokeWidth={3} />
             </div>
             <motion.div
@@ -217,7 +217,7 @@ export const PurchaseSuccess = ({
               ))}
               <div className="flex justify-between border-t border-border/80 pt-3 dark:border-white/10">
                 <span className="font-bold text-foreground dark:text-white">{copy.totalPaid}</span>
-                <span className="bg-gradient-to-r from-purple-400 to-fuchsia-400 bg-clip-text text-2xl font-bold text-transparent">
+                <span className="text-2xl font-bold text-purple-500">
                   {formatCurrency(ticketDetails.paymentType === 'deposit' ? (ticketDetails.depositAmount ?? ticketDetails.total) : ticketDetails.total)}
                 </span>
               </div>
@@ -249,7 +249,7 @@ export const PurchaseSuccess = ({
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <button
                 onClick={onViewMyTickets}
-                className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 px-6 py-3 font-semibold text-white transition-all shadow-lg shadow-purple-600/20 hover:from-purple-700 hover:to-fuchsia-700"
+                className="flex items-center justify-center gap-2 rounded-xl bg-purple-600 px-6 py-3 font-semibold text-white transition-all shadow-lg shadow-purple-600/20 hover:bg-purple-700"
               >
                 <Ticket className="h-5 w-5" />
                 {copy.viewTickets}

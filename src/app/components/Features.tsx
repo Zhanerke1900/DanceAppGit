@@ -59,7 +59,7 @@ export const Features = () => {
       className={`py-24 border-y ${
         isDark
           ? 'bg-gray-950 border-white/5'
-          : 'bg-gradient-to-b from-[#d7c6ee] via-[#e2d3f3] to-[#d9caee] border-[rgba(83,69,130,0.20)]'
+          : 'bg-[#ddd0ef] border-[rgba(83,69,130,0.20)]'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

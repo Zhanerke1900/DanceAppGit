@@ -102,7 +102,7 @@ export const SpecialPrograms = ({
   }
 
   return (
-    <section className={`relative overflow-hidden border-t border-border bg-[linear-gradient(180deg,rgba(228,220,243,0.72)_0%,rgba(221,211,239,0.94)_100%)] dark:border-white/5 dark:bg-black dark:[background-image:none] ${isSearching ? 'py-8 sm:py-10' : 'py-24'}`}>
+    <section className={`relative overflow-hidden border-t border-border bg-[#ded5ef] dark:border-white/5 dark:bg-black ${isSearching ? 'py-8 sm:py-10' : 'py-24'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className={`flex flex-col lg:flex-row lg:items-end justify-between gap-8 ${isSearching ? 'mb-8' : 'mb-16'}`}>
           <div className="space-y-4">
