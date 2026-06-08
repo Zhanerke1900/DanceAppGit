@@ -3539,7 +3539,7 @@ html.dark .role-view.organizer-portal .organizer-primary-button {
     min-width: max-content !important;
     padding: 0.8rem 1rem !important;
     border: 1px solid var(--organizer-border) !important;
-    border-radius: 0.9rem !important;
+    border-radius: 0 !important;
     background: rgba(255, 255, 255, 0.055) !important;
   }
 
@@ -3572,7 +3572,7 @@ html.dark .role-view.organizer-portal .organizer-primary-button {
   .role-view.organizer-portal .organizer-analytics-row,
   .role-view.organizer-portal .organizer-breakdown-row {
     border: 1px solid var(--organizer-border) !important;
-    border-radius: 0.95rem !important;
+    border-radius: 0 !important;
     background:
       linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent),
       var(--organizer-surface) !important;
