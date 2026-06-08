@@ -47,7 +47,7 @@ type ViewState = 'home' | 'all-events' | 'all-special-programs' | 'ticket-select
 type ProfileTab = 'my-tickets' | 'favorites' | 'purchase-history' | 'account-settings';
 type OrganizerTab = 'dashboard' | 'events' | 'create-event' | 'validators' | 'orders';
 type ValidatorTab = 'events' | 'scan';
-type AdminTab = 'dashboard' | 'requests' | 'users' | 'moderation';
+type AdminTab = 'dashboard' | 'requests' | 'users' | 'moderation' | 'analytics';
 
 // Память браузера
 const APP_STATE_STORAGE = {
@@ -77,7 +77,7 @@ const VIEW_STATES: ViewState[] = [
 const PROFILE_TABS: ProfileTab[] = ['my-tickets', 'favorites', 'purchase-history', 'account-settings'];
 const ORGANIZER_TABS: OrganizerTab[] = ['dashboard', 'events', 'create-event', 'validators', 'orders'];
 const VALIDATOR_TABS: ValidatorTab[] = ['events', 'scan'];
-const ADMIN_TABS: AdminTab[] = ['dashboard', 'requests', 'users', 'moderation'];
+const ADMIN_TABS: AdminTab[] = ['dashboard', 'requests', 'users', 'moderation', 'analytics'];
 const PARTNER_LOGOS = [
   { src: blazeLogo, alt: 'Blaze' },
   { src: nomadLogo, alt: 'Nomad' },
@@ -260,6 +260,7 @@ function AppContent() {
   const [selectedValidatorEventId, setSelectedValidatorEventId] = useState('');
   const [adminTab, setAdminTab] = useState<AdminTab>(() => readStoredOption(APP_STATE_STORAGE.adminTab, ADMIN_TABS, 'dashboard'));
   const [adminOverview, setAdminOverview] = useState<any>(null);
+  const [adminAnalytics, setAdminAnalytics] = useState<any>(null);
   const [adminRequests, setAdminRequests] = useState<any[]>([]);
   const [adminArchivedRequests, setAdminArchivedRequests] = useState<any[]>([]);
   const [adminUsers, setAdminUsers] = useState<any[]>([]);
@@ -518,6 +519,7 @@ function AppContent() {
     if (!isAdmin) return;
 
     authApi.adminOverview().then(setAdminOverview).catch(() => {});
+    authApi.adminAnalytics().then(setAdminAnalytics).catch(() => setAdminAnalytics(null));
     authApi.adminRequests("pending").then((data) => setAdminRequests(data.requests || [])).catch(() => {});
     authApi.adminRequests("rejected").then((data) => setAdminArchivedRequests(data.requests || [])).catch(() => {});
     authApi.adminUsers().then((data) => setAdminUsers(data.users || [])).catch(() => {});
@@ -600,6 +602,7 @@ function AppContent() {
     authApi.adminRequests("pending").then((data) => setAdminRequests(data.requests || [])).catch(() => {});
     authApi.adminRequests("rejected").then((data) => setAdminArchivedRequests(data.requests || [])).catch(() => {});
     authApi.adminOverview().then(setAdminOverview).catch(() => {});
+    authApi.adminAnalytics().then(setAdminAnalytics).catch(() => setAdminAnalytics(null));
     authApi.adminUsers().then((data) => setAdminUsers(data.users || [])).catch(() => {});
   };
 
@@ -691,6 +694,7 @@ function AppContent() {
     return authApi.adminDeactivateOrganizer(id).then((data) => {
       setAdminUsers((prev) => prev.map((item) => item.id === id ? data.user : item));
       authApi.adminOverview().then(setAdminOverview).catch(() => {});
+      authApi.adminAnalytics().then(setAdminAnalytics).catch(() => setAdminAnalytics(null));
       return data;
     });
   };
@@ -699,6 +703,7 @@ function AppContent() {
     return authApi.adminActivateOrganizer(id).then((data) => {
       setAdminUsers((prev) => prev.map((item) => item.id === id ? data.user : item));
       authApi.adminOverview().then(setAdminOverview).catch(() => {});
+      authApi.adminAnalytics().then(setAdminAnalytics).catch(() => setAdminAnalytics(null));
       return data;
     });
   };
@@ -723,6 +728,7 @@ function AppContent() {
         setAdminEvents((prev) => prev.filter((event) => event.id !== id));
         setAdminArchivedEvents((prev) => prev.filter((event) => event.id !== id));
         authApi.adminOverview().then(setAdminOverview).catch(() => {});
+        authApi.adminAnalytics().then(setAdminAnalytics).catch(() => setAdminAnalytics(null));
         refreshPublishedMarketplaceEvents();
       })
       .catch(() => {});
@@ -734,6 +740,7 @@ function AppContent() {
         setAdminEvents((prev) => prev.filter((event) => event.id !== id));
         setAdminArchivedEvents((prev) => [data.event, ...prev.filter((event) => event.id !== id)]);
         authApi.adminOverview().then(setAdminOverview).catch(() => {});
+        authApi.adminAnalytics().then(setAdminAnalytics).catch(() => setAdminAnalytics(null));
         refreshPublishedMarketplaceEvents();
       })
       .catch(() => {});
@@ -1642,6 +1649,7 @@ function AppContent() {
             activeTab={adminTab}
             onNavigate={setAdminTab}
             overview={adminOverview}
+            analytics={adminAnalytics}
             requests={adminRequests}
             archivedRequests={adminArchivedRequests}
             users={adminUsers}

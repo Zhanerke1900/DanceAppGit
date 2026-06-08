@@ -27,6 +27,12 @@ export async function adminOverview() {
   return data;
 }
 
+export async function adminAnalytics() {
+  const { res, data } = await request<any>("/api/admin/analytics", { method: "GET" });
+  if (!res.ok) throw new Error((data as any)?.message || "Failed to load admin analytics");
+  return data;
+}
+
 export async function adminRequests(status: "pending" | "rejected" = "pending") {
   const { res, data } = await request<any>(`/api/admin/requests?status=${encodeURIComponent(status)}`, { method: "GET" });
   if (!res.ok) throw new Error((data as any)?.message || "Failed to load organizer requests");

@@ -6,8 +6,9 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { useI18n } from '../i18n';
+import { AdminAnalytics } from './AdminAnalytics';
 
-type AdminTab = 'dashboard' | 'requests' | 'users' | 'moderation';
+type AdminTab = 'dashboard' | 'requests' | 'users' | 'moderation' | 'analytics';
 type BlockReason = 'Fraud' | 'Spam' | 'Fake event' | 'Abuse';
 type AdminListView = 'pending' | 'archive';
 
@@ -97,6 +98,7 @@ interface AdminPanelProps {
       events: number;
     }>;
   } | null;
+  analytics: any | null;
   requests: Array<any>;
   archivedRequests: Array<any>;
   users: Array<any>;
@@ -118,6 +120,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   activeTab,
   onNavigate,
   overview,
+  analytics,
   requests,
   archivedRequests,
   users,
@@ -142,6 +145,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       requests: 'Requests',
       userManagement: 'User Management',
       eventModeration: 'Event Moderation',
+      analytics: 'Analytics',
       overview: 'Platform overview and moderation shortcuts.',
       totalUsers: 'Total Users',
       totalOrganizers: 'Total Organizers',
@@ -360,6 +364,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     { id: 'requests', label: copy.requests },
     { id: 'users', label: copy.userManagement },
     { id: 'moderation', label: copy.eventModeration },
+    { id: 'analytics', label: language === 'en' ? (copy as any).analytics : 'Аналитика' },
   ] as const;
 
   const formatCurrency = (value: number) =>
@@ -913,6 +918,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   ))}
               </div>
             </div>
+          )}
+
+          {activeTab === 'analytics' && (
+            <AdminAnalytics analytics={analytics} />
           )}
         </main>
       </div>

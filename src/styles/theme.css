@@ -3688,7 +3688,8 @@ html.dark .role-view.organizer-portal .organizer-primary-button {
 
   .role-view.organizer-portal .organizer-orders-filter select,
   .role-view.organizer-portal .organizer-date-button,
-  .role-view.organizer-portal .organizer-date-field input {
+  .role-view.organizer-portal .organizer-date-field input,
+  .role-view.organizer-portal .organizer-date-select-grid select {
     min-height: 2.55rem !important;
     width: 100% !important;
     border: 1px solid var(--organizer-border) !important;
@@ -3718,12 +3719,15 @@ html.dark .role-view.organizer-portal .organizer-primary-button {
   .role-view.organizer-portal .organizer-date-button.is-active,
   .role-view.organizer-portal .organizer-orders-filter select:focus,
   .role-view.organizer-portal .organizer-date-button:focus,
-  .role-view.organizer-portal .organizer-date-field input:focus {
+  .role-view.organizer-portal .organizer-date-field input:focus,
+  .role-view.organizer-portal .organizer-date-select-grid select:focus {
     border-color: var(--organizer-border-strong) !important;
     box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.16) !important;
   }
 
   .role-view.organizer-portal .organizer-orders-filter select option,
+  .role-view.organizer-portal .organizer-date-select-grid select option,
+  html.dark .role-view.organizer-portal .organizer-date-select-grid select option,
   html.dark .role-view.organizer-portal .organizer-orders-filter select option {
     background: #f6efff !important;
     color: #1e1730 !important;
@@ -3776,6 +3780,16 @@ html.dark .role-view.organizer-portal .organizer-primary-button {
   .role-view.organizer-portal .organizer-date-field {
     display: grid !important;
     gap: 0.35rem !important;
+  }
+
+  .role-view.organizer-portal .organizer-date-select-grid {
+    display: grid !important;
+    grid-template-columns: minmax(5.5rem, 0.72fr) minmax(0, 1fr) minmax(4.6rem, 0.58fr) !important;
+    gap: 0.45rem !important;
+  }
+
+  .role-view.organizer-portal .organizer-date-select-grid-month {
+    grid-template-columns: minmax(5.5rem, 0.72fr) minmax(0, 1fr) !important;
   }
 
   html.dark .role-view.organizer-portal .organizer-date-field input {
@@ -4145,7 +4159,9 @@ html.dark .role-view.organizer-portal .organizer-primary-button {
     }
 
     .role-view.organizer-portal .organizer-date-modes,
-    .role-view.organizer-portal .organizer-date-fields {
+    .role-view.organizer-portal .organizer-date-fields,
+    .role-view.organizer-portal .organizer-date-select-grid,
+    .role-view.organizer-portal .organizer-date-select-grid-month {
       grid-template-columns: 1fr !important;
     }
 
@@ -4199,4 +4215,345 @@ html.dark .role-view.organizer-portal .organizer-primary-button {
 
 .role-view.organizer-portal .organizer-data-page .lucide {
   display: none !important;
+}
+
+.developer-admin-panel .admin-analytics-toolbar {
+  display: grid !important;
+  grid-template-columns: minmax(18rem, 1fr) minmax(16rem, auto) !important;
+  gap: 0.85rem !important;
+  align-items: end !important;
+}
+
+.developer-admin-panel .admin-analytics-control,
+.developer-admin-panel .admin-analytics-date-filter,
+.developer-admin-panel .admin-analytics-date-field {
+  display: grid !important;
+  gap: 0.35rem !important;
+}
+
+.developer-admin-panel .admin-analytics-date-filter {
+  position: relative !important;
+}
+
+.developer-admin-panel .admin-analytics-control > span,
+.developer-admin-panel .admin-analytics-date-filter > label,
+.developer-admin-panel .admin-analytics-date-field > label {
+  color: var(--role-muted) !important;
+  font-size: 0.72rem !important;
+  font-weight: 780 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+.developer-admin-panel .admin-analytics-control select,
+.developer-admin-panel .admin-analytics-date-button,
+.developer-admin-panel .admin-analytics-date-select-grid select {
+  min-height: 2.55rem !important;
+  width: 100% !important;
+  border: 1px solid var(--role-line) !important;
+  background: var(--role-surface-muted) !important;
+  color: var(--role-text) !important;
+  padding: 0.55rem 0.85rem !important;
+  font-size: 0.9rem !important;
+  font-weight: 700 !important;
+  outline: none !important;
+}
+
+.developer-admin-panel .admin-analytics-control select:focus,
+.developer-admin-panel .admin-analytics-date-button:focus,
+.developer-admin-panel .admin-analytics-date-button.is-active,
+.developer-admin-panel .admin-analytics-date-select-grid select:focus {
+  border-color: var(--role-line-strong) !important;
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.16) !important;
+}
+
+.developer-admin-panel .admin-analytics-control select option,
+.developer-admin-panel .admin-analytics-date-select-grid select option {
+  background: #171827 !important;
+  color: #f7f4ff !important;
+}
+
+.developer-admin-panel .admin-analytics-date-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.55rem !important;
+  text-align: left !important;
+}
+
+.developer-admin-panel .admin-analytics-date-button svg {
+  width: 1rem !important;
+  height: 1rem !important;
+  color: var(--role-accent) !important;
+}
+
+.developer-admin-panel .admin-analytics-date-button span {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.developer-admin-panel .admin-analytics-date-panel {
+  position: absolute !important;
+  top: calc(100% + 0.55rem) !important;
+  right: 0 !important;
+  z-index: 40 !important;
+  width: min(24rem, calc(100vw - 2rem)) !important;
+  border: 1px solid var(--role-line) !important;
+  background: #111220 !important;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.36) !important;
+  padding: 0.85rem !important;
+}
+
+.developer-admin-panel .admin-analytics-date-modes {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 0.35rem !important;
+  margin-bottom: 0.8rem !important;
+}
+
+.developer-admin-panel .admin-analytics-date-modes button,
+.developer-admin-panel .admin-analytics-date-clear {
+  min-height: 2.15rem !important;
+  border: 1px solid var(--role-line) !important;
+  background: var(--role-surface-muted) !important;
+  color: var(--role-muted) !important;
+  font-size: 0.78rem !important;
+  font-weight: 760 !important;
+}
+
+.developer-admin-panel .admin-analytics-date-modes button.is-active {
+  border-color: var(--role-line-strong) !important;
+  background: rgba(167, 139, 250, 0.18) !important;
+  color: var(--role-text) !important;
+}
+
+.developer-admin-panel .admin-analytics-date-fields {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 0.6rem !important;
+}
+
+.developer-admin-panel .admin-analytics-date-select-grid {
+  display: grid !important;
+  grid-template-columns: minmax(5.5rem, 0.72fr) minmax(0, 1fr) minmax(4.6rem, 0.58fr) !important;
+  gap: 0.45rem !important;
+}
+
+.developer-admin-panel .admin-analytics-date-select-grid-month {
+  grid-template-columns: minmax(5.5rem, 0.72fr) minmax(0, 1fr) !important;
+}
+
+.developer-admin-panel .admin-analytics-date-clear {
+  width: 100% !important;
+  margin-top: 0.75rem !important;
+}
+
+.developer-admin-panel .admin-analytics-kpi-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+}
+
+.developer-admin-panel .admin-analytics-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 1rem !important;
+}
+
+.developer-admin-panel .admin-analytics-table-card {
+  min-width: 0 !important;
+  padding: 1rem !important;
+}
+
+.developer-admin-panel .admin-analytics-table-card-wide {
+  grid-column: 1 / -1 !important;
+}
+
+.developer-admin-panel .admin-analytics-table,
+.developer-admin-panel .admin-analytics-list {
+  display: grid !important;
+  gap: 0.55rem !important;
+}
+
+.developer-admin-panel .admin-analytics-row {
+  display: grid !important;
+  grid-template-columns: minmax(16rem, 1.35fr) repeat(7, minmax(6.5rem, 0.62fr)) !important;
+  gap: 0.65rem !important;
+  align-items: center !important;
+  min-width: 0 !important;
+  padding: 0.75rem !important;
+  border: 1px solid var(--role-line) !important;
+  background: rgba(255, 255, 255, 0.035) !important;
+}
+
+.developer-admin-panel .admin-analytics-head {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: var(--role-muted) !important;
+  font-size: 0.72rem !important;
+  font-weight: 780 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+}
+
+.developer-admin-panel .admin-analytics-row > span,
+.developer-admin-panel .admin-analytics-mini-row b {
+  color: var(--role-text) !important;
+  font-size: 0.86rem !important;
+  font-weight: 760 !important;
+  overflow-wrap: anywhere !important;
+}
+
+.developer-admin-panel .admin-analytics-entity {
+  display: grid !important;
+  gap: 0.2rem !important;
+  min-width: 0 !important;
+}
+
+.developer-admin-panel .admin-analytics-entity strong,
+.developer-admin-panel .admin-analytics-mini-row strong {
+  color: var(--role-text) !important;
+  font-size: 0.92rem !important;
+  font-weight: 780 !important;
+  line-height: 1.25 !important;
+  overflow-wrap: anywhere !important;
+}
+
+.developer-admin-panel .admin-analytics-entity span,
+.developer-admin-panel .admin-analytics-entity small,
+.developer-admin-panel .admin-analytics-mini-row span {
+  color: var(--role-muted) !important;
+  font-size: 0.78rem !important;
+  line-height: 1.35 !important;
+  overflow-wrap: anywhere !important;
+}
+
+.developer-admin-panel .admin-analytics-mini-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.8rem !important;
+  min-width: 0 !important;
+  padding: 0.75rem !important;
+  border: 1px solid var(--role-line) !important;
+  background: rgba(255, 255, 255, 0.035) !important;
+}
+
+.developer-admin-panel .admin-analytics-mini-row > div {
+  display: grid !important;
+  gap: 0.2rem !important;
+  min-width: 0 !important;
+}
+
+@media (max-width: 1180px) {
+  .developer-admin-panel .admin-analytics-kpi-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .developer-admin-panel .admin-analytics-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .developer-admin-panel .admin-analytics-row {
+    grid-template-columns: minmax(14rem, 1.2fr) repeat(3, minmax(6.5rem, 0.7fr)) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .developer-admin-panel .admin-analytics-toolbar,
+  .developer-admin-panel .admin-analytics-date-fields,
+  .developer-admin-panel .admin-analytics-date-select-grid,
+  .developer-admin-panel .admin-analytics-date-select-grid-month {
+    grid-template-columns: 1fr !important;
+  }
+
+  .developer-admin-panel .admin-analytics-date-panel {
+    position: static !important;
+    width: 100% !important;
+    margin-top: 0.5rem !important;
+  }
+
+  .developer-admin-panel .admin-analytics-date-modes {
+    grid-template-columns: 1fr !important;
+  }
+
+  .developer-admin-panel .admin-analytics-kpi-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .developer-admin-panel .admin-analytics-head {
+    display: none !important;
+  }
+
+  .developer-admin-panel .admin-analytics-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  .developer-admin-panel .admin-analytics-row > span::before {
+    content: attr(data-label) ": " !important;
+    color: var(--role-muted) !important;
+    font-weight: 650 !important;
+  }
+
+  .developer-admin-panel .admin-analytics-mini-row {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+}
+
+.role-view.organizer-portal *,
+.role-view.organizer-portal *::before,
+.role-view.organizer-portal *::after,
+.developer-admin-panel *,
+.developer-admin-panel *::before,
+.developer-admin-panel *::after {
+  border-radius: 0 !important;
+}
+
+.role-view.organizer-portal .organizer-tabs-bar,
+.role-view.organizer-portal .organizer-hero,
+.role-view.organizer-portal .organizer-panel,
+.role-view.organizer-portal .organizer-metric-card,
+.role-view.organizer-portal .organizer-data-metric,
+.role-view.organizer-portal .organizer-event-row,
+.role-view.organizer-portal .organizer-mini-row,
+.role-view.organizer-portal .organizer-activity-row,
+.role-view.organizer-portal .organizer-check-row,
+.role-view.organizer-portal .organizer-order-row,
+.role-view.organizer-portal .organizer-analytics-row,
+.role-view.organizer-portal .organizer-breakdown-row,
+.developer-admin-panel .admin-panel-header,
+.developer-admin-panel .admin-stat-card,
+.developer-admin-panel .admin-surface,
+.developer-admin-panel .admin-list-row,
+.developer-admin-panel .admin-side-panel,
+.developer-admin-panel .admin-empty-state,
+.developer-admin-panel .admin-modal {
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+.role-view.organizer-portal .organizer-hero,
+.role-view.organizer-portal .organizer-panel,
+.role-view.organizer-portal .organizer-metric-card,
+.role-view.organizer-portal .organizer-data-metric,
+.role-view.organizer-portal .organizer-order-row,
+.role-view.organizer-portal .organizer-analytics-row,
+.role-view.organizer-portal .organizer-breakdown-row {
+  background: var(--organizer-surface) !important;
+  border-left: 3px solid var(--organizer-border-strong) !important;
+}
+
+.developer-admin-panel .admin-panel-header,
+.developer-admin-panel .admin-stat-card,
+.developer-admin-panel .admin-surface,
+.developer-admin-panel .admin-list-row,
+.developer-admin-panel .admin-side-panel {
+  background: var(--role-surface) !important;
+  border-left: 3px solid var(--role-line-strong) !important;
+}
+
+.role-view.organizer-portal .organizer-tab.is-active,
+.role-view.organizer-portal .organizer-primary-button,
+.developer-admin-panel .admin-tab-active {
+  background-image: none !important;
+  box-shadow: none !important;
 }

@@ -40,10 +40,13 @@ const formatCurrency = (value: number) =>
 const organizerNetAmount = (value: number) =>
   Number((Number(value || 0) * (1 - ORGANIZER_SERVICE_FEE_RATE)).toFixed(2));
 
-const formatDate = (value: string) => {
+const getLocale = (language: string) =>
+  language === 'ru' ? 'ru-RU' : language === 'kk' ? 'kk-KZ' : 'en-US';
+
+const formatDate = (value: string, locale = 'en-US') => {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleString('en-US', {
+  return date.toLocaleString(locale, {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -65,27 +68,58 @@ const parseDateInput = (value: string, endOfDay = false) => {
   return Number.isNaN(date.getTime()) ? null : date;
 };
 
-const formatDateInputLabel = (value: string) => {
+const formatDateInputLabel = (value: string, locale = 'en-US') => {
   const date = parseDateInput(value);
   if (!date) return value;
-  return date.toLocaleDateString('en-US', {
+  return date.toLocaleDateString(locale, {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
   });
 };
 
-const formatMonthLabel = (value: string) => {
+const formatMonthLabel = (value: string, locale = 'en-US') => {
   const [year, month] = value.split('-').map(Number);
   if (!year || !month) return value;
-  return new Date(year, month - 1, 1).toLocaleDateString('en-US', {
+  return new Date(year, month - 1, 1).toLocaleDateString(locale, {
     month: 'long',
     year: 'numeric',
   });
 };
 
+const parseDateParts = (value: string) => {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  return {
+    year: match?.[1] || '',
+    month: match?.[2] || '',
+    day: match?.[3] || '',
+  };
+};
+
+const getDaysInMonth = (year: number, month: number) =>
+  new Date(year, month, 0).getDate();
+
+const updateDatePartValue = (
+  currentValue: string,
+  part: 'year' | 'month' | 'day',
+  nextPartValue: string
+) => {
+  if (!nextPartValue) return '';
+  const today = new Date();
+  const parts = parseDateParts(currentValue);
+  const nextYear = part === 'year' ? nextPartValue : (parts.year || String(today.getFullYear()));
+  const nextMonth = part === 'month'
+    ? nextPartValue
+    : (parts.month || String(today.getMonth() + 1).padStart(2, '0'));
+  const maxDay = getDaysInMonth(Number(nextYear), Number(nextMonth));
+  const rawDay = part === 'day' ? nextPartValue : (parts.day || '01');
+  const nextDay = String(Math.min(Number(rawDay), maxDay)).padStart(2, '0');
+  return `${nextYear}-${nextMonth}-${nextDay}`;
+};
+
 export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders, analytics }) => {
   const { language } = useI18n();
+  const locale = getLocale(language);
   const copy = {
     en: {
       title: 'Analytics and Orders',
@@ -100,6 +134,8 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders, analyt
       dates: 'Dates',
       from: 'From',
       to: 'To',
+      year: 'Year',
+      day: 'Day',
       clearDate: 'Clear',
       shownOrders: 'Shown orders',
       soldTickets: 'Sold tickets',
@@ -123,13 +159,15 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders, analyt
       emptyDesc: 'Заказы и брони появятся здесь, когда люди купят или забронируют билеты.',
       allEvents: 'Все события',
       eventFilter: 'Событие',
-      dateFilter: 'Date',
-      allDates: 'All dates',
-      month: 'Month',
-      dates: 'Dates',
-      from: 'From',
-      to: 'To',
-      clearDate: 'Clear',
+      dateFilter: 'Дата',
+      allDates: 'Все даты',
+      month: 'Месяц',
+      dates: 'Даты',
+      from: 'С',
+      to: 'До',
+      year: 'Год',
+      day: 'День',
+      clearDate: 'Очистить',
       shownOrders: 'Показано заказов',
       soldTickets: 'Продано билетов',
       reservedTickets: 'Билетов в бронях',
@@ -152,13 +190,15 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders, analyt
       emptyDesc: 'Адамдар билет сатып алғанда немесе брондағанда, тапсырыстар осында пайда болады.',
       allEvents: 'Барлық іс-шаралар',
       eventFilter: 'Іс-шара',
-      dateFilter: 'Date',
-      allDates: 'All dates',
-      month: 'Month',
-      dates: 'Dates',
-      from: 'From',
-      to: 'To',
-      clearDate: 'Clear',
+      dateFilter: 'Күн',
+      allDates: 'Барлық күндер',
+      month: 'Ай',
+      dates: 'Күндер',
+      from: 'Бастап',
+      to: 'Дейін',
+      year: 'Жыл',
+      day: 'Күн',
+      clearDate: 'Тазарту',
       shownOrders: 'Көрсетілген тапсырыс',
       soldTickets: 'Сатылған билеттер',
       reservedTickets: 'Броньдағы билеттер',
@@ -182,6 +222,79 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders, analyt
   const [selectedMonth, setSelectedMonth] = useState(() => getCurrentMonthValue());
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const monthOptions = useMemo(
+    () => Array.from({ length: 12 }, (_, index) => ({
+      value: String(index + 1).padStart(2, '0'),
+      label: new Date(2026, index, 1).toLocaleDateString(locale, { month: 'long' }),
+    })),
+    [locale]
+  );
+  const yearOptions = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    const years = new Set<number>([currentYear - 1, currentYear, currentYear + 1]);
+    orders.forEach((order) => {
+      const date = new Date(order.purchaseDate);
+      if (!Number.isNaN(date.getTime())) years.add(date.getFullYear());
+    });
+    return Array.from(years).sort((a, b) => b - a);
+  }, [orders]);
+  const updateSelectedMonthPart = (part: 'year' | 'month', value: string) => {
+    if (!value) {
+      setSelectedMonth('');
+      return;
+    }
+    const today = new Date();
+    const [currentYear, currentMonth] = selectedMonth.split('-');
+    const nextYear = part === 'year' ? value : (currentYear || String(today.getFullYear()));
+    const nextMonth = part === 'month' ? value : (currentMonth || String(today.getMonth() + 1).padStart(2, '0'));
+    setSelectedMonth(`${nextYear}-${nextMonth}`);
+  };
+  const renderDatePartSelects = (
+    value: string,
+    onChange: (nextValue: string) => void,
+    idPrefix: string
+  ) => {
+    const parts = parseDateParts(value);
+    const fallbackYear = Number(parts.year || new Date().getFullYear());
+    const fallbackMonth = Number(parts.month || new Date().getMonth() + 1);
+    const dayCount = getDaysInMonth(fallbackYear, fallbackMonth);
+
+    return (
+      <div className="organizer-date-select-grid">
+        <select
+          id={`${idPrefix}-year`}
+          value={parts.year}
+          onChange={(event) => onChange(updateDatePartValue(value, 'year', event.target.value))}
+        >
+          <option value="">{copy.year}</option>
+          {yearOptions.map((year) => (
+            <option key={year} value={year}>{year}</option>
+          ))}
+        </select>
+        <select
+          id={`${idPrefix}-month`}
+          value={parts.month}
+          onChange={(event) => onChange(updateDatePartValue(value, 'month', event.target.value))}
+        >
+          <option value="">{copy.month}</option>
+          {monthOptions.map((month) => (
+            <option key={month.value} value={month.value}>{month.label}</option>
+          ))}
+        </select>
+        <select
+          id={`${idPrefix}-day`}
+          value={parts.day}
+          onChange={(event) => onChange(updateDatePartValue(value, 'day', event.target.value))}
+        >
+          <option value="">{copy.day}</option>
+          {Array.from({ length: dayCount }, (_, index) => {
+            const day = String(index + 1).padStart(2, '0');
+            return <option key={day} value={day}>{index + 1}</option>;
+          })}
+        </select>
+      </div>
+    );
+  };
   const eventOptions = useMemo(() => {
     const events = new Map<string, string>();
     orders.forEach((order) => {
@@ -214,11 +327,11 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders, analyt
     return true;
   });
   const dateFilterLabel = (() => {
-    if (dateFilterMode === 'month') return selectedMonth ? formatMonthLabel(selectedMonth) : copy.month;
+    if (dateFilterMode === 'month') return selectedMonth ? formatMonthLabel(selectedMonth, locale) : copy.month;
     if (dateFilterMode === 'range') {
-      if (dateFrom && dateTo) return `${formatDateInputLabel(dateFrom)} - ${formatDateInputLabel(dateTo)}`;
-      if (dateFrom) return `${copy.from}: ${formatDateInputLabel(dateFrom)}`;
-      if (dateTo) return `${copy.to}: ${formatDateInputLabel(dateTo)}`;
+      if (dateFrom && dateTo) return `${formatDateInputLabel(dateFrom, locale)} - ${formatDateInputLabel(dateTo, locale)}`;
+      if (dateFrom) return `${copy.from}: ${formatDateInputLabel(dateFrom, locale)}`;
+      if (dateTo) return `${copy.to}: ${formatDateInputLabel(dateTo, locale)}`;
       return copy.dates;
     }
     return copy.allDates;
@@ -345,12 +458,28 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders, analyt
                   {dateFilterMode === 'month' && (
                     <div className="organizer-date-field">
                       <label htmlFor="organizer-order-month">{copy.month}</label>
-                      <input
-                        id="organizer-order-month"
-                        type="month"
-                        value={selectedMonth}
-                        onChange={(event) => setSelectedMonth(event.target.value)}
-                      />
+                      <div className="organizer-date-select-grid organizer-date-select-grid-month">
+                        <select
+                          id="organizer-order-month-year"
+                          value={selectedMonth.split('-')[0] || ''}
+                          onChange={(event) => updateSelectedMonthPart('year', event.target.value)}
+                        >
+                          <option value="">{copy.year}</option>
+                          {yearOptions.map((year) => (
+                            <option key={year} value={year}>{year}</option>
+                          ))}
+                        </select>
+                        <select
+                          id="organizer-order-month"
+                          value={selectedMonth.split('-')[1] || ''}
+                          onChange={(event) => updateSelectedMonthPart('month', event.target.value)}
+                        >
+                          <option value="">{copy.month}</option>
+                          {monthOptions.map((month) => (
+                            <option key={month.value} value={month.value}>{month.label}</option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
                   )}
 
@@ -358,21 +487,11 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders, analyt
                     <div className="organizer-date-fields">
                       <div className="organizer-date-field">
                         <label htmlFor="organizer-order-date-from">{copy.from}</label>
-                        <input
-                          id="organizer-order-date-from"
-                          type="date"
-                          value={dateFrom}
-                          onChange={(event) => setDateFrom(event.target.value)}
-                        />
+                        {renderDatePartSelects(dateFrom, setDateFrom, 'organizer-order-date-from')}
                       </div>
                       <div className="organizer-date-field">
                         <label htmlFor="organizer-order-date-to">{copy.to}</label>
-                        <input
-                          id="organizer-order-date-to"
-                          type="date"
-                          value={dateTo}
-                          onChange={(event) => setDateTo(event.target.value)}
-                        />
+                        {renderDatePartSelects(dateTo, setDateTo, 'organizer-order-date-to')}
                       </div>
                     </div>
                   )}
@@ -409,7 +528,7 @@ export const OrganizerOrders: React.FC<OrganizerOrdersProps> = ({ orders, analyt
                     <span>{order.buyerName}</span>
                     <span>{order.buyerEmail}</span>
                     <span>{order.quantity}x {order.ticketType}</span>
-                    <span>{formatDate(order.purchaseDate)}</span>
+                    <span>{formatDate(order.purchaseDate, locale)}</span>
                   </div>
                 </div>
 

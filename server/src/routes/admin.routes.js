@@ -2,12 +2,27 @@ import express from "express";
 import User from "../models/User.js";
 import Event from "../models/Event.js";
 import Order from "../models/Order.js";
+import Ticket from "../models/Ticket.js";
 import { requireAuth } from "../middleware/auth.middleware.js";
 import { getUserRole, requireRole } from "../middleware/role.middleware.js";
 import { getLowestDisplayPrice } from "../utils/eventPricing.js";
 import { queueEventUpdateNotifications } from "../services/notification.service.js";
 
 const router = express.Router();
+const ADMIN_ANALYTICS_SERVICE_FEE_RATE = 0.15;
+
+function money(value) {
+  return Number(Number(value || 0).toFixed(2));
+}
+
+function organizerNetAmount(value) {
+  return money(Number(value || 0) * (1 - ADMIN_ANALYTICS_SERVICE_FEE_RATE));
+}
+
+function dateKey(value) {
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? "" : date.toISOString().slice(0, 10);
+}
 
 function hasEventImage(event) {
   return Boolean(String(event?.image || "").trim());
@@ -156,6 +171,335 @@ router.get("/overview", async (req, res) => {
       collectedRevenue,
       outstandingBalance,
       monthlyGrowth,
+    });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.get("/analytics", async (req, res) => {
+  try {
+    const organizerFilter = {
+      $or: [
+        { role: "organizer" },
+        { isOrganizer: true },
+        { organizerStatus: "approved" },
+      ],
+    };
+
+    const [organizers, events, orders, refundedTicketStats, refundedReservationStats] = await Promise.all([
+      User.find(organizerFilter)
+        .select("fullName email role isOrganizer organizerStatus organizerAccessStatus organizerApplication createdAt")
+        .sort({ createdAt: -1 })
+        .limit(1000)
+        .lean(),
+      Event.find({})
+        .select("organizer status title")
+        .limit(10000)
+        .lean(),
+      Order.find({ paymentStatus: { $in: ["paid", "reserved"] } })
+        .select("buyerName buyerEmail event organizer eventSnapshot items quantity total amountPaid balanceDue paymentType paymentStatus checkInStatus balanceDueDeadlineAt createdAt")
+        .sort({ createdAt: -1 })
+        .limit(5000)
+        .lean(),
+      Ticket.aggregate([
+        { $match: { status: "cancelled" } },
+        { $group: { _id: "$organizer", count: { $sum: 1 }, amount: { $sum: "$amountPaid" } } },
+      ]),
+      Order.aggregate([
+        {
+          $match: {
+            paymentStatus: "refunded",
+            $or: [{ ticketsIssuedAt: null }, { ticketsIssuedAt: { $exists: false } }],
+          },
+        },
+        { $unwind: "$paymentTransactions" },
+        {
+          $match: {
+            "paymentTransactions.type": "refund",
+            "paymentTransactions.status": "success",
+          },
+        },
+        {
+          $group: {
+            _id: "$organizer",
+            count: { $sum: 1 },
+            amount: { $sum: "$paymentTransactions.amount" },
+          },
+        },
+      ]),
+    ]);
+
+    const organizerInfoMap = new Map(
+      organizers.map((organizer) => {
+        const id = String(organizer._id);
+        return [id, {
+          organizerId: id,
+          organizerName: organizer.fullName || organizer.email || "Organizer",
+          organizerEmail: organizer.email || "",
+          organizationName: organizer.organizerApplication?.organizationName || "",
+          organizerStatus: organizer.organizerStatus || "none",
+          organizerAccessStatus: organizer.organizerAccessStatus || "active",
+        }];
+      })
+    );
+
+    const getOrganizerInfo = (organizerId) => {
+      const id = String(organizerId || "unknown");
+      return organizerInfoMap.get(id) || {
+        organizerId: id,
+        organizerName: "Unknown organizer",
+        organizerEmail: "",
+        organizationName: "",
+        organizerStatus: "none",
+        organizerAccessStatus: "active",
+      };
+    };
+
+    const eventStatsMap = new Map();
+    for (const event of events) {
+      const key = String(event.organizer || "unknown");
+      const current = eventStatsMap.get(key) || {
+        eventsCount: 0,
+        publishedEvents: 0,
+        pendingEvents: 0,
+        draftEvents: 0,
+        archivedEvents: 0,
+      };
+      current.eventsCount += 1;
+      if (event.status === "published") current.publishedEvents += 1;
+      if (["pending", "pending-update-review"].includes(event.status)) current.pendingEvents += 1;
+      if (event.status === "draft") current.draftEvents += 1;
+      if (event.status === "archived") current.archivedEvents += 1;
+      eventStatsMap.set(key, current);
+    }
+
+    const refundStatsMap = new Map();
+    const addRefundStats = (items) => {
+      for (const item of items) {
+        const key = String(item._id || "unknown");
+        const current = refundStatsMap.get(key) || { refundsCount: 0, refundedAmount: 0 };
+        current.refundsCount += Number(item.count || 0);
+        current.refundedAmount += Number(item.amount || 0);
+        refundStatsMap.set(key, current);
+      }
+    };
+    addRefundStats(refundedTicketStats);
+    addRefundStats(refundedReservationStats);
+
+    const orderRows = orders.map((order) => {
+      const organizerId = String(order.organizer || "unknown");
+      const organizerInfo = getOrganizerInfo(organizerId);
+      const grossPaid = money(Number(order.amountPaid ?? order.total ?? 0));
+      const netRevenue = organizerNetAmount(grossPaid);
+      const grossBalanceDue = order.paymentStatus === "reserved" ? money(Number(order.balanceDue || 0)) : 0;
+      const fullEventPassTickets = (order.items || []).reduce(
+        (sum, item) => sum + (item.kind === "full-event-pass" ? Number(item.quantity || 0) : 0),
+        0
+      );
+      const activityTickets = (order.items || []).reduce(
+        (sum, item) => sum + (item.kind === "activity" ? Number(item.quantity || 0) : 0),
+        0
+      );
+
+      return {
+        id: String(order._id),
+        organizerId,
+        organizerName: organizerInfo.organizerName,
+        organizerEmail: organizerInfo.organizerEmail,
+        organizationName: organizerInfo.organizationName,
+        eventId: String(order.event || ""),
+        eventTitle: order.eventSnapshot?.title || "Event",
+        buyerName: order.buyerName,
+        buyerEmail: order.buyerEmail,
+        ticketType: (order.items || []).map((item) => item.name).filter(Boolean).join(", "),
+        quantity: Number(order.quantity || 0),
+        total: money(Number(order.total || 0)),
+        grossPaid,
+        netRevenue,
+        platformFee: money(grossPaid - netRevenue),
+        grossBalanceDue,
+        netBalanceDue: organizerNetAmount(grossBalanceDue),
+        paymentType: order.paymentType,
+        paymentStatus: order.paymentStatus,
+        checkInStatus: order.checkInStatus,
+        balanceDueDeadlineAt: order.balanceDueDeadlineAt,
+        purchaseDate: order.createdAt,
+        day: dateKey(order.createdAt),
+        fullEventPassTickets,
+        activityTickets,
+      };
+    });
+
+    const organizerRowsMap = new Map();
+    const ensureOrganizerRow = (organizerId) => {
+      const id = String(organizerId || "unknown");
+      const current = organizerRowsMap.get(id);
+      if (current) return current;
+
+      const info = getOrganizerInfo(id);
+      const eventStats = eventStatsMap.get(id) || {
+        eventsCount: 0,
+        publishedEvents: 0,
+        pendingEvents: 0,
+        draftEvents: 0,
+        archivedEvents: 0,
+      };
+      const refundStats = refundStatsMap.get(id) || { refundsCount: 0, refundedAmount: 0 };
+      const next = {
+        ...info,
+        ...eventStats,
+        refundsCount: Number(refundStats.refundsCount || 0),
+        refundedAmount: money(refundStats.refundedAmount || 0),
+        grossRevenue: 0,
+        totalRevenue: 0,
+        platformFee: 0,
+        outstandingBalance: 0,
+        ordersCount: 0,
+        ticketsSold: 0,
+        reservedTickets: 0,
+        reservationsCount: 0,
+        salaryDue: 0,
+      };
+      organizerRowsMap.set(id, next);
+      return next;
+    };
+
+    organizers.forEach((organizer) => ensureOrganizerRow(organizer._id));
+    for (const key of eventStatsMap.keys()) ensureOrganizerRow(key);
+
+    const topEventsMap = new Map();
+    const salesByDayMap = new Map();
+    let fullEventPassTickets = 0;
+    let activityTickets = 0;
+
+    for (const order of orderRows) {
+      const organizerRow = ensureOrganizerRow(order.organizerId);
+      organizerRow.grossRevenue += order.grossPaid;
+      organizerRow.totalRevenue += order.netRevenue;
+      organizerRow.platformFee += order.platformFee;
+      organizerRow.outstandingBalance += order.netBalanceDue;
+      organizerRow.ordersCount += 1;
+      organizerRow.salaryDue += order.netRevenue;
+      if (order.paymentStatus === "paid") {
+        organizerRow.ticketsSold += order.quantity;
+        fullEventPassTickets += Number(order.fullEventPassTickets || 0);
+        activityTickets += Number(order.activityTickets || 0);
+      }
+      if (order.paymentStatus === "reserved") {
+        organizerRow.reservedTickets += order.quantity;
+        organizerRow.reservationsCount += 1;
+      }
+
+      const eventKey = order.eventId || `${order.organizerId}-${order.eventTitle}`;
+      const eventRow = topEventsMap.get(eventKey) || {
+        eventId: order.eventId,
+        title: order.eventTitle,
+        organizerId: order.organizerId,
+        organizerName: order.organizerName,
+        orders: 0,
+        ticketsSold: 0,
+        reservedTickets: 0,
+        revenue: 0,
+        grossRevenue: 0,
+        platformFee: 0,
+      };
+      eventRow.orders += 1;
+      eventRow.revenue += order.netRevenue;
+      eventRow.grossRevenue += order.grossPaid;
+      eventRow.platformFee += order.platformFee;
+      if (order.paymentStatus === "paid") eventRow.ticketsSold += order.quantity;
+      if (order.paymentStatus === "reserved") eventRow.reservedTickets += order.quantity;
+      topEventsMap.set(eventKey, eventRow);
+
+      if (order.day) {
+        const dayRow = salesByDayMap.get(order.day) || {
+          date: order.day,
+          revenue: 0,
+          grossRevenue: 0,
+          platformFee: 0,
+          orders: 0,
+          ticketsSold: 0,
+          reservations: 0,
+        };
+        dayRow.revenue += order.netRevenue;
+        dayRow.grossRevenue += order.grossPaid;
+        dayRow.platformFee += order.platformFee;
+        dayRow.orders += 1;
+        if (order.paymentStatus === "paid") dayRow.ticketsSold += order.quantity;
+        if (order.paymentStatus === "reserved") dayRow.reservations += 1;
+        salesByDayMap.set(order.day, dayRow);
+      }
+    }
+
+    const organizerRows = Array.from(organizerRowsMap.values()).map((row) => ({
+      ...row,
+      grossRevenue: money(row.grossRevenue),
+      totalRevenue: money(row.totalRevenue),
+      platformFee: money(row.platformFee),
+      outstandingBalance: money(row.outstandingBalance),
+      salaryDue: money(row.salaryDue),
+    })).sort((a, b) => b.salaryDue - a.salaryDue);
+
+    const refundsCount = organizerRows.reduce((sum, organizer) => sum + Number(organizer.refundsCount || 0), 0);
+    const refundedAmount = organizerRows.reduce((sum, organizer) => sum + Number(organizer.refundedAmount || 0), 0);
+    const totalRevenue = orderRows.reduce((sum, order) => sum + order.netRevenue, 0);
+    const grossRevenue = orderRows.reduce((sum, order) => sum + order.grossPaid, 0);
+    const platformFee = orderRows.reduce((sum, order) => sum + order.platformFee, 0);
+    const outstandingBalance = orderRows.reduce((sum, order) => sum + order.netBalanceDue, 0);
+    const ticketsSold = orderRows
+      .filter((order) => order.paymentStatus === "paid")
+      .reduce((sum, order) => sum + order.quantity, 0);
+    const reservedTickets = orderRows
+      .filter((order) => order.paymentStatus === "reserved")
+      .reduce((sum, order) => sum + order.quantity, 0);
+    const reservationsCount = orderRows.filter((order) => order.paymentStatus === "reserved").length;
+
+    return res.json({
+      serviceFeeRate: ADMIN_ANALYTICS_SERVICE_FEE_RATE,
+      summary: {
+        totalRevenue: money(totalRevenue),
+        grossRevenue: money(grossRevenue),
+        platformFee: money(platformFee),
+        salaryDue: money(totalRevenue),
+        ticketsSold,
+        reservedTickets,
+        reservationsCount,
+        outstandingBalance: money(outstandingBalance),
+        ordersCount: orderRows.length,
+        averageOrderValue: orderRows.length ? money(totalRevenue / orderRows.length) : 0,
+        organizersCount: organizerRows.length,
+        refundsCount,
+        refundedAmount: money(refundedAmount),
+      },
+      organizers: organizerRows,
+      orders: orderRows,
+      topEvents: Array.from(topEventsMap.values())
+        .map((row) => ({
+          ...row,
+          revenue: money(row.revenue),
+          grossRevenue: money(row.grossRevenue),
+          platformFee: money(row.platformFee),
+        }))
+        .sort((a, b) => b.revenue - a.revenue)
+        .slice(0, 10),
+      salesByDay: Array.from(salesByDayMap.values())
+        .map((row) => ({
+          ...row,
+          revenue: money(row.revenue),
+          grossRevenue: money(row.grossRevenue),
+          platformFee: money(row.platformFee),
+        }))
+        .sort((a, b) => a.date.localeCompare(b.date)),
+      eventStatuses: {
+        published: events.filter((event) => event.status === "published").length,
+        pending: events.filter((event) => ["pending", "pending-update-review"].includes(event.status)).length,
+      },
+      specialPrograms: {
+        fullEventPassTickets,
+        activityTickets,
+      },
     });
   } catch (e) {
     console.error(e);
