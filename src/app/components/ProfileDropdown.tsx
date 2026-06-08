@@ -13,7 +13,6 @@ interface ProfileDropdownProps {
   onOrganizerDashboard?: () => void;
   onOrganizerEvents?: () => void;
   onOrganizerOrders?: () => void;
-  onOrganizerAnalytics?: () => void;
   onValidatorEvents?: () => void;
   onValidatorScan?: () => void;
   onAdminPanel?: () => void;
@@ -37,7 +36,6 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
   onOrganizerDashboard,
   onOrganizerEvents,
   onOrganizerOrders,
-  onOrganizerAnalytics,
   onValidatorEvents,
   onValidatorScan,
   onAdminPanel,

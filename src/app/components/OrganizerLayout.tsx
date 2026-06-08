@@ -3,8 +3,8 @@ import { useI18n } from '../i18n';
 
 interface OrganizerLayoutProps {
   children: React.ReactNode;
-  activeTab: 'dashboard' | 'events' | 'create-event' | 'validators' | 'orders' | 'analytics';
-  onNavigate: (tab: 'dashboard' | 'events' | 'create-event' | 'validators' | 'orders' | 'analytics') => void;
+  activeTab: 'dashboard' | 'events' | 'create-event' | 'validators' | 'orders';
+  onNavigate: (tab: 'dashboard' | 'events' | 'create-event' | 'validators' | 'orders') => void;
   canCreateEvent?: boolean;
 }
 
@@ -22,8 +22,7 @@ export const OrganizerLayout: React.FC<OrganizerLayoutProps> = ({
       events: 'Events',
       createEvent: 'Create Event',
       validators: 'Validators',
-      orders: 'Orders',
-      analytics: 'Analytics',
+      orders: 'Analytics and Orders',
     },
     ru: {
       portal: 'Портал организатора',
@@ -31,8 +30,7 @@ export const OrganizerLayout: React.FC<OrganizerLayoutProps> = ({
       events: 'События',
       createEvent: 'Создать событие',
       validators: 'Валидаторы',
-      orders: 'Заказы',
-      analytics: 'Аналитика',
+      orders: 'Analytics and Orders',
     },
     kk: {
       portal: 'Ұйымдастырушы порталы',
@@ -40,8 +38,7 @@ export const OrganizerLayout: React.FC<OrganizerLayoutProps> = ({
       events: 'Іс-шаралар',
       createEvent: 'Іс-шара құру',
       validators: 'Валидаторлар',
-      orders: 'Тапсырыстар',
-      analytics: 'Аналитика',
+      orders: 'Analytics and Orders',
     },
   }[language];
   const menuItems = [
@@ -50,7 +47,6 @@ export const OrganizerLayout: React.FC<OrganizerLayoutProps> = ({
     { id: 'create-event', label: copy.createEvent },
     { id: 'validators', label: copy.validators },
     { id: 'orders', label: copy.orders },
-    { id: 'analytics', label: copy.analytics },
   ] as const;
 
   return (

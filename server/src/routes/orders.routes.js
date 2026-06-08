@@ -63,8 +63,8 @@ router.post("/", requireAuth, async (req, res) => {
       }
     }
     const subtotal = Number(ticketDetails?.subtotal || normalizedItems.reduce((sum, item) => sum + item.price * item.quantity, 0));
-    const serviceFee = Number(ticketDetails?.serviceFee || 0);
-    const total = Number(ticketDetails?.total || subtotal + serviceFee);
+    const serviceFee = 0;
+    const total = subtotal;
 
     const order = await Order.create({
       buyer: req.user._id,

@@ -17,6 +17,15 @@ import { invalidatePublishedEventsCache } from "./events.routes.js";
 
 const router = express.Router();
 const EVENT_TRANSLATION_LANGUAGES = ["en", "ru", "kk"];
+const ORGANIZER_SERVICE_FEE_RATE = 0.15;
+
+function money(value) {
+  return Number(Number(value || 0).toFixed(2));
+}
+
+function organizerNetAmount(value) {
+  return money(Number(value || 0) * (1 - ORGANIZER_SERVICE_FEE_RATE));
+}
 
 function requireOrganizer(req, res, next) {
   // Organizer routes доступны только пользователю, чья заявка уже approved.
@@ -453,10 +462,10 @@ router.get("/analytics", async (req, res) => {
 
     const paidOrders = orders.filter((order) => order.paymentStatus === "paid");
     const reservedOrders = orders.filter((order) => order.paymentStatus === "reserved");
-    const totalRevenue = orders.reduce((sum, order) => sum + Number(order.amountPaid || order.total || 0), 0);
+    const totalRevenue = orders.reduce((sum, order) => sum + organizerNetAmount(order.amountPaid || order.total || 0), 0);
     const ticketsSold = paidOrders.reduce((sum, order) => sum + Number(order.quantity || 0), 0);
     const reservedTickets = reservedOrders.reduce((sum, order) => sum + Number(order.quantity || 0), 0);
-    const outstandingBalance = reservedOrders.reduce((sum, order) => sum + Number(order.balanceDue || 0), 0);
+    const outstandingBalance = reservedOrders.reduce((sum, order) => sum + organizerNetAmount(order.balanceDue || 0), 0);
     const ordersCount = orders.length;
     const reservationsCount = reservedOrders.length;
     const ticketRefunds = refundedTicketStats[0] || { count: 0, amount: 0 };
@@ -478,7 +487,7 @@ router.get("/analytics", async (req, res) => {
       current.orders += 1;
       if (order.paymentStatus === "paid") current.ticketsSold += Number(order.quantity || 0);
       if (order.paymentStatus === "reserved") current.reservedTickets += Number(order.quantity || 0);
-      current.revenue += Number(order.amountPaid || order.total || 0);
+      current.revenue += organizerNetAmount(order.amountPaid || order.total || 0);
       topEventsMap.set(key, current);
     }
 
@@ -486,7 +495,7 @@ router.get("/analytics", async (req, res) => {
     for (const order of orders) {
       const dayKey = order.createdAt.toISOString().slice(0, 10);
       const current = salesByDayMap.get(dayKey) || { date: dayKey, revenue: 0, orders: 0, ticketsSold: 0, reservations: 0 };
-      current.revenue += Number(order.amountPaid || order.total || 0);
+      current.revenue += organizerNetAmount(order.amountPaid || order.total || 0);
       current.orders += 1;
       if (order.paymentStatus === "paid") current.ticketsSold += Number(order.quantity || 0);
       if (order.paymentStatus === "reserved") current.reservations += 1;

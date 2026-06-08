@@ -413,8 +413,8 @@ async function buildTicketOrderDataForUser({ user, eventId, eventData, ticketDet
 
   const calculatedSubtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const subtotal = Number((event ? calculatedSubtotal : Number(ticketDetails?.subtotal || calculatedSubtotal)).toFixed(2));
-  const serviceFee = Number((event ? Math.round(subtotal * 0.05) : Number(ticketDetails?.serviceFee || 0)).toFixed(2));
-  const total = Number((event ? subtotal + serviceFee : Number(ticketDetails?.total || subtotal + serviceFee)).toFixed(2));
+  const serviceFee = 0;
+  const total = Number(subtotal.toFixed(2));
   const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
   const bookingPayment = buildBookingPaymentFields(total, ticketDetails, snapshot);
 

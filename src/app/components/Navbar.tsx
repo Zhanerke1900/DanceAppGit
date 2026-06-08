@@ -19,7 +19,6 @@ interface NavbarProps {
   onOrganizerDashboard?: () => void;
   onOrganizerEvents?: () => void;
   onOrganizerOrders?: () => void;
-  onOrganizerAnalytics?: () => void;
   onValidatorEvents?: () => void;
   onValidatorScan?: () => void;
   showOrganizerDashboardLink?: boolean;
@@ -53,7 +52,6 @@ export const Navbar = ({
   onOrganizerDashboard,
   onOrganizerEvents,
   onOrganizerOrders,
-  onOrganizerAnalytics,
   onValidatorEvents,
   onValidatorScan,
   onAdminPanel,
@@ -215,7 +213,6 @@ export const Navbar = ({
                 onOrganizerDashboard={onOrganizerDashboard}
                 onOrganizerEvents={onOrganizerEvents}
                 onOrganizerOrders={onOrganizerOrders}
-                onOrganizerAnalytics={onOrganizerAnalytics}
                 onAdminPanel={onAdminPanel}
                 onAdminRequests={onAdminRequests}
                 onAdminUsers={onAdminUsers}

@@ -74,7 +74,6 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
     selectTicketsContinue: language === 'ru' ? 'Выберите билеты, чтобы продолжить' : language === 'kk' ? 'Жалғастыру үшін билеттерді таңдаңыз' : 'Select tickets to continue',
     allActivitiesIncluded: language === 'ru' ? 'Все активности включены' : language === 'kk' ? 'Барлық белсенділік кіреді' : 'All activities included',
     subtotal: language === 'ru' ? 'Подытог' : language === 'kk' ? 'Аралық сома' : 'Subtotal',
-    serviceFee: language === 'ru' ? 'Сервисный сбор' : language === 'kk' ? 'Қызмет ақысы' : 'Service Fee',
     total: language === 'ru' ? 'Полная стоимость' : language === 'kk' ? 'Толық құны' : 'Full Total',
     deposit: language === 'ru' ? 'Предоплата 40%' : language === 'kk' ? '40% алдын ала төлем' : '40% Deposit',
     balanceDue: language === 'ru' ? 'Остаток на событии' : language === 'kk' ? 'Іс-шарадағы қалдық' : 'Balance at event',
@@ -99,7 +98,6 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
   
   // Parse base price from event string (e.g., "5,000 ₸" -> 5000)
   const basePrice = parseDisplayPrice(event.ticketPricing?.generalAdmission || event.price, 5000) || 5000;
-  const serviceFeeRate = 0.05; // 5% service fee
   const fullPassPrice = Number(event.fullPassPrice || 25000);
   const ticketLimit = Number(event.ticketLimit || 0);
   const remainingTickets = event.remainingTickets === null || event.remainingTickets === undefined
@@ -183,8 +181,8 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
   };
 
   const subtotal = (basePrice * ticketQuantity) + (isSpecialProgram ? calculateActivitiesTotal() : 0);
-  const serviceFee = Math.round(subtotal * serviceFeeRate);
-  const total = subtotal + serviceFee;
+  const serviceFee = 0;
+  const total = subtotal;
   const depositRate = 0.4;
   const depositAmount = Math.round(total * depositRate);
   const balanceDue = paymentMode === 'deposit' ? Math.max(total - depositAmount, 0) : 0;
@@ -1044,13 +1042,6 @@ export const TicketSelection = ({ event, onBack, onPurchaseComplete, readOnly = 
                   <div className="flex justify-between items-center text-gray-400">
                     <span>{copy.subtotal}</span>
                     <span className="text-white font-medium">{formatCurrency(subtotal)}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-gray-400">
-                    <div className="flex items-center gap-1.5">
-                      <span>{copy.serviceFee}</span>
-                      <Info className="w-3.5 h-3.5 text-gray-600" />
-                    </div>
-                    <span className="text-white font-medium">{formatCurrency(serviceFee)}</span>
                   </div>
                   <div className="flex justify-between items-center text-white font-extrabold text-xl pt-2 border-t border-white/10">
                     <span>{copy.total}</span>

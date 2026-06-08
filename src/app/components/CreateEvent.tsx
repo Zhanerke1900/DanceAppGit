@@ -30,6 +30,7 @@ const usualEventCategories = ['Hip Hop', 'Contemporary', 'Ballet', 'Latin', 'Bal
 const specialProgramCategories = ['Festivals', 'Competitions', 'Masterclasses', 'Camps'];
 const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const weekdays = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+const ORGANIZER_SERVICE_FEE_RATE = 0.15;
 const timeOptions = Array.from({ length: 24 * 2 }, (_, index) => {
   const hours = String(Math.floor(index / 2)).padStart(2, '0');
   const minutes = index % 2 === 0 ? '00' : '30';
@@ -141,9 +142,21 @@ const formatPrice = (value: string) => {
   return `${Number(digits).toLocaleString('en-US')} KZT`;
 };
 
+const formatOrganizerPayout = (value: string) => {
+  const digits = value.replace(/\D/g, '');
+  if (!digits) return '';
+  const payout = Math.round(Number(digits) * (1 - ORGANIZER_SERVICE_FEE_RATE));
+  return formatPrice(String(payout));
+};
+
 export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initialEvent = null, mode = 'create' }) => {
   const { language } = useI18n();
   const tr = (en: string, ru: string, kk: string) => (language === 'ru' ? ru : language === 'kk' ? kk : en);
+  const organizerServiceFeeNotice = tr(
+    'DanceTime deducts a 15% organizer service fee from every sold ticket. Buyers pay the exact ticket price you enter; your analytics show income after this fee.',
+    'DanceTime удерживает 15% комиссии организатора с каждого проданного билета. Покупатель платит ровно ту цену, которую вы укажете; в аналитике доход считается после комиссии.',
+    'DanceTime әр сатылған билеттен 15% ұйымдастырушы комиссиясын ұстайды. Сатып алушы сіз енгізген нақты бағаны төлейді; аналитикада табыс осы комиссиядан кейін көрсетіледі.'
+  );
   const locale = language === 'ru' ? 'ru-RU' : language === 'kk' ? 'kk-KZ' : 'en-US';
   const localizedMonthNames = monthNames.map((_, index) =>
     new Intl.DateTimeFormat(locale, { month: 'long' }).format(new Date(2026, index, 1))
@@ -882,13 +895,20 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
                         <option value="Contest">{tr('Contest', 'Конкурс', 'Байқау')}</option>
                         <option value="Camp">{tr('Camp', 'Кэмп', 'Лагерь')}</option>
                       </select>
-                      <input
-                        type="text"
-                        value={item.price}
-                        onChange={(e) => handleScheduleChange(item.id, 'price', e.target.value)}
-                        placeholder={tr('Activity price', 'Цена активности', 'Белсенділік бағасы')}
-                        className="w-full bg-gray-800/60 border border-gray-700 text-white px-4 py-3 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all"
-                      />
+                      <div>
+                        <input
+                          type="text"
+                          value={item.price}
+                          onChange={(e) => handleScheduleChange(item.id, 'price', e.target.value)}
+                          placeholder={tr('Activity price', 'Цена активности', 'Белсенділік бағасы')}
+                          className="w-full bg-gray-800/60 border border-gray-700 text-white px-4 py-3 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all"
+                        />
+                        {item.price && (
+                          <p className="text-amber-200/80 text-xs mt-1.5">
+                            {tr('Income after 15% fee:', 'Доход после комиссии 15%:', '15% комиссиядан кейінгі табыс:')} {formatOrganizerPayout(item.price)}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   )}
 
@@ -965,6 +985,10 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
               <h2 className="text-xl font-bold text-white">{tr('Ticket Pricing', 'Стоимость билетов', 'Билет бағасы')}</h2>
             </div>
 
+            <div className="mb-4 rounded-xl border border-amber-500/25 bg-amber-500/10 p-3 text-sm leading-relaxed text-amber-100">
+              {organizerServiceFeeNotice}
+            </div>
+
             {formData.eventType === 'special-program' ? (
               <div className="space-y-4">
                 <div>
@@ -1004,6 +1028,11 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
                         className={`w-full bg-gray-800/50 border ${errors.fullEventPassPrice ? 'border-red-500' : 'border-gray-700'} text-white px-4 py-3 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all`}
                       />
                       <p className="text-gray-500 text-sm mt-2">{formatPrice(formData.fullEventPassPrice) || tr('Price will appear like 20,000 KZT', 'Цена будет отображаться как 20,000 KZT', 'Баға 20,000 KZT сияқты көрсетіледі')}</p>
+                      {formData.fullEventPassPrice && (
+                        <p className="text-amber-200/80 text-sm mt-1">
+                          {tr('Your income after 15% fee:', 'Ваш доход после комиссии 15%:', '15% комиссиядан кейінгі табысыңыз:')} {formatOrganizerPayout(formData.fullEventPassPrice)}
+                        </p>
+                      )}
                       {errors.fullEventPassPrice && <p className="text-red-400 text-sm mt-2">{errors.fullEventPassPrice}</p>}
                     </div>
 
@@ -1035,6 +1064,11 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ onBack, onSave, initia
                     className={`w-full bg-gray-800/50 border ${errors.ticketPrice ? 'border-red-500' : 'border-gray-700'} text-white px-4 py-3 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all`}
                   />
                   <p className="text-gray-500 text-sm mt-2">{formatPrice(formData.ticketPrice) || tr('Price will appear like 5,000 KZT', 'Цена будет отображаться как 5,000 KZT', 'Баға 5,000 KZT сияқты көрсетіледі')}</p>
+                  {formData.ticketPrice && (
+                    <p className="text-amber-200/80 text-sm mt-1">
+                      {tr('Your income after 15% fee:', 'Ваш доход после комиссии 15%:', '15% комиссиядан кейінгі табысыңыз:')} {formatOrganizerPayout(formData.ticketPrice)}
+                    </p>
+                  )}
                   {errors.ticketPrice && <p className="text-red-400 text-sm mt-2">{errors.ticketPrice}</p>}
                 </div>
 

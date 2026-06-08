@@ -3648,18 +3648,37 @@ html.dark .role-view.organizer-portal .organizer-primary-button {
     gap: 0.75rem !important;
   }
 
-  .role-view.organizer-portal .organizer-orders-filter {
+  .role-view.organizer-portal .organizer-orders-controls {
     display: flex !important;
-    min-width: min(100%, 22rem) !important;
+    align-items: flex-end !important;
+    justify-content: flex-end !important;
+    flex-wrap: wrap !important;
+    gap: 0.75rem !important;
+  }
+
+  .role-view.organizer-portal .organizer-orders-filter,
+  .role-view.organizer-portal .organizer-date-filter {
+    display: flex !important;
+    min-width: min(100%, 18rem) !important;
     flex-direction: column !important;
     gap: 0.35rem !important;
+  }
+
+  .role-view.organizer-portal .organizer-orders-filter {
+    min-width: min(100%, 22rem) !important;
+  }
+
+  .role-view.organizer-portal .organizer-date-filter {
+    position: relative !important;
   }
 
   .role-view.organizer-portal .organizer-orders-page .organizer-panel-header {
     flex-wrap: wrap !important;
   }
 
-  .role-view.organizer-portal .organizer-orders-filter label {
+  .role-view.organizer-portal .organizer-orders-filter label,
+  .role-view.organizer-portal .organizer-date-filter > label,
+  .role-view.organizer-portal .organizer-date-field label {
     color: var(--organizer-soft) !important;
     font-size: 0.72rem !important;
     font-weight: 800 !important;
@@ -3667,7 +3686,9 @@ html.dark .role-view.organizer-portal .organizer-primary-button {
     letter-spacing: 0.08em !important;
   }
 
-  .role-view.organizer-portal .organizer-orders-filter select {
+  .role-view.organizer-portal .organizer-orders-filter select,
+  .role-view.organizer-portal .organizer-date-button,
+  .role-view.organizer-portal .organizer-date-field input {
     min-height: 2.55rem !important;
     width: 100% !important;
     border: 1px solid var(--organizer-border) !important;
@@ -3680,9 +3701,90 @@ html.dark .role-view.organizer-portal .organizer-primary-button {
     outline: none !important;
   }
 
-  .role-view.organizer-portal .organizer-orders-filter select:focus {
+  .role-view.organizer-portal .organizer-date-button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.6rem !important;
+    text-align: left !important;
+  }
+
+  .role-view.organizer-portal .organizer-date-button span {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .role-view.organizer-portal .organizer-date-button.is-active,
+  .role-view.organizer-portal .organizer-orders-filter select:focus,
+  .role-view.organizer-portal .organizer-date-button:focus,
+  .role-view.organizer-portal .organizer-date-field input:focus {
     border-color: var(--organizer-border-strong) !important;
     box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.16) !important;
+  }
+
+  .role-view.organizer-portal .organizer-orders-filter select option,
+  html.dark .role-view.organizer-portal .organizer-orders-filter select option {
+    background: #f6efff !important;
+    color: #1e1730 !important;
+  }
+
+  .role-view.organizer-portal .organizer-date-panel {
+    position: absolute !important;
+    top: calc(100% + 0.55rem) !important;
+    right: 0 !important;
+    z-index: 30 !important;
+    width: min(22rem, calc(100vw - 2rem)) !important;
+    border: 1px solid var(--organizer-border) !important;
+    border-radius: 0.95rem !important;
+    background: var(--organizer-surface) !important;
+    box-shadow: var(--organizer-shadow) !important;
+    padding: 0.85rem !important;
+  }
+
+  .role-view.organizer-portal .organizer-date-modes {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 0.35rem !important;
+    margin-bottom: 0.8rem !important;
+  }
+
+  .role-view.organizer-portal .organizer-date-modes button,
+  .role-view.organizer-portal .organizer-date-clear {
+    min-height: 2.15rem !important;
+    border: 1px solid var(--organizer-border) !important;
+    border-radius: 0.7rem !important;
+    background: var(--organizer-surface-muted) !important;
+    color: var(--organizer-muted) !important;
+    font-size: 0.78rem !important;
+    font-weight: 760 !important;
+    line-height: 1.15 !important;
+  }
+
+  .role-view.organizer-portal .organizer-date-modes button.is-active {
+    border-color: var(--organizer-border-strong) !important;
+    background: rgba(168, 85, 247, 0.18) !important;
+    color: var(--organizer-text) !important;
+  }
+
+  .role-view.organizer-portal .organizer-date-fields {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.6rem !important;
+  }
+
+  .role-view.organizer-portal .organizer-date-field {
+    display: grid !important;
+    gap: 0.35rem !important;
+  }
+
+  html.dark .role-view.organizer-portal .organizer-date-field input {
+    color-scheme: dark !important;
+  }
+
+  .role-view.organizer-portal .organizer-date-clear {
+    width: 100% !important;
+    margin-top: 0.75rem !important;
   }
 
   .role-view.organizer-portal .organizer-order-row {
@@ -4007,6 +4109,16 @@ html.dark .role-view.organizer-portal .organizer-primary-button {
       grid-template-columns: 1fr !important;
     }
 
+    .role-view.organizer-portal .organizer-orders-controls,
+    .role-view.organizer-portal .organizer-orders-filter,
+    .role-view.organizer-portal .organizer-date-filter {
+      width: 100% !important;
+    }
+
+    .role-view.organizer-portal .organizer-orders-controls {
+      justify-content: stretch !important;
+    }
+
     .role-view.organizer-portal .organizer-order-finance-grid {
       grid-template-columns: 1fr !important;
     }
@@ -4023,6 +4135,17 @@ html.dark .role-view.organizer-portal .organizer-primary-button {
     }
 
     .role-view.organizer-portal .organizer-analytics-row {
+      grid-template-columns: 1fr !important;
+    }
+
+    .role-view.organizer-portal .organizer-date-panel {
+      position: static !important;
+      width: 100% !important;
+      margin-top: 0.5rem !important;
+    }
+
+    .role-view.organizer-portal .organizer-date-modes,
+    .role-view.organizer-portal .organizer-date-fields {
       grid-template-columns: 1fr !important;
     }
 

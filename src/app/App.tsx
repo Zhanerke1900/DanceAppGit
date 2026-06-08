@@ -22,7 +22,6 @@ import { OrganizerDashboard } from './components/OrganizerDashboard';
 import { CreateEvent } from './components/CreateEvent';
 import { OrganizerEvents } from './components/OrganizerEvents';
 import { OrganizerOrders } from './components/OrganizerOrders';
-import { OrganizerAnalytics } from './components/OrganizerAnalytics';
 import { OrganizerValidators } from './components/OrganizerValidators';
 import { ValidatorLayout } from './components/ValidatorLayout';
 import { ValidatorAssignedEvents } from './components/ValidatorAssignedEvents';
@@ -46,7 +45,7 @@ import soulSideLogo from './assets/partners/soul-side.png';
 type ViewState = 'home' | 'all-events' | 'all-special-programs' | 'ticket-selection' | 'purchase-success' | 'profile' | 'become-organizer' | 'organizer-dashboard' | 'validator-dashboard' | 'admin-panel' | 'verify-email'
   | 'reset-password';
 type ProfileTab = 'my-tickets' | 'favorites' | 'purchase-history' | 'account-settings';
-type OrganizerTab = 'dashboard' | 'events' | 'create-event' | 'validators' | 'orders' | 'analytics';
+type OrganizerTab = 'dashboard' | 'events' | 'create-event' | 'validators' | 'orders';
 type ValidatorTab = 'events' | 'scan';
 type AdminTab = 'dashboard' | 'requests' | 'users' | 'moderation';
 
@@ -76,7 +75,7 @@ const VIEW_STATES: ViewState[] = [
   'reset-password',
 ];
 const PROFILE_TABS: ProfileTab[] = ['my-tickets', 'favorites', 'purchase-history', 'account-settings'];
-const ORGANIZER_TABS: OrganizerTab[] = ['dashboard', 'events', 'create-event', 'validators', 'orders', 'analytics'];
+const ORGANIZER_TABS: OrganizerTab[] = ['dashboard', 'events', 'create-event', 'validators', 'orders'];
 const VALIDATOR_TABS: ValidatorTab[] = ['events', 'scan'];
 const ADMIN_TABS: AdminTab[] = ['dashboard', 'requests', 'users', 'moderation'];
 const PARTNER_LOGOS = [
@@ -95,6 +94,12 @@ const readStoredText = (key: string, fallback: string) => {
 const readStoredOption = <T extends string>(key: string, allowed: T[], fallback: T) => {
   const value = readStoredText(key, '');
   return allowed.includes(value as T) ? (value as T) : fallback;
+};
+
+const readOrganizerTab = (): OrganizerTab => {
+  const value = readStoredText(APP_STATE_STORAGE.organizerTab, '');
+  if (value === 'analytics') return 'orders';
+  return readStoredOption(APP_STATE_STORAGE.organizerTab, ORGANIZER_TABS, 'dashboard');
 };
 
 const readStoredJson = <T,>(key: string): T | null => {
@@ -243,7 +248,7 @@ function AppContent() {
   const [profileTab, setProfileTab] = useState<ProfileTab>(() => readStoredOption(APP_STATE_STORAGE.profileTab, PROFILE_TABS, 'my-tickets'));
   
   // Organizer State
-  const [organizerTab, setOrganizerTab] = useState<OrganizerTab>(() => readStoredOption(APP_STATE_STORAGE.organizerTab, ORGANIZER_TABS, 'dashboard'));
+  const [organizerTab, setOrganizerTab] = useState<OrganizerTab>(() => readOrganizerTab());
   const [organizerEvents, setOrganizerEvents] = useState<any[]>([]);
   const [organizerOrders, setOrganizerOrders] = useState<any[]>([]);
   const [organizerAnalytics, setOrganizerAnalytics] = useState<any>(null);
@@ -1070,13 +1075,6 @@ function AppContent() {
     window.scrollTo(0, 0);
   };
 
-  const handleOrganizerAnalytics = () => {
-    if (isValidator) return;
-    setCurrentView('organizer-dashboard');
-    setOrganizerTab('analytics');
-    window.scrollTo(0, 0);
-  };
-
   const handleValidatorEvents = () => {
     setCurrentView('validator-dashboard');
     setValidatorTab('events');
@@ -1256,7 +1254,6 @@ function AppContent() {
           onOrganizerDashboard={isOrganizer ? handleOrganizerDashboard : undefined}
           onOrganizerEvents={isOrganizer ? handleOrganizerEvents : undefined}
           onOrganizerOrders={isOrganizer ? handleOrganizerOrders : undefined}
-          onOrganizerAnalytics={isOrganizer ? handleOrganizerAnalytics : undefined}
           onValidatorEvents={isValidator ? handleValidatorEvents : undefined}
           onValidatorScan={isValidator ? handleValidatorScan : undefined}
           onAdminPanel={isAdmin ? handleOpenAdminPanel : undefined}
@@ -1293,7 +1290,6 @@ function AppContent() {
           onOrganizerDashboard={isOrganizer ? handleOrganizerDashboard : undefined}
           onOrganizerEvents={isOrganizer ? handleOrganizerEvents : undefined}
           onOrganizerOrders={isOrganizer ? handleOrganizerOrders : undefined}
-          onOrganizerAnalytics={isOrganizer ? handleOrganizerAnalytics : undefined}
           onValidatorEvents={isValidator ? handleValidatorEvents : undefined}
           onValidatorScan={isValidator ? handleValidatorScan : undefined}
           onAdminPanel={isAdmin ? handleOpenAdminPanel : undefined}
@@ -1618,8 +1614,7 @@ function AppContent() {
                 onUnassignValidator={handleUnassignOrganizerValidator}
               />
             )}
-            {organizerTab === 'orders' && <OrganizerOrders orders={organizerOrders} />}
-            {organizerTab === 'analytics' && <OrganizerAnalytics analytics={organizerAnalytics} />}
+            {organizerTab === 'orders' && <OrganizerOrders orders={organizerOrders} analytics={organizerAnalytics} />}
           </OrganizerLayout>
         ) : currentView === 'validator-dashboard' ? (
           <ValidatorLayout activeTab={validatorTab} onNavigate={setValidatorTab}>
