@@ -3291,7 +3291,7 @@ html.dark .role-view.organizer-portal .organizer-primary-button {
 .role-view.organizer-portal .organizer-create-event form > div.rounded-2xl,
 .role-view.organizer-portal .organizer-create-event form > div[class*="rounded-2xl"] {
   border: 1px solid var(--organizer-border) !important;
-  border-radius: 1.05rem !important;
+  border-radius: 0 !important;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent),
     var(--organizer-surface) !important;
@@ -3302,7 +3302,7 @@ html.dark .role-view.organizer-portal .organizer-primary-button {
 .role-view.organizer-portal .organizer-create-event textarea,
 .role-view.organizer-portal .organizer-create-event select {
   border-color: var(--organizer-border) !important;
-  border-radius: 0.85rem !important;
+  border-radius: 0 !important;
   background: rgba(255, 255, 255, 0.055) !important;
   color: var(--organizer-text) !important;
 }
@@ -3313,7 +3313,7 @@ html.dark .role-view.organizer-portal .organizer-primary-button {
 }
 
 .role-view.organizer-portal .organizer-create-event button {
-  border-radius: 0.85rem !important;
+  border-radius: 0 !important;
 }
 
 .role-view.organizer-portal .organizer-create-event button[class*="bg-gray"],
@@ -3368,7 +3368,7 @@ html.dark .role-view.organizer-portal .organizer-primary-button {
   .role-view.organizer-portal .organizer-create-event form > div[class*="rounded-2xl"],
   .role-view.organizer-portal .organizer-create-event .rounded-2xl[class*="border"] {
     border: 1px solid var(--organizer-border) !important;
-    border-radius: 1.05rem !important;
+    border-radius: 0 !important;
     background:
       linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent),
       var(--organizer-surface) !important;
@@ -3379,7 +3379,7 @@ html.dark .role-view.organizer-portal .organizer-primary-button {
   .role-view.organizer-portal .organizer-create-event textarea,
   .role-view.organizer-portal .organizer-create-event select {
     border-color: var(--organizer-border) !important;
-    border-radius: 0.85rem !important;
+    border-radius: 0 !important;
     background: rgba(255, 255, 255, 0.055) !important;
     color: var(--organizer-text) !important;
     box-shadow: none !important;
@@ -3400,7 +3400,7 @@ html.dark .role-view.organizer-portal .organizer-primary-button {
   .role-view.organizer-portal .organizer-create-event button,
   .role-view.organizer-portal .organizer-create-event label[class*="rounded"],
   .role-view.organizer-portal .organizer-create-event [class*="rounded-xl"] {
-    border-radius: 0.85rem !important;
+    border-radius: 0 !important;
   }
 
   .role-view.organizer-portal .organizer-create-event button[class*="bg-gray"],

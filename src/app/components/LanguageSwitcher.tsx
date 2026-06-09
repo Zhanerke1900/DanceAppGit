@@ -58,7 +58,7 @@ export const LanguageSwitcher: React.FC<{ mobile?: boolean; onSelect?: () => voi
         <DropdownMenu.Content
           align="end"
           sideOffset={8}
-          className="min-w-[160px] rounded-xl border border-border bg-popover p-2 shadow-[0_20px_40px_rgba(35,31,54,0.14)]"
+          className="z-[100] min-w-[160px] rounded-xl border border-border bg-popover p-2 shadow-[0_20px_40px_rgba(35,31,54,0.14)]"
         >
           {languages.map(([value, label]) => (
             <DropdownMenu.Item
