@@ -5184,3 +5184,15 @@ html body .role-view.organizer-portal :is(
 ) {
   border-radius: 0 !important;
 }
+
+/* Keep every create/edit event surface and its portalled pickers square. */
+html body .organizer-create-event,
+html body .organizer-create-event *,
+html body .organizer-create-event *::before,
+html body .organizer-create-event *::after,
+html body .role-dialog,
+html body .role-dialog *,
+html body .role-dialog *::before,
+html body .role-dialog *::after {
+  border-radius: 0 !important;
+}
