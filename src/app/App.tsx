@@ -112,13 +112,29 @@ const readStoredJson = <T,>(key: string): T | null => {
   }
 };
 
+const serializeStoredJson = (value: any) =>
+  JSON.stringify(value, (_key, nestedValue) =>
+    typeof nestedValue === 'string' && nestedValue.startsWith('data:image/')
+      ? ''
+      : nestedValue
+  );
+
 const writeStoredJson = (key: string, value: any) => {
   if (typeof window === 'undefined') return;
-  if (value === null || value === undefined) {
-    window.localStorage.removeItem(key);
-    return;
+  try {
+    if (value === null || value === undefined) {
+      window.localStorage.removeItem(key);
+      return;
+    }
+    window.localStorage.setItem(key, serializeStoredJson(value));
+  } catch (error) {
+    console.warn(`Unable to persist ${key} in localStorage`, error);
+    try {
+      window.localStorage.removeItem(key);
+    } catch {
+      // Storage may be unavailable entirely.
+    }
   }
-  window.localStorage.setItem(key, JSON.stringify(value));
 };
 
 const getInitialView = (): ViewState => {
@@ -485,7 +501,7 @@ function AppContent() {
 
   useEffect(() => {
     if (!userStorageKey) return;
-    window.localStorage.setItem(`danceapp:favorites:${userStorageKey}`, JSON.stringify(favorites));
+    writeStoredJson(`danceapp:favorites:${userStorageKey}`, favorites);
   }, [favorites, userStorageKey]);
 
   useEffect(() => {
@@ -937,7 +953,6 @@ function AppContent() {
   const handlePurchaseGateClose = () => {
     setIsPurchaseGateOpen(false);
     setPurchaseDetails(null);
-    // Don't clear pendingEvent so user stays on the event page
   };
 
   const handleLogout = () => {

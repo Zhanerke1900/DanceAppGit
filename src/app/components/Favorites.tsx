@@ -2,6 +2,7 @@ import React from 'react';
 import { Heart, Calendar, MapPin, Trash2 } from 'lucide-react';
 import { useI18n } from '../i18n';
 import { localizeEventForDisplay } from '../utils/localization';
+import { ImageWithFallback } from './figma/ImageWithFallback';
 
 type FavoriteItem = {
   id: string;
@@ -71,7 +72,7 @@ export const Favorites: React.FC<FavoritesProps> = ({ favorites, onRemoveFavorit
             <div className="flex flex-col md:flex-row">
               {/* Image */}
               <div className="relative w-full md:w-64 h-48 md:h-auto overflow-hidden">
-                <img
+                <ImageWithFallback
                   src={event.image}
                   alt={displayEvent.title}
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
