@@ -4787,6 +4787,256 @@ html:not(.dark) body .ticket-mobile-checkout button:disabled {
   opacity: 1 !important;
 }
 
+@media (max-width: 767px) {
+  .ticket-selection-page {
+    padding-bottom: 9rem !important;
+  }
+
+  .ticket-event-header {
+    align-items: flex-start;
+    gap: 0.85rem !important;
+  }
+
+  .ticket-event-poster {
+    width: 5.75rem !important;
+    height: 5.75rem !important;
+  }
+
+  .ticket-event-title {
+    overflow-wrap: anywhere;
+  }
+
+  .ticket-activity-card {
+    padding: 1rem !important;
+    border-radius: 1rem !important;
+  }
+
+  .ticket-activity-layout {
+    gap: 1rem !important;
+  }
+
+  .ticket-activity-meta {
+    gap: 0.5rem !important;
+    margin-bottom: 0.8rem !important;
+  }
+
+  .ticket-activity-title {
+    margin-bottom: 0.7rem !important;
+    overflow-wrap: anywhere;
+  }
+
+  .ticket-activity-description {
+    display: -webkit-box;
+    overflow: hidden;
+    margin-bottom: 0.9rem !important;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  .ticket-activity-organizer {
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.65rem !important;
+    padding-top: 0.9rem !important;
+  }
+
+  .ticket-activity-avatar {
+    grid-row: span 1;
+  }
+
+  .ticket-activity-divider {
+    display: none;
+  }
+
+  .ticket-activity-location {
+    grid-column: 1 / -1;
+    width: 100%;
+    padding-top: 0.65rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .ticket-activity-purchase {
+    display: grid !important;
+    grid-template-columns: minmax(6.5rem, auto) minmax(0, 1fr);
+    width: 100%;
+    gap: 0.75rem !important;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .ticket-activity-price {
+    font-size: 1.2rem !important;
+    line-height: 1.1 !important;
+  }
+
+  .ticket-activity-action {
+    width: 100% !important;
+    min-height: 2.75rem;
+    justify-content: center;
+  }
+
+  .ticket-full-pass-card {
+    align-items: flex-start !important;
+    padding: 1rem !important;
+  }
+
+  .ticket-full-pass-card > :nth-child(2) {
+    min-width: 0;
+  }
+
+  .ticket-regular-header {
+    align-items: flex-start;
+    gap: 0.85rem !important;
+  }
+
+  .ticket-regular-poster {
+    width: 5.75rem !important;
+    height: 5.75rem !important;
+  }
+
+  .ticket-regular-title {
+    overflow-wrap: anywhere;
+  }
+
+  .ticket-option-card {
+    gap: 1rem;
+    padding: 1rem !important;
+  }
+
+  .ticket-option-copy {
+    min-width: 0;
+    margin-bottom: 0 !important;
+  }
+
+  .ticket-option-description,
+  .ticket-option-mobile-price {
+    margin-left: 0 !important;
+  }
+
+  .ticket-option-action {
+    width: 100%;
+    gap: 0.75rem !important;
+    padding-top: 0.9rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .ticket-option-action > button,
+  .ticket-option-action > div {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ticket-program-row {
+    gap: 0.85rem !important;
+  }
+
+  .ticket-program-time {
+    width: 3.25rem !important;
+    height: 3.25rem !important;
+    padding: 0.35rem;
+    text-align: center;
+  }
+
+  .ticket-program-end:empty {
+    display: none;
+  }
+
+  .ticket-mobile-checkout {
+    padding: 0.75rem !important;
+  }
+
+  .ticket-mobile-checkout-layout {
+    gap: 0.65rem !important;
+  }
+
+  .ticket-mobile-total {
+    min-width: 4.3rem;
+  }
+
+  .ticket-mobile-actions button {
+    min-width: 0;
+    min-height: 3rem;
+    padding: 0.65rem 0.45rem !important;
+    font-size: 0.72rem !important;
+    line-height: 1.15 !important;
+  }
+
+  .event-catalog-grid {
+    align-items: stretch;
+  }
+
+  .event-catalog-card {
+    width: 100%;
+  }
+
+  .event-catalog-content {
+    padding-top: 0.7rem !important;
+  }
+
+  .event-catalog-title {
+    min-height: 2.35rem !important;
+    overflow-wrap: anywhere;
+  }
+
+  .event-catalog-meta {
+    margin-top: 0.65rem !important;
+  }
+
+  .event-catalog-footer {
+    margin-top: auto !important;
+    padding-top: 0.7rem;
+  }
+}
+
+@media (max-width: 390px) {
+  .event-catalog-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 1.4rem !important;
+  }
+
+  .event-catalog-poster {
+    aspect-ratio: 16 / 10;
+  }
+
+  .event-catalog-title {
+    min-height: auto !important;
+    font-size: 1.05rem !important;
+  }
+
+  .ticket-event-header {
+    display: grid !important;
+    grid-template-columns: 1fr;
+  }
+
+  .ticket-event-poster {
+    width: 100% !important;
+    height: 10rem !important;
+  }
+
+  .ticket-regular-header {
+    display: grid !important;
+    grid-template-columns: 1fr;
+  }
+
+  .ticket-regular-poster {
+    width: 100% !important;
+    height: 10rem !important;
+  }
+
+  .ticket-activity-purchase {
+    grid-template-columns: 1fr;
+  }
+
+  .ticket-mobile-checkout-layout {
+    display: grid !important;
+    grid-template-columns: 1fr;
+  }
+
+  .ticket-mobile-total {
+    display: none !important;
+  }
+}
+
 /* Purple/pink actions use one solid purple instead of gradients. */
 html body :is(
   [class*="bg-gradient"][class*="from-purple"][class*="to-purple"],

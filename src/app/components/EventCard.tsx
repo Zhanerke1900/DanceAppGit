@@ -80,9 +80,9 @@ export const EventCard = ({
       aria-label={actionLabel}
       onClick={onBuyTicket}
       onKeyDown={handleKeyDown}
-      className="group flex h-full cursor-pointer flex-col bg-transparent outline-none"
+      className="event-catalog-card group flex h-full min-w-0 cursor-pointer flex-col bg-transparent outline-none"
     >
-      <div className="relative aspect-[4/5] overflow-hidden rounded-xl bg-gray-200 shadow-[0_10px_24px_rgba(61,41,110,0.14)] transition-transform duration-300 group-hover:-translate-y-0.5 group-focus-visible:ring-2 group-focus-visible:ring-purple-500 dark:bg-gray-900">
+      <div className="event-catalog-poster relative aspect-[4/5] overflow-hidden rounded-xl bg-gray-200 shadow-[0_10px_24px_rgba(61,41,110,0.14)] transition-transform duration-300 group-hover:-translate-y-0.5 group-focus-visible:ring-2 group-focus-visible:ring-purple-500 dark:bg-gray-900">
         <img
           src={imageSrc}
           alt={displayTitle}
@@ -107,11 +107,11 @@ export const EventCard = ({
           <Heart className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
         </button>
       </div>
-      <div className="flex flex-1 flex-col pt-3">
-        <h3 className="line-clamp-2 min-h-[2.55rem] text-[15px] font-extrabold leading-[1.18] text-foreground transition-colors group-hover:text-purple-700 sm:min-h-[3.35rem] sm:text-[20px] dark:text-white dark:group-hover:text-purple-300">
+      <div className="event-catalog-content flex flex-1 flex-col pt-3">
+        <h3 className="event-catalog-title line-clamp-2 min-h-[2.55rem] text-[15px] font-extrabold leading-[1.18] text-foreground transition-colors group-hover:text-purple-700 sm:min-h-[3.35rem] sm:text-[20px] dark:text-white dark:group-hover:text-purple-300">
           {displayTitle}
         </h3>
-        <div className="mt-3 space-y-2 text-muted-foreground">
+        <div className="event-catalog-meta mt-3 space-y-2 text-muted-foreground">
           <div className="flex items-center gap-2 text-[12px] leading-tight sm:text-[17px]">
             <Calendar className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
             <span className="truncate">{date}</span>
@@ -121,7 +121,7 @@ export const EventCard = ({
             <span className="truncate">{location}</span>
           </div>
         </div>
-        <div className="mt-3 flex flex-col items-start gap-1.5">
+        <div className="event-catalog-footer mt-3 flex flex-col items-start gap-1.5">
           <span className="max-w-full truncate rounded-lg bg-gray-100 px-2.5 py-1.5 text-[11px] font-extrabold leading-none text-gray-900 sm:text-[15px] dark:bg-white/10 dark:text-white">
             {priceLabel}
           </span>
