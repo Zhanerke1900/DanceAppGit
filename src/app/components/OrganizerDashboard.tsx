@@ -7,7 +7,6 @@ import {
   Clock3,
   FileText,
   Plus,
-  Sparkles,
 } from 'lucide-react';
 import { useI18n } from '../i18n';
 
@@ -62,12 +61,6 @@ export const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
 
   const copy = {
     title: tr('Organizer Dashboard', 'Панель организатора', 'Ұйымдастырушы панелі'),
-    eyebrow: tr('Control center', 'Центр управления', 'Басқару орталығы'),
-    subtitle: tr(
-      'A clear overview of what is live, what needs review, and where to continue work.',
-      'Короткий обзор: что опубликовано, что ждёт проверки и где продолжить работу.',
-      'Не жарияланғанын, не тексеруде екенін және қай жерде жалғастыру керегін көрсетеді.'
-    ),
     createEvent: tr('Create Event', 'Создать событие', 'Іс-шара құру'),
     accessDisabled: tr(
       'Organizer access is deactivated. Creating new events and sending new requests for moderation are disabled.',
@@ -184,12 +177,7 @@ export const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
     <div className="organizer-dashboard">
       <section className="organizer-hero">
         <div>
-          <div className="organizer-eyebrow">
-            <Sparkles aria-hidden="true" />
-            <span>{copy.eyebrow}</span>
-          </div>
           <h1>{copy.title}</h1>
-          <p>{copy.subtitle}</p>
         </div>
         <button
           type="button"
